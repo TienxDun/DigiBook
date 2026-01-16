@@ -330,54 +330,54 @@ const App: React.FC = () => {
               <Route path="/" element={
                 <div className="space-y-0">
                   {/* Hero Section */}
-                  <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-white">
+                  <section className="relative min-h-[70vh] flex items-center overflow-hidden bg-white">
                     <div className="absolute top-0 right-0 w-1/2 h-full bg-slate-50 -skew-x-12 translate-x-32 hidden lg:block"></div>
                     <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-slate-50/50 to-transparent lg:hidden"></div>
                     
-                    <div className="container mx-auto px-6 relative z-10 flex flex-col lg:flex-row items-center gap-16 py-20">
+                    <div className="w-[92%] xl:w-[60%] mx-auto px-4 relative z-10 flex flex-col lg:flex-row items-center gap-10 py-12">
                       <div className="flex-1 text-center lg:text-left">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 rounded-full text-indigo-600 text-[10px] font-black uppercase tracking-[0.2em] mb-8 animate-bounce">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 rounded-full text-indigo-600 text-[9px] font-black uppercase tracking-[0.2em] mb-6">
                           <i className="fa-solid fa-sparkles"></i> New Generation Bookstore
                         </div>
-                        <h1 className="text-5xl lg:text-8xl font-black text-slate-900 leading-[0.95] mb-8 tracking-tighter">
+                        <h1 className="text-4xl lg:text-6xl font-black text-slate-900 leading-[1.1] mb-6 tracking-tighter">
                           Khai phá <br />
                           <span className="text-indigo-600">Tiềm năng</span> <br />
                           qua từng trang sách.
                         </h1>
-                        <p className="text-slate-500 text-lg lg:text-xl max-w-xl mb-12 leading-relaxed font-medium">
+                        <p className="text-slate-500 text-base lg:text-lg max-w-lg mb-10 leading-relaxed font-medium">
                           DigiBook mang đến trải nghiệm đọc sách hiện đại, nơi tri thức và công nghệ hội tụ để thắp sáng tư duy của bạn.
                         </p>
-                        <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6">
-                          <Link to="/category/Tất cả sách" className="px-10 py-5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-2xl shadow-slate-900/20 active:scale-95">
+                        <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
+                          <Link to="/category/Tất cả sách" className="px-8 py-4 bg-slate-900 text-white rounded-xl font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-xl shadow-slate-900/10 active:scale-95 text-xs">
                             Khám phá ngay
                           </Link>
-                          <div className="flex items-center gap-4">
-                            <div className="flex -space-x-4">
+                          <div className="flex items-center gap-3">
+                            <div className="flex -space-x-3">
                               {[1,2,3].map(i => (
-                                <img key={i} src={`https://i.pravatar.cc/100?u=${i}`} className="w-12 h-12 rounded-full border-4 border-white shadow-sm" alt="" />
+                                <img key={i} src={`https://i.pravatar.cc/100?u=${i}`} className="w-10 h-10 rounded-full border-4 border-white shadow-sm" alt="" />
                               ))}
                             </div>
                             <div className="text-left">
-                              <p className="text-sm font-black text-slate-900 leading-none">5,000+ Độc giả</p>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Đã tin dùng</p>
+                              <p className="text-xs font-black text-slate-900 leading-none">5,000+ Độc giả</p>
+                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Đã tin dùng</p>
                             </div>
                           </div>
                         </div>
                       </div>
                       
-                      <div className="flex-1 relative group w-full max-w-2xl">
-                         <div className="absolute -inset-10 bg-indigo-500/10 blur-[120px] rounded-full group-hover:bg-indigo-500/20 transition-all duration-700"></div>
-                         <div className="relative grid grid-cols-2 gap-6">
-                            <div className="space-y-6 pt-12">
-                               <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4.5] object-cover rounded-[2.5rem] shadow-2xl transition-transform duration-700 hover:-translate-y-4" alt="" />
-                               <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4.5] object-cover rounded-[2.5rem] shadow-2xl transition-transform duration-700 hover:-translate-y-4" alt="" />
+                      <div className="flex-1 relative group w-full max-w-xl">
+                         <div className="absolute -inset-10 bg-indigo-500/10 blur-[100px] rounded-full group-hover:bg-indigo-500/20 transition-all duration-700"></div>
+                         <div className="relative grid grid-cols-2 gap-4">
+                            <div className="space-y-4 pt-8">
+                               <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4.2] object-cover rounded-[1.5rem] shadow-2xl transition-transform duration-700 hover:-translate-y-2" alt="" />
+                               <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4.2] object-cover rounded-[1.5rem] shadow-2xl transition-transform duration-700 hover:-translate-y-2" alt="" />
                             </div>
-                            <div className="space-y-6">
-                               <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4.5] object-cover rounded-[2.5rem] shadow-2xl transition-transform duration-700 hover:-translate-y-4" alt="" />
-                               <div className="w-full aspect-[3/4.5] bg-indigo-600 rounded-[2.5rem] shadow-2xl flex flex-col items-center justify-center p-8 text-center text-white">
-                                  <i className="fa-solid fa-star-half-stroke text-4xl mb-4 text-amber-300"></i>
-                                  <p className="text-2xl font-black">4.9/5</p>
-                                  <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Đánh giá trung bình</p>
+                            <div className="space-y-4">
+                               <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4.2] object-cover rounded-[1.5rem] shadow-2xl transition-transform duration-700 hover:-translate-y-2" alt="" />
+                               <div className="w-full aspect-[3/4.2] bg-indigo-600 rounded-[1.5rem] shadow-2xl flex flex-col items-center justify-center p-6 text-center text-white">
+                                  <i className="fa-solid fa-star-half-stroke text-3xl mb-3 text-amber-300"></i>
+                                  <p className="text-xl font-black">4.9/5</p>
+                                  <p className="text-[9px] font-black uppercase tracking-widest opacity-60">Đánh giá trung bình</p>
                                </div>
                             </div>
                          </div>
@@ -386,59 +386,59 @@ const App: React.FC = () => {
                   </section>
 
                   {/* Intro Section */}
-                  <section className="py-24 bg-slate-50">
-                    <div className="container mx-auto px-6">
-                      <div className="grid lg:grid-cols-3 gap-12">
-                        <div className="bg-white p-12 rounded-[3.5rem] border border-white shadow-sm hover:shadow-xl transition-all group">
-                           <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 text-2xl mb-8 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                  <section className="py-16 bg-slate-50">
+                    <div className="w-[92%] xl:w-[60%] mx-auto px-4">
+                      <div className="grid lg:grid-cols-3 gap-6">
+                        <div className="bg-white p-8 rounded-[2.5rem] border border-white shadow-sm hover:shadow-xl transition-all group">
+                           <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 text-xl mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-all">
                               <i className="fa-solid fa-shield-heart"></i>
                            </div>
-                           <h3 className="text-2xl font-black text-slate-900 mb-4">Sách Bản Quyền</h3>
-                           <p className="text-slate-500 leading-relaxed font-medium">Cam kết 100% sách chính hãng từ các nhà xuất bản uy tín nhất Việt Nam và thế giới.</p>
+                           <h3 className="text-lg font-black text-slate-900 mb-3">Sách Bản Quyền</h3>
+                           <p className="text-slate-500 leading-relaxed font-medium text-xs">Cam kết 100% sách chính hãng từ các nhà xuất bản uy tín nhất Việt Nam và thế giới.</p>
                         </div>
-                        <div className="bg-white p-12 rounded-[3.5rem] border border-white shadow-sm hover:shadow-xl transition-all group lg:-translate-y-12">
-                           <div className="w-16 h-16 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-600 text-2xl mb-8 group-hover:bg-rose-600 group-hover:text-white transition-all">
+                        <div className="bg-white p-8 rounded-[2.5rem] border border-white shadow-sm hover:shadow-xl transition-all group lg:-translate-y-8">
+                           <div className="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600 text-xl mb-6 group-hover:bg-rose-600 group-hover:text-white transition-all">
                               <i className="fa-solid fa-truck-fast"></i>
                            </div>
-                           <h3 className="text-2xl font-black text-slate-900 mb-4">Giao Hàng Tốc Hành</h3>
-                           <p className="text-slate-500 leading-relaxed font-medium">Dịch vụ giao hàng 2h tại nội thành và đóng gói cẩn thận từng trang sách quý giá của bạn.</p>
+                           <h3 className="text-lg font-black text-slate-900 mb-3">Giao Hàng Tốc Hành</h3>
+                           <p className="text-slate-500 leading-relaxed font-medium text-xs">Dịch vụ giao hàng 2h tại nội thành và đóng gói cẩn thận từng trang sách quý giá của của bạn.</p>
                         </div>
-                        <div className="bg-white p-12 rounded-[3.5rem] border border-white shadow-sm hover:shadow-xl transition-all group">
-                           <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 text-2xl mb-8 group-hover:bg-amber-600 group-hover:text-white transition-all">
+                        <div className="bg-white p-8 rounded-[2.5rem] border border-white shadow-sm hover:shadow-xl transition-all group">
+                           <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 text-xl mb-6 group-hover:bg-amber-600 group-hover:text-white transition-all">
                               <i className="fa-solid fa-headset"></i>
                            </div>
-                           <h3 className="text-2xl font-black text-slate-900 mb-4">Hỗ Trợ 24/7</h3>
-                           <p className="text-slate-500 leading-relaxed font-medium">Đội ngũ chuyên gia luôn sẵn sàng tư vấn và giúp bạn tìm ra những cuốn sách phù hợp nhất.</p>
+                           <h3 className="text-lg font-black text-slate-900 mb-3">Hỗ Trợ 24/7</h3>
+                           <p className="text-slate-500 leading-relaxed font-medium text-xs">Đội ngũ chuyên gia luôn sẵn sàng tư vấn và giúp bạn tìm ra những cuốn sách phù hợp nhất.</p>
                         </div>
                       </div>
                     </div>
                   </section>
 
                   {/* Categories Grid */}
-                  <section className="py-24 bg-white">
-                    <div className="container mx-auto px-6">
-                      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+                  <section className="py-16 bg-white">
+                    <div className="w-[92%] xl:w-[60%] mx-auto px-4">
+                      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
                         <div>
-                          <p className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em] mb-4">Explore More</p>
-                          <h2 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">Bộ sưu tập tinh hoa</h2>
+                          <p className="text-[9px] font-black text-indigo-600 uppercase tracking-[0.3em] mb-2">Explore More</p>
+                          <h2 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">Bộ sưu tập tinh hoa</h2>
                         </div>
-                        <Link to="/category/Tất cả sách" className="text-sm font-black text-indigo-600 flex items-center gap-3 group">
-                          Xem tất cả danh mục <i className="fa-solid fa-arrow-right-long group-hover:translate-x-2 transition-transform"></i>
+                        <Link to="/category/Tất cả sách" className="text-xs font-black text-indigo-600 flex items-center gap-2 group">
+                          Xem tất cả <i className="fa-solid fa-arrow-right-long group-hover:translate-x-1.5 transition-transform"></i>
                         </Link>
                       </div>
-                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                         {CATEGORIES.map((cat, i) => (
                           <Link 
                             key={i} 
                             to={`/category/${cat.name}`}
-                            className="bg-slate-50 p-8 rounded-[2.5rem] flex flex-col items-center justify-center text-center gap-6 hover:bg-white hover:shadow-2xl hover:shadow-indigo-500/10 transition-all group border border-transparent hover:border-slate-100"
+                            className="bg-slate-50 p-6 rounded-[2rem] flex flex-col items-center justify-center text-center gap-3 hover:bg-white hover:shadow-2xl hover:shadow-indigo-500/5 transition-all group border border-transparent hover:border-slate-100"
                           >
-                            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-slate-400 group-hover:text-indigo-600 group-hover:scale-110 transition-all shadow-sm">
-                              <i className={`fa-solid ${cat.icon} text-xl`}></i>
+                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-400 group-hover:text-indigo-600 group-hover:scale-110 transition-all shadow-sm">
+                              <i className={`fa-solid ${cat.icon} text-base`}></i>
                             </div>
                             <div>
-                              <p className="font-black text-slate-900 text-sm mb-1">{cat.name}</p>
-                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Explore</p>
+                              <p className="font-black text-slate-900 text-[10px] mb-0.5">{cat.name}</p>
+                              <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest">Explore</p>
                             </div>
                           </Link>
                         ))}
@@ -447,23 +447,23 @@ const App: React.FC = () => {
                   </section>
 
                   {/* Books Section */}
-                  <section className="py-24 bg-slate-50">
-                    <div className="container mx-auto px-6">
-                      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+                  <section className="py-16 bg-slate-50">
+                    <div className="w-[92%] xl:w-[60%] mx-auto px-4">
+                      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
                         <div>
-                          <p className="text-[10px] font-black text-rose-500 uppercase tracking-[0.3em] mb-4">Curated For You</p>
-                          <h2 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">Tác phẩm đề cử</h2>
+                          <p className="text-[9px] font-black text-rose-500 uppercase tracking-[0.3em] mb-2">Curated For You</p>
+                          <h2 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">Tác phẩm đề cử</h2>
                         </div>
                         <div className="flex gap-2">
-                           <button className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-100 transition-all">
-                              <i className="fa-solid fa-chevron-left text-xs"></i>
+                           <button className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-100 transition-all">
+                              <i className="fa-solid fa-chevron-left text-[10px]"></i>
                            </button>
-                           <button className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-100 transition-all">
-                              <i className="fa-solid fa-chevron-right text-xs"></i>
+                           <button className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-100 transition-all">
+                              <i className="fa-solid fa-chevron-right text-[10px]"></i>
                            </button>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-6">
                         {processedBooks.slice(0, 8).map((book) => (
                           <BookCard key={book.id} book={book} onAddToCart={addToCart} />
                         ))}
@@ -472,22 +472,22 @@ const App: React.FC = () => {
                   </section>
 
                   {/* Promo Banner Section */}
-                  <section className="py-24 bg-white">
-                    <div className="container mx-auto px-6">
-                       <div className="bg-slate-900 rounded-[4rem] p-12 lg:p-20 relative overflow-hidden flex flex-col lg:flex-row items-center gap-16 shadow-2xl">
+                  <section className="py-16 bg-white">
+                    <div className="w-[92%] xl:w-[60%] mx-auto px-4">
+                       <div className="bg-slate-900 rounded-[3rem] p-10 lg:p-12 relative overflow-hidden flex flex-col lg:flex-row items-center gap-12 shadow-xl">
                           <div className="absolute top-0 right-0 w-1/2 h-full bg-indigo-600/10 blur-[100px]"></div>
                           <div className="relative z-10 flex-1 text-center lg:text-left">
-                             <h2 className="text-4xl lg:text-6xl font-black text-white mb-8 tracking-tighter leading-tight">
+                             <h2 className="text-3xl lg:text-4xl font-black text-white mb-6 tracking-tighter leading-tight">
                                 Trở thành thành viên <br />
                                 nhận ngay <span className="text-indigo-400">ưu đãi 50k</span>
                              </h2>
-                             <p className="text-slate-400 text-lg mb-10 max-w-lg">Sử dụng mã <strong>WELCOME5</strong> cho đơn hàng từ 200k. Chỉ áp dụng cho tài khoản mới đăng ký.</p>
-                             <button onClick={() => setShowLoginModal(true)} className="px-12 py-5 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-all active:scale-95">
+                             <p className="text-slate-400 text-sm mb-8 max-w-lg">Sử dụng mã <strong>WELCOME5</strong> cho đơn hàng từ 200k. Chỉ áp dụng cho tài khoản mới đăng ký.</p>
+                             <button onClick={() => setShowLoginModal(true)} className="px-10 py-4 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-all active:scale-95 text-xs">
                                 Đăng ký thành viên
                              </button>
                           </div>
                           <div className="flex-1 relative hidden lg:block">
-                             <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=800&auto=format&fit=crop" className="w-full rounded-[3rem] shadow-2xl rotate-3" alt="" />
+                             <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=800&auto=format&fit=crop" className="w-full rounded-[2rem] shadow-2xl rotate-2" alt="" />
                           </div>
                        </div>
                     </div>
