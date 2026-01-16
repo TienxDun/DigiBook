@@ -282,6 +282,19 @@ class DataService {
     );
   }
 
+  async updateOrderStatus(orderId: string, newStatus: string, newStatusStep: number): Promise<void> {
+    await this.wrap(
+      updateDoc(doc(db_fs, 'orders', orderId), { 
+        status: newStatus, 
+        statusStep: newStatusStep,
+        updatedAt: serverTimestamp()
+      }),
+      undefined,
+      'UPDATE_ORDER_STATUS',
+      `${orderId} -> ${newStatus} (step ${newStatusStep})`
+    );
+  }
+
   validateCoupon(code: string, subtotal: number) {
     const isValid = code === 'WELCOME5' && subtotal >= 200000;
     this.logActivity('COUPON_VAL', code, isValid ? 'SUCCESS' : 'ERROR');

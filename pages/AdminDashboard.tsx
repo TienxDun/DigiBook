@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { db, Order, SystemLog } from '../services/db';
+import { db, Order, OrderItem, SystemLog } from '../services/db';
 import { Book, CategoryInfo, Author } from '../types';
 
 const formatPrice = (price: number) => {
@@ -33,6 +33,32 @@ const AdminDashboard: React.FC = () => {
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [bookFormData, setBookFormData] = useState<Partial<Book>>({});
+
+  const [isAuthorModalOpen, setIsAuthorModalOpen] = useState(false);
+  const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);
+  const [authorFormData, setAuthorFormData] = useState<Partial<Author>>({});
+
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<CategoryInfo | null>(null);
+  const [categoryFormData, setCategoryFormData] = useState<Partial<CategoryInfo & {id?: string}>>({});
+
+  const availableIcons = [
+    'fa-book', 'fa-lightbulb', 'fa-graduation-cap', 'fa-heart', 'fa-palette', 
+    'fa-utensils', 'fa-laptop-code', 'fa-globe', 'fa-star', 'fa-rocket',
+    'fa-music', 'fa-camera', 'fa-gamepad', 'fa-baseball', 'fa-tree',
+    'fa-shopping-cart', 'fa-briefcase', 'fa-plane', 'fa-home', 'fa-users'
+  ];
+
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<(Order & { items: OrderItem[] }) | null>(null);
+  const [updatingOrderStatus, setUpdatingOrderStatus] = useState(false);
+
+  const orderStatusOptions = [
+    { step: 0, label: 'Đang xử lý', color: 'amber' },
+    { step: 1, label: 'Đã xác nhận', color: 'blue' },
+    { step: 2, label: 'Đang giao', color: 'indigo' },
+    { step: 3, label: 'Đã giao', color: 'emerald' }
+  ];
 
   const refreshData = async () => {
     try {
@@ -213,6 +239,137 @@ const AdminDashboard: React.FC = () => {
     } catch (error) {
       console.error('Error deleting book:', error);
       alert('Có lỗi xảy ra khi xóa sách');
+    }
+  };
+
+  const handleOpenAddAuthor = () => {
+    setEditingAuthor(null);
+    setAuthorFormData({
+      name: '',
+      bio: '',
+      avatar: ''
+    });
+    setIsAuthorModalOpen(true);
+  };
+
+  const handleSaveAuthor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const finalAuthor = {
+      ...authorFormData,
+      id: editingAuthor ? editingAuthor.id : Date.now().toString()
+    } as Author;
+    await db.saveAuthor(finalAuthor);
+    setIsAuthorModalOpen(false);
+    refreshData();
+  };
+
+  const handleEditAuthor = (author: Author) => {
+    setEditingAuthor(author);
+    setAuthorFormData({
+      name: author.name,
+      bio: author.bio,
+      avatar: author.avatar
+    });
+    setIsAuthorModalOpen(true);
+  };
+
+  const handleDeleteAuthor = async (author: Author) => {
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa tác giả "${author.name}"?`)) return;
+    try {
+      await db.deleteAuthor(author.id);
+      refreshData();
+    } catch (error) {
+      console.error('Error deleting author:', error);
+      alert('Có lỗi xảy ra khi xóa tác giả');
+    }
+  };
+
+  const handleOpenAddCategory = () => {
+    setEditingCategory(null);
+    setCategoryFormData({
+      name: '',
+      icon: 'fa-book',
+      description: ''
+    });
+    setIsCategoryModalOpen(true);
+  };
+
+  const handleSaveCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validation: Check for duplicate name when creating new
+    if (!editingCategory) {
+      const exists = categories.find(c => c.name.toLowerCase() === categoryFormData.name?.toLowerCase());
+      if (exists) {
+        alert('Danh mục với tên này đã tồn tại!');
+        return;
+      }
+    }
+    
+    const finalCategory = {
+      name: categoryFormData.name || '',
+      icon: categoryFormData.icon || 'fa-book',
+      description: categoryFormData.description || ''
+    } as CategoryInfo;
+    
+    await db.saveCategory(finalCategory);
+    setIsCategoryModalOpen(false);
+    refreshData();
+  };
+
+  const handleEditCategory = (category: CategoryInfo & {id?: string}) => {
+    setEditingCategory(category);
+    setCategoryFormData({
+      id: (category as any).id || category.name,
+      name: category.name,
+      icon: category.icon,
+      description: category.description
+    });
+    setIsCategoryModalOpen(true);
+  };
+
+  const handleDeleteCategory = async (category: CategoryInfo) => {
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa danh mục "${category.name}"?`)) return;
+    try {
+      await db.deleteCategory(category.name);
+      refreshData();
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      alert('Có lỗi xảy ra khi xóa danh mục');
+    }
+  };
+
+  const handleViewOrderDetails = async (order: Order) => {
+    try {
+      const orderWithItems = await db.getOrderWithItems(order.id);
+      if (orderWithItems) {
+        setSelectedOrder(orderWithItems);
+        setIsOrderModalOpen(true);
+      }
+    } catch (error) {
+      console.error('Error fetching order details:', error);
+      alert('Có lỗi xảy ra khi tải chi tiết đơn hàng');
+    }
+  };
+
+  const handleUpdateOrderStatus = async (newStatusStep: number) => {
+    if (!selectedOrder) return;
+    
+    const newStatusLabel = orderStatusOptions.find(opt => opt.step === newStatusStep)?.label || 'Đang xử lý';
+    
+    if (!window.confirm(`Cập nhật trạng thái đơn hàng thành "${newStatusLabel}"?`)) return;
+    
+    setUpdatingOrderStatus(true);
+    try {
+      await db.updateOrderStatus(selectedOrder.id, newStatusLabel, newStatusStep);
+      setSelectedOrder({ ...selectedOrder, status: newStatusLabel, statusStep: newStatusStep });
+      refreshData();
+      alert('Cập nhật trạng thái thành công!');
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      alert('Có lỗi xảy ra khi cập nhật trạng thái');
+    } finally {
+      setUpdatingOrderStatus(false);
     }
   };
 
@@ -539,39 +696,102 @@ const AdminDashboard: React.FC = () => {
 
         {activeTab === 'authors' && (
           <div className="space-y-6 animate-fadeIn">
-            <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
-              <h3 className="text-lg font-black text-slate-900 mb-6">Danh sách tác giả</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {authors.map(author => (
-                  <div key={author.id} className="p-4 border border-slate-100 rounded-xl hover:bg-slate-50 transition-all">
-                    <h4 className="font-bold text-slate-900">{author.name}</h4>
-                    <p className="text-sm text-slate-500">{author.bio || 'Chưa có tiểu sử'}</p>
-                  </div>
-                ))}
+            <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+              <div>
+                <h3 className="text-lg font-black text-slate-900">Quản lý tác giả</h3>
+                <p className="text-xs text-slate-500 mt-1">Tổng cộng {authors.length} tác giả</p>
               </div>
+              <button 
+                onClick={handleOpenAddAuthor}
+                className="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
+              >
+                <i className="fa-solid fa-plus mr-2"></i>Thêm tác giả mới
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {authors.map(author => (
+                <div key={author.id} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all group">
+                  <div className="flex gap-4">
+                    <img 
+                      src={author.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(author.name) + '&background=6366f1&color=fff'} 
+                      alt={author.name} 
+                      className="w-16 h-16 object-cover rounded-full"
+                      onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(author.name) + '&background=6366f1&color=fff'; }}
+                    />
+                    <div className="flex-1">
+                      <h4 className="font-bold text-slate-900 text-sm mb-1">{author.name}</h4>
+                      <p className="text-xs text-slate-500 line-clamp-2">{author.bio || 'Chưa có tiểu sử'}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-4">
+                    <button 
+                      onClick={() => handleEditAuthor(author)}
+                      className="flex-1 bg-slate-100 text-slate-600 py-2 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all"
+                    >
+                      <i className="fa-solid fa-edit mr-1"></i>Sửa
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteAuthor(author)}
+                      className="flex-1 bg-rose-100 text-rose-600 py-2 rounded-xl text-xs font-bold hover:bg-rose-200 transition-all"
+                    >
+                      <i className="fa-solid fa-trash mr-1"></i>Xóa
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
         {activeTab === 'categories' && (
           <div className="space-y-6 animate-fadeIn">
-            <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
-              <h3 className="text-lg font-black text-slate-900 mb-6">Danh sách danh mục</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {categories.map(category => (
-                  <div key={category.id} className="p-4 border border-slate-100 rounded-xl hover:bg-slate-50 transition-all">
-                    <h4 className="font-bold text-slate-900">{category.name}</h4>
-                    <p className="text-sm text-slate-500">{category.description || 'Chưa có mô tả'}</p>
-                  </div>
-                ))}
+            <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+              <div>
+                <h3 className="text-lg font-black text-slate-900">Quản lý danh mục</h3>
+                <p className="text-xs text-slate-500 mt-1">Tổng cộng {categories.length} danh mục</p>
               </div>
+              <button 
+                onClick={handleOpenAddCategory}
+                className="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
+              >
+                <i className="fa-solid fa-plus mr-2"></i>Thêm danh mục mới
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {categories.map(category => (
+                <div key={(category as any).id || category.name} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all group">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-600 text-2xl mb-4">
+                      <i className={`fa-solid ${category.icon}`}></i>
+                    </div>
+                    <h4 className="font-bold text-slate-900 text-sm mb-2">{category.name}</h4>
+                    <p className="text-xs text-slate-500 line-clamp-2 mb-4">{category.description || 'Chưa có mô tả'}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => handleEditCategory(category)}
+                      className="flex-1 bg-slate-100 text-slate-600 py-2 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all"
+                    >
+                      <i className="fa-solid fa-edit mr-1"></i>Sửa
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteCategory(category)}
+                      className="flex-1 bg-rose-100 text-rose-600 py-2 rounded-xl text-xs font-bold hover:bg-rose-200 transition-all"
+                    >
+                      <i className="fa-solid fa-trash mr-1"></i>Xóa
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
         {activeTab === 'orders' && (
           <div className="space-y-6 animate-fadeIn">
-            <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
               <table className="w-full text-left">
                 <thead className="bg-slate-50">
                   <tr>
@@ -580,30 +800,382 @@ const AdminDashboard: React.FC = () => {
                     <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tổng tiền</th>
                     <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Trạng thái</th>
                     <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ngày đặt</th>
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                  {orders.map(order => (
+                  {orders.length > 0 ? orders.map(order => (
                     <tr key={order.id} className="hover:bg-slate-50 transition-all">
                       <td className="px-8 py-5 text-sm font-bold text-slate-900">#{order.id.slice(-8)}</td>
                       <td className="px-8 py-5 text-sm text-slate-600">{order.customer?.name || 'N/A'}</td>
                       <td className="px-8 py-5 text-sm font-bold text-indigo-600">{formatPrice(order.payment.total)}</td>
                       <td className="px-8 py-5">
-                        <span className="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-600">
-                          {order.statusStep === 1 ? 'Đã đặt' : order.statusStep === 2 ? 'Đang xử lý' : 'Hoàn thành'}
-                        </span>
+                        <select
+                          value={order.statusStep}
+                          onChange={(e) => {
+                            const newStep = Number(e.target.value);
+                            const newStatusLabel = orderStatusOptions.find(opt => opt.step === newStep)?.label || 'Đang xử lý';
+                            if (window.confirm(`Cập nhật trạng thái đơn hàng thành "${newStatusLabel}"?`)) {
+                              db.updateOrderStatus(order.id, newStatusLabel, newStep).then(() => {
+                                refreshData();
+                              }).catch(err => {
+                                console.error('Error updating status:', err);
+                                alert('Có lỗi xảy ra khi cập nhật trạng thái');
+                              });
+                            } else {
+                              e.target.value = String(order.statusStep);
+                            }
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold border-none outline-none cursor-pointer transition-all ${
+                            order.statusStep === 3 ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' :
+                            order.statusStep === 2 ? 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100' :
+                            order.statusStep === 1 ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' :
+                            'bg-amber-50 text-amber-600 hover:bg-amber-100'
+                          }`}
+                        >
+                          {orderStatusOptions.map(status => (
+                            <option key={status.step} value={status.step}>
+                              {status.label}
+                            </option>
+                          ))}
+                        </select>
                       </td>
                       <td className="px-8 py-5 text-sm text-slate-500">
-                        {order.createdAt?.toDate().toLocaleDateString('vi-VN')}
+                        {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString('vi-VN') : order.date}
+                      </td>
+                      <td className="px-8 py-5 text-center">
+                        <button
+                          onClick={() => handleViewOrderDetails(order)}
+                          className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-bold hover:bg-indigo-100 transition-all"
+                        >
+                          <i className="fa-solid fa-eye mr-1"></i>Chi tiết
+                        </button>
                       </td>
                     </tr>
-                  ))}
+                  )) : (
+                    <tr>
+                      <td colSpan={6} className="px-8 py-20 text-center">
+                        <div className="opacity-20 mb-4">
+                          <i className="fa-solid fa-receipt text-5xl"></i>
+                        </div>
+                        <p className="text-xs font-black text-slate-300 uppercase tracking-[0.2em]">Chưa có đơn hàng nào</p>
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
           </div>
         )}
       </main>
+
+      {/* Order Details Modal */}
+      {isOrderModalOpen && selectedOrder && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[300] p-4 overflow-y-auto">
+          <div className="bg-white rounded-[2rem] w-full max-w-4xl max-h-[90vh] overflow-y-auto my-8">
+            <div className="p-8 border-b border-slate-100 sticky top-0 bg-white z-10">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-black text-slate-900">Chi tiết đơn hàng</h2>
+                  <p className="text-sm text-slate-500 mt-1">Mã: #{selectedOrder.id.slice(-8)}</p>
+                </div>
+                <button
+                  onClick={() => setIsOrderModalOpen(false)}
+                  className="w-10 h-10 bg-slate-100 rounded-xl hover:bg-slate-200 transition-all"
+                >
+                  <i className="fa-solid fa-times"></i>
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-8 space-y-6">
+              {/* Progress Indicator */}
+              <div className="bg-slate-50 p-6 rounded-2xl">
+                <h3 className="text-sm font-black text-slate-700 mb-4">Trạng thái đơn hàng</h3>
+                <div className="flex items-center justify-between mb-4">
+                  {orderStatusOptions.map((status, index) => (
+                    <React.Fragment key={status.step}>
+                      <div className="flex flex-col items-center">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm transition-all ${
+                          selectedOrder.statusStep >= status.step
+                            ? `bg-${status.color}-500 text-white`
+                            : 'bg-slate-200 text-slate-400'
+                        }`}>
+                          {selectedOrder.statusStep > status.step ? <i className="fa-solid fa-check"></i> : status.step + 1}
+                        </div>
+                        <p className={`text-xs font-bold mt-2 ${
+                          selectedOrder.statusStep >= status.step ? 'text-slate-900' : 'text-slate-400'
+                        }`}>
+                          {status.label}
+                        </p>
+                      </div>
+                      {index < orderStatusOptions.length - 1 && (
+                        <div className={`flex-1 h-1 mx-2 rounded ${
+                          selectedOrder.statusStep > status.step ? `bg-${status.color}-500` : 'bg-slate-200'
+                        }`}></div>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </div>
+                
+                {/* Status Update Buttons */}
+                <div className="flex gap-2 pt-4 border-t border-slate-200">
+                  <span className="text-xs font-bold text-slate-500 mr-2">Cập nhật:</span>
+                  {orderStatusOptions.map(status => (
+                    <button
+                      key={status.step}
+                      onClick={() => handleUpdateOrderStatus(status.step)}
+                      disabled={updatingOrderStatus || selectedOrder.statusStep === status.step}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                        selectedOrder.statusStep === status.step
+                          ? `bg-${status.color}-500 text-white cursor-default`
+                          : `bg-slate-100 text-slate-600 hover:bg-${status.color}-50 hover:text-${status.color}-600 disabled:opacity-50`
+                      }`}
+                    >
+                      {status.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Customer Info */}
+              <div className="bg-white border border-slate-100 rounded-2xl p-6">
+                <h3 className="text-sm font-black text-slate-700 mb-4">Thông tin khách hàng</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-slate-500 mb-1">Họ tên</p>
+                    <p className="text-sm font-bold text-slate-900">{selectedOrder.customer?.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500 mb-1">Số điện thoại</p>
+                    <p className="text-sm font-bold text-slate-900">{selectedOrder.customer?.phone}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-xs text-slate-500 mb-1">Email</p>
+                    <p className="text-sm font-bold text-slate-900">{selectedOrder.customer?.email}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-xs text-slate-500 mb-1">Địa chỉ giao hàng</p>
+                    <p className="text-sm font-bold text-slate-900">{selectedOrder.customer?.address}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Order Items */}
+              <div className="bg-white border border-slate-100 rounded-2xl p-6">
+                <h3 className="text-sm font-black text-slate-700 mb-4">Sản phẩm ({selectedOrder.items?.length || 0})</h3>
+                <div className="space-y-3">
+                  {selectedOrder.items?.map((item, index) => (
+                    <div key={index} className="flex gap-4 items-center p-3 bg-slate-50 rounded-xl">
+                      <img src={item.cover} alt={item.title} className="w-12 h-16 object-cover rounded-lg" />
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-slate-900">{item.title}</p>
+                        <p className="text-xs text-slate-500">Số lượng: {item.quantity}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-indigo-600">{formatPrice(item.priceAtPurchase)}</p>
+                        <p className="text-xs text-slate-500">× {item.quantity}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Payment Summary */}
+              <div className="bg-white border border-slate-100 rounded-2xl p-6">
+                <h3 className="text-sm font-black text-slate-700 mb-4">Thanh toán</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-600">Phương thức:</span>
+                    <span className="font-bold text-slate-900">{selectedOrder.payment?.method || 'COD'}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-600">Tạm tính:</span>
+                    <span className="font-bold text-slate-900">{formatPrice(selectedOrder.payment?.subtotal || 0)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-600">Phí vận chuyển:</span>
+                    <span className="font-bold text-slate-900">{formatPrice(selectedOrder.payment?.shipping || 0)}</span>
+                  </div>
+                  {selectedOrder.payment?.couponDiscount > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-600">Giảm giá:</span>
+                      <span className="font-bold text-emerald-600">-{formatPrice(selectedOrder.payment.couponDiscount)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-lg pt-3 border-t border-slate-200">
+                    <span className="font-black text-slate-900">Tổng cộng:</span>
+                    <span className="font-black text-indigo-600">{formatPrice(selectedOrder.payment?.total || 0)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Close Button */}
+              <button
+                onClick={() => setIsOrderModalOpen(false)}
+                className="w-full bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition-all"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Category Modal */}
+      {isCategoryModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[300] p-4">
+          <div className="bg-white rounded-[2rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-8 border-b border-slate-100">
+              <h2 className="text-xl font-black text-slate-900">
+                {editingCategory ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới'}
+              </h2>
+            </div>
+            
+            <form onSubmit={handleSaveCategory} className="p-8 space-y-6">
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">
+                  Tên danh mục *
+                  {editingCategory && <span className="text-xs text-amber-600 ml-2">(không thể sửa sau khi tạo)</span>}
+                </label>
+                <input
+                  type="text"
+                  required
+                  disabled={!!editingCategory}
+                  value={categoryFormData.name || ''}
+                  onChange={(e) => setCategoryFormData({...categoryFormData, name: e.target.value})}
+                  className={`w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
+                    editingCategory ? 'bg-slate-100 cursor-not-allowed' : ''
+                  }`}
+                  placeholder="Nhập tên danh mục"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-3">Icon *</label>
+                <div className="grid grid-cols-5 gap-3">
+                  {availableIcons.map(icon => (
+                    <button
+                      key={icon}
+                      type="button"
+                      onClick={() => setCategoryFormData({...categoryFormData, icon})}
+                      className={`p-4 rounded-xl border-2 transition-all hover:scale-110 ${
+                        categoryFormData.icon === icon
+                          ? 'border-indigo-600 bg-indigo-50 text-indigo-600'
+                          : 'border-slate-200 text-slate-400 hover:border-indigo-300'
+                      }`}
+                    >
+                      <i className={`fa-solid ${icon} text-2xl`}></i>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Mô tả</label>
+                <textarea
+                  value={categoryFormData.description || ''}
+                  onChange={(e) => setCategoryFormData({...categoryFormData, description: e.target.value})}
+                  rows={3}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+                  placeholder="Mô tả về danh mục..."
+                />
+              </div>
+              
+              <div className="flex gap-4 pt-6 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsCategoryModalOpen(false)}
+                  className="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition-all"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all"
+                >
+                  {editingCategory ? 'Cập nhật' : 'Thêm danh mục'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Author Modal */}
+      {isAuthorModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[300] p-4">
+          <div className="bg-white rounded-[2rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-8 border-b border-slate-100">
+              <h2 className="text-xl font-black text-slate-900">
+                {editingAuthor ? 'Chỉnh sửa tác giả' : 'Thêm tác giả mới'}
+              </h2>
+            </div>
+            
+            <form onSubmit={handleSaveAuthor} className="p-8 space-y-6">
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Tên tác giả *</label>
+                <input
+                  type="text"
+                  required
+                  value={authorFormData.name || ''}
+                  onChange={(e) => setAuthorFormData({...authorFormData, name: e.target.value})}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Nhập tên tác giả"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Tiểu sử</label>
+                <textarea
+                  value={authorFormData.bio || ''}
+                  onChange={(e) => setAuthorFormData({...authorFormData, bio: e.target.value})}
+                  rows={4}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+                  placeholder="Thông tin về tác giả..."
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Avatar URL</label>
+                <input
+                  type="url"
+                  value={authorFormData.avatar || ''}
+                  onChange={(e) => setAuthorFormData({...authorFormData, avatar: e.target.value})}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="https://example.com/avatar.jpg (để trống sẽ dùng avatar mặc định)"
+                />
+                {authorFormData.avatar && (
+                  <div className="mt-3">
+                    <img 
+                      src={authorFormData.avatar} 
+                      alt="Preview" 
+                      className="w-20 h-20 object-cover rounded-full border-2 border-slate-200"
+                      onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=Preview&background=6366f1&color=fff'; }}
+                    />
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex gap-4 pt-6 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsAuthorModalOpen(false)}
+                  className="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition-all"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all"
+                >
+                  {editingAuthor ? 'Cập nhật' : 'Thêm tác giả'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Book Modal */}
       {isBookModalOpen && (
