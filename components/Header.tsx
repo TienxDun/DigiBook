@@ -52,7 +52,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, onOpenCart, onSea
         
         {/* Left: Logo & Navigation */}
         <div className="flex items-center gap-12">
-          <Link to="/" className="flex items-center gap-3 group">
+          <Link to="/" className="flex items-center gap-3 group" onClick={() => window.location.reload()}>
             <div className={`transition-all duration-500 bg-slate-900 group-hover:bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-xl shadow-slate-900/10 ${scrolled ? 'w-9 h-9' : 'w-12 h-12'}`}>
               <i className={`fa-solid fa-book-bookmark ${scrolled ? 'text-sm' : 'text-lg'}`}></i>
             </div>
