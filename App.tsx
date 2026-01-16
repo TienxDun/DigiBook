@@ -212,48 +212,116 @@ const App: React.FC = () => {
           <Header cartCount={cart.reduce((s, i) => s + i.quantity, 0)} cartItems={cart} onOpenCart={() => setIsCartOpen(true)} onSearch={setSearchQuery} />
           
           {showLoginModal && (
-            <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md transition-all">
-              <div className="bg-white w-full max-w-md rounded-[3rem] p-10 shadow-2xl relative animate-fadeIn overflow-hidden border border-white/20">
-                <button onClick={() => setShowLoginModal(false)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-900"><i className="fa-solid fa-xmark text-xl"></i></button>
-                <div className="text-center mb-8">
-                  <h2 className="text-2xl font-black text-slate-900">{authMode === 'login' ? 'Đăng nhập' : 'Đăng ký'}</h2>
-                </div>
-                <div className="space-y-4">
-                  {authError && <div className="p-3 bg-rose-50 text-rose-600 text-[11px] font-bold rounded-xl">{authError}</div>}
-                  {authMode === 'register' && <input type="text" value={displayName} onChange={e => setDisplayName(e.target.value)} placeholder="Họ tên" className="w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 ring-indigo-100 font-bold" />}
-                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" className="w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 ring-indigo-100 font-bold" />
-                  <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Mật khẩu" className="w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 ring-indigo-100 font-bold" />
-                  
-                  <button onClick={() => authMode === 'login' ? loginWithEmail(email, password) : registerWithEmail(displayName, email, password)} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-600 transition-all">
-                    {authMode === 'login' ? 'Vào hệ thống' : 'Tạo tài khoản'}
+            <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-xl transition-all">
+              <div className="relative bg-white w-full max-w-md rounded-[2.5rem] p-1 shadow-[0_32px_120px_-10px_rgba(0,0,0,0.5)] animate-fadeIn overflow-hidden">
+                {/* Background Glow */}
+                <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-indigo-600 to-violet-600 -rotate-6 scale-110 opacity-10"></div>
+                
+                <div className="relative bg-white rounded-[2.4rem] p-10">
+                  <button onClick={() => setShowLoginModal(false)} className="absolute top-6 right-6 w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-slate-900 transition-all">
+                    <i className="fa-solid fa-xmark text-lg"></i>
                   </button>
-
-                  <div className="relative py-4 flex items-center gap-4">
-                    <div className="flex-1 h-px bg-slate-100"></div>
-                    <span className="text-[10px] font-black text-slate-300 uppercase">Hoặc</span>
-                    <div className="flex-1 h-px bg-slate-100"></div>
+                  
+                  <div className="mb-10">
+                    <div className="w-20 h-20 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-3xl rotate-12 flex items-center justify-center mb-6 shadow-2xl shadow-indigo-200">
+                      <i className="fa-solid fa-book-open text-white text-3xl -rotate-12"></i>
+                    </div>
+                    <h2 className="text-4xl font-black text-slate-900 tracking-tight leading-none">
+                      {authMode === 'login' ? 'Đăng nhập' : 'Đăng ký'}
+                    </h2>
+                    <p className="text-slate-400 text-sm font-semibold mt-3">
+                      {authMode === 'login' ? 'Tiếp tục đam mê đọc sách cùng DigiBook' : 'Bắt đầu hành trình tri thức mới'}
+                    </p>
                   </div>
 
-                  <button onClick={loginWithGoogle} className="w-full py-4 bg-white border-2 border-slate-100 rounded-2xl font-black flex items-center justify-center gap-4 hover:bg-slate-50 transition-all">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" className="w-5" alt=""/>
-                    <span className="text-xs">Tiếp tục với Google</span>
-                  </button>
-
-                  <div className="text-center space-y-2 mt-4">
-                    <button onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')} className="text-xs font-bold text-indigo-600 hover:underline">
-                      {authMode === 'login' ? 'Tạo tài khoản mới' : 'Đã có tài khoản? Đăng nhập'}
-                    </button>
-                    {authMode === 'login' && (
-                      <div className="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100">
-                        <p className="text-[9px] font-black text-indigo-600 uppercase tracking-widest mb-1">Tài khoản Admin Demo</p>
-                        <p className="text-[10px] font-bold text-slate-600">admin@gmail.com / admin123</p>
+                  <div className="space-y-6">
+                    {authError && (
+                      <div className="p-4 bg-rose-50 border border-rose-100 text-rose-600 text-[11px] font-bold rounded-2xl flex items-center gap-3 animate-shake">
+                        <i className="fa-solid fa-triangle-exclamation text-sm"></i>
+                        {authError}
                       </div>
                     )}
+
+                    <div className="space-y-4">
+                      {authMode === 'register' && (
+                        <div>
+                          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 mb-2">Họ và tên</label>
+                          <div className="relative group">
+                            <i className="fa-solid fa-user absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
+                            <input 
+                              type="text" 
+                              value={displayName} 
+                              onChange={e => setDisplayName(e.target.value)} 
+                              placeholder="Nguyễn Văn A" 
+                              className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border-2 border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-50 font-bold transition-all text-slate-900 placeholder:text-slate-300" 
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 mb-2">Email của bạn</label>
+                        <div className="relative group">
+                          <i className="fa-solid fa-envelope absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
+                          <input 
+                            type="email" 
+                            value={email} 
+                            onChange={e => setEmail(e.target.value)} 
+                            placeholder="yourname@gmail.com" 
+                            className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border-2 border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-50 font-bold transition-all text-slate-900 placeholder:text-slate-300" 
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 mb-2">Mật khẩu</label>
+                        <div className="relative group">
+                          <i className="fa-solid fa-lock absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
+                          <input 
+                            type="password" 
+                            value={password} 
+                            onChange={e => setPassword(e.target.value)} 
+                            placeholder="••••••••" 
+                            className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border-2 border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-50 font-bold transition-all text-slate-900 placeholder:text-slate-300" 
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <button 
+                      onClick={() => authMode === 'login' ? loginWithEmail(email, password) : registerWithEmail(displayName, email, password)} 
+                      className="w-full py-5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-[1.2rem] font-black uppercase tracking-[0.2em] hover:shadow-2xl hover:shadow-indigo-500/40 hover:-translate-y-1 active:translate-y-0 transition-all shadow-xl shadow-indigo-100"
+                    >
+                      {authMode === 'login' ? 'Đăng nhập ngay' : 'Tạo tài khoản'}
+                    </button>
+
+                    <div className="relative py-2 flex items-center gap-4">
+                      <div className="flex-1 h-px bg-slate-100"></div>
+                      <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest px-2">Hoặc</span>
+                      <div className="flex-1 h-px bg-slate-100"></div>
+                    </div>
+
+                    <button 
+                      onClick={loginWithGoogle} 
+                      className="w-full py-4 bg-white border-2 border-slate-100 rounded-2xl font-black flex items-center justify-center gap-4 hover:bg-slate-50 hover:border-slate-200 transition-all"
+                    >
+                      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" className="w-5" alt=""/>
+                      <span className="text-xs font-black text-slate-700 uppercase tracking-wider">Tiếp tục với Google</span>
+                    </button>
+
+                    <div className="text-center pt-4">
+                      <button 
+                        onClick={() => { setAuthMode(authMode === 'login' ? 'register' : 'login'); setAuthError(''); }} 
+                        className="text-xs font-black text-indigo-600 hover:text-indigo-800 transition-colors py-2 px-4 bg-indigo-50 rounded-full"
+                      >
+                        {authMode === 'login' ? 'Chưa có tài khoản? Đăng ký tại đây' : 'Đã có tài khoản? Đăng nhập'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          )}
+          ) }
 
           <main className="flex-grow pt-24 lg:pt-0">
             <Routes>
