@@ -190,6 +190,13 @@ const AdminDashboard: React.FC = () => {
     return result;
   }, [books, searchQuery, filterStock]);
 
+  const filteredCoupons = useMemo(() => {
+    return coupons.filter(c => 
+      c.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.discountType.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [coupons, searchQuery]);
+
   // Lấy danh sách các loại hành động duy nhất từ logs để làm bộ lọc
   const uniqueActions = useMemo(() => {
     const actions = new Set(logs.map(l => l.action.split('_')[0])); // Lấy phần đầu của action (ví dụ ORDER từ ORDER_CREATED)
@@ -746,7 +753,7 @@ const AdminDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                  {coupons.length > 0 ? coupons.map(coupon => (
+                  {filteredCoupons.length > 0 ? filteredCoupons.map(coupon => (
                     <tr key={coupon.id} className="hover:bg-slate-50 transition-all group">
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-3">
@@ -773,7 +780,10 @@ const AdminDashboard: React.FC = () => {
                       </td>
                       <td className="px-8 py-6 text-center">
                         <span className="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
-                          {coupon.usageCount || 0}
+                          {coupon.usedCount || 0}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-bold ml-1">
+                          / {coupon.usageLimit || 100}
                         </span>
                       </td>
                       <td className="px-8 py-6 text-center">
@@ -2258,15 +2268,27 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-widest text-[10px]">Giá trị đơn tối thiểu (đ)</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={couponFormData.minOrderValue || 0}
-                  onChange={(e) => setCouponFormData({...couponFormData, minOrderValue: Number(e.target.value)})}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-indigo-100 font-bold"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-widest text-[10px]">Giá trị đơn tối thiểu (đ)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={couponFormData.minOrderValue || 0}
+                    onChange={(e) => setCouponFormData({...couponFormData, minOrderValue: Number(e.target.value)})}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-indigo-100 font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-widest text-[10px]">Giới hạn lượt dùng</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={couponFormData.usageLimit || 100}
+                    onChange={(e) => setCouponFormData({...couponFormData, usageLimit: Number(e.target.value)})}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-indigo-100 font-bold"
+                  />
+                </div>
               </div>
 
               <div>

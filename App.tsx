@@ -31,7 +31,7 @@ import WishlistPage from './pages/WishlistPage';
 import SearchResults from './pages/SearchResults';
 import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
-import { Book, CartItem } from './types';
+import { Book, CartItem, CategoryInfo } from './types';
 import { db } from './services/db';
 
 import { AuthContext, User, useAuth } from './AuthContext';
