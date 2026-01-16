@@ -171,7 +171,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
                  </div>
                  <div>
                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-indigo-500 mb-0.5">Danh mục</p>
-                   <h2 className="text-xl lg:text-2xl font-black text-slate-900 tracking-tight">{categoryName || 'Tất cả sách'}</h2>
+                   <h1 className="text-xl lg:text-3xl font-black text-slate-900 tracking-tight">{categoryName || 'Tất cả sách'}</h1>
                  </div>
                </div>
              )}

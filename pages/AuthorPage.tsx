@@ -149,7 +149,7 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart }) => {
                   <i className="fa-solid fa-feather-pointed text-sm"></i>
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Tiểu sử & Sự nghiệp</h3>
+                  <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight">Tiểu sử & Sự nghiệp</h2>
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Hành trình trải nghiệm và sáng tạo</p>
                 </div>
               </div>
@@ -179,7 +179,7 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart }) => {
                     <i className="fa-solid fa-book-bookmark text-sm"></i>
                   </div>
                   <div>
-                    <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Tất cả tác phẩm</h3>
+                    <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight">Tất cả tác phẩm</h2>
                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Hiện có {authorBooks.length} cuốn trên giá sách DigiBook</p>
                   </div>
                 </div>
@@ -211,7 +211,7 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart }) => {
                     <i className="fa-solid fa-wand-magic-sparkles text-white text-base animate-pulse"></i>
                   </div>
                   <div>
-                    <h3 className="text-base font-black text-white uppercase tracking-tight">AI Author Profile</h3>
+                    <h2 className="text-base font-black text-white uppercase tracking-tight">AI Author Profile</h2>
                     <p className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest mt-0.5">Phân tích bởi {activeModelName}</p>
                   </div>
                 </div>

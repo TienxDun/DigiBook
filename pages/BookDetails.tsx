@@ -265,7 +265,7 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book) => void }> = ({ onAddToC
                     <i className="fa-solid fa-wand-magic-sparkles text-white text-xl animate-pulse"></i>
                   </div>
                   <div>
-                    <h3 className="text-xl font-black text-white uppercase tracking-tight">AI Insights</h3>
+                    <h2 className="text-xl font-black text-white uppercase tracking-tight">AI Insights</h2>
                     <p className="text-[11px] font-bold text-indigo-400 uppercase tracking-widest mt-1">Phân tích bởi {activeModelName}</p>
                   </div>
                 </div>
@@ -316,7 +316,7 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book) => void }> = ({ onAddToC
             <div className="bg-white p-10 lg:p-12 rounded-[2.5rem] shadow-sm border border-slate-100">
               <div className="flex items-center gap-4 mb-8">
                 <span className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black text-xs">01</span>
-                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Giới thiệu tác phẩm</h3>
+                <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Giới thiệu tác phẩm</h2>
               </div>
               <p className="text-lg text-slate-600 leading-[1.8] font-medium whitespace-pre-line">
                 {book.description}
@@ -328,7 +328,7 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book) => void }> = ({ onAddToC
                <div className="p-10 lg:p-12 border-b border-slate-50 bg-white">
                  <div className="flex items-center gap-4">
                    <span className="w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center font-black text-xs">02</span>
-                   <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Thông tin chi tiết</h3>
+                   <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Thông tin chi tiết</h2>
                  </div>
                </div>
                
@@ -374,7 +374,7 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book) => void }> = ({ onAddToC
               <div className="flex items-center justify-between mb-12">
                 <div className="flex items-center gap-4">
                   <span className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black text-xs">03</span>
-                  <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Cộng đồng độc giả</h3>
+                  <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Cộng đồng độc giả</h2>
                 </div>
                 <div className="flex items-center gap-3">
                    <span className="text-3xl font-black text-slate-900">{book.rating}</span>
@@ -443,7 +443,7 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book) => void }> = ({ onAddToC
                   <i className="fa-solid fa-layer-group text-base"></i>
                 </div>
                 <div>
-                  <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Gợi ý dành cho bạn</h3>
+                  <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Gợi ý dành cho bạn</h2>
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Phân loại {book.category}</p>
                 </div>
               </div>
@@ -468,7 +468,7 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book) => void }> = ({ onAddToC
                 <i className="fa-solid fa-clock-rotate-left text-base"></i>
               </div>
               <div>
-                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Sách đã xem gần đây</h3>
+                <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Sách đã xem gần đây</h2>
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Lưu trữ hành trình của bạn</p>
               </div>
             </div>

@@ -119,8 +119,41 @@ const App: React.FC = () => {
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [authError, setAuthError] = useState('');
+
+  const syncUser = useCallback(async (firebaseUser: any, forceName?: string) => {
+    if (firebaseUser) {
+      // 1. Lấy profile hiện tại từ Firestore
+      const profile = await db.getUserProfile(firebaseUser.uid);
+      
+      // 2. Chuẩn bị dữ liệu hiển thị (ưu tiên forceName -> profile Firestore -> firebase)
+      const userData = {
+        id: firebaseUser.uid,
+        name: forceName || profile?.name || firebaseUser.displayName || "Độc giả",
+        email: firebaseUser.email || profile?.email || "",
+        avatar: profile?.avatar || firebaseUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(forceName || firebaseUser.displayName || 'U')}&background=4f46e5&color=fff`,
+        isAdmin: (profile?.role === 'admin') || (firebaseUser.email === 'admin@gmail.com')
+      };
+      
+      setUser(userData);
+
+      // 3. Tự động tạo/cập nhật profile trong Firestore nếu chưa có hoặc dữ liệu mới đầy đủ hơn
+      // Hoặc nếu có forceName (lúc đăng ký) thì phải cập nhật ngay vào DB
+      if (!profile || forceName || (firebaseUser.displayName && !profile.name)) {
+        await db.updateUserProfile({
+          id: firebaseUser.uid,
+          name: userData.name,
+          email: userData.email,
+          avatar: userData.avatar,
+          role: userData.isAdmin ? 'admin' : 'user'
+        });
+      }
+    } else {
+      setUser(null);
+    }
+  }, []);
 
   const fetchInitialData = async () => {
     try {
@@ -142,36 +175,12 @@ const App: React.FC = () => {
     fetchInitialData();
     let unsubscribe = () => {};
     if (auth) {
-      unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-        if (firebaseUser) {
-          // Fetch additional profile data from Firestore
-          const profile = await db.getUserProfile(firebaseUser.uid);
-          
-          setUser({
-            id: firebaseUser.uid,
-            name: firebaseUser.displayName || profile?.name || "Độc giả",
-            email: firebaseUser.email || profile?.email || "",
-            avatar: firebaseUser.photoURL || profile?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(firebaseUser.displayName || 'U')}&background=4f46e5&color=fff`,
-            isAdmin: (profile?.role === 'admin') || (firebaseUser.email === 'admin@gmail.com')
-          });
-
-          // Create profile if not exists
-          if (!profile) {
-            await db.updateUserProfile({
-              id: firebaseUser.uid,
-              name: firebaseUser.displayName || "Độc giả",
-              email: firebaseUser.email || "",
-              avatar: firebaseUser.photoURL || "",
-              role: firebaseUser.email === 'admin@gmail.com' ? 'admin' : 'user'
-            });
-          }
-        } else {
-          setUser(null);
-        }
+      unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+        syncUser(firebaseUser);
       });
     }
     return () => unsubscribe();
-  }, []);
+  }, [syncUser]);
 
   useEffect(() => localStorage.setItem('digibook_cart', JSON.stringify(cart)), [cart]);
   useEffect(() => localStorage.setItem('digibook_wishlist', JSON.stringify(wishlist)), [wishlist]);
@@ -180,6 +189,10 @@ const App: React.FC = () => {
     try {
       if (!auth) throw new Error("Auth not initialized");
       const result = await signInWithPopup(auth, googleProvider);
+      
+      // Đồng bộ profile ngay lập tức
+      await syncUser(result.user);
+      
       db.logActivity('AUTH_LOGIN_GOOGLE', `Email: ${result.user.email}`, 'SUCCESS');
       setShowLoginModal(false);
       toast.success(`Chào mừng trở lại, ${result.user.displayName || 'bạn'}!`);
@@ -227,6 +240,10 @@ const App: React.FC = () => {
     try {
       if (!auth) throw new Error("Auth not initialized");
       const result = await signInWithEmailAndPassword(auth, e, p);
+      
+      // Đồng bộ profile ngay lập tức
+      await syncUser(result.user);
+
       db.logActivity('AUTH_LOGIN_EMAIL', `Email: ${result.user.email}`, 'SUCCESS');
       setShowLoginModal(false);
       setAuthError('');
@@ -240,12 +257,25 @@ const App: React.FC = () => {
   const registerWithEmail = async (n: string, e: string, p: string) => {
     try {
       if (!auth) throw new Error("Auth not initialized");
+      
+      if (p !== confirmPassword) {
+        setAuthError("Mật khẩu xác nhận không khớp.");
+        return;
+      }
+
       const res = await createUserWithEmailAndPassword(auth, e, p);
       await updateProfile(res.user, { displayName: n });
+      
+      // Đồng bộ profile ngay sau khi cập nhật displayName, truyền n trực tiếp
+      await syncUser(res.user, n);
+
       db.logActivity('AUTH_REGISTER', `Email: ${e} | Tên: ${n}`, 'SUCCESS');
       setShowLoginModal(false);
       setAuthError('');
       toast.success('Tạo tài khoản thành công!');
+      
+      // Chuyển hướng về trang chủ sau khi đăng ký thành công
+      window.location.hash = '/';
     } catch (error: any) {
       const result = ErrorHandler.handle(error, 'AUTH_REGISTER');
       setAuthError(result.error);
@@ -304,85 +334,96 @@ const App: React.FC = () => {
           onUpdateCartQty={(id, delta) => setCart(c => c.map(i => i.id === id ? {...i, quantity: Math.max(1, i.quantity + delta)} : i))}
         >
           {showLoginModal && (
-            <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-xl transition-all">
-              <div className="relative bg-white w-full max-w-md rounded-[2.5rem] p-1 shadow-[0_32px_120px_-10px_rgba(0,0,0,0.5)] animate-fadeIn overflow-hidden">
-                {/* Background Glow */}
-                <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-indigo-600 to-violet-600 -rotate-6 scale-110 opacity-10"></div>
-                
-                <div className="relative bg-white rounded-[2.4rem] p-10">
-                  <button onClick={() => setShowLoginModal(false)} className="absolute top-6 right-6 w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-slate-900 transition-all">
-                    <i className="fa-solid fa-xmark text-lg"></i>
+            <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md transition-all">
+              <div className="relative bg-white w-full max-w-[380px] rounded-[2rem] p-1 shadow-[0_20px_50px_rgba(0,0,0,0.1)] animate-fadeIn overflow-hidden">
+                <div className="relative bg-white rounded-[1.9rem] p-8">
+                  <button 
+                    onClick={() => {
+                      setShowLoginModal(false);
+                      setConfirmPassword('');
+                      setAuthError('');
+                    }} 
+                    className="absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center text-slate-300 hover:bg-slate-50 hover:text-slate-900 transition-all"
+                  >
+                    <i className="fa-solid fa-xmark text-sm"></i>
                   </button>
                   
-                  <div className="mb-10">
-                    <div className="w-20 h-20 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-3xl rotate-12 flex items-center justify-center mb-6 shadow-2xl shadow-indigo-200">
-                      <i className="fa-solid fa-book-open text-white text-3xl -rotate-12"></i>
+                  <div className="mb-8 text-center">
+                    <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center mb-4 mx-auto shadow-lg shadow-slate-200">
+                      <i className="fa-solid fa-book-open text-white text-xl"></i>
                     </div>
-                    <h2 className="text-4xl font-black text-slate-900 tracking-tight leading-none">
-                      {authMode === 'login' ? 'Đăng nhập' : 'Đăng ký'}
+                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                      {authMode === 'login' ? 'Chào mừng bạn' : 'Tham gia cùng cửa hàng'}
                     </h2>
-                    <p className="text-slate-400 text-sm font-semibold mt-3">
-                      {authMode === 'login' ? 'Tiếp tục đam mê đọc sách cùng DigiBook' : 'Bắt đầu hành trình tri thức mới'}
+                    <p className="text-slate-400 text-[11px] font-bold uppercase tracking-widest mt-2">
+                       DigiBook • Không gian tri thức
                     </p>
                   </div>
 
-                  <div className="space-y-6">
+                  <form 
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      authMode === 'login' ? loginWithEmail(email, password) : registerWithEmail(displayName, email, password);
+                    }}
+                    className="space-y-4"
+                  >
                     {authError && (
-                      <div className="p-4 bg-rose-50 border border-rose-100 text-rose-600 text-[11px] font-bold rounded-2xl flex items-center gap-3 animate-shake">
-                        <i className="fa-solid fa-triangle-exclamation text-sm"></i>
+                      <div className="p-3 bg-rose-50 text-rose-500 text-[10px] font-black uppercase tracking-wider rounded-xl flex items-center gap-2 animate-shake">
+                        <i className="fa-solid fa-circle-exclamation text-sm"></i>
                         {authError}
                       </div>
                     )}
 
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {authMode === 'register' && (
-                        <div>
-                          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 mb-2">Họ và tên</label>
+                        <div className="space-y-1">
                           <div className="relative group">
-                            <i className="fa-solid fa-user absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
+                            <i className="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-slate-900 transition-colors text-sm"></i>
                             <input 
                               type="text" 
+                              required
                               value={displayName} 
                               onChange={e => setDisplayName(e.target.value)} 
-                              placeholder="Nguyễn Văn A" 
-                              className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border-2 border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-50 font-bold transition-all text-slate-900 placeholder:text-slate-300" 
+                              placeholder="Họ và tên" 
+                              className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:bg-white focus:border-slate-900 font-bold transition-all text-slate-900 text-sm placeholder:text-slate-300" 
                             />
                           </div>
                         </div>
                       )}
 
-                      <div>
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 mb-2">Email của bạn</label>
+                      <div className="space-y-1">
                         <div className="relative group">
-                          <i className="fa-solid fa-envelope absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
+                          <i className="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-slate-900 transition-colors text-sm"></i>
                           <input 
                             type="email" 
+                            required
                             value={email} 
                             onChange={e => setEmail(e.target.value)} 
-                            placeholder="yourname@gmail.com" 
-                            className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border-2 border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-50 font-bold transition-all text-slate-900 placeholder:text-slate-300" 
+                            placeholder="Địa chỉ Email" 
+                            className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:bg-white focus:border-slate-900 font-bold transition-all text-slate-900 text-sm placeholder:text-slate-300" 
                           />
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 mb-2">Mật khẩu</label>
+                      <div className="space-y-1">
                         <div className="relative group">
-                          <i className="fa-solid fa-lock absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
+                          <i className="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-slate-900 transition-colors text-sm"></i>
                           <input 
                             type="password" 
+                            required
                             value={password} 
                             onChange={e => setPassword(e.target.value)} 
-                            placeholder="••••••••" 
-                            className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border-2 border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-50 font-bold transition-all text-slate-900 placeholder:text-slate-300" 
+                            placeholder="Mật khẩu" 
+                            className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:bg-white focus:border-slate-900 font-bold transition-all text-slate-900 text-sm placeholder:text-slate-300" 
                           />
                         </div>
                         {authMode === 'login' && (
-                          <div className="flex justify-end mt-2">
+                          <div className="flex justify-end pr-2">
                             <button 
+                              type="button"
                               onClick={async () => {
                                 if (!email) {
-                                  setAuthError('Vui lòng nhập Email trước khi khôi phục mật khẩu.');
+                                  setAuthError('Vui lòng nhập Email trước.');
                                   return;
                                 }
                                 try {
@@ -391,45 +432,76 @@ const App: React.FC = () => {
                                   setAuthError(err.message);
                                 }
                               }}
-                              className="text-[10px] font-black text-indigo-500 hover:text-indigo-700 uppercase tracking-widest"
+                              className="text-[10px] font-black text-slate-400 hover:text-slate-900 uppercase tracking-widest transition-colors"
                             >
                               Quên mật khẩu?
                             </button>
                           </div>
                         )}
                       </div>
+
+                      {authMode === 'register' && (
+                        <div className="space-y-1">
+                          <div className="relative group">
+                            <i className="fa-solid fa-shield-check absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-slate-900 transition-colors text-sm"></i>
+                            <input 
+                              type="password" 
+                              required
+                              value={confirmPassword} 
+                              onChange={e => setConfirmPassword(e.target.value)} 
+                              placeholder="Xác nhận mật khẩu" 
+                              className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:bg-white focus:border-slate-900 font-bold transition-all text-slate-900 text-sm placeholder:text-slate-300" 
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
                     
                     <button 
-                      onClick={() => authMode === 'login' ? loginWithEmail(email, password) : registerWithEmail(displayName, email, password)} 
-                      className="w-full py-5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-[1.2rem] font-black uppercase tracking-[0.2em] hover:shadow-2xl hover:shadow-indigo-500/40 hover:-translate-y-1 active:translate-y-0 transition-all shadow-xl shadow-indigo-100"
+                      type="submit"
+                      className="w-full py-4 bg-slate-900 text-white rounded-xl font-black uppercase tracking-widest text-[11px] hover:bg-black transition-all active:scale-[0.98] shadow-lg shadow-slate-100"
                     >
-                      {authMode === 'login' ? 'Đăng nhập ngay' : 'Tạo tài khoản'}
+                      {authMode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}
                     </button>
 
-                    <div className="relative py-2 flex items-center gap-4">
+                    <div className="relative py-2 flex items-center gap-3">
                       <div className="flex-1 h-px bg-slate-100"></div>
-                      <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest px-2">Hoặc</span>
+                      <span className="text-[9px] font-black text-slate-300 uppercase tracking-tighter px-1">Hoặc sử dụng</span>
                       <div className="flex-1 h-px bg-slate-100"></div>
                     </div>
 
                     <button 
+                      type="button"
                       onClick={loginWithGoogle} 
-                      className="w-full py-4 bg-white border-2 border-slate-100 rounded-2xl font-black flex items-center justify-center gap-4 hover:bg-slate-50 hover:border-slate-200 transition-all"
+                      className="w-full py-4 bg-white border-2 border-slate-100 rounded-2xl font-black flex items-center justify-center gap-4 hover:bg-slate-50 hover:border-slate-300 transition-all text-slate-700 active:scale-[0.98] relative overflow-hidden group shadow-lg shadow-slate-100/50"
                     >
-                      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" className="w-5" alt=""/>
-                      <span className="text-xs font-black text-slate-700 uppercase tracking-wider">Tiếp tục với Google</span>
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" className="w-5" alt="Google Logo" />
+                      
+                      <span className="text-[11px] font-black uppercase tracking-widest">Tiếp tục bằng Google</span>
+
+                      {/* Vệt màu thương hiệu Google tinh tế ở dưới cùng */}
+                      <div className="absolute bottom-0 left-0 w-full h-[3px] flex opacity-80 group-hover:opacity-100 transition-opacity">
+                        <div className="flex-1 bg-[#4285F4]"></div> {/* Blue */}
+                        <div className="flex-1 bg-[#EA4335]"></div> {/* Red */}
+                        <div className="flex-1 bg-[#FBBC05]"></div> {/* Yellow */}
+                        <div className="flex-1 bg-[#34A853]"></div> {/* Green */}
+                      </div>
                     </button>
 
-                    <div className="text-center pt-4">
+                    <div className="text-center pt-2">
                       <button 
-                        onClick={() => { setAuthMode(authMode === 'login' ? 'register' : 'login'); setAuthError(''); }} 
-                        className="text-xs font-black text-indigo-600 hover:text-indigo-800 transition-colors py-2 px-4 bg-indigo-50 rounded-full"
+                        type="button"
+                        onClick={() => { 
+                          setAuthMode(authMode === 'login' ? 'register' : 'login'); 
+                          setAuthError(''); 
+                          setConfirmPassword('');
+                        }} 
+                        className="text-[10px] font-black text-slate-400 hover:text-slate-900 transition-colors uppercase tracking-widest"
                       >
-                        {authMode === 'login' ? 'Chưa có tài khoản? Đăng ký tại đây' : 'Đã có tài khoản? Đăng nhập'}
+                        {authMode === 'login' ? 'Chưa có tài khoản? Đăng ký' : 'Đã có tài khoản? Đăng nhập'}
                       </button>
                     </div>
-                  </div>
+                  </form>
                 </div>
               </div>
             </div>

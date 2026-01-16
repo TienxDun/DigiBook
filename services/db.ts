@@ -197,7 +197,7 @@ class DataService {
       // To add books, use the Admin "Auto Sync from Internet" feature
       
       await batch.commit();
-      this.logActivity('SEED_DATA', `Seeded ${INITIAL_CATEGORIES.length} categories`);
+      this.logActivity('SEED_DATA', `Seeded ${INITIAL_CATEGORIES.length} categories. Remember to register/login with admin@gmail.com for full admin access.`);
       return { success: true, count: INITIAL_CATEGORIES.length };
     } catch (error: any) {
       this.logActivity('SEED_DATA', error.message, 'ERROR');
@@ -558,11 +558,14 @@ class DataService {
   }
 
   async updateUserProfile(profile: Partial<UserProfile> & { id: string }): Promise<void> {
+    const userRef = doc(db_fs, 'users', profile.id);
+    const snap = await getDoc(userRef);
+    
     await this.wrap(
-      setDoc(doc(db_fs, 'users', profile.id), { 
+      setDoc(userRef, { 
         ...profile, 
         updatedAt: serverTimestamp(),
-        // Nếu là tài khoản mới hoàn toàn, thêm createdAt
+        ...(!snap.exists() ? { createdAt: serverTimestamp(), status: 'active' } : {})
       }, { merge: true }),
       undefined,
       'UPDATE_USER_PROFILE',
@@ -804,6 +807,58 @@ class DataService {
       undefined,
       'UPDATE_AI_CONFIG',
       `Switched to model: ${modelId}`
+    );
+  }
+
+  // --- User Management ---
+  async getAllUsers(): Promise<UserProfile[]> {
+    try {
+      // Đầu tiên thử lấy tất cả không theo thứ tự (để tránh lỗi field missing)
+      const snap = await getDocs(collection(db_fs, 'users'));
+      const allUsers = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as UserProfile));
+      
+      // Sau đó sắp xếp theo client (an toàn hơn nếu thiếu field)
+      return allUsers.sort((a, b) => {
+        const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt ? new Date(a.createdAt) : new Date(0));
+        const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : (b.createdAt ? new Date(b.createdAt) : new Date(0));
+        return dateB.getTime() - dateA.getTime();
+      });
+    } catch (error) {
+      console.error("Error getting users:", error);
+      return [];
+    }
+  }
+
+  async updateUserRole(userId: string, newRole: 'admin' | 'user'): Promise<void> {
+    await this.wrap(
+      updateDoc(doc(db_fs, 'users', userId), { 
+        role: newRole,
+        updatedAt: serverTimestamp()
+      }),
+      undefined,
+      'UPDATE_USER_ROLE',
+      `UserId: ${userId} to ${newRole}`
+    );
+  }
+
+  async updateUserStatus(userId: string, newStatus: 'active' | 'banned'): Promise<void> {
+    await this.wrap(
+      updateDoc(doc(db_fs, 'users', userId), { 
+        status: newStatus,
+        updatedAt: serverTimestamp()
+      }),
+      undefined,
+      'UPDATE_USER_STATUS',
+      `UserId: ${userId} to ${newStatus}`
+    );
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    await this.wrap(
+      deleteDoc(doc(db_fs, 'users', userId)),
+      undefined,
+      'DELETE_USER',
+      `UserId: ${userId}`
     );
   }
 }

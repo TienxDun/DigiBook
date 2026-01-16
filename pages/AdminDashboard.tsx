@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { db, Order, OrderItem, SystemLog, AVAILABLE_AI_MODELS } from '../services/db';
-import { Book, CategoryInfo, Author, Coupon, AIModelConfig } from '../types';
+import { Book, CategoryInfo, Author, Coupon, AIModelConfig, UserProfile } from '../types';
 import { ErrorHandler } from '../services/errorHandler';
 
 const formatPrice = (price: number) => {
@@ -12,12 +12,13 @@ const formatPrice = (price: number) => {
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'overview' | 'books' | 'orders' | 'categories' | 'authors' | 'coupons' | 'logs' | 'ai'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'books' | 'orders' | 'categories' | 'authors' | 'coupons' | 'users' | 'logs' | 'ai'>('overview');
   const [books, setBooks] = useState<Book[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [categories, setCategories] = useState<CategoryInfo[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
   const [logs, setLogs] = useState<SystemLog[]>([]);
   const [aiConfig, setAiConfig] = useState<{ activeModelId: string }>({ activeModelId: 'gemini-3-flash' });
   const [isUpdatingAI, setIsUpdatingAI] = useState(false);
@@ -25,6 +26,10 @@ const AdminDashboard: React.FC = () => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [filterStock, setFilterStock] = useState<'all' | 'low' | 'out'>('all');
   
+  // User Filters
+  const [userRoleFilter, setUserRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
+  const [userStatusFilter, setUserStatusFilter] = useState<'all' | 'active' | 'banned'>('all');
+
   const [logStatusFilter, setLogStatusFilter] = useState<'ALL' | 'SUCCESS' | 'ERROR'>('ALL');
   const [logActionFilter, setLogActionFilter] = useState<string>('ALL');
   const [currentLogPage, setCurrentLogPage] = useState(1);
@@ -94,17 +99,19 @@ const AdminDashboard: React.FC = () => {
 
   const refreshData = async () => {
     try {
-      const [booksData, catsData, authorsData, couponsData, aiConfigData] = await Promise.all([
+      const [booksData, catsData, authorsData, couponsData, usersData, aiConfigData] = await Promise.all([
         db.getBooks(),
         db.getCategories(),
         db.getAuthors(),
         db.getCoupons(),
+        db.getAllUsers(),
         db.getAIConfig()
       ]);
       setBooks(booksData);
       setCategories(catsData);
       setAuthors(authorsData);
       setCoupons(couponsData);
+      setUsers(usersData);
       setAiConfig(aiConfigData);
       
       const allOrders = await db.getOrdersByUserId('admin');
@@ -198,6 +205,17 @@ const AdminDashboard: React.FC = () => {
       c.discountType.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [coupons, searchQuery]);
+
+  const filteredUsers = useMemo(() => {
+    return users.filter(u => {
+      const matchesSearch = (u.name || "").toLowerCase().includes(debouncedSearchQuery.toLowerCase()) || 
+                          (u.email || "").toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+                          (u.phone || "").includes(debouncedSearchQuery);
+      const matchesRole = userRoleFilter === 'all' || (u.role || 'user') === userRoleFilter;
+      const matchesStatus = userStatusFilter === 'all' || (u.status || 'active') === userStatusFilter;
+      return matchesSearch && matchesRole && matchesStatus;
+    });
+  }, [users, debouncedSearchQuery, userRoleFilter, userStatusFilter]);
 
   // Lấy danh sách các loại hành động duy nhất từ logs để làm bộ lọc
   const uniqueActions = useMemo(() => {
@@ -642,6 +660,42 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleUpdateUserRole = async (userId: string, currentRole: 'admin' | 'user') => {
+    const newRole = currentRole === 'admin' ? 'user' : 'admin';
+    if (!window.confirm(`Chuyển vai trò người dùng này sang ${newRole === 'admin' ? 'Quản trị viên' : 'Khách hàng'}?`)) return;
+    try {
+      await db.updateUserRole(userId, newRole);
+      toast.success('Cập nhật vai trò thành công');
+      refreshData();
+    } catch (error) {
+      ErrorHandler.handle(error, 'cập nhật vai trò người dùng');
+    }
+  };
+
+  const handleUpdateUserStatus = async (userId: string, currentStatus: 'active' | 'banned') => {
+    const newStatus = currentStatus === 'active' ? 'banned' : 'active';
+    const actionText = newStatus === 'banned' ? 'khóa' : 'mở khóa';
+    if (!window.confirm(`Bạn có chắc chắn muốn ${actionText} tài khoản này?`)) return;
+    try {
+      await db.updateUserStatus(userId, newStatus);
+      toast.success(`Đã ${actionText} tài khoản thành công`);
+      refreshData();
+    } catch (error) {
+      ErrorHandler.handle(error, 'cập nhật trạng thái người dùng');
+    }
+  };
+
+  const handleDeleteUser = async (user: UserProfile) => {
+    if (!window.confirm(`Bạn có chắc chắn muốn XÓA VĨNH VIỄN tài khoản "${user.name}"? Hành động này không thể hoàn tác.`)) return;
+    try {
+      await db.deleteUser(user.id);
+      toast.success('Đã xóa người dùng thành công');
+      refreshData();
+    } catch (error) {
+      ErrorHandler.handle(error, 'xóa người dùng');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex relative z-[200]">
       <aside className="w-64 bg-slate-900 text-white flex flex-col sticky top-0 h-screen z-50 shadow-2xl">
@@ -658,6 +712,7 @@ const AdminDashboard: React.FC = () => {
             { id: 'categories', icon: 'fa-folder-tree', label: 'Danh mục' },
             { id: 'orders', icon: 'fa-bag-shopping', label: 'Đơn hàng' },
             { id: 'coupons', icon: 'fa-ticket', label: 'Khuyến mãi' },
+            { id: 'users', icon: 'fa-users', label: 'Tài khoản' },
             { id: 'ai', icon: 'fa-robot', label: 'Cơ chế AI' },
             { id: 'logs', icon: 'fa-receipt', label: 'Nhật ký' }
           ].map(tab => (
@@ -715,6 +770,7 @@ const AdminDashboard: React.FC = () => {
               {activeTab === 'overview' ? 'Báo cáo tổng quan' : 
                activeTab === 'books' ? 'Quản lý kho hàng' : 
                activeTab === 'logs' ? 'Nhật ký hệ thống' : 
+               activeTab === 'users' ? 'Quản lý tài khoản' :
                activeTab === 'ai' ? 'Cấu hình Trí tuệ Nhân tạo' :
                activeTab === 'coupons' ? 'Quản lý Khuyến mãi' : 'Quản lý Đơn hàng'}
             </h2>
@@ -959,6 +1015,198 @@ const AdminDashboard: React.FC = () => {
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'users' && (
+          <div className="space-y-6 animate-fadeIn">
+            {/* User Filters Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Vai trò:</span>
+                  <div className="flex gap-2 p-1 bg-slate-100 rounded-xl">
+                    {(['all', 'admin', 'user'] as const).map(role => (
+                      <button
+                        key={role}
+                        onClick={() => setUserRoleFilter(role)}
+                        className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                          userRoleFilter === role 
+                          ? 'bg-slate-900 text-white shadow-lg' 
+                          : 'text-slate-500 hover:text-slate-900'
+                        }`}
+                      >
+                        {role === 'all' ? 'Tất cả' : role === 'admin' ? 'Quản trị' : 'Khách'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Trạng thái:</span>
+                  <div className="flex gap-2 p-1 bg-slate-100 rounded-xl">
+                    {(['all', 'active', 'banned'] as const).map(status => (
+                      <button
+                        key={status}
+                        onClick={() => setUserStatusFilter(status)}
+                        className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                          userStatusFilter === status 
+                          ? (status === 'banned' ? 'bg-rose-500 text-white shadow-lg shadow-rose-100' : 'bg-slate-900 text-white shadow-lg shadow-slate-100')
+                          : 'text-slate-500 hover:text-slate-900'
+                        }`}
+                      >
+                        {status === 'all' ? 'Tất cả' : status === 'active' ? 'Hoạt động' : 'Đã khóa'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <i className="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                  <input 
+                    type="text"
+                    placeholder="Tìm theo tên, email, SĐT..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 pr-4 py-2.5 bg-slate-50 border-none rounded-2xl text-[11px] font-bold w-64 focus:ring-4 ring-indigo-50 focus:bg-white transition-all outline-none"
+                  />
+                </div>
+                <button 
+                  onClick={refreshData}
+                  className="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl hover:text-indigo-600 hover:bg-indigo-50 transition-all border border-slate-100"
+                  title="Làm mới danh sách"
+                >
+                  <i className="fa-solid fa-rotate"></i>
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden min-h-[500px]">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-slate-50 border-b border-slate-100">
+                  <tr>
+                    <th className="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Người dùng</th>
+                    <th className="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Liên hệ</th>
+                    <th className="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Thông tin thêm</th>
+                    <th className="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Vai trò</th>
+                    <th className="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Trạng thái</th>
+                    <th className="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {filteredUsers.length > 0 ? filteredUsers.map(user => (
+                    <tr key={user.id} className="hover:bg-slate-50/50 transition-all group">
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-4">
+                          <img 
+                            src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=random&bold=true`} 
+                            className="w-12 h-12 rounded-2xl object-cover shadow-sm border-2 border-white ring-1 ring-slate-100" 
+                            alt={user.name} 
+                          />
+                          <div>
+                            <p className="text-sm font-black text-slate-900">{user.name || 'Hội viên DigiBook'}</p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{user.email}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="space-y-1.5">
+                          <p className="text-[11px] font-black text-slate-700 flex items-center gap-2">
+                            <i className="fa-solid fa-phone text-indigo-400 text-[10px]"></i>
+                            {user.phone || 'Chưa có SĐT'}
+                          </p>
+                          <p className="text-[10px] font-bold text-slate-400 flex items-start gap-2 max-w-[180px]">
+                            <i className="fa-solid fa-location-dot text-slate-300 mt-0.5"></i>
+                            <span className="leading-relaxed">{user.address || 'Địa chỉ trống'}</span>
+                          </p>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider ${
+                              user.gender === 'Nữ' ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-blue-600'
+                            }`}>
+                              {user.gender || 'N/A'}
+                            </span>
+                            <span className="text-[10px] font-black text-slate-500 bg-slate-100 px-2 py-0.5 rounded-lg">
+                              {user.birthday || '--/--/----'}
+                            </span>
+                          </div>
+                          {user.bio ? (
+                            <p className="text-[10px] text-slate-400 italic font-medium line-clamp-1 max-w-[150px]" title={user.bio}>
+                              "{user.bio}"
+                            </p>
+                          ) : (
+                            <p className="text-[10px] text-slate-300 italic">Chưa có giới thiệu</p>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-8 py-6 text-center">
+                        <button 
+                          onClick={() => handleUpdateUserRole(user.id, user.role || 'user')}
+                          className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm ${
+                            user.role === 'admin' 
+                            ? 'bg-indigo-600 text-white shadow-indigo-100 hover:scale-105' 
+                            : 'bg-white border border-slate-100 text-slate-500 hover:bg-slate-50'
+                          }`}
+                        >
+                          {user.role === 'admin' ? 'Quản trị' : 'Khách'}
+                        </button>
+                      </td>
+                      <td className="px-8 py-6 text-center">
+                        <div className="flex flex-col items-center gap-1">
+                          <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${
+                            user.status === 'banned' 
+                            ? 'bg-rose-50 text-rose-600' 
+                            : 'bg-emerald-50 text-emerald-600'
+                          }`}>
+                            <div className={`w-1.5 h-1.5 rounded-full ${user.status === 'banned' ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500'}`}></div>
+                            {user.status === 'banned' ? 'Đã khóa' : 'Hoạt động'}
+                          </span>
+                          <span className="text-[8px] font-bold text-slate-300 uppercase tracking-tighter">
+                            LC: {user.updatedAt?.toDate ? user.updatedAt.toDate().toLocaleDateString('vi-VN') : 'N/A'}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6 text-right">
+                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                          <button 
+                            onClick={() => handleUpdateUserStatus(user.id, user.status || 'active')}
+                            title={user.status === 'banned' ? 'Mở khóa' : 'Khóa tài khoản'}
+                            className={`w-10 h-10 rounded-2xl border flex items-center justify-center transition-all shadow-sm ${
+                              user.status === 'banned' 
+                              ? 'bg-white border-emerald-100 text-emerald-500 hover:bg-emerald-500 hover:text-white hover:shadow-emerald-100' 
+                              : 'bg-white border-rose-100 text-rose-500 hover:bg-rose-500 hover:text-white hover:shadow-rose-100'
+                            }`}
+                          >
+                            <i className={`fa-solid ${user.status === 'banned' ? 'fa-unlock' : 'fa-user-slash'}`}></i>
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteUser(user)}
+                            title="Xóa vĩnh viễn"
+                            className="w-10 h-10 bg-white border border-slate-100 text-slate-400 rounded-2xl hover:bg-slate-900 hover:text-white transition-all flex items-center justify-center hover:shadow-lg"
+                          >
+                            <i className="fa-solid fa-trash-can"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={6} className="px-8 py-20 text-center">
+                        <div className="flex flex-col items-center gap-4 opacity-30">
+                          <i className="fa-solid fa-users-slash text-6xl text-slate-200"></i>
+                          <span className="text-sm font-black text-slate-400 uppercase tracking-widest">Không tìm thấy người dùng nào</span>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         )}

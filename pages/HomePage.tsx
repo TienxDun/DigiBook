@@ -40,7 +40,7 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }
               <div className="flex items-center gap-3">
                 <div className="flex -space-x-3">
                   {[1,2,3].map(i => (
-                    <img key={i} src={`https://i.pravatar.cc/100?u=${i}`} className="w-10 h-10 rounded-full border-4 border-white shadow-sm" alt="" />
+                    <img key={i} src={`https://i.pravatar.cc/100?u=${i}`} className="w-10 h-10 rounded-full border-4 border-white shadow-sm" alt="Độc giả DigiBook" />
                   ))}
                 </div>
                 <div className="text-left">
@@ -55,11 +55,11 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }
              <div className="absolute -inset-10 bg-indigo-500/10 blur-[100px] rounded-full group-hover:bg-indigo-500/20 transition-all duration-700"></div>
              <div className="relative grid grid-cols-2 gap-4">
                 <div className="space-y-4 pt-8">
-                   <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4.2] object-cover rounded-[1.5rem] shadow-2xl transition-transform duration-700 hover:-translate-y-2" alt="" />
-                   <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4.2] object-cover rounded-[1.5rem] shadow-2xl transition-transform duration-700 hover:-translate-y-2" alt="" />
+                   <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4.2] object-cover rounded-[1.5rem] shadow-2xl transition-transform duration-700 hover:-translate-y-2" alt="Không gian đọc sách hiện đại" />
+                   <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4.2] object-cover rounded-[1.5rem] shadow-2xl transition-transform duration-700 hover:-translate-y-2" alt="Sách tri thức thế hệ mới" />
                 </div>
                 <div className="space-y-4">
-                   <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4.2] object-cover rounded-[1.5rem] shadow-2xl transition-transform duration-700 hover:-translate-y-2" alt="" />
+                   <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4.2] object-cover rounded-[1.5rem] shadow-2xl transition-transform duration-700 hover:-translate-y-2" alt="Kệ sách DigiBook" />
                    <div className="w-full aspect-[3/4.2] bg-indigo-600 rounded-[1.5rem] shadow-2xl flex flex-col items-center justify-center p-6 text-center text-white">
                       <i className="fa-solid fa-star-half-stroke text-3xl mb-3 text-amber-300"></i>
                       <p className="text-xl font-black">4.9/5</p>
@@ -74,6 +74,7 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }
       {/* Intro Section */}
       <section className="py-16 bg-slate-50">
         <div className="w-[92%] xl:w-[60%] mx-auto px-4">
+          <h2 className="sr-only">Lý do chọn DigiBook</h2>
           <div className="grid lg:grid-cols-3 gap-6">
             <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-500 group relative overflow-hidden">
                <div className="absolute -top-10 -right-10 w-40 h-40 bg-cyan-50 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-700 blur-3xl"></div>

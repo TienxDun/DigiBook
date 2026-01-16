@@ -169,10 +169,11 @@ const ProfilePage: React.FC = () => {
                         {/* Sidebar */}
                         <div className="space-y-6">
                             <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-white">
-                                <h3 className="text-lg font-black text-slate-900 mb-6 flex items-center gap-3">
+                                <h1 className="sr-only">Hồ sơ cá nhân</h1>
+                                <h2 className="text-lg font-black text-slate-900 mb-6 flex items-center gap-3">
                                     <i className="fa-solid fa-address-card text-indigo-600"></i>
                                     Tiểu sử
-                                </h3>
+                                </h2>
                                 <textarea 
                                     value={formData.bio}
                                     onChange={e => setFormData({...formData, bio: e.target.value})}
@@ -183,7 +184,7 @@ const ProfilePage: React.FC = () => {
                             
                             <div className="bg-gradient-to-br from-slate-900 to-indigo-900 rounded-[2.5rem] p-8 text-white shadow-2xl">
                                 <i className="fa-solid fa-shield-halved text-3xl mb-6 text-indigo-400"></i>
-                                <h3 className="text-xl font-black mb-2 tracking-tight">Bảo mật tài khoản</h3>
+                                <h2 className="text-xl font-black mb-2 tracking-tight">Bảo mật tài khoản</h2>
                                 <p className="text-slate-400 text-xs mb-6 font-medium leading-relaxed">Thông tin cá nhân của bạn được mã hóa và bảo mật tuyệt đối theo tiêu chuẩn quốc tế.</p>
                                 <button 
                                     onClick={() => setShowPasswordModal(true)}

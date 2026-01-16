@@ -227,7 +227,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
               >
                 <div className="text-right hidden xl:block">
                   <p className="text-[10px] font-black text-slate-900 leading-none mb-1">{user.name}</p>
-                  <p className="text-[8px] font-bold text-indigo-600 uppercase tracking-widest leading-none">Thành viên</p>
+                  <p className="text-[8px] font-bold text-indigo-600 uppercase tracking-widest leading-none">{user.isAdmin ? 'Quản trị viên' : 'Thành viên'}</p>
                 </div>
                 <div className="relative">
                   <img 
@@ -262,12 +262,12 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
                       </div>
                       Quản lý đơn hàng
                     </Link>
-                    {user.email === 'admin@gmail.com' && (
+                    {user.isAdmin && (
                       <Link to="/admin" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all group">
                         <div className="w-8 h-8 bg-indigo-50 group-hover:bg-indigo-100 rounded-xl flex items-center justify-center transition-all">
                           <i className="fa-solid fa-chart-pie text-base"></i>
                         </div>
-                        Bảng điều trị Admin
+                        Trang Quản lý
                       </Link>
                     )}
                     <div className="h-px bg-slate-50 my-2 mx-3"></div>

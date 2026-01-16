@@ -48,6 +48,7 @@ export interface UserProfile {
   gender?: string;
   birthday?: string;
   role?: 'user' | 'admin';
+  status?: 'active' | 'banned';
   createdAt?: any;
   updatedAt?: any;
 }
