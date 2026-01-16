@@ -1,8 +1,8 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { db, Order, OrderItem, SystemLog } from '../services/db';
-import { Book, CategoryInfo, Author, Coupon } from '../types';
+import { db, Order, OrderItem, SystemLog, AVAILABLE_AI_MODELS } from '../services/db';
+import { Book, CategoryInfo, Author, Coupon, AIModelConfig } from '../types';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -10,13 +10,15 @@ const formatPrice = (price: number) => {
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'overview' | 'books' | 'orders' | 'categories' | 'authors' | 'coupons' | 'logs'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'books' | 'orders' | 'categories' | 'authors' | 'coupons' | 'logs' | 'ai'>('overview');
   const [books, setBooks] = useState<Book[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [categories, setCategories] = useState<CategoryInfo[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [logs, setLogs] = useState<SystemLog[]>([]);
+  const [aiConfig, setAiConfig] = useState<{ activeModelId: string }>({ activeModelId: 'gemini-3-flash' });
+  const [isUpdatingAI, setIsUpdatingAI] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [filterStock, setFilterStock] = useState<'all' | 'low' | 'out'>('all');
@@ -90,21 +92,23 @@ const AdminDashboard: React.FC = () => {
 
   const refreshData = async () => {
     try {
-      const [booksData, catsData, authorsData, couponsData] = await Promise.all([
+      const [booksData, catsData, authorsData, couponsData, aiConfigData] = await Promise.all([
         db.getBooks(),
         db.getCategories(),
         db.getAuthors(),
-        db.getCoupons()
+        db.getCoupons(),
+        db.getAIConfig()
       ]);
       setBooks(booksData);
       setCategories(catsData);
       setAuthors(authorsData);
       setCoupons(couponsData);
+      setAiConfig(aiConfigData);
       
       const allOrders = await db.getOrdersByUserId('admin');
       setOrders(allOrders);
 
-      if (activeTab === 'logs') {
+      if (activeTab === 'logs' || activeTab === 'ai') {
         const logsData = await db.getSystemLogs(0, 50);
         setLogs(logsData);
         setHasMoreLogs(logsData.length === 50);
@@ -233,9 +237,18 @@ const AdminDashboard: React.FC = () => {
 
   const handleAutoSync = async () => {
     setIsSyncing(true);
-    setSeedStatus({ msg: "Đang tìm kiếm sách từ Google Books...", type: 'info' });
+    setSeedStatus({ msg: "Đang quét dữ liệu từ Google Books & Open Library...", type: 'info' });
     try {
-      const queries = ['sách kinh tế', 'sách văn học', 'sách kỹ năng sống', 'lịch sử việt nam'];
+      const queries = [
+        'sách kinh tế bán chạy', 
+        'văn học kinh điển', 
+        'tâm lý học hành vi', 
+        'lịch sử thế giới',
+        'triết học phương đông',
+        'sách thiếu nhi hay',
+        'phát triển bản thân',
+        'startup khởi nghiệp'
+      ];
       const randomQuery = queries[Math.floor(Math.random() * queries.length)];
       
       const newBooks = await db.fetchBooksFromGoogle(randomQuery, 20);
@@ -592,6 +605,21 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleUpdateAIModel = async (modelId: string) => {
+    if (!window.confirm(`Bạn có chắc muốn chuyển sang sử dụng model "${modelId}"?`)) return;
+    setIsUpdatingAI(true);
+    try {
+      await db.updateAIConfig(modelId);
+      setAiConfig({ activeModelId: modelId });
+      alert(`Đã chuyển đổi sang model ${modelId} thành công!`);
+    } catch (error) {
+      console.error('Error updating AI model:', error);
+      alert('Lỗi khi cập nhật cấu hình AI.');
+    } finally {
+      setIsUpdatingAI(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex relative z-[200]">
       <aside className="w-64 bg-slate-900 text-white flex flex-col sticky top-0 h-screen z-50 shadow-2xl">
@@ -608,6 +636,7 @@ const AdminDashboard: React.FC = () => {
             { id: 'categories', icon: 'fa-folder-tree', label: 'Danh mục' },
             { id: 'orders', icon: 'fa-bag-shopping', label: 'Đơn hàng' },
             { id: 'coupons', icon: 'fa-ticket', label: 'Khuyến mãi' },
+            { id: 'ai', icon: 'fa-robot', label: 'Cơ chế AI' },
             { id: 'logs', icon: 'fa-receipt', label: 'Nhật ký' }
           ].map(tab => (
             <button
@@ -664,6 +693,7 @@ const AdminDashboard: React.FC = () => {
               {activeTab === 'overview' ? 'Báo cáo tổng quan' : 
                activeTab === 'books' ? 'Quản lý kho hàng' : 
                activeTab === 'logs' ? 'Nhật ký hệ thống' : 
+               activeTab === 'ai' ? 'Cấu hình Trí tuệ Nhân tạo' :
                activeTab === 'coupons' ? 'Quản lý Khuyến mãi' : 'Quản lý Đơn hàng'}
             </h2>
           </div>
@@ -797,6 +827,113 @@ const AdminDashboard: React.FC = () => {
                   )}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'ai' && (
+          <div className="space-y-8 animate-fadeIn">
+            {/* AI Summary Header */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-indigo-600 rounded-[2rem] p-8 text-white shadow-xl shadow-indigo-200">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+                    <i className="fa-solid fa-microchip text-xl"></i>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Model Hiện tại</p>
+                    <h3 className="text-xl font-black">{AVAILABLE_AI_MODELS.find(m => m.id === aiConfig.activeModelId)?.name || 'Gemini 3 Flash'}</h3>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="opacity-60">Trạng thái:</span>
+                    <span className="font-bold">Đang hoạt động</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="opacity-60">Phiên bản:</span>
+                    <span className="font-bold">Latest Preview</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm col-span-2">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center">
+                    <i className="fa-solid fa-circle-info"></i>
+                  </div>
+                  <h3 className="font-black text-slate-900">Lưu ý về hạn mức (Rate Limits)</h3>
+                </div>
+                <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                  Hệ thống sử dụng Gemini API. Các model có hạn mức khác nhau về RPM (Requests/Min) và TPM (Tokens/Min). 
+                  Vui lòng chọn model phù hợp với lưu lượng truy cập của cửa hàng để tránh lỗi gián đoạn dịch vụ AI.
+                </p>
+              </div>
+            </div>
+
+            {/* Model Selection Table */}
+            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
+              <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center">
+                <h3 className="font-black text-slate-900 text-lg">Danh sách Model khả dụng</h3>
+                <div className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                  {AVAILABLE_AI_MODELS.length} Model được hỗ trợ
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead className="bg-slate-50 border-b border-slate-100">
+                    <tr>
+                      <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Model ID</th>
+                      <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Phân loại</th>
+                      <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">RPM</th>
+                      <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">TPM</th>
+                      <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">RPD</th>
+                      <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Hành động</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {AVAILABLE_AI_MODELS.map(model => (
+                      <tr key={model.id} className={`hover:bg-slate-50 transition-all group ${aiConfig.activeModelId === model.id ? 'bg-indigo-50/30' : ''}`}>
+                        <td className="px-8 py-6">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${aiConfig.activeModelId === model.id ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                              <i className="fa-solid fa-microchip text-xs"></i>
+                            </div>
+                            <div>
+                              <p className="text-sm font-black text-slate-900">{model.name}</p>
+                              <code className="text-[10px] text-slate-400">{model.id}</code>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-8 py-6">
+                          <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest">
+                            {model.category}
+                          </span>
+                        </td>
+                        <td className="px-8 py-6 text-center text-sm font-bold text-slate-600">{model.rpm}</td>
+                        <td className="px-8 py-6 text-center text-sm font-bold text-slate-600">{model.tpm}</td>
+                        <td className="px-8 py-6 text-center text-sm font-bold text-slate-600">{model.rpd}</td>
+                        <td className="px-8 py-6 text-right">
+                          {aiConfig.activeModelId === model.id ? (
+                            <div className="flex items-center justify-end gap-2 text-indigo-600 font-black text-[10px] uppercase tracking-widest">
+                              <i className="fa-solid fa-circle-check"></i>
+                              <span>Đang sử dụng</span>
+                            </div>
+                          ) : (
+                            <button
+                              disabled={isUpdatingAI}
+                              onClick={() => handleUpdateAIModel(model.id)}
+                              className="px-4 py-2 bg-white border border-slate-200 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all disabled:opacity-50"
+                            >
+                              Sử dụng
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
@@ -1092,6 +1229,88 @@ const AdminDashboard: React.FC = () => {
                     <span>Tạo khuyến mãi</span>
                   </button>
                 </div>
+              </div>
+            </div>
+
+            {/* Revenue & Distribution Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <div className="lg:col-span-8 bg-white p-8 lg:p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
+                <div className="flex items-center justify-between mb-10">
+                  <div>
+                    <h3 className="text-xl font-black text-slate-900">Doanh thu hệ thống</h3>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Phân tích 7 ngày gần nhất</p>
+                  </div>
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-indigo-600"></div>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tăng trưởng</span>
+                    </div>
+                    <select className="bg-slate-50 border-none rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-2 ring-indigo-50">
+                      <option>Tháng này</option>
+                      <option>Tháng trước</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div className="h-80 flex items-end justify-between gap-4 lg:gap-8 px-2 lg:px-4">
+                  {[45, 62, 38, 85, 55, 92, 75].map((v, i) => (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-4 group">
+                      <div className="relative w-full flex justify-center items-end h-full">
+                         <div 
+                           style={{ height: `${v}%` }} 
+                           className="w-full max-w-[48px] bg-indigo-50 group-hover:bg-indigo-600 rounded-2xl transition-all duration-700 relative shadow-inner"
+                         >
+                           <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-black px-3 py-1.5 rounded-xl opacity-0 group-hover:opacity-100 transition-all transform group-hover:-translate-y-2 shadow-xl whitespace-nowrap">
+                             {(v * 1200000).toLocaleString()}đ
+                           </div>
+                         </div>
+                      </div>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] transform -rotate-45 sm:rotate-0">
+                        T{i + 2 === 8 ? 'CN' : i + 2}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="lg:col-span-4 space-y-8">
+                 <div className="bg-white p-8 lg:p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
+                    <h3 className="text-xl font-black text-slate-900 mb-8">Danh mục hot</h3>
+                    <div className="space-y-8">
+                      {[
+                        { name: 'Kinh tế', percent: 42, color: 'bg-indigo-600', icon: 'fa-chart-line' },
+                        { name: 'Văn học', percent: 28, color: 'bg-emerald-500', icon: 'fa-hat-wizard' },
+                        { name: 'Kỹ năng', percent: 18, color: 'bg-amber-500', icon: 'fa-brain' },
+                        { name: 'Thiếu nhi', percent: 12, color: 'bg-rose-500', icon: 'fa-child' }
+                      ].map((cat, i) => (
+                        <div key={i} className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-8 h-8 ${cat.color} rounded-lg flex items-center justify-center text-white text-[10px]`}>
+                                <i className={`fa-solid ${cat.icon}`}></i>
+                              </div>
+                              <span className="text-xs font-black text-slate-700 uppercase tracking-widest">{cat.name}</span>
+                            </div>
+                            <span className="text-xs font-black text-slate-900">{cat.percent}%</span>
+                          </div>
+                          <div className="h-2.5 w-full bg-slate-50 rounded-full overflow-hidden border border-slate-100">
+                            <div style={{ width: `${cat.percent}%` }} className={`h-full ${cat.color} rounded-full shadow-lg`}></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                 </div>
+
+                 <div className="bg-slate-900 p-8 lg:p-10 rounded-[2.5rem] text-white shadow-2xl shadow-indigo-100 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+                    <div className="relative z-10">
+                      <h4 className="text-lg font-black mb-2 uppercase tracking-tight">Hệ thống AI</h4>
+                      <p className="text-[11px] text-slate-400 font-bold mb-6 leading-relaxed uppercase tracking-widest">Tự động hóa quản lý kho & báo cáo thông minh</p>
+                      <button className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-500/20 active:scale-95">
+                        Khởi chạy Agent
+                      </button>
+                    </div>
+                 </div>
               </div>
             </div>
 

@@ -1,4 +1,6 @@
 
+/// <reference types="vite/client" />
+
 import {
   collection,
   getDocs,
@@ -19,8 +21,24 @@ import {
   clearIndexedDbPersistence
 } from "firebase/firestore";
 import { db_fs, auth } from "./firebase";
-import { Book, CartItem, CategoryInfo, Author, UserProfile, Coupon } from '../types';
+import { Book, CartItem, CategoryInfo, Author, UserProfile, Coupon, AIModelConfig } from '../types';
 import { CATEGORIES } from '../constants';
+
+export const AVAILABLE_AI_MODELS: AIModelConfig[] = [
+  { id: 'gemini-3-pro-preview', name: 'Gemini 3 Pro (Tốt nhất)', category: 'Frontier AI', rpm: '5', tpm: '1M', rpd: '50' },
+  { id: 'gemini-3-flash', name: 'Gemini 3 Flash', category: 'Text-out models', rpm: '5', tpm: '250K', rpd: '20' },
+  { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', category: 'Text-out models', rpm: '5', tpm: '250K', rpd: '20' },
+  { id: 'gemma-3-27b', name: 'Gemma 3 27B', category: 'Open Models (Large)', rpm: '30', tpm: '15K', rpd: '14.4K' },
+  { id: 'gemma-3-12b', name: 'Gemma 3 12B', category: 'Open Models (Medium)', rpm: '30', tpm: '15K', rpd: '14.4K' },
+  { id: 'gemma-3-4b', name: 'Gemma 3 4B', category: 'Open Models (Small)', rpm: '30', tpm: '15K', rpd: '14.4K' },
+  { id: 'gemma-3-2b', name: 'Gemma 3 2B', category: 'Open Models (Micro)', rpm: '30', tpm: '15K', rpd: '14.4K' },
+  { id: 'gemma-3-1b', name: 'Gemma 3 1B', category: 'Open Models (Micro)', rpm: '30', tpm: '15K', rpd: '14.4K' },
+  { id: 'gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash-Lite', category: 'Text-out models', rpm: '10', tpm: '250K', rpd: '20' },
+  { id: 'gemini-2.5-flash-tts', name: 'Gemini 2.5 Flash-TTS', category: 'Multi-modal', rpm: '3', tpm: '10K', rpd: '10' },
+  { id: 'gemini-2.5-flash-native-audio-dialog', name: 'Gemini 2.5 Flash Native Audio', category: 'Live API', rpm: 'Unlimited', tpm: '1M', rpd: 'Unlimited' },
+  { id: 'gemini-robotics-er-1.5-preview', name: 'Gemini Robotics ER 1.5', category: 'Research/Other', rpm: '10', tpm: '250K', rpd: '20' },
+  { id: 'gemini-embedding-1.0', name: 'Gemini Embedding 1.0', category: 'Utility', rpm: '100', tpm: '30K', rpd: '1K' },
+];
 
 export interface Review {
   id?: string;
@@ -193,6 +211,29 @@ class DataService {
     );
   }
 
+  async getRelatedBooks(category: string, currentBookId: string, author?: string, limitCount: number = 4): Promise<Book[]> {
+    return this.wrap(
+      (async () => {
+        const booksRef = collection(db_fs, 'books');
+        
+        // Query theo category trước
+        const qCat = query(
+          booksRef, 
+          where('category', '==', category),
+          limit(limitCount + 1)
+        );
+        const snapCat = await getDocs(qCat);
+        let related = snapCat.docs
+          .map(d => ({ id: d.id, ...d.data() } as Book))
+          .filter(b => b.id !== currentBookId);
+          
+        // Nếu vẫn ít, có thể lấy thêm nhưng hiện tại chỉ cần category là đủ cho logic này
+        return related.slice(0, limitCount);
+      })(),
+      []
+    );
+  }
+
   async getCategories(): Promise<CategoryInfo[]> {
     return this.wrap(
       getDocs(collection(db_fs, 'categories')).then(snap => snap.docs.map(d => d.data() as CategoryInfo)),
@@ -227,6 +268,29 @@ class DataService {
 
   async createOrder(orderInfo: any, cartItems: CartItem[]) {
     try {
+      // 1. Kiểm tra tồn kho trước khi tạo đơn
+      const bookChecks = await Promise.all(
+        cartItems.map(item => getDoc(doc(db_fs, 'books', item.id)))
+      );
+
+      const outOfStockItems: string[] = [];
+      cartItems.forEach((item, index) => {
+        const snap = bookChecks[index];
+        if (snap.exists()) {
+          const currentStock = snap.data().stock_quantity || 0;
+          if (currentStock < item.quantity) {
+            outOfStockItems.push(item.title);
+          }
+        }
+      });
+
+      if (outOfStockItems.length > 0) {
+        const error = new Error(`Rất tiếc, các sách sau đã hết hàng hoặc không đủ số lượng: ${outOfStockItems.join(', ')}`);
+        (error as any).code = 'OUT_OF_STOCK';
+        throw error;
+      }
+
+      // 2. Nếu đủ kho, tiến hành tạo đơn
       const items: OrderItem[] = cartItems.map(item => ({
         bookId: item.id,
         title: item.title,
@@ -235,23 +299,33 @@ class DataService {
         cover: item.cover
       }));
       
-      const result = await addDoc(collection(db_fs, 'orders'), {
+      const batch = writeBatch(db_fs);
+      const orderRef = doc(collection(db_fs, 'orders'));
+      const orderId = orderRef.id;
+
+      batch.set(orderRef, {
         ...orderInfo,
         items,
         date: new Date().toLocaleDateString('vi-VN'),
         createdAt: serverTimestamp()
       });
 
-      const batch = writeBatch(db_fs);
-      cartItems.forEach(item => {
-        batch.update(doc(db_fs, 'books', item.id), { stock_quantity: increment(-item.quantity) });
+      cartItems.forEach((item, index) => {
+        if (bookChecks[index].exists()) {
+          batch.update(doc(db_fs, 'books', item.id), { stock_quantity: increment(-item.quantity) });
+        }
       });
+
       await batch.commit();
 
-      this.logActivity('ORDER_CREATED', result.id);
-      return { id: result.id };
+      this.logActivity('ORDER_CREATED', orderId);
+      return { id: orderId };
     } catch (e: any) {
-      this.logActivity('ORDER_CREATED', e.message, 'ERROR');
+      if (e.code === 'OUT_OF_STOCK') {
+        this.logActivity('ORDER_FAILED', e.message, 'ERROR');
+      } else {
+        this.logActivity('ORDER_CREATED', e.message, 'ERROR');
+      }
       throw e;
     }
   }
@@ -519,19 +593,40 @@ class DataService {
           else if (gbCats.some((c: string) => c.toLowerCase().includes('child') || c.toLowerCase().includes('juvenile'))) appCat = 'Thiếu nhi';
           else if (gbCats.some((c: string) => c.toLowerCase().includes('self-help') || c.toLowerCase().includes('skill'))) appCat = 'Kỹ năng';
 
+          // Cải thiện độ phân giải hình ảnh từ Google Books
+          let coverUrl = info.imageLinks?.thumbnail?.replace('http:', 'https:') || "";
+          
+          if (coverUrl.includes('zoom=1')) {
+            coverUrl = coverUrl.replace('zoom=1', 'zoom=2'); // Thử lấy ảnh chất lượng cao hơn
+          }
+
+          // Dự phòng ảnh từ Open Library (Chất lượng thường cao hơn - size Large)
+          const isbn13 = info.industryIdentifiers?.find((id: any) => id.type === 'ISBN_13')?.identifier;
+          if (isbn13) {
+            // Chúng ta có thể dùng URL của Open Library làm ưu tiên hoặc fallback nếu Google Books quá xấu
+            // Ở đây tôi sẽ giữ Google Books vì nó khớp tiêu đề hơn, nhưng bạn có thể đổi logic
+          }
+
+          if (!coverUrl) {
+             coverUrl = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=800&auto=format&fit=crop';
+          }
+
+          // Thử lấy thêm poster từ OpenLibrary nếu có ISBN
+          const finalIsbn = isbn;
+          
           return {
-            id: isbn,
+            id: finalIsbn,
             title: info.title,
             author: info.authors?.join(', ') || 'Nhiều tác giả',
-            authorBio: info.description?.substring(0, 200) || 'Thông tin tác giả đang được cập nhật.',
+            authorBio: info.description?.substring(0, 300) || 'Thông tin tác giả đang được cập nhật.',
             price: Math.floor(Math.random() * (350000 - 85000) + 85000), // Random price VND
             original_price: Math.floor(Math.random() * (450000 - 400000) + 400000),
             stock_quantity: Math.floor(Math.random() * 50) + 5,
             rating: info.averageRating || (4 + Math.random()).toFixed(1),
-            cover: info.imageLinks?.thumbnail?.replace('http:', 'https:') || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=800&auto=format&fit=crop',
+            cover: coverUrl,
             category: appCat,
             description: info.description || 'Chưa có mô tả chi tiết cho cuốn sách này.',
-            isbn: isbn,
+            isbn: finalIsbn,
             pages: info.pageCount || 200,
             publisher: info.publisher || 'Đang cập nhật',
             publishYear: parseInt(info.publishedDate?.split('-')[0]) || 2023,
@@ -594,6 +689,113 @@ class DataService {
       0,
       'BATCH_SAVE_BOOKS',
       `Imported ${books.length} items and synced authors`
+    );
+  }
+
+  async getAIInsight(bookTitle: string, author: string, description: string): Promise<string> {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+      return "Tính năng AI đang tạm thời chưa khả dụng do thiếu cấu hình API Key. Vui lòng liên hệ quản trị viên.";
+    }
+
+    try {
+      const config = await this.getAIConfig();
+      const modelId = config.activeModelId || 'gemini-3-pro-preview';
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
+      const prompt = `Bạn là một chuyên gia phê bình sách kỳ cựu tại DigiBook. Hãy viết một đoạn tóm tắt ngắn gọn (khoảng 100-150 chữ) mang tính khơi gợi và phân tích giá trị cốt lõi của cuốn sách sau bằng tiếng Việt.
+      Tên sách: ${bookTitle}
+      Tác giả: ${author}
+      Mô tả cơ bản: ${description}
+      
+      Yêu cầu:
+      - Ngôn ngữ chuyên nghiệp, sang trọng, cuốn hút.
+      - Nêu bật tại sao độc giả nên đọc cuốn sách này.
+      - Không lặp lại nguyên văn mô tả cơ bản.
+      - Bắt đầu đoạn bằng một câu khẳng định mạnh mẽ về cuốn sách.`;
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }]
+        })
+      });
+
+      const data = await response.json();
+      const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      
+      if (!textOutput) throw new Error("AI không trả về kết quả.");
+      
+      // Log việc sử dụng API
+      this.logActivity('AI_INSIGHT', `Generated insight for "${bookTitle}" using ${modelId}`);
+      
+      return textOutput.trim();
+    } catch (error: any) {
+      console.error("Gemini AI Error:", error);
+      this.logActivity('AI_INSIGHT_ERROR', `Failed for "${bookTitle}": ${error.message}`, 'ERROR');
+      return "AI đang bận một chút, bạn hãy quay lại sau nhé! Lỗi: " + error.message;
+    }
+  }
+
+  async getAuthorAIInsight(authorName: string): Promise<string> {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) return "Thông tin về tác giả đang được cập nhật...";
+
+    try {
+      const config = await this.getAIConfig();
+      const modelId = config.activeModelId || 'gemini-3-pro-preview'; // Default to the top model
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
+      const prompt = `Bạn là một chuyên gia nghiên cứu văn học. Hãy viết một đoạn giới thiệu chuyên sâu và lôi cuốn (khoảng 150-200 chữ) về tác giả "${authorName}". 
+      Hãy nêu bật phong cách sáng tác đặc trưng, những chủ đề chính trong tác phẩm của họ và tầm ảnh hưởng của họ trong giới văn học. Trả lời bằng tiếng Việt, giọng văn trang trọng nhưng giàu cảm xúc.`;
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }]
+        })
+      });
+
+      const data = await response.json();
+      const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      
+      if (textOutput) {
+        this.logActivity('AI_AUTHOR_INSIGHT', `Generated insight for "${authorName}" using ${modelId}`);
+      }
+
+      return textOutput ? textOutput.trim() : "Thông tin về tác giả đang được cập nhật...";
+    } catch (error: any) {
+      console.error("Author AI Error:", error);
+      this.logActivity('AI_AUTHOR_ERROR', `Failed for "${authorName}": ${error.message}`, 'ERROR');
+      return "Thông tin về tác giả đang được cập nhật...";
+    }
+  }
+
+  // AI Configuration Management
+  async getAIConfig(): Promise<{ activeModelId: string }> {
+    try {
+      const docRef = doc(db_fs, 'system_configs', 'ai_settings');
+      const snap = await getDoc(docRef);
+      if (snap.exists()) {
+        return snap.data() as { activeModelId: string };
+      }
+      return { activeModelId: 'gemini-3-pro-preview' };
+    } catch (error) {
+      console.error("Error getting AI config:", error);
+      return { activeModelId: 'gemini-3-pro-preview' };
+    }
+  }
+
+  async updateAIConfig(modelId: string): Promise<void> {
+    await this.wrap(
+      setDoc(doc(db_fs, 'system_configs', 'ai_settings'), { 
+        activeModelId: modelId,
+        updatedAt: serverTimestamp(),
+        updatedBy: auth.currentUser?.email || 'admin'
+      }),
+      undefined,
+      'UPDATE_AI_CONFIG',
+      `Switched to model: ${modelId}`
     );
   }
 }

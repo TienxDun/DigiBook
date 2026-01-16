@@ -35,12 +35,12 @@ import {
 
 // Thông tin cấu hình Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyD-wlKR1855xqamk5qdi7vhVCDO4ykcG78",
-  authDomain: "digibook-2026.firebaseapp.com",
-  projectId: "digibook-2026",
-  storageBucket: "digibook-2026.firebasestorage.app",
-  messagingSenderId: "684984926015",
-  appId: "1:684984926015:web:8ba46740804318d7eedd8a"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 let app;

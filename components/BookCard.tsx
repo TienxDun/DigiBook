@@ -88,6 +88,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart }) => {
               src={getOptimizedImageUrl(book.cover)} 
               alt={book.title} 
               onLoad={() => setImgLoaded(true)}
+              loading="lazy"
               className={`w-full h-full object-cover transition-all duration-1000 ease-out ${isHovered ? 'scale-110 rotate-1' : 'scale-100 rotate-0'} ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
             />
             
@@ -114,7 +115,9 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart }) => {
             {book.title}
           </h3>
         </Link>
-        <p className="text-slate-400 text-[10px] font-medium mb-3 truncate">{book.author}</p>
+        <Link to={`/author/${book.author}`} className="block">
+          <p className="text-slate-400 text-[10px] font-medium mb-3 truncate hover:text-indigo-600 transition-colors">{book.author}</p>
+        </Link>
         
         <div className="mt-auto pt-3 border-t border-slate-50 flex items-center justify-between">
           <div className="flex flex-col">
