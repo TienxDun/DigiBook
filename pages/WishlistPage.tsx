@@ -13,11 +13,12 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart }) => {
   const { wishlist } = useAuth();
 
   return (
-    <div className="container mx-auto px-6 py-12 lg:py-20 fade-in">
+    <div className="w-[92%] xl:w-[60%] mx-auto px-4 py-12 lg:py-20 fade-in">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-4">
         <div>
-          <h1 className="text-4xl font-extrabold text-slate-900 mb-2 tracking-tight">Sách yêu thích</h1>
-          <p className="text-slate-500 font-medium">Bạn có <span className="text-indigo-600 font-bold">{wishlist.length}</span> cuốn sách trong danh sách lưu trữ.</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 mb-2">Bộ sưu tập cá nhân</p>
+          <h1 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight mb-1">Sách yêu thích</h1>
+          <p className="text-slate-500 text-sm font-medium">Bạn có <span className="text-indigo-600 font-bold">{wishlist.length}</span> cuốn sách trong danh sách lưu trữ.</p>
         </div>
         <Link to="/" className="inline-flex items-center gap-2 text-sm font-bold text-indigo-600 hover:bg-indigo-50 px-4 py-2 rounded-xl transition-all w-fit">
           <i className="fa-solid fa-plus-circle"></i>
@@ -26,7 +27,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart }) => {
       </div>
 
       {wishlist.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-8">
           {wishlist.map(book => (
             // Chỉ hiển thị BookCard, nút Heart đã được tích hợp sẵn bên trong Card và xử lý logic z-index tốt
             <BookCard key={book.id} book={book} onAddToCart={onAddToCart} />

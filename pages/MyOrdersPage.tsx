@@ -47,11 +47,12 @@ const MyOrdersPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-6 py-12 lg:py-20 fade-in">
+    <div className="w-[92%] xl:w-[60%] mx-auto px-4 py-12 lg:py-20 fade-in">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div>
-          <h1 className="text-4xl font-extrabold text-slate-900 mb-2">Đơn hàng của tôi</h1>
-          <p className="text-slate-500 font-medium">Theo dõi và quản lý các đơn hàng bạn đã đặt tại DigiBook.</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 mb-2">Lịch sử giao dịch</p>
+          <h1 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight mb-1">Đơn hàng của tôi</h1>
+          <p className="text-slate-500 text-sm font-medium">Theo dõi và quản lý các đơn hàng bạn đã đặt tại DigiBook.</p>
         </div>
       </div>
 

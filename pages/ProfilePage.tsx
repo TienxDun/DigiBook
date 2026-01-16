@@ -95,7 +95,7 @@ const ProfilePage: React.FC = () => {
 
     return (
         <div className="bg-slate-50 min-h-screen py-12 lg:py-20">
-            <div className="container mx-auto px-6">
+            <div className="w-[92%] xl:w-[60%] mx-auto px-4">
                 <div className="max-w-4xl mx-auto">
                     {/* Header */}
                     <div className="flex flex-col md:flex-row items-center gap-8 mb-12">

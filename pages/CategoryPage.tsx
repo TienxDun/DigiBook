@@ -11,7 +11,7 @@ interface CategoryPageProps {
   onAddToCart: (book: Book) => void;
 }
 
-const ITEMS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 10;
 
 const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
   const { categoryName } = useParams<{ categoryName: string }>();
@@ -77,7 +77,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
       {isPromotionPage ? (
         <section className="bg-indigo-600 pt-32 pb-20 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-1/2 h-full bg-white/5 skew-x-12 translate-x-20"></div>
-          <div className="container mx-auto px-6 relative z-10">
+          <div className="w-[92%] xl:w-[60%] mx-auto px-4 relative z-10">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
               <div className="text-white text-center lg:text-left">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-rose-500 rounded-full text-xs font-black uppercase tracking-widest mb-6 animate-bounce">
@@ -120,7 +120,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
         <div className="h-32"></div>
       )}
 
-      <div className="container mx-auto px-6 -mt-10 relative z-20">
+      <div className="w-[92%] xl:w-[60%] mx-auto px-4 -mt-10 relative z-20">
         <div className="bg-white p-4 sm:p-6 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
           <div className="flex flex-wrap items-center gap-3">
              {!isPromotionPage && (
@@ -128,7 +128,10 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
                  <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
                    <i className={`fa-solid ${currentCategory.icon} text-xl`}></i>
                  </div>
-                 <h2 className="text-2xl font-black text-slate-900">{categoryName || 'Tất cả sách'}</h2>
+                 <div>
+                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 mb-0.5">Danh mục</p>
+                   <h2 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">{categoryName || 'Tất cả sách'}</h2>
+                 </div>
                </div>
              )}
              {isPromotionPage && (
@@ -156,7 +159,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
 
         {paginatedBooks.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-8 mb-16">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-8 mb-16">
               {paginatedBooks.map(book => (
                 <BookCard key={book.id} book={book} onAddToCart={onAddToCart} />
               ))}
