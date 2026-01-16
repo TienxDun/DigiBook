@@ -16,6 +16,8 @@ import {
 } from "firebase/auth";
 import {
   getFirestore,
+  terminate,
+  clearIndexedDbPersistence,
   collection,
   getDocs,
   doc,
@@ -51,6 +53,10 @@ try {
   auth = getAuth(app);
   db_fs = getFirestore(app);
   
+  // Xử lý lỗi BloomFilterError bằng cách xóa cache nếu cần
+  // Lưu ý: Trong môi trường thực tế, có thể gọi hàm này dựa trên bắt lỗi hoặc khi khởi động
+  // clearIndexedDbPersistence(db_fs).catch(err => console.error("Could not clear persistence:", err));
+
   googleProvider.setCustomParameters({
     prompt: 'select_account'
   });
@@ -62,6 +68,8 @@ export {
   auth, 
   googleProvider, 
   db_fs, 
+  terminate,
+  clearIndexedDbPersistence,
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword,
   updateProfile,

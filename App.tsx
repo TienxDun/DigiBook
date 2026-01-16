@@ -9,7 +9,11 @@ import {
   signOut,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  updateProfile
+  updateProfile,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  sendPasswordResetEmail
 } from "./services/firebase";
 import Header from './components/Header';
 import BookCard from './components/BookCard';
@@ -46,6 +50,47 @@ const MainContent: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     <main className={`flex-grow ${isAdmin ? '' : 'pt-20 lg:pt-20'}`}>
       {children}
     </main>
+  );
+};
+
+const LayoutWrapper: React.FC<{ 
+  children: React.ReactNode, 
+  cartCount: number, 
+  cartItems: CartItem[], 
+  onOpenCart: () => void, 
+  onSearch: (q: string) => void,
+  isCartOpen: boolean,
+  onCloseCart: () => void,
+  onRemoveCart: (id: string) => void,
+  onUpdateCartQty: (id: string, delta: number) => void
+}> = ({ children, cartCount, cartItems, onOpenCart, onSearch, isCartOpen, onCloseCart, onRemoveCart, onUpdateCartQty }) => {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
+
+  return (
+    <div className="min-h-screen flex flex-col bg-slate-50">
+      {!isAdmin && (
+        <Header 
+          cartCount={cartCount} 
+          cartItems={cartItems} 
+          onOpenCart={onOpenCart} 
+          onSearch={onSearch} 
+        />
+      )}
+      
+      <MainContent>{children}</MainContent>
+      
+      {!isAdmin && <Footer />}
+      {!isAdmin && <MobileNav cartCount={cartCount} onOpenCart={onOpenCart} />}
+      
+      <CartSidebar 
+        isOpen={isCartOpen} 
+        onClose={onCloseCart} 
+        items={cartItems} 
+        onRemove={onRemoveCart} 
+        onUpdateQty={onUpdateCartQty} 
+      />
+    </div>
   );
 };
 
@@ -240,9 +285,16 @@ const App: React.FC = () => {
       showLoginModal, setShowLoginModal, wishlist, toggleWishlist, loading 
     }}>
       <Router>
-        <div className="min-h-screen flex flex-col bg-slate-50">
-          <Header cartCount={cart.reduce((s, i) => s + i.quantity, 0)} cartItems={cart} onOpenCart={() => setIsCartOpen(true)} onSearch={setSearchQuery} />
-          
+        <LayoutWrapper 
+          cartCount={cart.reduce((s, i) => s + i.quantity, 0)}
+          cartItems={cart}
+          onOpenCart={() => setIsCartOpen(true)}
+          onSearch={setSearchQuery}
+          isCartOpen={isCartOpen}
+          onCloseCart={() => setIsCartOpen(false)}
+          onRemoveCart={(id) => setCart(c => c.filter(i => i.id !== id))}
+          onUpdateCartQty={(id, delta) => setCart(c => c.map(i => i.id === id ? {...i, quantity: Math.max(1, i.quantity + delta)} : i))}
+        >
           {showLoginModal && (
             <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-xl transition-all">
               <div className="relative bg-white w-full max-w-md rounded-[2.5rem] p-1 shadow-[0_32px_120px_-10px_rgba(0,0,0,0.5)] animate-fadeIn overflow-hidden">
@@ -443,7 +495,7 @@ const App: React.FC = () => {
                         <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-500 group relative overflow-hidden">
                            <div className="absolute -top-10 -right-10 w-40 h-40 bg-cyan-50 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-700 blur-3xl"></div>
                            <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-xl shadow-cyan-200 relative z-10">
-                              <i className="fa-solid fa-shield-check"></i>
+                              <i className="fa-solid fa-certificate"></i>
                            </div>
                            <h3 className="text-xl font-black text-slate-900 mb-4 relative z-10">Sách Bản Quyền</h3>
                            <p className="text-slate-500 leading-relaxed font-medium text-xs tracking-wide relative z-10">Cam kết 100% sách chính hãng từ các nhà xuất bản uy tín nhất Việt Nam và thế giới.</p>
@@ -451,7 +503,7 @@ const App: React.FC = () => {
                         <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 group lg:-translate-y-12 relative overflow-hidden border-b-4 border-b-orange-500/20">
                            <div className="absolute -top-10 -right-10 w-40 h-40 bg-orange-50 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-700 blur-3xl"></div>
                            <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-rose-500 rounded-2xl flex items-center justify-center text-white text-2xl mb-8 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500 shadow-xl shadow-orange-200 relative z-10">
-                              <i className="fa-solid fa-bolt-lightning"></i>
+                              <i className="fa-solid fa-bolt"></i>
                            </div>
                            <h3 className="text-xl font-black text-slate-900 mb-4 relative z-10">Giao Tốc Hành</h3>
                            <p className="text-slate-500 leading-relaxed font-medium text-xs tracking-wide relative z-10">Dịch vụ giao hàng 2h tại nội thành và đóng gói cẩn thận từng trang sách quý giá của bạn.</p>
@@ -550,7 +602,7 @@ const App: React.FC = () => {
                             <i className="fa-solid fa-sparkles text-rose-500 text-[10px]"></i>
                             <p className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em]">Curated For You</p>
                           </div>
-                          <h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+                          <h2 className="text-3xl lg:text-3xl font-black text-slate-900 tracking-tight leading-tight">
                             Tác phẩm <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-orange-500">đề cử</span> dành riêng cho bạn
                           </h2>
                         </div>
@@ -614,11 +666,7 @@ const App: React.FC = () => {
               <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
             </Routes>
           </MainContent>
-          
-          <Footer />
-          <MobileNav cartCount={cart.reduce((s, i) => s + i.quantity, 0)} onOpenCart={() => setIsCartOpen(true)} />
-          <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} items={cart} onRemove={(id) => setCart(c => c.filter(i => i.id !== id))} onUpdateQty={(id, delta) => setCart(c => c.map(i => i.id === id ? {...i, quantity: Math.max(1, i.quantity + delta)} : i))} />
-        </div>
+        </LayoutWrapper>
       </Router>
     </AuthContext.Provider>
   );

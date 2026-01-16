@@ -58,6 +58,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
 
   useEffect(() => {
     setCurrentPage(1);
+    topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [categoryName, sortBy]);
 
   const paginatedBooks = useMemo(() => {

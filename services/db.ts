@@ -14,7 +14,9 @@ import {
   serverTimestamp,
   increment,
   writeBatch,
-  limit
+  limit,
+  terminate,
+  clearIndexedDbPersistence
 } from "firebase/firestore";
 import { db_fs, auth } from "./firebase";
 import { Book, CartItem, CategoryInfo, Author, UserProfile, Coupon } from '../types';
@@ -94,6 +96,20 @@ class DataService {
       console.log("✅ Firestore connection successful");
     } catch (error: any) {
       console.warn("⚠️ Firestore connection failed:", error.message);
+      
+      // Handle BloomFilterError or Persistence errors by clearing cache
+      if (error.name === 'BloomFilterError' || (error.message && error.message.includes('persistence'))) {
+        console.warn("🔄 Attemping to clear Firestore persistence due to cache error...");
+        try {
+          await terminate(db_fs);
+          await clearIndexedDbPersistence(db_fs);
+          console.log("✨ Persistence cleared. Re-initializing...");
+          window.location.reload();
+        } catch (clearErr) {
+          console.error("Failed to clear persistence:", clearErr);
+        }
+      }
+
       console.warn("🔄 Switching to MOCK mode for development");
       this.useMock = true;
       this.connectionTested = true;
@@ -399,7 +415,53 @@ class DataService {
       name
     );
   }
+  async deleteBooksBulk(ids: string[]): Promise<void> {
+    if (ids.length === 0) return;
+    await this.wrap(
+      (async () => {
+        const batch = writeBatch(db_fs);
+        ids.forEach(id => {
+          batch.delete(doc(db_fs, 'books', id));
+        });
+        await batch.commit();
+      })(),
+      undefined,
+      'DELETE_BOOKS_BULK',
+      `${ids.length} items`
+    );
+  }
 
+  async deleteAuthorsBulk(ids: string[]): Promise<void> {
+    if (ids.length === 0) return;
+    await this.wrap(
+      (async () => {
+        const batch = writeBatch(db_fs);
+        ids.forEach(id => {
+          batch.delete(doc(db_fs, 'authors', id));
+        });
+        await batch.commit();
+      })(),
+      undefined,
+      'DELETE_AUTHORS_BULK',
+      `${ids.length} items`
+    );
+  }
+
+  async deleteCategoriesBulk(names: string[]): Promise<void> {
+    if (names.length === 0) return;
+    await this.wrap(
+      (async () => {
+        const batch = writeBatch(db_fs);
+        names.forEach(name => {
+          batch.delete(doc(db_fs, 'categories', name));
+        });
+        await batch.commit();
+      })(),
+      undefined,
+      'DELETE_CATEGORIES_BULK',
+      `${names.length} items`
+    );
+  }
   async getSystemLogs(offset: number = 0, limitCount: number = 100): Promise<SystemLog[]> {
     return this.wrap(
       getDocs(query(collection(db_fs, 'system_logs'), orderBy('createdAt', 'desc'), limit(offset + limitCount)))
