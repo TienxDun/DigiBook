@@ -163,7 +163,7 @@ const AdminDashboard: React.FC = () => {
     try {
       const result = await db.seedDatabase();
       if (result.success) {
-        setSeedStatus({ msg: `Thành công! Đã nhập ${result.count} cuốn sách.`, type: 'success' });
+        setSeedStatus({ msg: `Thành công! Đã cập nhật ${result.count} danh mục hệ thống.`, type: 'success' });
         setTimeout(() => { refreshData(); setIsSeeding(false); }, 1500);
       } else {
         setIsSeeding(false);
@@ -1229,57 +1229,98 @@ const AdminDashboard: React.FC = () => {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredBooks.map(book => (
-                <div key={book.id} className={`bg-white p-6 rounded-[2rem] border transition-all group relative overflow-hidden ${
-                  selectedBooks.includes(book.id) 
-                  ? 'border-indigo-600 ring-4 ring-indigo-50 shadow-xl' 
-                  : 'border-slate-100 shadow-sm hover:shadow-xl'
-                }`}>
-                  {/* Checkbox */}
-                  <div 
-                    onClick={(e) => { e.stopPropagation(); toggleSelectBook(book.id); }}
-                    className={`absolute top-4 right-4 w-6 h-6 rounded-lg border-2 flex items-center justify-center cursor-pointer z-10 transition-all ${
-                      selectedBooks.includes(book.id)
-                      ? 'bg-indigo-600 border-indigo-600 text-white'
-                      : 'bg-white/80 border-slate-200 opacity-0 group-hover:opacity-100'
-                    }`}
-                  >
-                    <i className={`fa-solid fa-check text-xs ${selectedBooks.includes(book.id) ? 'block' : 'hidden'}`}></i>
-                  </div>
-
-                  <div className="flex gap-4">
-                    <img src={book.cover || '/placeholder-book.jpg'} alt={book.title} className="w-16 h-20 object-cover rounded-xl" />
-                    <div className="flex-1">
-                      <h3 className="font-bold text-slate-900 text-sm mb-1 line-clamp-2">{book.title}</h3>
-                      <p className="text-xs text-slate-500 mb-2">{book.author}</p>
-                      <div className="flex items-center justify-between">
+            <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/50 border-bottom border-slate-100">
+                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest w-12 text-center">
+                      <div 
+                        onClick={toggleSelectAllBooks}
+                        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
+                          selectedBooks.length === filteredBooks.length && filteredBooks.length > 0
+                          ? 'bg-indigo-600 border-indigo-600 text-white' 
+                          : 'border-slate-300 bg-white'
+                        }`}
+                      >
+                        {selectedBooks.length === filteredBooks.length && filteredBooks.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
+                      </div>
+                    </th>
+                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Thông tin sách</th>
+                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest hidden md:table-cell">Giá bán</th>
+                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest hidden lg:table-cell">Tồn kho</th>
+                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredBooks.map(book => (
+                    <tr key={book.id} className={`group hover:bg-slate-50/50 transition-all ${selectedBooks.includes(book.id) ? 'bg-indigo-50/30' : ''}`}>
+                      <td className="p-6 text-center">
+                        <div 
+                          onClick={() => toggleSelectBook(book.id)}
+                          className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
+                            selectedBooks.includes(book.id)
+                            ? 'bg-indigo-600 border-indigo-600 text-white'
+                            : 'border-slate-300 bg-white group-hover:border-indigo-400'
+                          }`}
+                        >
+                          {selectedBooks.includes(book.id) && <i className="fa-solid fa-check text-[10px]"></i>}
+                        </div>
+                      </td>
+                      <td className="p-6">
+                        <div className="flex items-center gap-4">
+                          <img src={book.cover || '/placeholder-book.jpg'} alt={book.title} className="w-12 h-16 object-cover rounded-lg shadow-sm" />
+                          <div>
+                            <h3 className="font-bold text-slate-900 text-sm mb-0.5 line-clamp-1">{book.title}</h3>
+                            <p className="text-xs text-slate-500 font-medium">{book.author}</p>
+                            <p className="text-[10px] text-slate-400 mt-1 md:hidden font-bold">{formatPrice(book.price)} • {book.stock_quantity > 0 ? `${book.stock_quantity} cuốn` : 'Hết hàng'}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-6 hidden md:table-cell">
                         <span className="text-sm font-black text-indigo-600">{formatPrice(book.price)}</span>
-                        <span className={`text-xs font-bold px-2 py-1 rounded-md ${
+                      </td>
+                      <td className="p-6 hidden lg:table-cell">
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase ${
                           book.stock_quantity > 10 ? 'bg-emerald-50 text-emerald-600' :
                           book.stock_quantity > 0 ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'
                         }`}>
+                          <div className={`w-1 h-1 rounded-full mr-1.5 ${
+                             book.stock_quantity > 10 ? 'bg-emerald-600' :
+                             book.stock_quantity > 0 ? 'bg-amber-600' : 'bg-rose-600'
+                          }`}></div>
                           {book.stock_quantity > 0 ? `${book.stock_quantity} quyển` : 'Hết hàng'}
                         </span>
-                      </div>
-                    </div>
+                      </td>
+                      <td className="p-6">
+                        <div className="flex items-center justify-end gap-2">
+                          <button 
+                            onClick={() => handleEditBook(book)}
+                            className="w-9 h-9 flex items-center justify-center bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-all shadow-sm"
+                            title="Chỉnh sửa"
+                          >
+                            <i className="fa-solid fa-edit text-xs"></i>
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteBook(book)}
+                            className="w-9 h-9 flex items-center justify-center bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-all shadow-sm"
+                            title="Xóa"
+                          >
+                            <i className="fa-solid fa-trash-can text-xs"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {filteredBooks.length === 0 && (
+                <div className="p-12 text-center">
+                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i className="fa-solid fa-box-open text-slate-300 text-2xl"></i>
                   </div>
-                  <div className="flex gap-2 mt-4 relative z-10">
-                    <button 
-                      onClick={() => handleEditBook(book)}
-                      className="flex-1 bg-slate-100 text-slate-600 py-2 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all"
-                    >
-                      <i className="fa-solid fa-edit mr-1"></i>Sửa
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteBook(book)}
-                      className="flex-1 bg-rose-100 text-rose-600 py-2 rounded-xl text-xs font-bold hover:bg-rose-200 transition-all"
-                    >
-                      <i className="fa-solid fa-trash mr-1"></i>Xóa
-                    </button>
-                  </div>
+                  <h3 className="font-bold text-slate-400 uppercase tracking-widest text-xs">Không có dữ liệu phù hợp</h3>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         )}
@@ -1336,53 +1377,89 @@ const AdminDashboard: React.FC = () => {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {authors.map(author => (
-                <div key={author.id} className={`bg-white p-6 rounded-[2rem] border transition-all group relative overflow-hidden ${
-                  selectedAuthors.includes(author.id) 
-                  ? 'border-indigo-600 ring-4 ring-indigo-50 shadow-xl' 
-                  : 'border-slate-100 shadow-sm hover:shadow-xl'
-                }`}>
-                  {/* Checkbox */}
-                  <div 
-                    onClick={(e) => { e.stopPropagation(); toggleSelectAuthor(author.id); }}
-                    className={`absolute top-4 right-4 w-6 h-6 rounded-lg border-2 flex items-center justify-center cursor-pointer z-10 transition-all ${
-                      selectedAuthors.includes(author.id)
-                      ? 'bg-indigo-600 border-indigo-600 text-white'
-                      : 'bg-white/80 border-slate-200 opacity-0 group-hover:opacity-100'
-                    }`}
-                  >
-                    <i className={`fa-solid fa-check text-xs ${selectedAuthors.includes(author.id) ? 'block' : 'hidden'}`}></i>
+            <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/50 border-bottom border-slate-100">
+                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest w-12 text-center">
+                      <div 
+                        onClick={toggleSelectAllAuthors}
+                        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
+                          selectedAuthors.length === authors.length && authors.length > 0
+                          ? 'bg-indigo-600 border-indigo-600 text-white' 
+                          : 'border-slate-300 bg-white'
+                        }`}
+                      >
+                        {selectedAuthors.length === authors.length && authors.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
+                      </div>
+                    </th>
+                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tác giả</th>
+                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest hidden md:table-cell">Tiểu sử</th>
+                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {authors.map(author => (
+                    <tr key={author.id} className={`group hover:bg-slate-50/50 transition-all ${selectedAuthors.includes(author.id) ? 'bg-indigo-50/30' : ''}`}>
+                      <td className="p-6 text-center">
+                        <div 
+                          onClick={() => toggleSelectAuthor(author.id)}
+                          className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
+                            selectedAuthors.includes(author.id)
+                            ? 'bg-indigo-600 border-indigo-600 text-white'
+                            : 'border-slate-300 bg-white group-hover:border-indigo-400'
+                          }`}
+                        >
+                          {selectedAuthors.includes(author.id) && <i className="fa-solid fa-check text-[10px]"></i>}
+                        </div>
+                      </td>
+                      <td className="p-6">
+                        <div className="flex items-center gap-4">
+                          <img 
+                            src={author.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(author.name) + '&background=6366f1&color=fff'} 
+                            alt={author.name} 
+                            className="w-12 h-12 object-cover rounded-full shadow-sm"
+                            onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(author.name) + '&background=6366f1&color=fff'; }}
+                          />
+                          <div>
+                            <h4 className="font-bold text-slate-900 text-sm mb-0.5">{author.name}</h4>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Tác giả DigiBook</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-6 hidden md:table-cell max-w-xs xl:max-w-md">
+                        <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{author.bio || 'Chưa có tiểu sử'}</p>
+                      </td>
+                      <td className="p-6">
+                        <div className="flex items-center justify-end gap-2">
+                          <button 
+                            onClick={() => handleEditAuthor(author)}
+                            className="w-9 h-9 flex items-center justify-center bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-all shadow-sm"
+                            title="Chỉnh sửa"
+                          >
+                            <i className="fa-solid fa-edit text-xs"></i>
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteAuthor(author)}
+                            className="w-9 h-9 flex items-center justify-center bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-all shadow-sm"
+                            title="Xóa"
+                          >
+                            <i className="fa-solid fa-trash-can text-xs"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {authors.length === 0 && (
+                <div className="p-12 text-center">
+                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i className="fa-solid fa-user-pen text-slate-300 text-2xl"></i>
                   </div>
-
-                  <div className="flex gap-4">
-                    <img 
-                      src={author.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(author.name) + '&background=6366f1&color=fff'} 
-                      alt={author.name} 
-                      className="w-16 h-16 object-cover rounded-full"
-                      onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(author.name) + '&background=6366f1&color=fff'; }}
-                    />
-                    <div className="flex-1">
-                      <h4 className="font-bold text-slate-900 text-sm mb-1">{author.name}</h4>
-                      <p className="text-xs text-slate-500 line-clamp-2">{author.bio || 'Chưa có tiểu sử'}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2 mt-4 relative z-10">
-                    <button 
-                      onClick={() => handleEditAuthor(author)}
-                      className="flex-1 bg-slate-100 text-slate-600 py-2 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all"
-                    >
-                      <i className="fa-solid fa-edit mr-1"></i>Sửa
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteAuthor(author)}
-                      className="flex-1 bg-rose-100 text-rose-600 py-2 rounded-xl text-xs font-bold hover:bg-rose-200 transition-all"
-                    >
-                      <i className="fa-solid fa-trash mr-1"></i>Xóa
-                    </button>
-                  </div>
+                  <h3 className="font-bold text-slate-400 uppercase tracking-widest text-xs">Chưa có tác giả nào</h3>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         )}
@@ -1439,48 +1516,86 @@ const AdminDashboard: React.FC = () => {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {categories.map(category => (
-                <div key={(category as any).id || category.name} className={`bg-white p-6 rounded-[2rem] border transition-all group relative overflow-hidden ${
-                  selectedCategories.includes(category.name) 
-                  ? 'border-indigo-600 ring-4 ring-indigo-50 shadow-xl' 
-                  : 'border-slate-100 shadow-sm hover:shadow-xl'
-                }`}>
-                  {/* Checkbox */}
-                  <div 
-                    onClick={(e) => { e.stopPropagation(); toggleSelectCategory(category.name); }}
-                    className={`absolute top-4 right-4 w-6 h-6 rounded-lg border-2 flex items-center justify-center cursor-pointer z-10 transition-all ${
-                      selectedCategories.includes(category.name)
-                      ? 'bg-indigo-600 border-indigo-600 text-white'
-                      : 'bg-white/80 border-slate-200 opacity-0 group-hover:opacity-100'
-                    }`}
-                  >
-                    <i className={`fa-solid fa-check text-xs ${selectedCategories.includes(category.name) ? 'block' : 'hidden'}`}></i>
+            <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/50 border-bottom border-slate-100">
+                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest w-12 text-center">
+                      <div 
+                        onClick={toggleSelectAllCategories}
+                        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
+                          selectedCategories.length === categories.length && categories.length > 0
+                          ? 'bg-indigo-600 border-indigo-600 text-white' 
+                          : 'border-slate-300 bg-white'
+                        }`}
+                      >
+                        {selectedCategories.length === categories.length && categories.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
+                      </div>
+                    </th>
+                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Danh mục</th>
+                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest hidden md:table-cell">Mô tả</th>
+                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {categories.map(category => (
+                    <tr key={(category as any).id || category.name} className={`group hover:bg-slate-50/50 transition-all ${selectedCategories.includes(category.name) ? 'bg-indigo-50/30' : ''}`}>
+                      <td className="p-6 text-center">
+                        <div 
+                          onClick={() => toggleSelectCategory(category.name)}
+                          className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
+                            selectedCategories.includes(category.name)
+                            ? 'bg-indigo-600 border-indigo-600 text-white'
+                            : 'border-slate-300 bg-white group-hover:border-indigo-400'
+                          }`}
+                        >
+                          {selectedCategories.includes(category.name) && <i className="fa-solid fa-check text-[10px]"></i>}
+                        </div>
+                      </td>
+                      <td className="p-6">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                            <i className={`fa-solid ${category.icon}`}></i>
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-slate-900 text-sm mb-0.5">{category.name}</h4>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Danh mục sách</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-6 hidden md:table-cell max-w-xs lg:max-w-md">
+                        <p className="text-xs text-slate-500 line-clamp-1 leading-relaxed">{category.description || 'Chưa có mô tả'}</p>
+                      </td>
+                      <td className="p-6">
+                        <div className="flex items-center justify-end gap-2">
+                          <button 
+                            onClick={() => handleEditCategory(category)}
+                            className="w-9 h-9 flex items-center justify-center bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-all shadow-sm"
+                            title="Chỉnh sửa"
+                          >
+                            <i className="fa-solid fa-edit text-xs"></i>
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteCategory(category)}
+                            className="w-9 h-9 flex items-center justify-center bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-all shadow-sm"
+                            title="Xóa"
+                          >
+                            <i className="fa-solid fa-trash-can text-xs"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {categories.length === 0 && (
+                <div className="p-12 text-center">
+                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i className="fa-solid fa-tags text-slate-300 text-2xl"></i>
                   </div>
-
-                  <div className="flex flex-col items-center text-center">
-                    <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-600 text-2xl mb-4">
-                      <i className={`fa-solid ${category.icon}`}></i>
-                    </div>
-                    <h4 className="font-bold text-slate-900 text-sm mb-2">{category.name}</h4>
-                    <p className="text-xs text-slate-500 line-clamp-2 mb-4">{category.description || 'Chưa có mô tả'}</p>
-                  </div>
-                  <div className="flex gap-2 relative z-10">
-                    <button 
-                      onClick={() => handleEditCategory(category)}
-                      className="flex-1 bg-slate-100 text-slate-600 py-2 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all"
-                    >
-                      <i className="fa-solid fa-edit mr-1"></i>Sửa
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteCategory(category)}
-                      className="flex-1 bg-rose-100 text-rose-600 py-2 rounded-xl text-xs font-bold hover:bg-rose-200 transition-all"
-                    >
-                      <i className="fa-solid fa-trash mr-1"></i>Xóa
-                    </button>
-                  </div>
+                  <h3 className="font-bold text-slate-400 uppercase tracking-widest text-xs">Chưa có danh mục nào</h3>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         )}

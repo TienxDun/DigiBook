@@ -20,7 +20,7 @@ import {
 } from "firebase/firestore";
 import { db_fs, auth } from "./firebase";
 import { Book, CartItem, CategoryInfo, Author, UserProfile, Coupon } from '../types';
-import { MOCK_BOOKS, CATEGORIES } from '../constants';
+import { CATEGORIES } from '../constants';
 
 export interface Review {
   id?: string;
@@ -72,13 +72,11 @@ export interface Order {
 }
 
 class DataService {
-  private useMock = false;
   private connectionTested = false;
 
   constructor() {
     if (!db_fs) {
-       this.useMock = true;
-       console.warn(" [DB WARNING] Firestore instance is null. Running in EMERGENCY LOCAL mode.");
+       console.error(" [DB ERROR] Firestore instance is null. App cannot function without database.");
        return;
     }
 
@@ -95,7 +93,7 @@ class DataService {
       this.connectionTested = true;
       console.log("✅ Firestore connection successful");
     } catch (error: any) {
-      console.warn("⚠️ Firestore connection failed:", error.message);
+      console.error("❌ Firestore connection failed:", error.message);
       
       // Handle BloomFilterError or Persistence errors by clearing cache
       if (error.name === 'BloomFilterError' || (error.message && error.message.includes('persistence'))) {
@@ -109,9 +107,7 @@ class DataService {
           console.error("Failed to clear persistence:", clearErr);
         }
       }
-
-      console.warn("🔄 Switching to MOCK mode for development");
-      this.useMock = true;
+      
       this.connectionTested = true;
     }
   }
@@ -132,7 +128,7 @@ class DataService {
       'color: #64748b;'
     );
 
-    if (db_fs && !this.useMock) {
+    if (db_fs) {
       try {
         await addDoc(collection(db_fs, 'system_logs'), {
           action,
@@ -150,8 +146,6 @@ class DataService {
     if (!this.connectionTested) {
       await this.testConnection();
     }
-
-    if (this.useMock) return fallback;
     
     try {
       const result = await promise;
@@ -173,15 +167,12 @@ class DataService {
         batch.set(ref, cat);
       });
       
-      MOCK_BOOKS.forEach(book => {
-        const ref = doc(db_fs, 'books', book.id);
-        batch.set(ref, { ...book, createdAt: serverTimestamp() });
-      });
+      // MOCK_BOOKS has been removed for 100% online mode
+      // To add books, use the Admin "Auto Sync from Internet" feature
       
       await batch.commit();
-      this.logActivity('SEED_DATA', `Imported ${MOCK_BOOKS.length} items`);
-      this.useMock = false; 
-      return { success: true, count: MOCK_BOOKS.length };
+      this.logActivity('SEED_DATA', `Seeded ${CATEGORIES.length} categories`);
+      return { success: true, count: CATEGORIES.length };
     } catch (error: any) {
       this.logActivity('SEED_DATA', error.message, 'ERROR');
       return { success: false, count: 0, error: error.message };
