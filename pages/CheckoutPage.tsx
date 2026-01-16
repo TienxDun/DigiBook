@@ -1,9 +1,11 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { CartItem } from '../types';
 import { useAuth } from '../AuthContext';
 import { db } from '../services/db';
+import { ErrorHandler } from '../services/errorHandler';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -79,7 +81,7 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
   const handleCompleteOrder = async () => {
     if (!user) { setShowLoginModal(true); return; }
     if (!formData.name || !formData.phone || !formData.address) { 
-      alert('Vui lòng nhập đầy đủ thông tin giao hàng.'); 
+      toast.error('Vui lòng nhập đầy đủ thông tin giao hàng.'); 
       return; 
     }
 
@@ -116,11 +118,10 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
       setIsProcessing(false);
       navigate('/order-success', { state: { orderId: order.id } });
     } catch (error: any) {
-      console.error("Checkout error:", error);
       if (error.code === 'OUT_OF_STOCK') {
-        alert(`KHO HÀNG THAY ĐỔI: \n\n${error.message}\n\nVui lòng kiểm tra lại giỏ hàng của bạn.`);
+        toast.error(`KHO HÀNG THAY ĐỔI: ${error.message}. Vui lòng kiểm tra lại giỏ hàng.`);
       } else {
-        alert(`Đã có lỗi xảy ra trong quá trình thanh toán: ${error.message || 'Vui lòng thử lại sau.'}`);
+        ErrorHandler.handle(error, 'thanh toán');
       }
       setIsProcessing(false);
     }

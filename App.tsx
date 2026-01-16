@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback, useMemo, useEffect, createContext, useContext } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, createContext, useContext, lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { 
   auth, 
@@ -16,23 +16,28 @@ import {
   sendPasswordResetEmail
 } from "./services/firebase";
 import Header from './components/Header';
-import BookCard from './components/BookCard';
 import CartSidebar from './components/CartSidebar';
 import MobileNav from './components/MobileNav';
 import Footer from './components/Footer';
-import BookDetails from './pages/BookDetails';
-import CategoryPage from './pages/CategoryPage';
-import AuthorPage from './pages/AuthorPage';
-import CheckoutPage from './pages/CheckoutPage';
-import OrderSuccess from './pages/OrderSuccess';
-import MyOrdersPage from './pages/MyOrdersPage';
-import OrderDetailPage from './pages/OrderDetailPage';
-import WishlistPage from './pages/WishlistPage';
-import SearchResults from './pages/SearchResults';
-import ProfilePage from './pages/ProfilePage';
-import AdminDashboard from './pages/AdminDashboard';
+
+// Lazy load pages
+const HomePage = lazy(() => import('./pages/HomePage'));
+const BookDetails = lazy(() => import('./pages/BookDetails'));
+const CategoryPage = lazy(() => import('./pages/CategoryPage'));
+const AuthorPage = lazy(() => import('./pages/AuthorPage'));
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
+const OrderSuccess = lazy(() => import('./pages/OrderSuccess'));
+const MyOrdersPage = lazy(() => import('./pages/MyOrdersPage'));
+const OrderDetailPage = lazy(() => import('./pages/OrderDetailPage'));
+const WishlistPage = lazy(() => import('./pages/WishlistPage'));
+const SearchResults = lazy(() => import('./pages/SearchResults'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+
 import { Book, CartItem, CategoryInfo } from './types';
 import { db } from './services/db';
+import { Toaster, toast } from 'react-hot-toast';
+import ErrorHandler from './services/errorHandler';
 
 import { AuthContext, User, useAuth } from './AuthContext';
 
@@ -110,7 +115,6 @@ const App: React.FC = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [bookOffset, setBookOffset] = useState(0);
   
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
@@ -120,7 +124,6 @@ const App: React.FC = () => {
 
   const fetchInitialData = async () => {
     try {
-      setBookOffset(0); // Reset pagination
       setSearchQuery(''); // Clear search
       const [booksData, catsData] = await Promise.all([
         db.getBooks(),
@@ -139,15 +142,29 @@ const App: React.FC = () => {
     fetchInitialData();
     let unsubscribe = () => {};
     if (auth) {
-      unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
         if (firebaseUser) {
+          // Fetch additional profile data from Firestore
+          const profile = await db.getUserProfile(firebaseUser.uid);
+          
           setUser({
             id: firebaseUser.uid,
-            name: firebaseUser.displayName || "Độc giả",
-            email: firebaseUser.email || "",
-            avatar: firebaseUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(firebaseUser.displayName || 'U')}&background=4f46e5&color=fff`,
-            isAdmin: firebaseUser.email === 'admin@gmail.com'
+            name: firebaseUser.displayName || profile?.name || "Độc giả",
+            email: firebaseUser.email || profile?.email || "",
+            avatar: firebaseUser.photoURL || profile?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(firebaseUser.displayName || 'U')}&background=4f46e5&color=fff`,
+            isAdmin: (profile?.role === 'admin') || (firebaseUser.email === 'admin@gmail.com')
           });
+
+          // Create profile if not exists
+          if (!profile) {
+            await db.updateUserProfile({
+              id: firebaseUser.uid,
+              name: firebaseUser.displayName || "Độc giả",
+              email: firebaseUser.email || "",
+              avatar: firebaseUser.photoURL || "",
+              role: firebaseUser.email === 'admin@gmail.com' ? 'admin' : 'user'
+            });
+          }
         } else {
           setUser(null);
         }
@@ -163,13 +180,12 @@ const App: React.FC = () => {
     try {
       if (!auth) throw new Error("Auth not initialized");
       const result = await signInWithPopup(auth, googleProvider);
-      // @ts-ignore - Truy cập private logActivity qua instance db
       db.logActivity('AUTH_LOGIN_GOOGLE', `Email: ${result.user.email}`, 'SUCCESS');
       setShowLoginModal(false);
+      toast.success(`Chào mừng trở lại, ${result.user.displayName || 'bạn'}!`);
     } catch (error: any) {
-      // @ts-ignore
-      db.logActivity('AUTH_LOGIN_GOOGLE', `Lỗi: ${error.message}`, 'ERROR');
-      setAuthError('Không thể đăng nhập bằng Google.');
+      const result = ErrorHandler.handle(error, 'AUTH_LOGIN_GOOGLE');
+      setAuthError(result.error);
     }
   };
 
@@ -187,15 +203,11 @@ const App: React.FC = () => {
       await reauthenticateWithCredential(auth.currentUser, credential);
 
       await updatePassword(auth.currentUser, newPw);
-      // @ts-ignore
       db.logActivity('AUTH_CHANGE_PASSWORD', `Email: ${auth.currentUser.email}`, 'SUCCESS');
+      toast.success('Đổi mật khẩu thành công!');
     } catch (error: any) {
-      // @ts-ignore
-      db.logActivity('AUTH_CHANGE_PASSWORD', `Lỗi: ${error.message}`, 'ERROR');
-      if (error.code === 'auth/wrong-password') {
-        throw new Error("Mật khẩu cũ không chính xác.");
-      }
-      throw error;
+      const result = ErrorHandler.handle(error, 'AUTH_CHANGE_PASSWORD');
+      throw new Error(result.error);
     }
   };
 
@@ -203,15 +215,11 @@ const App: React.FC = () => {
     try {
       if (!auth) throw new Error("Auth not initialized");
       await sendPasswordResetEmail(auth, email);
-      // @ts-ignore
       db.logActivity('AUTH_FORGOT_PASSWORD', `Email: ${email}`, 'SUCCESS');
+      toast.success('Đã gửi email khôi phục mật khẩu!');
     } catch (error: any) {
-       // @ts-ignore
-       db.logActivity('AUTH_FORGOT_PASSWORD', `Lỗi: ${error.message}`, 'ERROR');
-       if (error.code === 'auth/user-not-found') {
-         throw new Error("Email này chưa được đăng ký trên hệ thống.");
-       }
-       throw error;
+       const result = ErrorHandler.handle(error, 'AUTH_FORGOT_PASSWORD');
+       throw new Error(result.error);
     }
   };
 
@@ -219,14 +227,13 @@ const App: React.FC = () => {
     try {
       if (!auth) throw new Error("Auth not initialized");
       const result = await signInWithEmailAndPassword(auth, e, p);
-      // @ts-ignore
       db.logActivity('AUTH_LOGIN_EMAIL', `Email: ${result.user.email}`, 'SUCCESS');
       setShowLoginModal(false);
       setAuthError('');
+      toast.success(`Chào mừng trở lại, ${result.user.displayName || 'bạn'}!`);
     } catch (error: any) {
-      // @ts-ignore
-      db.logActivity('AUTH_LOGIN_EMAIL', `Lỗi: ${error.message}`, 'ERROR');
-      setAuthError('Email hoặc mật khẩu không chính xác.');
+      const result = ErrorHandler.handle(error, 'AUTH_LOGIN_EMAIL');
+      setAuthError(result.error);
     }
   };
 
@@ -235,14 +242,13 @@ const App: React.FC = () => {
       if (!auth) throw new Error("Auth not initialized");
       const res = await createUserWithEmailAndPassword(auth, e, p);
       await updateProfile(res.user, { displayName: n });
-      // @ts-ignore
       db.logActivity('AUTH_REGISTER', `Email: ${e} | Tên: ${n}`, 'SUCCESS');
       setShowLoginModal(false);
       setAuthError('');
+      toast.success('Tạo tài khoản thành công!');
     } catch (error: any) {
-      // @ts-ignore
-      db.logActivity('AUTH_REGISTER', `Lỗi: ${error.message}`, 'ERROR');
-      setAuthError('Không thể tạo tài khoản.');
+      const result = ErrorHandler.handle(error, 'AUTH_REGISTER');
+      setAuthError(result.error);
     }
   };
 
@@ -250,7 +256,6 @@ const App: React.FC = () => {
     const prevEmail = user?.email || 'Unknown';
     if (auth) {
       await signOut(auth);
-      // @ts-ignore
       db.logActivity('AUTH_LOGOUT', `User: ${prevEmail}`, 'SUCCESS');
     }
     setUser(null);
@@ -271,19 +276,6 @@ const App: React.FC = () => {
     });
     setIsCartOpen(true);
   }, []);
-
-  const processedBooks = useMemo(() => {
-    if (!searchQuery) return allBooks;
-    const q = searchQuery.toLowerCase();
-    return allBooks.filter(book => 
-      book.title.toLowerCase().includes(q) || 
-      book.author.toLowerCase().includes(q)
-    );
-  }, [allBooks, searchQuery]);
-
-  useEffect(() => {
-    setBookOffset(0);
-  }, [searchQuery]);
 
   if (loading) return (
     <div className="h-screen flex flex-col items-center justify-center bg-white">
@@ -395,7 +387,6 @@ const App: React.FC = () => {
                                 }
                                 try {
                                   await sendPasswordReset(email);
-                                  alert('Email khôi phục mật khẩu đã được gửi! Vui lòng kiểm tra hộp thư của bạn.');
                                 } catch (err: any) {
                                   setAuthError(err.message);
                                 }
@@ -445,250 +436,33 @@ const App: React.FC = () => {
           ) }
 
           <MainContent>
-            <Routes>
-              <Route path="/" element={
-                <div className="space-y-0">
-                  {/* Hero Section */}
-                  <section className="relative min-h-[70vh] flex items-center overflow-hidden bg-white mt-[-80px] lg:mt-[-80px]">
-                    <div className="absolute top-0 right-0 w-1/2 h-full bg-slate-50 -skew-x-12 translate-x-32 hidden lg:block"></div>
-                    <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-slate-50/50 to-transparent lg:hidden"></div>
-                    
-                    <div className="w-[92%] xl:w-[60%] mx-auto px-4 relative z-10 flex flex-col lg:flex-row items-center gap-10 pt-28 pb-12 lg:pt-32">
-                      <div className="flex-1 text-center lg:text-left">
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 rounded-full text-indigo-600 text-[9px] font-black uppercase tracking-[0.2em] mb-6">
-                          <i className="fa-solid fa-wand-magic-sparkles"></i> New Generation Bookstore
-                        </div>
-                        <h1 className="text-5xl lg:text-7xl font-black text-slate-900 leading-[1] mb-8 tracking-tighter">
-                          Khai phá <br />
-                          <span className="text-indigo-600">Tiềm năng</span> <br />
-                          qua từng trang sách.
-                        </h1>
-                        <p className="text-slate-500 text-lg lg:text-xl max-w-lg mb-10 leading-relaxed font-semibold">
-                          DigiBook mang đến trải nghiệm đọc sách hiện đại, nơi tri thức và công nghệ hội tụ để thắp sáng tư duy của bạn.
-                        </p>
-                        <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
-                          <Link to="/category/Tất cả sách" className="px-8 py-4 bg-slate-900 text-white rounded-xl font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-xl shadow-slate-900/10 active:scale-95 text-xs">
-                            Khám phá ngay
-                          </Link>
-                          <div className="flex items-center gap-3">
-                            <div className="flex -space-x-3">
-                              {[1,2,3].map(i => (
-                                <img key={i} src={`https://i.pravatar.cc/100?u=${i}`} className="w-10 h-10 rounded-full border-4 border-white shadow-sm" alt="" />
-                              ))}
-                            </div>
-                            <div className="text-left">
-                              <p className="text-xs font-black text-slate-900 leading-none">5,000+ Độc giả</p>
-                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Đã tin dùng</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex-1 relative group w-full max-w-xl">
-                         <div className="absolute -inset-10 bg-indigo-500/10 blur-[100px] rounded-full group-hover:bg-indigo-500/20 transition-all duration-700"></div>
-                         <div className="relative grid grid-cols-2 gap-4">
-                            <div className="space-y-4 pt-8">
-                               <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4.2] object-cover rounded-[1.5rem] shadow-2xl transition-transform duration-700 hover:-translate-y-2" alt="" />
-                               <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4.2] object-cover rounded-[1.5rem] shadow-2xl transition-transform duration-700 hover:-translate-y-2" alt="" />
-                            </div>
-                            <div className="space-y-4">
-                               <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4.2] object-cover rounded-[1.5rem] shadow-2xl transition-transform duration-700 hover:-translate-y-2" alt="" />
-                               <div className="w-full aspect-[3/4.2] bg-indigo-600 rounded-[1.5rem] shadow-2xl flex flex-col items-center justify-center p-6 text-center text-white">
-                                  <i className="fa-solid fa-star-half-stroke text-3xl mb-3 text-amber-300"></i>
-                                  <p className="text-xl font-black">4.9/5</p>
-                                  <p className="text-[9px] font-black uppercase tracking-widest opacity-60">Đánh giá trung bình</p>
-                               </div>
-                            </div>
-                         </div>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Intro Section */}
-                  <section className="py-16 bg-slate-50">
-                    <div className="w-[92%] xl:w-[60%] mx-auto px-4">
-                      <div className="grid lg:grid-cols-3 gap-6">
-                        <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-500 group relative overflow-hidden">
-                           <div className="absolute -top-10 -right-10 w-40 h-40 bg-cyan-50 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-700 blur-3xl"></div>
-                           <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-xl shadow-cyan-200 relative z-10">
-                              <i className="fa-solid fa-certificate"></i>
-                           </div>
-                           <h3 className="text-xl font-black text-slate-900 mb-4 relative z-10">Sách Bản Quyền</h3>
-                           <p className="text-slate-500 leading-relaxed font-medium text-xs tracking-wide relative z-10">Cam kết 100% sách chính hãng từ các nhà xuất bản uy tín nhất Việt Nam và thế giới.</p>
-                        </div>
-                        <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 group lg:-translate-y-12 relative overflow-hidden border-b-4 border-b-orange-500/20">
-                           <div className="absolute -top-10 -right-10 w-40 h-40 bg-orange-50 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-700 blur-3xl"></div>
-                           <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-rose-500 rounded-2xl flex items-center justify-center text-white text-2xl mb-8 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500 shadow-xl shadow-orange-200 relative z-10">
-                              <i className="fa-solid fa-bolt"></i>
-                           </div>
-                           <h3 className="text-xl font-black text-slate-900 mb-4 relative z-10">Giao Tốc Hành</h3>
-                           <p className="text-slate-500 leading-relaxed font-medium text-xs tracking-wide relative z-10">Dịch vụ giao hàng 2h tại nội thành và đóng gói cẩn thận từng trang sách quý giá của bạn.</p>
-                        </div>
-                        <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-500 group relative overflow-hidden">
-                           <div className="absolute -top-10 -right-10 w-40 h-40 bg-emerald-50 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-700 blur-3xl"></div>
-                           <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center text-white text-2xl mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-xl shadow-emerald-200 relative z-10">
-                              <i className="fa-solid fa-headset"></i>
-                           </div>
-                           <h3 className="text-xl font-black text-slate-900 mb-4 relative z-10">Hỗ Trợ 24/7</h3>
-                           <p className="text-slate-500 leading-relaxed font-medium text-xs tracking-wide relative z-10">Đội ngũ chuyên gia luôn sẵn sàng tư vấn và giúp bạn tìm ra những cuốn sách phù hợp nhất.</p>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Categories Grid - New Luxury Style */}
-                  <section className="py-24 bg-white relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-slate-100 to-transparent"></div>
-                    
-                    <div className="w-[92%] xl:w-[60%] mx-auto px-4 relative">
-                      <div className="flex flex-col items-center text-center mb-16">
-                        <div className="inline-flex items-center gap-3 px-4 py-2 bg-indigo-50 rounded-full mb-6">
-                          <span className="w-2 h-2 bg-indigo-600 rounded-full animate-pulse"></span>
-                          <p className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em]">Danh mục nổi bật</p>
-                        </div>
-                        <h2 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter mb-4">
-                          Khám phá <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">vũ trụ</span> tri thức
-                        </h2>
-                        <p className="text-slate-500 max-w-lg text-sm font-medium leading-relaxed">
-                          Hành trình vạn dặm bắt đầu từ một trang sách. Hãy chọn cho mình một chủ đề yêu thích để bắt đầu ngay hôm nay.
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {categories.length > 0 ? categories.map((cat, i) => {
-                          const colors = [
-                            { border: 'hover:border-indigo-500/50', bg: 'bg-indigo-50', icon: 'text-indigo-600', shadow: 'hover:shadow-indigo-500/20', glow: 'from-indigo-500/20' },
-                            { border: 'hover:border-rose-500/50', bg: 'bg-rose-50', icon: 'text-rose-500', shadow: 'hover:shadow-rose-500/20', glow: 'from-rose-500/20' },
-                            { border: 'hover:border-emerald-500/50', bg: 'bg-emerald-50', icon: 'text-emerald-500', shadow: 'hover:shadow-emerald-500/20', glow: 'from-emerald-500/20' },
-                            { border: 'hover:border-amber-500/50', bg: 'bg-amber-50', icon: 'text-amber-500', shadow: 'hover:shadow-amber-500/20', glow: 'from-amber-500/20' },
-                            { border: 'hover:border-cyan-500/50', bg: 'bg-cyan-50', icon: 'text-cyan-500', shadow: 'hover:shadow-cyan-500/20', glow: 'from-cyan-500/20' },
-                            { border: 'hover:border-violet-500/50', bg: 'bg-violet-50', icon: 'text-violet-500', shadow: 'hover:shadow-violet-500/20', glow: 'from-violet-500/20' },
-                          ];
-                          const color = colors[i % colors.length];
-                          
-                          return (
-                            <Link 
-                              key={i} 
-                              to={`/category/${cat.name}`}
-                              className={`group relative bg-white p-10 rounded-[3rem] border border-slate-100 transition-all duration-500 ${color.border} ${color.shadow} hover:-translate-y-2 overflow-hidden flex flex-col items-start`}
-                            >
-                              {/* Background Glow */}
-                              <div className={`absolute -bottom-10 -right-10 w-32 h-32 bg-gradient-to-br ${color.glow} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-2xl`}></div>
-                              
-                              <div className={`w-16 h-16 ${color.bg} ${color.icon} rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-sm`}>
-                                <i className={`fa-solid ${cat.icon} text-2xl`}></i>
-                              </div>
-                              
-                              <div className="relative z-10">
-                                <h3 className="text-xl font-black text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors">{cat.name}</h3>
-                                <p className="text-slate-500 text-xs font-medium leading-relaxed mb-6 line-clamp-2">{cat.description}</p>
-                                
-                                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-indigo-600 transition-all">
-                                  <span>Khám phá ngay</span>
-                                  <i className="fa-solid fa-chevron-right group-hover:translate-x-2 transition-transform"></i>
-                                </div>
-                              </div>
-
-                              {/* Decorative Large Icon in Background */}
-                              <i className={`fa-solid ${cat.icon} absolute -right-4 -top-4 text-7xl opacity-[0.03] group-hover:opacity-[0.08] transition-all duration-700 group-hover:scale-125 -rotate-12`}></i>
-                            </Link>
-                          );
-                        }) : (
-                          <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-20 bg-slate-50/50 rounded-[3rem] border-2 border-dashed border-slate-200">
-                             <p className="text-slate-400 font-black tracking-[0.2em] uppercase text-xs">Đang tải vũ trụ tri thức...</p>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="mt-16 flex justify-center">
-                        <Link to="/category/Tất cả sách" className="group relative px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest overflow-hidden hover:shadow-2xl hover:shadow-indigo-500/20 transition-all active:scale-95">
-                          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                          <span className="relative flex items-center gap-3">
-                            Xem tất cả danh mục <i className="fa-solid fa-arrow-right-long group-hover:translate-x-2 transition-transform"></i>
-                          </span>
-                        </Link>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Books Section */}
-                  <section className="py-24 bg-slate-50/50 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-50/50 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/3"></div>
-                    
-                    <div className="w-[92%] xl:w-[60%] mx-auto px-4 relative">
-                      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
-                        <div className="max-w-xl">
-                          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-rose-50 rounded-lg mb-4">
-                            <i className="fa-solid fa-wand-magic-sparkles text-rose-500 text-[12px]"></i>
-                            <p className="text-[12px] font-black text-rose-500 uppercase tracking-[0.2em]">Curated For You</p>
-                          </div>
-                          <h2 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                            Tác phẩm <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-orange-500">đề cử</span> dành riêng cho bạn
-                          </h2>
-                        </div>
-                        <div className="flex gap-2.5">
-                           <button 
-                             onClick={() => setBookOffset(prev => Math.max(0, prev - 5))}
-                             disabled={bookOffset === 0}
-                             className={`w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center transition-all ${bookOffset === 0 ? 'opacity-30 cursor-not-allowed' : 'text-slate-500 hover:text-indigo-600 hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/10 active:scale-90 shadow-sm'}`}
-                           >
-                              <i className="fa-solid fa-chevron-left text-xs"></i>
-                           </button>
-                           <button 
-                             onClick={() => setBookOffset(prev => Math.min(Math.max(0, processedBooks.length - 10), prev + 5))}
-                             disabled={bookOffset + 10 >= processedBooks.length}
-                             className={`w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center transition-all ${bookOffset + 10 >= processedBooks.length ? 'opacity-30 cursor-not-allowed' : 'text-slate-500 hover:text-indigo-600 hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/10 active:scale-90 shadow-sm'}`}
-                           >
-                              <i className="fa-solid fa-chevron-right text-xs"></i>
-                           </button>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 transition-all duration-700">
-                        {processedBooks.slice(bookOffset, bookOffset + 10).map((book) => (
-                          <BookCard key={book.id} book={book} onAddToCart={addToCart} />
-                        ))}
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Promo Banner Section */}
-                  <section className="py-10 bg-white">
-                    <div className="w-[92%] xl:w-[60%] mx-auto px-4">
-                       <div className="bg-slate-900 rounded-[2.5rem] p-8 lg:p-10 relative overflow-hidden flex flex-col lg:flex-row items-center gap-10 shadow-xl">
-                          <div className="absolute top-0 right-0 w-1/2 h-full bg-indigo-600/10 blur-[100px]"></div>
-                          <div className="relative z-10 flex-1 text-center lg:text-left">
-                             <h2 className="text-2xl lg:text-3xl font-black text-white mb-4 tracking-tighter leading-tight">
-                                Trở thành thành viên <br />
-                                nhận ngay <span className="text-indigo-400">ưu đãi 50k</span>
-                             </h2>
-                             <p className="text-slate-400 text-xs mb-6 max-w-lg">Sử dụng mã <strong>WELCOME5</strong> cho đơn hàng từ 200k. Chỉ áp dụng cho tài khoản mới đăng ký.</p>
-                             <button onClick={() => setShowLoginModal(true)} className="px-8 py-3.5 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-all active:scale-95 text-[10px]">
-                                Đăng ký thành viên
-                             </button>
-                          </div>
-                          <div className="flex-1 relative hidden lg:block">
-                             <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=800&auto=format&fit=crop" className="w-full rounded-2xl shadow-2xl rotate-2" alt="" />
-                          </div>
-                       </div>
-                    </div>
-                  </section>
+            <Suspense fallback={
+              <div className="flex items-center justify-center min-h-[60vh]">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                  <p className="text-slate-500 font-black uppercase tracking-[0.2em] text-xs">Phù phép không gian tri thức...</p>
                 </div>
-              } />
-              <Route path="/book/:id" element={<BookDetails onAddToCart={addToCart} />} />
-              <Route path="/search/:query" element={<SearchResults onAddToCart={addToCart} />} />
-              <Route path="/category/:categoryName" element={<CategoryPage onAddToCart={addToCart} />} />
-              <Route path="/author/:authorName" element={<AuthorPage onAddToCart={addToCart} />} />
-              <Route path="/wishlist" element={<WishlistPage onAddToCart={addToCart} />} />
-              <Route path="/checkout" element={<CheckoutPage cart={cart} onClearCart={() => setCart([])} />} />
-              <Route path="/order-success" element={<OrderSuccess />} />
-              <Route path="/my-orders" element={<MyOrdersPage />} />
-              <Route path="/my-orders/:orderId" element={<OrderDetailPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-            </Routes>
+              </div>
+            }>
+              <Routes>
+                <Route path="/" element={<HomePage allBooks={allBooks} categories={categories} onAddToCart={addToCart} />} />
+                <Route path="/book/:id" element={<BookDetails onAddToCart={addToCart} />} />
+                <Route path="/search/:query" element={<SearchResults onAddToCart={addToCart} />} />
+                <Route path="/category/:categoryName" element={<CategoryPage onAddToCart={addToCart} />} />
+                <Route path="/author/:authorName" element={<AuthorPage onAddToCart={addToCart} />} />
+                <Route path="/wishlist" element={<WishlistPage onAddToCart={addToCart} />} />
+                <Route path="/checkout" element={<CheckoutPage cart={cart} onClearCart={() => setCart([])} />} />
+                <Route path="/order-success" element={<OrderSuccess />} />
+                <Route path="/my-orders" element={<MyOrdersPage />} />
+                <Route path="/my-orders/:orderId" element={<OrderDetailPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              </Routes>
+            </Suspense>
           </MainContent>
         </LayoutWrapper>
       </Router>
+      <Toaster position="top-center" reverseOrder={false} />
     </AuthContext.Provider>
   );
 };

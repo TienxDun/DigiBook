@@ -1,8 +1,10 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { db, Order, OrderItem, SystemLog, AVAILABLE_AI_MODELS } from '../services/db';
 import { Book, CategoryInfo, Author, Coupon, AIModelConfig } from '../types';
+import { ErrorHandler } from '../services/errorHandler';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -303,16 +305,21 @@ const AdminDashboard: React.FC = () => {
 
   const handleSaveBook = async (e: React.FormEvent) => {
     e.preventDefault();
-    const selectedAuthor = authors.find(a => a.id === bookFormData.authorId);
-    const finalBook = {
-      ...bookFormData,
-      id: editingBook ? editingBook.id : Date.now().toString(),
-      author: selectedAuthor?.name || 'Vô danh',
-      rating: editingBook?.rating || 5.0
-    } as Book;
-    await db.saveBook(finalBook);
-    setIsBookModalOpen(false);
-    refreshData();
+    try {
+      const selectedAuthor = authors.find(a => a.id === bookFormData.authorId);
+      const finalBook = {
+        ...bookFormData,
+        id: editingBook ? editingBook.id : Date.now().toString(),
+        author: selectedAuthor?.name || 'Vô danh',
+        rating: editingBook?.rating || 5.0
+      } as Book;
+      await db.saveBook(finalBook);
+      toast.success(editingBook ? 'Cập nhật sách thành công' : 'Thêm sách mới thành công');
+      setIsBookModalOpen(false);
+      refreshData();
+    } catch (error) {
+      ErrorHandler.handle(error, 'lưu sách');
+    }
   };
 
   const handleEditBook = (book: Book) => {
@@ -340,10 +347,10 @@ const AdminDashboard: React.FC = () => {
     if (!window.confirm(`Bạn có chắc chắn muốn xóa sách "${book.title}"?`)) return;
     try {
       await db.deleteBook(book.id);
+      toast.success('Đã xóa sách thành công');
       refreshData();
     } catch (error) {
-      console.error('Error deleting book:', error);
-      alert('Có lỗi xảy ra khi xóa sách');
+      ErrorHandler.handle(error, 'xóa sách');
     }
   };
 
@@ -359,13 +366,18 @@ const AdminDashboard: React.FC = () => {
 
   const handleSaveAuthor = async (e: React.FormEvent) => {
     e.preventDefault();
-    const finalAuthor = {
-      ...authorFormData,
-      id: editingAuthor ? editingAuthor.id : Date.now().toString()
-    } as Author;
-    await db.saveAuthor(finalAuthor);
-    setIsAuthorModalOpen(false);
-    refreshData();
+    try {
+      const finalAuthor = {
+        ...authorFormData,
+        id: editingAuthor ? editingAuthor.id : Date.now().toString()
+      } as Author;
+      await db.saveAuthor(finalAuthor);
+      toast.success(editingAuthor ? 'Cập nhật tác giả thành công' : 'Thêm tác giả mới thành công');
+      setIsAuthorModalOpen(false);
+      refreshData();
+    } catch (error) {
+      ErrorHandler.handle(error, 'lưu tác giả');
+    }
   };
 
   const handleEditAuthor = (author: Author) => {
@@ -382,10 +394,10 @@ const AdminDashboard: React.FC = () => {
     if (!window.confirm(`Bạn có chắc chắn muốn xóa tác giả "${author.name}"?`)) return;
     try {
       await db.deleteAuthor(author.id);
+      toast.success('Đã xóa tác giả thành công');
       refreshData();
     } catch (error) {
-      console.error('Error deleting author:', error);
-      alert('Có lỗi xảy ra khi xóa tác giả');
+      ErrorHandler.handle(error, 'xóa tác giả');
     }
   };
 
@@ -406,7 +418,7 @@ const AdminDashboard: React.FC = () => {
     if (!editingCategory) {
       const exists = categories.find(c => c.name.toLowerCase() === categoryFormData.name?.toLowerCase());
       if (exists) {
-        alert('Danh mục với tên này đã tồn tại!');
+        toast.error('Danh mục với tên này đã tồn tại!');
         return;
       }
     }
@@ -417,9 +429,14 @@ const AdminDashboard: React.FC = () => {
       description: categoryFormData.description || ''
     } as CategoryInfo;
     
-    await db.saveCategory(finalCategory);
-    setIsCategoryModalOpen(false);
-    refreshData();
+    try {
+      await db.saveCategory(finalCategory);
+      toast.success(editingCategory ? 'Cập nhật danh mục thành công' : 'Thêm danh mục mới thành công');
+      setIsCategoryModalOpen(false);
+      refreshData();
+    } catch (error) {
+      ErrorHandler.handle(error, 'lưu danh mục');
+    }
   };
 
   const handleEditCategory = (category: CategoryInfo & {id?: string}) => {
@@ -437,10 +454,10 @@ const AdminDashboard: React.FC = () => {
     if (!window.confirm(`Bạn có chắc chắn muốn xóa danh mục "${category.name}"?`)) return;
     try {
       await db.deleteCategory(category.name);
+      toast.success('Đã xóa danh mục thành công');
       refreshData();
     } catch (error) {
-      console.error('Error deleting category:', error);
-      alert('Có lỗi xảy ra khi xóa danh mục');
+      ErrorHandler.handle(error, 'xóa danh mục');
     }
   };
 
@@ -451,10 +468,11 @@ const AdminDashboard: React.FC = () => {
     setIsDeletingBulk(true);
     try {
       await db.deleteBooksBulk(selectedBooks);
+      toast.success(`Đã xóa ${selectedBooks.length} cuốn sách`);
       setSelectedBooks([]);
       refreshData();
     } catch (err) {
-      alert("Lỗi khi xóa hàng loạt sách");
+      ErrorHandler.handle(err, 'xóa hàng loạt sách');
     } finally {
       setIsDeletingBulk(false);
     }
@@ -467,10 +485,11 @@ const AdminDashboard: React.FC = () => {
     setIsDeletingBulk(true);
     try {
       await db.deleteAuthorsBulk(selectedAuthors);
+      toast.success(`Đã xóa ${selectedAuthors.length} tác giả`);
       setSelectedAuthors([]);
       refreshData();
     } catch (err) {
-      alert("Lỗi khi xóa hàng loạt tác giả");
+      ErrorHandler.handle(err, 'xóa hàng loạt tác giả');
     } finally {
       setIsDeletingBulk(false);
     }
@@ -483,10 +502,11 @@ const AdminDashboard: React.FC = () => {
     setIsDeletingBulk(true);
     try {
       await db.deleteCategoriesBulk(selectedCategories);
+      toast.success(`Đã xóa ${selectedCategories.length} danh mục`);
       setSelectedCategories([]);
       refreshData();
     } catch (err) {
-      alert("Lỗi khi xóa hàng loạt danh mục");
+      ErrorHandler.handle(err, 'xóa hàng loạt danh mục');
     } finally {
       setIsDeletingBulk(false);
     }
@@ -531,7 +551,7 @@ const AdminDashboard: React.FC = () => {
   const handleSaveCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!couponFormData.code || !couponFormData.discountValue || !couponFormData.expiryDate) {
-      alert('Vui lòng nhập đầy đủ thông tin: Mã code, giá trị giảm, và ngày hết hạn');
+      toast.error('Vui lòng nhập đầy đủ thông tin: Mã code, giá trị giảm, và ngày hết hạn');
       return;
     }
     try {
@@ -559,10 +579,9 @@ const AdminDashboard: React.FC = () => {
         usageLimit: 100
       });
       await refreshData();
-      alert(editingCoupon ? 'Cập nhật mã khuyến mãi thành công!' : 'Tạo mã khuyến mãi thành công!');
+      toast.success(editingCoupon ? 'Cập nhật mã khuyến mãi thành công!' : 'Tạo mã khuyến mãi thành công!');
     } catch (error) {
-      console.error('Error saving coupon:', error);
-      alert('Lỗi khi lưu mã khuyến mãi. Vui lòng kiểm tra lại thông tin.');
+      ErrorHandler.handle(error, 'lưu mã khuyến mãi');
     }
   };
 
@@ -571,10 +590,9 @@ const AdminDashboard: React.FC = () => {
     try {
       await db.deleteCoupon(code);
       await refreshData();
-      alert('Xóa mã khuyến mãi thành công!');
+      toast.success('Xóa mã khuyến mãi thành công!');
     } catch (error) {
-      console.error('Error deleting coupon:', error);
-      alert('Lỗi khi xóa mã khuyến mãi. Vui lòng thử lại.');
+      ErrorHandler.handle(error, 'xóa mã khuyến mãi');
     }
   };
 
@@ -586,8 +604,7 @@ const AdminDashboard: React.FC = () => {
         setIsOrderModalOpen(true);
       }
     } catch (error) {
-      console.error('Error fetching order details:', error);
-      alert('Có lỗi xảy ra khi tải chi tiết đơn hàng');
+      ErrorHandler.handle(error, 'tải chi tiết đơn hàng');
     }
   };
 
@@ -603,10 +620,9 @@ const AdminDashboard: React.FC = () => {
       await db.updateOrderStatus(selectedOrder.id, newStatusLabel, newStatusStep);
       setSelectedOrder({ ...selectedOrder, status: newStatusLabel, statusStep: newStatusStep });
       refreshData();
-      alert('Cập nhật trạng thái thành công!');
+      toast.success('Cập nhật trạng thái thành công!');
     } catch (error) {
-      console.error('Error updating order status:', error);
-      alert('Có lỗi xảy ra khi cập nhật trạng thái');
+      ErrorHandler.handle(error, 'cập nhật trạng thái đơn hàng');
     } finally {
       setUpdatingOrderStatus(false);
     }
@@ -618,10 +634,9 @@ const AdminDashboard: React.FC = () => {
     try {
       await db.updateAIConfig(modelId);
       setAiConfig({ activeModelId: modelId });
-      alert(`Đã chuyển đổi sang model ${modelId} thành công!`);
+      toast.success(`Đã chuyển đổi sang model ${modelId} thành công!`);
     } catch (error) {
-      console.error('Error updating AI model:', error);
-      alert('Lỗi khi cập nhật cấu hình AI.');
+      ErrorHandler.handle(error, 'cập nhật cấu hình AI');
     } finally {
       setIsUpdatingAI(false);
     }
@@ -1857,10 +1872,10 @@ const AdminDashboard: React.FC = () => {
                             const newStatusLabel = orderStatusOptions.find(opt => opt.step === newStep)?.label || 'Đang xử lý';
                             if (window.confirm(`Cập nhật trạng thái đơn hàng thành "${newStatusLabel}"?`)) {
                               db.updateOrderStatus(order.id, newStatusLabel, newStep).then(() => {
+                                toast.success('Cập nhật trạng thái thành công');
                                 refreshData();
                               }).catch(err => {
-                                console.error('Error updating status:', err);
-                                alert('Có lỗi xảy ra khi cập nhật trạng thái');
+                                ErrorHandler.handle(err, 'cập nhật trạng thái');
                               });
                             } else {
                               e.target.value = String(order.statusStep);

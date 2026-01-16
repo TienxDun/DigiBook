@@ -4,6 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import { db, AVAILABLE_AI_MODELS } from '../services/db';
 import BookCard from '../components/BookCard';
 import { Book, Author } from '../types';
+import { BookCardSkeleton, Skeleton } from '../components/Skeleton';
 
 interface AuthorPageProps {
   onAddToCart: (book: Book) => void;
@@ -52,7 +53,34 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart }) => {
     setLoadingAI(false);
   };
 
-  if (loading) return <div className="h-screen flex items-center justify-center bg-slate-50"><i className="fa-solid fa-spinner fa-spin text-3xl text-indigo-600"></i></div>;
+  if (loading) {
+    return (
+      <div className="bg-slate-50 min-h-screen pt-20 lg:pt-24 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-indigo-950 rounded-[2.5rem] p-10 mb-8 flex flex-col lg:flex-row items-center gap-10">
+            <Skeleton className="w-48 h-48 rounded-3xl" />
+            <div className="flex-1 space-y-4">
+              <Skeleton className="h-4 w-1/4" />
+              <Skeleton className="h-10 w-1/2" />
+              <div className="grid grid-cols-4 gap-4">
+                {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 rounded-2xl" />)}
+              </div>
+            </div>
+          </div>
+          <div className="grid lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {[...Array(8)].map((_, i) => <BookCardSkeleton key={i} />)}
+              </div>
+            </div>
+            <div className="lg:col-span-4">
+              <Skeleton className="h-[400px] rounded-3xl" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const mainCategory = authorBooks.length > 0 
     ? [...new Set(authorBooks.map(b => b.category))].sort((a,b) => 

@@ -4,6 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import { db } from '../services/db';
 import { Book } from '../types';
 import BookCard from '../components/BookCard';
+import { BookCardSkeleton } from '../components/Skeleton';
 
 interface SearchResultsProps {
   onAddToCart: (book: Book) => void;
@@ -36,18 +37,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onAddToCart }) => {
     );
   }, [allBooks, query]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen pt-32 flex flex-col items-center justify-center bg-slate-50">
-        <div className="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Đang truy vấn dữ liệu...</p>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-slate-50 pt-28 lg:pt-32 pb-24 px-4 overflow-hidden">
-      {/* Search Header */}
       <div className="max-w-7xl mx-auto mb-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
@@ -56,8 +47,12 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onAddToCart }) => {
               <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em]">Kết quả tìm kiếm</p>
             </div>
             <h1 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
-              Tìm thấy <span className="text-indigo-600">{filteredBooks.length}</span> kết quả <br className="hidden lg:block"/> 
-              cho từ khóa "<span className="italic text-slate-400 font-medium">{query}</span>"
+              {loading ? 'Đang tìm kiếm...' : (
+                <>
+                  Tìm thấy <span className="text-indigo-600">{filteredBooks.length}</span> kết quả <br className="hidden lg:block"/> 
+                  cho từ khóa "<span className="italic text-slate-400 font-medium">{query}</span>"
+                </>
+              )}
             </h1>
           </div>
           <div className="flex items-center gap-3">
@@ -69,7 +64,13 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onAddToCart }) => {
       </div>
 
       <div className="max-w-7xl mx-auto">
-        {filteredBooks.length > 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5">
+            {[...Array(10)].map((_, i) => (
+              <BookCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : filteredBooks.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5">
             {filteredBooks.map((book) => (
               <div key={book.id} className="fade-in-up">

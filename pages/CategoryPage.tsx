@@ -5,6 +5,7 @@ import { db } from '../services/db';
 import BookCard from '../components/BookCard';
 import Pagination from '../components/Pagination';
 import { Book, CategoryInfo } from '../types';
+import { BookCardSkeleton } from '../components/Skeleton';
 
 interface CategoryPageProps {
   onAddToCart: (book: Book) => void;
@@ -19,16 +20,24 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
   const [timeLeft, setTimeLeft] = useState({ hours: 12, minutes: 45, seconds: 30 });
   const [allBooks, setAllBooks] = useState<Book[]>([]);
   const [categories, setCategories] = useState<CategoryInfo[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const topRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const loadData = async () => {
-      const [books, cats] = await Promise.all([
-        db.getBooks(),
-        db.getCategories()
-      ]);
-      setAllBooks(books);
-      setCategories(cats);
+      setIsLoading(true);
+      try {
+        const [books, cats] = await Promise.all([
+          db.getBooks(),
+          db.getCategories()
+        ]);
+        setAllBooks(books);
+        setCategories(cats);
+      } catch (error) {
+        console.error("Error loading category data:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
     loadData();
 
@@ -192,7 +201,13 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
           </div>
         </div>
 
-        {paginatedBooks.length > 0 ? (
+        {isLoading ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5 mb-16">
+            {[...Array(ITEMS_PER_PAGE)].map((_, i) => (
+              <BookCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : paginatedBooks.length > 0 ? (
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5 mb-16">
               {paginatedBooks.map(book => (

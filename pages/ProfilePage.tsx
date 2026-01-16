@@ -1,15 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../AuthContext';
 import { db } from '../services/db';
 import { UserProfile } from '../types';
+import { ErrorHandler } from '../services/errorHandler';
 
 const ProfilePage: React.FC = () => {
     const { user, changePassword } = useAuth();
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [message, setMessage] = useState({ type: '', text: '' });
 
     // Password change state
     const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -61,8 +62,6 @@ const ProfilePage: React.FC = () => {
         if (!user) return;
 
         setSaving(true);
-        setMessage({ type: '', text: '' });
-
         try {
             await db.updateUserProfile({
                 id: user.id,
@@ -70,10 +69,9 @@ const ProfilePage: React.FC = () => {
                 avatar: user.avatar,
                 ...formData
             });
-            setMessage({ type: 'success', text: 'Cập nhật thông tin thành công!' });
-            setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+            toast.success('Cập nhật thông tin thành công!');
         } catch (error) {
-            setMessage({ type: 'error', text: 'Có lỗi xảy ra khi lưu thông tin.' });
+            ErrorHandler.handle(error, 'lưu thông tin cá nhân');
         } finally {
             setSaving(false);
         }
@@ -101,10 +99,11 @@ const ProfilePage: React.FC = () => {
         setPwLoading(true);
         try {
             await changePassword(passwords.current, passwords.new);
-            setMessage({ type: 'success', text: 'Đổi mật khẩu thành công!' });
+            toast.success('Đổi mật khẩu thành công!');
             setShowPasswordModal(false);
             setPasswords({ current: '', new: '', confirm: '' });
         } catch (err: any) {
+            ErrorHandler.handle(err, 'đổi mật khẩu');
             setPwError(err.message || 'Có lỗi xảy ra khi đổi mật khẩu.');
         } finally {
             setPwLoading(false);
@@ -281,15 +280,6 @@ const ProfilePage: React.FC = () => {
                         {/* Form */}
                         <div className="lg:col-span-2">
                             <div className="bg-white rounded-[3rem] p-8 lg:p-12 shadow-sm border border-white relative overflow-hidden">
-                                {message.text && (
-                                    <div className={`mb-8 p-4 rounded-2xl flex items-center gap-3 font-bold text-sm animate-fadeIn ${
-                                        message.type === 'success' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
-                                    }`}>
-                                        <i className={`fa-solid ${message.type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}`}></i>
-                                        {message.text}
-                                    </div>
-                                )}
-
                                 <form onSubmit={handleSave} className="space-y-8">
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <div className="space-y-2">

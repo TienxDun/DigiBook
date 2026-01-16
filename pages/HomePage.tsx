@@ -1,0 +1,236 @@
+
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Book, CategoryInfo, CartItem } from '../types';
+import { db } from '../services/db';
+import BookCard from '../components/BookCard';
+import { BookCardSkeleton } from '../components/Skeleton';
+
+interface HomePageProps {
+  onAddToCart: (book: Book) => void;
+  categories: CategoryInfo[];
+  allBooks: Book[];
+}
+
+const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }) => {
+  return (
+    <div className="space-y-0">
+      {/* Hero Section */}
+      <section className="relative min-h-[70vh] flex items-center overflow-hidden bg-white mt-[-80px] lg:mt-[-80px]">
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-slate-50 -skew-x-12 translate-x-32 hidden lg:block"></div>
+        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-slate-50/50 to-transparent lg:hidden"></div>
+        
+        <div className="w-[92%] xl:w-[60%] mx-auto px-4 relative z-10 flex flex-col lg:flex-row items-center gap-10 pt-28 pb-12 lg:pt-32">
+          <div className="flex-1 text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 rounded-full text-indigo-600 text-[9px] font-black uppercase tracking-[0.2em] mb-6">
+              <i className="fa-solid fa-wand-magic-sparkles"></i> New Generation Bookstore
+            </div>
+            <h1 className="text-5xl lg:text-7xl font-black text-slate-900 leading-[1] mb-8 tracking-tighter">
+              Khai phá <br />
+              <span className="text-indigo-600">Tiềm năng</span> <br />
+              qua từng trang sách.
+            </h1>
+            <p className="text-slate-500 text-lg lg:text-xl max-w-lg mb-10 leading-relaxed font-semibold">
+              DigiBook mang đến trải nghiệm đọc sách hiện đại, nơi tri thức và công nghệ hội tụ để thắp sáng tư duy của bạn.
+            </p>
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
+              <Link to="/category/Tất cả sách" className="px-8 py-4 bg-slate-900 text-white rounded-xl font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-xl shadow-slate-900/10 active:scale-95 text-xs">
+                Khám phá ngay
+              </Link>
+              <div className="flex items-center gap-3">
+                <div className="flex -space-x-3">
+                  {[1,2,3].map(i => (
+                    <img key={i} src={`https://i.pravatar.cc/100?u=${i}`} className="w-10 h-10 rounded-full border-4 border-white shadow-sm" alt="" />
+                  ))}
+                </div>
+                <div className="text-left">
+                  <p className="text-xs font-black text-slate-900 leading-none">5,000+ Độc giả</p>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Đã tin dùng</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex-1 relative group w-full max-w-xl">
+             <div className="absolute -inset-10 bg-indigo-500/10 blur-[100px] rounded-full group-hover:bg-indigo-500/20 transition-all duration-700"></div>
+             <div className="relative grid grid-cols-2 gap-4">
+                <div className="space-y-4 pt-8">
+                   <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4.2] object-cover rounded-[1.5rem] shadow-2xl transition-transform duration-700 hover:-translate-y-2" alt="" />
+                   <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4.2] object-cover rounded-[1.5rem] shadow-2xl transition-transform duration-700 hover:-translate-y-2" alt="" />
+                </div>
+                <div className="space-y-4">
+                   <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4.2] object-cover rounded-[1.5rem] shadow-2xl transition-transform duration-700 hover:-translate-y-2" alt="" />
+                   <div className="w-full aspect-[3/4.2] bg-indigo-600 rounded-[1.5rem] shadow-2xl flex flex-col items-center justify-center p-6 text-center text-white">
+                      <i className="fa-solid fa-star-half-stroke text-3xl mb-3 text-amber-300"></i>
+                      <p className="text-xl font-black">4.9/5</p>
+                      <p className="text-[9px] font-black uppercase tracking-widest opacity-60">Đánh giá trung bình</p>
+                   </div>
+                </div>
+             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Intro Section */}
+      <section className="py-16 bg-slate-50">
+        <div className="w-[92%] xl:w-[60%] mx-auto px-4">
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-500 group relative overflow-hidden">
+               <div className="absolute -top-10 -right-10 w-40 h-40 bg-cyan-50 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-700 blur-3xl"></div>
+               <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-xl shadow-cyan-200 relative z-10">
+                  <i className="fa-solid fa-certificate"></i>
+               </div>
+               <h3 className="text-xl font-black text-slate-900 mb-4 relative z-10">Sách Bản Quyền</h3>
+               <p className="text-slate-500 leading-relaxed font-medium text-xs tracking-wide relative z-10">Cam kết 100% sách chính hãng từ các nhà xuất bản uy tín nhất Việt Nam và thế giới.</p>
+            </div>
+            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 group lg:-translate-y-12 relative overflow-hidden border-b-4 border-b-orange-500/20">
+               <div className="absolute -top-10 -right-10 w-40 h-40 bg-orange-50 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-700 blur-3xl"></div>
+               <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-rose-500 rounded-2xl flex items-center justify-center text-white text-2xl mb-8 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500 shadow-xl shadow-orange-200 relative z-10">
+                  <i className="fa-solid fa-bolt"></i>
+               </div>
+               <h3 className="text-xl font-black text-slate-900 mb-4 relative z-10">Giao Tốc Hành</h3>
+               <p className="text-slate-500 leading-relaxed font-medium text-xs tracking-wide relative z-10">Dịch vụ giao hàng 2h tại nội thành và đóng gói cẩn thận từng trang sách quý giá của bạn.</p>
+            </div>
+            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-500 group relative overflow-hidden">
+               <div className="absolute -top-10 -right-10 w-40 h-40 bg-emerald-50 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-700 blur-3xl"></div>
+               <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center text-white text-2xl mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-xl shadow-emerald-200 relative z-10">
+                  <i className="fa-solid fa-headset"></i>
+               </div>
+               <h3 className="text-xl font-black text-slate-900 mb-4 relative z-10">Hỗ Trợ 24/7</h3>
+               <p className="text-slate-500 leading-relaxed font-medium text-xs tracking-wide relative z-10">Đội ngũ chuyên gia luôn sẵn sàng tư vấn và giúp bạn tìm ra những cuốn sách phù hợp nhất.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Categories Section */}
+      <section className="py-24 bg-white">
+        <div className="w-[92%] xl:w-[60%] mx-auto px-4">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+            <div className="max-w-xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 rounded-lg mb-4">
+                 <div className="w-2 h-2 bg-indigo-600 rounded-full animate-pulse"></div>
+                 <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Danh mục nổi bật</p>
+              </div>
+              <h2 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">Khai phá tri thức theo <span className="text-indigo-600">chủ đề</span>.</h2>
+            </div>
+            <p className="text-slate-500 font-medium max-w-sm text-sm leading-relaxed">Duyệt qua hàng ngàn tựa sách được phân loại tỉ mỉ để giúp bạn tìm thấy nguồn cảm hứng nhanh nhất.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {categories.length > 0 ? categories.map((cat, i) => {
+              const colors = [
+                { border: 'hover:border-indigo-500/50', bg: 'bg-indigo-50', icon: 'text-indigo-500', shadow: 'hover:shadow-indigo-500/20', glow: 'from-indigo-500/20' },
+                { border: 'hover:border-emerald-500/50', bg: 'bg-emerald-50', icon: 'text-emerald-500', shadow: 'hover:shadow-emerald-500/20', glow: 'from-emerald-500/20' },
+                { border: 'hover:border-rose-500/50', bg: 'bg-rose-50', icon: 'text-rose-500', shadow: 'hover:shadow-rose-500/20', glow: 'from-rose-500/20' },
+                { border: 'hover:border-amber-500/50', bg: 'bg-amber-50', icon: 'text-amber-500', shadow: 'hover:shadow-amber-500/20', glow: 'from-amber-500/20' },
+                { border: 'hover:border-cyan-500/50', bg: 'bg-cyan-50', icon: 'text-cyan-500', shadow: 'hover:shadow-cyan-500/20', glow: 'from-cyan-500/20' },
+                { border: 'hover:border-violet-500/50', bg: 'bg-violet-50', icon: 'text-violet-500', shadow: 'hover:shadow-violet-500/20', glow: 'from-violet-500/20' },
+              ];
+              const color = colors[i % colors.length];
+              
+              return (
+                <Link 
+                  key={i} 
+                  to={`/category/${cat.name}`}
+                  className={`group relative bg-white p-10 rounded-[3rem] border border-slate-100 transition-all duration-500 ${color.border} ${color.shadow} hover:-translate-y-2 overflow-hidden flex flex-col items-start`}
+                >
+                  {/* Background Glow */}
+                  <div className={`absolute -bottom-10 -right-10 w-32 h-32 bg-gradient-to-br ${color.glow} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-2xl`}></div>
+                  
+                  <div className={`w-16 h-16 ${color.bg} ${color.icon} rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-sm`}>
+                    <i className={`fa-solid ${cat.icon} text-2xl`}></i>
+                  </div>
+                  
+                  <div className="relative z-10">
+                    <h3 className="text-xl font-black text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors">{cat.name}</h3>
+                    <p className="text-slate-500 text-xs font-medium leading-relaxed mb-6 line-clamp-2">{cat.description}</p>
+                    
+                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-indigo-600 transition-all">
+                      <span>Khám phá ngay</span>
+                      <i className="fa-solid fa-chevron-right group-hover:translate-x-2 transition-transform"></i>
+                    </div>
+                  </div>
+
+                  {/* Decorative Large Icon in Background */}
+                  <i className={`fa-solid ${cat.icon} absolute -right-4 -top-4 text-7xl opacity-[0.03] group-hover:opacity-[0.08] transition-all duration-700 group-hover:scale-125 -rotate-12`}></i>
+                </Link>
+              );
+            }) : (
+              <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-20 bg-slate-50/50 rounded-[3rem] border-2 border-dashed border-slate-200">
+                 <p className="text-slate-400 font-black tracking-[0.2em] uppercase text-xs">Đang tải vũ trụ tri thức...</p>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-16 flex justify-center">
+            <Link to="/category/Tất cả sách" className="group relative px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest overflow-hidden hover:shadow-2xl hover:shadow-indigo-500/20 transition-all active:scale-95">
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <span className="relative flex items-center gap-3">
+                Xem tất cả danh mục <i className="fa-solid fa-arrow-right-long group-hover:translate-x-2 transition-transform"></i>
+              </span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Books Section */}
+      <section className="py-24 bg-slate-50/50 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-50/50 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/3"></div>
+        
+        <div className="w-[92%] xl:w-[60%] mx-auto px-4 relative">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+            <div className="max-w-xl">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-rose-50 rounded-lg mb-4">
+                <i className="fa-solid fa-wand-magic-sparkles text-rose-500 text-[12px]"></i>
+                <p className="text-[12px] font-black text-rose-500 uppercase tracking-[0.2em]">Curated For You</p>
+              </div>
+              <h2 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">Sách mới nhất <span className="text-rose-500">hôm nay</span>.</h2>
+            </div>
+            <Link to="/category/Tất cả sách" className="text-indigo-600 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 group">
+              Xem toàn bộ kho sách <i className="fa-solid fa-arrow-right group-hover:translate-x-2 transition-transform"></i>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {allBooks.length > 0 ? allBooks.slice(0, 10).map(book => (
+              <BookCard key={book.id} book={book} onAddToCart={onAddToCart} />
+            )) : (
+              [...Array(10)].map((_, i) => (
+                <BookCardSkeleton key={i} />
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Promo Section */}
+      <section className="py-24 bg-white">
+        <div className="w-[92%] xl:w-[60%] mx-auto px-4">
+           <div className="bg-slate-900 rounded-[4rem] p-12 lg:p-20 flex flex-col lg:flex-row items-center gap-12 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_120%,#4f46e5,transparent)] opacity-20"></div>
+              
+              <div className="flex-1 relative z-10 text-center lg:text-left">
+                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full mb-6 text-indigo-300 text-[10px] font-black uppercase tracking-widest">
+                    <i className="fa-solid fa-gift"></i> Đặc quyền thành viên
+                 </div>
+                 <h2 className="text-4xl lg:text-5xl font-black text-white mb-6 leading-tight">
+                    Chào mừng bạn đến với <br />
+                    vũ trụ tri thức <span className="text-indigo-400">DigiBook</span>.
+                 </h2>
+                 <p className="text-slate-400 text-xs mb-6 max-w-lg">Sử dụng mã <strong>WELCOME5</strong> cho đơn hàng từ 200k. Chỉ áp dụng cho tài khoản mới đăng ký.</p>
+                 <button className="px-8 py-3.5 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-all active:scale-95 text-[10px]">
+                    Đăng ký thành viên
+                 </button>
+              </div>
+              <div className="flex-1 relative hidden lg:block">
+                 <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=800&auto=format&fit=crop" className="w-full rounded-2xl shadow-2xl rotate-2" alt="" />
+              </div>
+           </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default HomePage;
