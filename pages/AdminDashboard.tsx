@@ -29,6 +29,7 @@ const AdminDashboard: React.FC = () => {
   const [hasMoreLogs, setHasMoreLogs] = useState(true);
 
   const [isSeeding, setIsSeeding] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [seedStatus, setSeedStatus] = useState<{msg: string, type: 'success' | 'error' | 'info'} | null>(null);
   
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
@@ -216,6 +217,35 @@ const AdminDashboard: React.FC = () => {
       setIsLoadingMoreLogs(false);
     }
   }, [logs.length, isLoadingMoreLogs, hasMoreLogs]);
+
+  const handleAutoSync = async () => {
+    setIsSyncing(true);
+    setSeedStatus({ msg: "Đang tìm kiếm sách từ Google Books...", type: 'info' });
+    try {
+      const queries = ['sách kinh tế', 'sách văn học', 'sách kỹ năng sống', 'lịch sử việt nam'];
+      const randomQuery = queries[Math.floor(Math.random() * queries.length)];
+      
+      const newBooks = await db.fetchBooksFromGoogle(randomQuery, 20);
+      
+      if (newBooks.length === 0) {
+        setSeedStatus({ msg: "Không tìm thấy sách mới phù hợp hoặc tất cả đã tồn tại.", type: 'info' });
+        setIsSyncing(false);
+        return;
+      }
+      
+      setSeedStatus({ msg: `Đã tìm thấy ${newBooks.length} sách mới. Đang đồng bộ...`, type: 'info' });
+      const count = await db.saveBooksBatch(newBooks);
+      
+      setSeedStatus({ msg: `Đồng bộ thành công ${count} cuốn sách từ Google Books!`, type: 'success' });
+      await refreshData();
+    } catch (error: any) {
+      console.error("Auto Sync Error:", error);
+      setSeedStatus({ msg: `Lỗi đồng bộ: ${error.message}`, type: 'error' });
+    } finally {
+      setIsSyncing(false);
+      setTimeout(() => setSeedStatus(null), 5000);
+    }
+  };
 
   const handleOpenAddBook = () => {
     setEditingBook(null);
@@ -504,7 +534,31 @@ const AdminDashboard: React.FC = () => {
         </div>
       </aside>
 
-      <main className="flex-1 p-8 lg:p-12 overflow-y-auto bg-slate-50">
+      <main className="flex-1 p-8 lg:p-12 overflow-y-auto bg-slate-50 relative">
+        {/* Toast Notification for Seeding/Syncing */}
+        {seedStatus && (
+          <div className="fixed top-8 right-8 z-[1000] animate-slideIn">
+            <div className={`px-6 py-4 rounded-2xl shadow-2xl border flex items-center gap-4 transition-all duration-500 bg-white ${
+              seedStatus.type === 'success' ? 'border-emerald-100' : 
+              seedStatus.type === 'error' ? 'border-rose-100' : 'border-blue-100'
+            }`}>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                seedStatus.type === 'success' ? 'bg-emerald-500 text-white' : 
+                seedStatus.type === 'error' ? 'bg-rose-500 text-white' : 'bg-blue-500 text-white'
+              }`}>
+                <i className={`fa-solid ${
+                  seedStatus.type === 'success' ? 'fa-check' : 
+                  seedStatus.type === 'error' ? 'fa-exclamation' : 'fa-spinner fa-spin'
+                }`}></i>
+              </div>
+              <div>
+                <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-0.5">Thông báo hệ thống</p>
+                <p className="text-sm font-bold text-slate-900">{seedStatus.msg}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <header className="flex justify-between items-center gap-6 mb-12">
           <div>
             <h2 className="text-3xl font-black text-slate-900">
@@ -1017,12 +1071,26 @@ const AdminDashboard: React.FC = () => {
                   ))}
                 </div>
               </div>
-              <button 
-                onClick={handleOpenAddBook}
-                className="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
-              >
-                <i className="fa-solid fa-plus mr-2"></i>Thêm sách mới
-              </button>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={handleAutoSync}
+                  disabled={isSyncing}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all shadow-lg ${
+                    isSyncing 
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed' 
+                    : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 shadow-emerald-600/10'
+                  }`}
+                >
+                  <i className={`fa-solid ${isSyncing ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-down'}`}></i>
+                  <span>{isSyncing ? 'Đang đồng bộ...' : 'Auto Sync từ Internet'}</span>
+                </button>
+                <button 
+                  onClick={handleOpenAddBook}
+                  className="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
+                >
+                  <i className="fa-solid fa-plus mr-2"></i>Thêm sách mới
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

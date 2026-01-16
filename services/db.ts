@@ -434,6 +434,115 @@ class DataService {
       profile.id
     );
   }
+
+  // --- AUTO-GENERATOR FUNCTIONS ---
+
+  async fetchBooksFromGoogle(q: string = 'sách tiếng việt', maxResults: number = 20): Promise<Book[]> {
+    try {
+      const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=${maxResults}&langRestrict=vi`;
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (!data.items) return [];
+
+      // Lấy danh sách ISBN hiện có để lọc trùng
+      const existingBooks = await this.getBooks();
+      const existingIsbns = new Set(existingBooks.map(b => b.isbn));
+
+      const books: Book[] = data.items
+        .map((item: any) => {
+          const info = item.volumeInfo;
+          const isbnObj = info.industryIdentifiers?.find((id: any) => id.type === 'ISBN_13' || id.type === 'ISBN_10');
+          const isbn = isbnObj?.identifier || `GB-${item.id}`;
+
+          // Chỉ lấy nếu chưa có trong DB
+          if (existingIsbns.has(isbn)) return null;
+
+          // Mapping category đơn giản
+          const gbCats = info.categories || [];
+          let appCat = 'Văn học'; // Default
+          if (gbCats.some((c: string) => c.toLowerCase().includes('business') || c.toLowerCase().includes('economics'))) appCat = 'Kinh tế';
+          else if (gbCats.some((c: string) => c.toLowerCase().includes('history'))) appCat = 'Lịch sử';
+          else if (gbCats.some((c: string) => c.toLowerCase().includes('child') || c.toLowerCase().includes('juvenile'))) appCat = 'Thiếu nhi';
+          else if (gbCats.some((c: string) => c.toLowerCase().includes('self-help') || c.toLowerCase().includes('skill'))) appCat = 'Kỹ năng';
+
+          return {
+            id: isbn,
+            title: info.title,
+            author: info.authors?.join(', ') || 'Nhiều tác giả',
+            authorBio: info.description?.substring(0, 200) || 'Thông tin tác giả đang được cập nhật.',
+            price: Math.floor(Math.random() * (350000 - 85000) + 85000), // Random price VND
+            original_price: Math.floor(Math.random() * (450000 - 400000) + 400000),
+            stock_quantity: Math.floor(Math.random() * 50) + 5,
+            rating: info.averageRating || (4 + Math.random()).toFixed(1),
+            cover: info.imageLinks?.thumbnail?.replace('http:', 'https:') || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=800&auto=format&fit=crop',
+            category: appCat,
+            description: info.description || 'Chưa có mô tả chi tiết cho cuốn sách này.',
+            isbn: isbn,
+            pages: info.pageCount || 200,
+            publisher: info.publisher || 'Đang cập nhật',
+            publishYear: parseInt(info.publishedDate?.split('-')[0]) || 2023,
+            language: 'Tiếng Việt'
+          } as Book;
+        })
+        .filter((b: any) => b !== null);
+
+      return books;
+    } catch (error) {
+      console.error("Error fetching from Google Books:", error);
+      return [];
+    }
+  }
+
+  async saveBooksBatch(books: Book[]): Promise<number> {
+    if (books.length === 0) return 0;
+    
+    return this.wrap(
+      (async () => {
+        const batch = writeBatch(db_fs);
+        
+        // --- Tự động đồng bộ Tác giả ---
+        const existingAuthors = await this.getAuthors();
+        const authorMap = new Map(existingAuthors.map(a => [a.name.toLowerCase().trim(), a.id]));
+        
+        for (const book of books) {
+          const authorName = book.author.trim();
+          const authorKey = authorName.toLowerCase();
+          
+          let authorId: string;
+          
+          if (authorMap.has(authorKey)) {
+            authorId = authorMap.get(authorKey)!;
+          } else {
+            // Tạo tác giả mới nếu chưa tồn tại
+            authorId = `author-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+            const newAuthor: Author = {
+              id: authorId,
+              name: authorName,
+              bio: book.authorBio || `Tác giả của cuốn sách "${book.title}".`,
+              avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=random&size=256`
+            };
+            
+            const authorDocRef = doc(db_fs, 'authors', authorId);
+            batch.set(authorDocRef, { ...newAuthor, createdAt: serverTimestamp() });
+            authorMap.set(authorKey, authorId); // Tránh tạo trùng trong cùng một batch
+          }
+          
+          // Gán authorId vào sách
+          book.authorId = authorId;
+          
+          const bookDocRef = doc(db_fs, 'books', book.id);
+          batch.set(bookDocRef, { ...book, updatedAt: serverTimestamp() }, { merge: true });
+        }
+        
+        await batch.commit();
+        return books.length;
+      })(),
+      0,
+      'BATCH_SAVE_BOOKS',
+      `Imported ${books.length} items and synced authors`
+    );
+  }
 }
 
 export const db = new DataService();
