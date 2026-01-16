@@ -56,11 +56,11 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, onOpenCart, onSea
         {/* Left: Logo & Navigation */}
         <div className="flex items-center gap-8">
           <Link to="/" className="flex items-center gap-3 group" onClick={() => window.location.reload()}>
-            <div className={`transition-all duration-500 bg-slate-900 group-hover:bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-xl shadow-slate-900/10 ${scrolled ? 'w-8 h-8' : 'w-10 h-10'}`}>
-              <i className={`fa-solid fa-book-bookmark ${scrolled ? 'text-xs' : 'text-base'}`}></i>
+            <div className={`transition-all duration-500 bg-gradient-to-tr from-slate-900 to-slate-700 group-hover:from-indigo-600 group-hover:to-violet-500 rounded-xl flex items-center justify-center text-white shadow-xl shadow-slate-900/10 ${scrolled ? 'w-9 h-9' : 'w-11 h-11'}`}>
+              <i className={`fa-solid fa-book-bookmark ${scrolled ? 'text-xs' : 'text-lg'}`}></i>
             </div>
             <span className={`font-black tracking-tighter text-slate-900 hidden sm:block transition-all duration-500 ${scrolled ? 'text-lg' : 'text-xl'}`}>
-              Digi<span className="text-indigo-600">Book</span>
+              Digi<span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">Book</span>
             </span>
           </Link>
 
@@ -108,22 +108,22 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, onOpenCart, onSea
           {/* Wishlist Icon */}
           <Link 
             to="/wishlist" 
-            className="w-10 h-10 rounded-xl text-slate-500 hover:bg-rose-50 hover:text-rose-500 transition-all flex items-center justify-center relative group"
+            className="w-10 h-10 rounded-xl text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all flex items-center justify-center relative group"
           >
-            <i className="fa-regular fa-heart text-lg"></i>
+            <i className="fa-regular fa-heart text-lg group-hover:scale-110 transition-transform"></i>
             {wishlist.length > 0 && (
-              <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-rose-500 rounded-full border border-white"></span>
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white animate-pulse"></span>
             )}
           </Link>
 
           {/* Cart Toggle */}
           <button 
             onClick={onOpenCart} 
-            className="w-10 h-10 rounded-xl bg-slate-900 text-white hover:bg-indigo-600 transition-all shadow-lg shadow-slate-900/10 relative flex items-center justify-center group active:scale-95"
+            className="w-10 h-10 rounded-xl bg-indigo-600 hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-200 relative flex items-center justify-center group active:scale-95"
           >
-            <i className="fa-solid fa-cart-shopping text-sm"></i>
+            <i className="fa-solid fa-bag-shopping text-[15px] text-white group-hover:scale-110 transition-transform"></i>
             {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[18px] h-4.5 bg-rose-500 text-white text-[8px] font-black rounded-full flex items-center justify-center border border-white px-0.5">
+              <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] bg-amber-400 text-slate-900 text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white px-1 shadow-md">
                 {cartCount}
               </span>
             )}
@@ -159,22 +159,34 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, onOpenCart, onSea
                     <p className="text-[9px] text-slate-400 font-medium truncate">{user.email}</p>
                   </div>
                   <div className="px-1">
-                    <Link to="/profile" className="flex items-center gap-3 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 hover:text-indigo-600 rounded-lg transition-all">
-                      <i className="fa-solid fa-user-circle opacity-50"></i> HS Cá nhân
+                    <Link to="/profile" className="flex items-center gap-3 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 hover:text-indigo-600 rounded-xl transition-all group">
+                      <div className="w-7 h-7 bg-slate-50 group-hover:bg-indigo-50 rounded-lg flex items-center justify-center transition-all">
+                        <i className="fa-regular fa-circle-user text-sm opacity-70 group-hover:opacity-100"></i>
+                      </div>
+                      HS Cá nhân
                     </Link>
-                    <Link to="/my-orders" className="flex items-center gap-3 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 hover:text-indigo-600 rounded-lg transition-all">
-                      <i className="fa-solid fa-receipt opacity-50"></i> Đơn hàng
+                    <Link to="/my-orders" className="flex items-center gap-3 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 hover:text-indigo-600 rounded-xl transition-all group">
+                      <div className="w-7 h-7 bg-slate-50 group-hover:bg-indigo-50 rounded-lg flex items-center justify-center transition-all">
+                        <i className="fa-regular fa-file-lines text-sm opacity-70 group-hover:opacity-100"></i>
+                      </div>
+                      Đơn hàng
                     </Link>
                     {user.email === 'admin@gmail.com' && (
-                      <Link to="/admin" className="flex items-center gap-3 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">
-                        <i className="fa-solid fa-gauge-high"></i> Admin
+                      <Link to="/admin" className="flex items-center gap-3 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all group">
+                        <div className="w-7 h-7 bg-indigo-50 group-hover:bg-indigo-100 rounded-lg flex items-center justify-center transition-all">
+                          <i className="fa-solid fa-chart-pie text-sm"></i>
+                        </div>
+                        Quản trị
                       </Link>
                     )}
                     <button 
                       onClick={() => { logout(); setShowUserMenu(false); }}
-                      className="w-full flex items-center gap-3 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-50 rounded-lg transition-all text-left"
+                      className="w-full flex items-center gap-3 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-50 rounded-xl transition-all text-left group"
                     >
-                      <i className="fa-solid fa-right-from-bracket opacity-50"></i> Đăng xuất
+                      <div className="w-7 h-7 bg-rose-50/50 group-hover:bg-rose-100/50 rounded-lg flex items-center justify-center transition-all">
+                        <i className="fa-solid fa-arrow-right-from-bracket text-[10px]"></i>
+                      </div>
+                      Đăng xuất
                     </button>
                   </div>
                 </div>

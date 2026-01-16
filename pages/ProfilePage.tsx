@@ -5,11 +5,17 @@ import { db } from '../services/db';
 import { UserProfile } from '../types';
 
 const ProfilePage: React.FC = () => {
-    const { user } = useAuth();
+    const { user, changePassword } = useAuth();
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
+
+    // Password change state
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
+    const [pwError, setPwError] = useState('');
+    const [pwLoading, setPwLoading] = useState(false);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -70,6 +76,38 @@ const ProfilePage: React.FC = () => {
             setMessage({ type: 'error', text: 'Có lỗi xảy ra khi lưu thông tin.' });
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handlePasswordChange = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setPwError('');
+        
+        if (passwords.new.length < 6) {
+            setPwError('Mật khẩu mới phải có ít nhất 6 ký tự.');
+            return;
+        }
+
+        if (passwords.new !== passwords.confirm) {
+            setPwError('Mật khẩu xác nhận không khớp.');
+            return;
+        }
+
+        if (!passwords.current) {
+            setPwError('Vui lòng nhập mật khẩu cũ để xác thực.');
+            return;
+        }
+
+        setPwLoading(true);
+        try {
+            await changePassword(passwords.current, passwords.new);
+            setMessage({ type: 'success', text: 'Đổi mật khẩu thành công!' });
+            setShowPasswordModal(false);
+            setPasswords({ current: '', new: '', confirm: '' });
+        } catch (err: any) {
+            setPwError(err.message || 'Có lỗi xảy ra khi đổi mật khẩu.');
+        } finally {
+            setPwLoading(false);
         }
     };
 
@@ -148,11 +186,97 @@ const ProfilePage: React.FC = () => {
                                 <i className="fa-solid fa-shield-halved text-3xl mb-6 text-indigo-400"></i>
                                 <h3 className="text-xl font-black mb-2 tracking-tight">Bảo mật tài khoản</h3>
                                 <p className="text-slate-400 text-xs mb-6 font-medium leading-relaxed">Thông tin cá nhân của bạn được mã hóa và bảo mật tuyệt đối theo tiêu chuẩn quốc tế.</p>
-                                <button className="w-full py-3 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-black uppercase tracking-widest transition-all">
+                                <button 
+                                    onClick={() => setShowPasswordModal(true)}
+                                    className="w-full py-3 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-black uppercase tracking-widest transition-all"
+                                >
                                     Đổi mật khẩu
                                 </button>
                             </div>
                         </div>
+
+                        {/* Password Change Modal */}
+                        {showPasswordModal && (
+                            <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-xl animate-fadeIn">
+                                <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 relative shadow-2xl overflow-hidden">
+                                     {/* Background Decoration */}
+                                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-600 to-violet-600"></div>
+                                    <button 
+                                        onClick={() => setShowPasswordModal(false)}
+                                        className="absolute top-6 right-6 w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-slate-900 transition-all"
+                                    >
+                                        <i className="fa-solid fa-xmark"></i>
+                                    </button>
+
+                                    <div className="mb-8">
+                                        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Đổi mật khẩu</h2>
+                                        <p className="text-slate-400 text-xs font-medium mt-1">Cập nhật mật khẩu mới cho tài khoản của bạn</p>
+                                    </div>
+
+                                    <form onSubmit={handlePasswordChange} className="space-y-6">
+                                        {pwError && (
+                                            <div className="p-4 bg-rose-50 border border-rose-100 text-rose-600 text-[11px] font-bold rounded-2xl flex items-center gap-3">
+                                                <i className="fa-solid fa-triangle-exclamation text-sm"></i>
+                                                {pwError}
+                                            </div>
+                                        )}
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Mật khẩu cũ</label>
+                                            <div className="relative group">
+                                                <i className="fa-solid fa-key absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
+                                                <input 
+                                                    type="password" 
+                                                    required
+                                                    value={passwords.current}
+                                                    onChange={e => setPasswords({...passwords, current: e.target.value})}
+                                                    placeholder="Nhập mật khẩu hiện tại"
+                                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-600 transition-all font-bold"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Mật khẩu mới</label>
+                                            <div className="relative group">
+                                                <i className="fa-solid fa-lock absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
+                                                <input 
+                                                    type="password" 
+                                                    required
+                                                    value={passwords.new}
+                                                    onChange={e => setPasswords({...passwords, new: e.target.value})}
+                                                    placeholder="Ít nhất 6 ký tự"
+                                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-600 transition-all font-bold"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Xác nhận mật khẩu</label>
+                                            <div className="relative group">
+                                                <i className="fa-solid fa-shield-check absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
+                                                <input 
+                                                    type="password" 
+                                                    required
+                                                    value={passwords.confirm}
+                                                    onChange={e => setPasswords({...passwords, confirm: e.target.value})}
+                                                    placeholder="Nhập lại mật khẩu mới"
+                                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-600 transition-all font-bold"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <button 
+                                            type="submit"
+                                            disabled={pwLoading}
+                                            className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50"
+                                        >
+                                            {pwLoading ? 'Đang cập nhật...' : 'Cập nhật mật khẩu'}
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Form */}
                         <div className="lg:col-span-2">

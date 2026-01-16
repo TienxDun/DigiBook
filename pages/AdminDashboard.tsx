@@ -506,21 +506,23 @@ const AdminDashboard: React.FC = () => {
         <nav className="flex-1 p-4 space-y-2 mt-4">
           {[
             { id: 'overview', icon: 'fa-chart-pie', label: 'Tổng quan' },
-            { id: 'books', icon: 'fa-box', label: 'Kho sách' },
-            { id: 'authors', icon: 'fa-feather-pointed', label: 'Tác giả' },
-            { id: 'categories', icon: 'fa-tags', label: 'Danh mục' },
-            { id: 'orders', icon: 'fa-receipt', label: 'Đơn hàng' },
+            { id: 'books', icon: 'fa-book-bookmark', label: 'Kho sách' },
+            { id: 'authors', icon: 'fa-pen-nib', label: 'Tác giả' },
+            { id: 'categories', icon: 'fa-folder-tree', label: 'Danh mục' },
+            { id: 'orders', icon: 'fa-bag-shopping', label: 'Đơn hàng' },
             { id: 'coupons', icon: 'fa-ticket', label: 'Khuyến mãi' },
-            { id: 'logs', icon: 'fa-terminal', label: 'Nhật ký' }
+            { id: 'logs', icon: 'fa-receipt', label: 'Nhật ký' }
           ].map(tab => (
             <button
               key={tab.id}
               onClick={() => { setActiveTab(tab.id as any); setSearchQuery(''); }}
-              className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all ${
-                activeTab === tab.id ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/20' : 'text-slate-400 hover:text-white hover:bg-white/5'
+              className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[13px] font-black tracking-wide transition-all ${
+                activeTab === tab.id ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/20' : 'text-slate-500 hover:text-white hover:bg-white/5'
               }`}
             >
-              <i className={`fa-solid ${tab.icon} w-5 text-center`}></i>
+              <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${activeTab === tab.id ? 'bg-white/10' : 'bg-transparent'}`}>
+                <i className={`fa-solid ${tab.icon} text-sm`}></i>
+              </div>
               {tab.label}
             </button>
           ))}

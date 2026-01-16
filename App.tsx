@@ -115,6 +115,48 @@ const App: React.FC = () => {
     }
   };
 
+  const changePassword = async (oldPw: string, newPw: string) => {
+    try {
+      if (!auth || !auth.currentUser) throw new Error("Chưa đăng nhập");
+      
+      const isGoogleUser = auth.currentUser.providerData.some(p => p.providerId === 'google.com');
+      if (isGoogleUser) {
+        throw new Error("Tài khoản Google không thể đổi mật khẩu trực tiếp tại đây.");
+      }
+
+      // Re-authenticate user
+      const credential = EmailAuthProvider.credential(auth.currentUser.email!, oldPw);
+      await reauthenticateWithCredential(auth.currentUser, credential);
+
+      await updatePassword(auth.currentUser, newPw);
+      // @ts-ignore
+      db.logActivity('AUTH_CHANGE_PASSWORD', `Email: ${auth.currentUser.email}`, 'SUCCESS');
+    } catch (error: any) {
+      // @ts-ignore
+      db.logActivity('AUTH_CHANGE_PASSWORD', `Lỗi: ${error.message}`, 'ERROR');
+      if (error.code === 'auth/wrong-password') {
+        throw new Error("Mật khẩu cũ không chính xác.");
+      }
+      throw error;
+    }
+  };
+
+  const sendPasswordReset = async (email: string) => {
+    try {
+      if (!auth) throw new Error("Auth not initialized");
+      await sendPasswordResetEmail(auth, email);
+      // @ts-ignore
+      db.logActivity('AUTH_FORGOT_PASSWORD', `Email: ${email}`, 'SUCCESS');
+    } catch (error: any) {
+       // @ts-ignore
+       db.logActivity('AUTH_FORGOT_PASSWORD', `Lỗi: ${error.message}`, 'ERROR');
+       if (error.code === 'auth/user-not-found') {
+         throw new Error("Email này chưa được đăng ký trên hệ thống.");
+       }
+       throw error;
+    }
+  };
+
   const loginWithEmail = async (e: string, p: string) => {
     try {
       if (!auth) throw new Error("Auth not initialized");
@@ -194,7 +236,7 @@ const App: React.FC = () => {
 
   return (
     <AuthContext.Provider value={{ 
-      user, loginWithGoogle, loginWithEmail, registerWithEmail, logout: handleLogout, 
+      user, loginWithGoogle, loginWithEmail, registerWithEmail, changePassword, sendPasswordReset, logout: handleLogout, 
       showLoginModal, setShowLoginModal, wishlist, toggleWishlist, loading 
     }}>
       <Router>
@@ -275,6 +317,27 @@ const App: React.FC = () => {
                             className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border-2 border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-50 font-bold transition-all text-slate-900 placeholder:text-slate-300" 
                           />
                         </div>
+                        {authMode === 'login' && (
+                          <div className="flex justify-end mt-2">
+                            <button 
+                              onClick={async () => {
+                                if (!email) {
+                                  setAuthError('Vui lòng nhập Email trước khi khôi phục mật khẩu.');
+                                  return;
+                                }
+                                try {
+                                  await sendPasswordReset(email);
+                                  alert('Email khôi phục mật khẩu đã được gửi! Vui lòng kiểm tra hộp thư của bạn.');
+                                } catch (err: any) {
+                                  setAuthError(err.message);
+                                }
+                              }}
+                              className="text-[10px] font-black text-indigo-500 hover:text-indigo-700 uppercase tracking-widest"
+                            >
+                              Quên mật khẩu?
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                     
@@ -377,88 +440,138 @@ const App: React.FC = () => {
                   <section className="py-16 bg-slate-50">
                     <div className="w-[92%] xl:w-[60%] mx-auto px-4">
                       <div className="grid lg:grid-cols-3 gap-6">
-                        <div className="bg-white p-8 rounded-[2.5rem] border border-white shadow-sm hover:shadow-xl transition-all group">
-                           <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 text-xl mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-all">
-                              <i className="fa-solid fa-shield-heart"></i>
+                        <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-500 group relative overflow-hidden">
+                           <div className="absolute -top-10 -right-10 w-40 h-40 bg-cyan-50 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-700 blur-3xl"></div>
+                           <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-xl shadow-cyan-200 relative z-10">
+                              <i className="fa-solid fa-shield-check"></i>
                            </div>
-                           <h3 className="text-lg font-black text-slate-900 mb-3">Sách Bản Quyền</h3>
-                           <p className="text-slate-500 leading-relaxed font-medium text-xs">Cam kết 100% sách chính hãng từ các nhà xuất bản uy tín nhất Việt Nam và thế giới.</p>
+                           <h3 className="text-xl font-black text-slate-900 mb-4 relative z-10">Sách Bản Quyền</h3>
+                           <p className="text-slate-500 leading-relaxed font-medium text-xs tracking-wide relative z-10">Cam kết 100% sách chính hãng từ các nhà xuất bản uy tín nhất Việt Nam và thế giới.</p>
                         </div>
-                        <div className="bg-white p-8 rounded-[2.5rem] border border-white shadow-sm hover:shadow-xl transition-all group lg:-translate-y-8">
-                           <div className="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600 text-xl mb-6 group-hover:bg-rose-600 group-hover:text-white transition-all">
-                              <i className="fa-solid fa-truck-fast"></i>
+                        <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 group lg:-translate-y-12 relative overflow-hidden border-b-4 border-b-orange-500/20">
+                           <div className="absolute -top-10 -right-10 w-40 h-40 bg-orange-50 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-700 blur-3xl"></div>
+                           <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-rose-500 rounded-2xl flex items-center justify-center text-white text-2xl mb-8 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500 shadow-xl shadow-orange-200 relative z-10">
+                              <i className="fa-solid fa-bolt-lightning"></i>
                            </div>
-                           <h3 className="text-lg font-black text-slate-900 mb-3">Giao Hàng Tốc Hành</h3>
-                           <p className="text-slate-500 leading-relaxed font-medium text-xs">Dịch vụ giao hàng 2h tại nội thành và đóng gói cẩn thận từng trang sách quý giá của của bạn.</p>
+                           <h3 className="text-xl font-black text-slate-900 mb-4 relative z-10">Giao Tốc Hành</h3>
+                           <p className="text-slate-500 leading-relaxed font-medium text-xs tracking-wide relative z-10">Dịch vụ giao hàng 2h tại nội thành và đóng gói cẩn thận từng trang sách quý giá của bạn.</p>
                         </div>
-                        <div className="bg-white p-8 rounded-[2.5rem] border border-white shadow-sm hover:shadow-xl transition-all group">
-                           <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 text-xl mb-6 group-hover:bg-amber-600 group-hover:text-white transition-all">
+                        <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-500 group relative overflow-hidden">
+                           <div className="absolute -top-10 -right-10 w-40 h-40 bg-emerald-50 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-700 blur-3xl"></div>
+                           <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center text-white text-2xl mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-xl shadow-emerald-200 relative z-10">
                               <i className="fa-solid fa-headset"></i>
                            </div>
-                           <h3 className="text-lg font-black text-slate-900 mb-3">Hỗ Trợ 24/7</h3>
-                           <p className="text-slate-500 leading-relaxed font-medium text-xs">Đội ngũ chuyên gia luôn sẵn sàng tư vấn và giúp bạn tìm ra những cuốn sách phù hợp nhất.</p>
+                           <h3 className="text-xl font-black text-slate-900 mb-4 relative z-10">Hỗ Trợ 24/7</h3>
+                           <p className="text-slate-500 leading-relaxed font-medium text-xs tracking-wide relative z-10">Đội ngũ chuyên gia luôn sẵn sàng tư vấn và giúp bạn tìm ra những cuốn sách phù hợp nhất.</p>
                         </div>
                       </div>
                     </div>
                   </section>
 
-                  {/* Categories Grid */}
-                  <section className="py-12 bg-white">
-                    <div className="w-[92%] xl:w-[60%] mx-auto px-4">
-                      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-                        <div>
-                          <p className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em] mb-2">Explore More</p>
-                          <h2 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">Bộ sưu tập <span className="text-indigo-600">tinh hoa</span></h2>
+                  {/* Categories Grid - New Luxury Style */}
+                  <section className="py-24 bg-white relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-slate-100 to-transparent"></div>
+                    
+                    <div className="w-[92%] xl:w-[60%] mx-auto px-4 relative">
+                      <div className="flex flex-col items-center text-center mb-16">
+                        <div className="inline-flex items-center gap-3 px-4 py-2 bg-indigo-50 rounded-full mb-6">
+                          <span className="w-2 h-2 bg-indigo-600 rounded-full animate-pulse"></span>
+                          <p className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em]">Danh mục nổi bật</p>
                         </div>
-                        <Link to="/category/Tất cả sách" className="text-[11px] font-black text-indigo-600 flex items-center gap-2 group bg-indigo-50 px-5 py-2.5 rounded-xl hover:bg-indigo-600 hover:text-white transition-all">
-                          Xem tất cả <i className="fa-solid fa-arrow-right-long group-hover:translate-x-1.5 transition-transform"></i>
-                        </Link>
+                        <h2 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter mb-4">
+                          Khám phá <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">vũ trụ</span> tri thức
+                        </h2>
+                        <p className="text-slate-500 max-w-lg text-sm font-medium leading-relaxed">
+                          Hành trình vạn dặm bắt đầu từ một trang sách. Hãy chọn cho mình một chủ đề yêu thích để bắt đầu ngay hôm nay.
+                        </p>
                       </div>
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                        {CATEGORIES.map((cat, i) => (
-                          <Link 
-                            key={i} 
-                            to={`/category/${cat.name}`}
-                            className="bg-slate-50 p-5 rounded-[2rem] flex flex-col items-center justify-center text-center gap-3 hover:bg-white hover:shadow-2xl hover:shadow-indigo-500/10 transition-all group border border-transparent hover:border-indigo-100"
-                          >
-                            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-slate-400 group-hover:text-indigo-600 group-hover:bg-indigo-50 transition-all shadow-sm border border-slate-100/50">
-                              <i className={`fa-solid ${cat.icon} text-lg`}></i>
-                            </div>
-                            <div>
-                              <p className="font-black text-slate-900 text-[11px] mb-0.5">{cat.name}</p>
-                            </div>
-                          </Link>
-                        ))}
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {CATEGORIES.map((cat, i) => {
+                          const colors = [
+                            { border: 'hover:border-indigo-500/50', bg: 'bg-indigo-50', icon: 'text-indigo-600', shadow: 'hover:shadow-indigo-500/20', glow: 'from-indigo-500/20' },
+                            { border: 'hover:border-rose-500/50', bg: 'bg-rose-50', icon: 'text-rose-500', shadow: 'hover:shadow-rose-500/20', glow: 'from-rose-500/20' },
+                            { border: 'hover:border-emerald-500/50', bg: 'bg-emerald-50', icon: 'text-emerald-500', shadow: 'hover:shadow-emerald-500/20', glow: 'from-emerald-500/20' },
+                            { border: 'hover:border-amber-500/50', bg: 'bg-amber-50', icon: 'text-amber-500', shadow: 'hover:shadow-amber-500/20', glow: 'from-amber-500/20' },
+                            { border: 'hover:border-cyan-500/50', bg: 'bg-cyan-50', icon: 'text-cyan-500', shadow: 'hover:shadow-cyan-500/20', glow: 'from-cyan-500/20' },
+                            { border: 'hover:border-violet-500/50', bg: 'bg-violet-50', icon: 'text-violet-500', shadow: 'hover:shadow-violet-500/20', glow: 'from-violet-500/20' },
+                          ];
+                          const color = colors[i % colors.length];
+                          
+                          return (
+                            <Link 
+                              key={i} 
+                              to={`/category/${cat.name}`}
+                              className={`group relative bg-white p-10 rounded-[3rem] border border-slate-100 transition-all duration-500 ${color.border} ${color.shadow} hover:-translate-y-2 overflow-hidden flex flex-col items-start`}
+                            >
+                              {/* Background Glow */}
+                              <div className={`absolute -bottom-10 -right-10 w-32 h-32 bg-gradient-to-br ${color.glow} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-2xl`}></div>
+                              
+                              <div className={`w-16 h-16 ${color.bg} ${color.icon} rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-sm`}>
+                                <i className={`fa-solid ${cat.icon} text-2xl`}></i>
+                              </div>
+                              
+                              <div className="relative z-10">
+                                <h3 className="text-xl font-black text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors">{cat.name}</h3>
+                                <p className="text-slate-500 text-xs font-medium leading-relaxed mb-6 line-clamp-2">{cat.description}</p>
+                                
+                                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-indigo-600 transition-all">
+                                  <span>Khám phá ngay</span>
+                                  <i className="fa-solid fa-chevron-right group-hover:translate-x-2 transition-transform"></i>
+                                </div>
+                              </div>
+
+                              {/* Decorative Large Icon in Background */}
+                              <i className={`fa-solid ${cat.icon} absolute -right-4 -top-4 text-7xl opacity-[0.03] group-hover:opacity-[0.08] transition-all duration-700 group-hover:scale-125 -rotate-12`}></i>
+                            </Link>
+                          );
+                        })}
+                      </div>
+
+                      <div className="mt-16 flex justify-center">
+                        <Link to="/category/Tất cả sách" className="group relative px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest overflow-hidden hover:shadow-2xl hover:shadow-indigo-500/20 transition-all active:scale-95">
+                          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          <span className="relative flex items-center gap-3">
+                            Xem tất cả danh mục <i className="fa-solid fa-arrow-right-long group-hover:translate-x-2 transition-transform"></i>
+                          </span>
+                        </Link>
                       </div>
                     </div>
                   </section>
 
                   {/* Books Section */}
-                  <section className="py-12 bg-slate-50">
-                    <div className="w-[92%] xl:w-[60%] mx-auto px-4">
-                      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-                        <div>
-                          <p className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] mb-2">Curated For You</p>
-                          <h2 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">Tác phẩm <span className="text-rose-500">đề cử</span></h2>
+                  <section className="py-24 bg-slate-50/50 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-50/50 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/3"></div>
+                    
+                    <div className="w-[92%] xl:w-[60%] mx-auto px-4 relative">
+                      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+                        <div className="max-w-xl">
+                          <div className="inline-flex items-center gap-2 px-3 py-1 bg-rose-50 rounded-lg mb-4">
+                            <i className="fa-solid fa-sparkles text-rose-500 text-[10px]"></i>
+                            <p className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em]">Curated For You</p>
+                          </div>
+                          <h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+                            Tác phẩm <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-orange-500">đề cử</span> dành riêng cho bạn
+                          </h2>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-3">
                            <button 
                              onClick={() => setBookOffset(prev => Math.max(0, prev - 5))}
                              disabled={bookOffset === 0}
-                             className={`w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center transition-all ${bookOffset === 0 ? 'opacity-30 cursor-not-allowed' : 'text-slate-400 hover:text-indigo-600 hover:border-indigo-100 hover:shadow-lg active:scale-95'}`}
+                             className={`w-14 h-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center transition-all ${bookOffset === 0 ? 'opacity-30 cursor-not-allowed shadow-inner' : 'text-slate-400 hover:text-indigo-600 hover:border-indigo-500 hover:shadow-2xl hover:shadow-indigo-500/10 active:scale-90 shadow-sm'}`}
                            >
-                              <i className="fa-solid fa-chevron-left text-[10px]"></i>
+                              <i className="fa-solid fa-chevron-left"></i>
                            </button>
                            <button 
                              onClick={() => setBookOffset(prev => Math.min(Math.max(0, processedBooks.length - 10), prev + 5))}
                              disabled={bookOffset + 10 >= processedBooks.length}
-                             className={`w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center transition-all ${bookOffset + 10 >= processedBooks.length ? 'opacity-30 cursor-not-allowed' : 'text-slate-400 hover:text-indigo-600 hover:border-indigo-100 hover:shadow-lg active:scale-95'}`}
+                             className={`w-14 h-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center transition-all ${bookOffset + 10 >= processedBooks.length ? 'opacity-30 cursor-not-allowed shadow-inner' : 'text-slate-400 hover:text-indigo-600 hover:border-indigo-500 hover:shadow-2xl hover:shadow-indigo-500/10 active:scale-90 shadow-sm'}`}
                            >
-                              <i className="fa-solid fa-chevron-right text-[10px]"></i>
+                              <i className="fa-solid fa-chevron-right"></i>
                            </button>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 transition-all duration-500">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 transition-all duration-700">
                         {processedBooks.slice(bookOffset, bookOffset + 10).map((book) => (
                           <BookCard key={book.id} book={book} onAddToCart={addToCart} />
                         ))}

@@ -55,27 +55,32 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart }) => {
       <div className="relative w-full pt-[133.33%] rounded-2xl overflow-hidden bg-slate-100 mb-3 border border-slate-50 transition-all duration-500">
         <div className="absolute inset-0">
           {/* Status Badges */}
-          <div className="absolute top-2 left-2 z-20 flex flex-col gap-1">
+          <div className="absolute top-2.5 left-2.5 z-20 flex flex-col gap-1.5">
             {stockQuantity <= 0 && (
-              <span className="px-1.5 py-0.5 bg-slate-900/90 backdrop-blur-md text-white text-[7px] font-black uppercase tracking-widest rounded-full">Hết hàng</span>
+              <span className="px-2 py-1 bg-slate-900/90 backdrop-blur-md text-white text-[8px] font-black uppercase tracking-widest rounded-lg shadow-xl">Hết hàng</span>
             )}
             {book.badge && (
-              <span className="px-1.5 py-0.5 bg-indigo-600 text-white text-[7px] font-black uppercase tracking-widest rounded-full shadow-lg">{book.badge}</span>
+              <span className="px-2 py-1 bg-gradient-to-r from-rose-500 to-orange-500 text-white text-[8px] font-black uppercase tracking-widest rounded-lg shadow-xl shadow-rose-500/20">{book.badge}</span>
+            )}
+            {!book.badge && book.rating >= 4.8 && (
+              <span className="px-2 py-1 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[8px] font-black uppercase tracking-widest rounded-lg shadow-xl shadow-amber-500/20">Bán chạy</span>
             )}
           </div>
 
           {/* Wishlist Button */}
           <button 
             onClick={handleToggleWishlist}
-            className={`absolute top-2 right-2 z-20 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-300 transform ${isHovered ? 'translate-y-0 opacity-100' : 'translate-y-1 opacity-0'} ${
-              isWishlisted ? 'bg-rose-500 text-white' : 'bg-white/90 backdrop-blur-sm text-slate-400 hover:text-rose-500 shadow-sm'
+            className={`absolute top-2.5 right-2.5 z-20 w-9 h-9 rounded-2xl flex items-center justify-center transition-all duration-500 transform ${isHovered ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'} ${
+              isWishlisted 
+                ? 'bg-rose-500 text-white shadow-xl shadow-rose-500/30' 
+                : 'bg-white/95 backdrop-blur-md text-slate-400 hover:text-rose-500 shadow-lg'
             }`}
           >
-            <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-[10px]`}></i>
+            <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-sm`}></i>
           </button>
 
           {/* Book Image */}
-          <Link to={`/book/${book.id}`} className="relative block w-full h-full">
+          <Link to={`/book/${book.id}`} className="relative block w-full h-full group/img overflow-hidden">
             {!imgLoaded && (
               <div className="absolute inset-0 bg-slate-200 animate-pulse" />
             )}
@@ -83,53 +88,58 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart }) => {
               src={getOptimizedImageUrl(book.cover)} 
               alt={book.title} 
               onLoad={() => setImgLoaded(true)}
-              className={`w-full h-full object-cover transition-all duration-700 ease-out ${isHovered ? 'scale-110' : 'scale-100'} ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-full h-full object-cover transition-all duration-1000 ease-out ${isHovered ? 'scale-110 rotate-1' : 'scale-100 rotate-0'} ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
             />
             
-            {/* Hover Overlay Content */}
-            <div className={`absolute inset-0 bg-indigo-900/40 backdrop-blur-[2px] flex flex-col items-center justify-center p-3 text-center transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-              <button className="bg-white text-indigo-600 w-10 h-10 rounded-full flex items-center justify-center shadow-xl transform transition-transform hover:scale-110">
-                <i className="fa-solid fa-eye text-xs"></i>
-              </button>
-            </div>
+            {/* Elegant Overlay */}
+            <div className={`absolute inset-0 bg-gradient-to-t from-indigo-950/40 via-transparent to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity duration-500`} />
           </Link>
         </div>
       </div>
 
       {/* Info Container */}
-      <div className="flex flex-col flex-grow">
-        <div className="flex justify-between items-start mb-1 px-1">
-          <Link to={`/category/${book.category}`} className="text-[7px] font-black text-indigo-500 uppercase tracking-widest">
+      <div className="flex flex-col flex-grow px-1">
+        <div className="flex justify-between items-center mb-1.5">
+          <Link to={`/category/${book.category}`} className="text-[8px] font-black text-cyan-600 bg-cyan-50 px-2 py-0.5 rounded-md uppercase tracking-widest">
             {book.category}
           </Link>
-          <div className="flex items-center gap-0.5">
-            <i className="fa-solid fa-star text-[7px] text-amber-400"></i>
-            <span className="text-[8px] font-black text-slate-400">{book.rating}</span>
+          <div className="flex items-center gap-1 bg-amber-50 px-1.5 py-0.5 rounded-md">
+            <i className="fa-solid fa-star text-[8px] text-amber-500"></i>
+            <span className="text-[9px] font-black text-amber-700">{book.rating}</span>
           </div>
         </div>
 
-        <Link to={`/book/${book.id}`} className="block mb-1 px-1">
-          <h3 className="font-bold text-slate-900 text-[11px] leading-tight line-clamp-2 h-7 group-hover:text-indigo-600 transition-colors">
+        <Link to={`/book/${book.id}`} className="block mb-1">
+          <h3 className="font-bold text-slate-900 text-[13px] leading-tight line-clamp-2 h-8 group-hover:text-indigo-600 transition-colors duration-300">
             {book.title}
           </h3>
         </Link>
-        <p className="text-slate-400 text-[9px] font-medium mb-3 truncate px-1">{book.author}</p>
+        <p className="text-slate-400 text-[10px] font-medium mb-3 truncate">{book.author}</p>
         
-        <div className="mt-auto pt-2 border-t border-slate-50 flex items-center justify-between px-1">
-          <span className="text-xs font-black text-slate-900">
-            {formatPrice(book.price)}
-          </span>
+        <div className="mt-auto pt-3 border-t border-slate-50 flex items-center justify-between">
+          <div className="flex flex-col">
+            <span className="text-[10px] text-slate-400 line-through decoration-rose-300/50 opacity-0 group-hover:opacity-100 transition-opacity uppercase font-bold tracking-tighter">
+              {formatPrice(book.price * 1.2)}
+            </span>
+            <span className="text-sm font-black text-slate-900 tracking-tight">
+              {formatPrice(book.price)}
+            </span>
+          </div>
 
-          <button 
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); if(stockQuantity > 0) onAddToCart(book); }}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onAddToCart(book);
+            }}
             disabled={stockQuantity <= 0}
-            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-300 shadow-sm ${
-              stockQuantity > 0 
-              ? 'bg-slate-900 text-white hover:bg-indigo-600 active:scale-90' 
-              : 'bg-slate-100 text-slate-300'
+            className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-500 ${
+              stockQuantity <= 0 
+                ? 'bg-slate-100 text-slate-300 cursor-not-allowed' 
+                : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/40 hover:-translate-y-1 active:scale-90 bg-gradient-to-br from-indigo-600 to-violet-600'
             }`}
           >
-            <i className="fa-solid fa-cart-shopping text-[9px]"></i>
+            <i className="fa-solid fa-cart-plus text-xs"></i>
           </button>
         </div>
       </div>

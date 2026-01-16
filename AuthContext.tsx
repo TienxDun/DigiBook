@@ -15,6 +15,8 @@ export interface AuthContextType {
   loginWithGoogle: () => Promise<void>;
   loginWithEmail: (e: string, p: string) => Promise<void>;
   registerWithEmail: (n: string, e: string, p: string) => Promise<void>;
+  changePassword: (oldPw: string, newPw: string) => Promise<void>;
+  sendPasswordReset: (email: string) => Promise<void>;
   logout: () => Promise<void>;
   showLoginModal: boolean;
   setShowLoginModal: (show: boolean) => void;
