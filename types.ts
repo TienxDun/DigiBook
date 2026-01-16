@@ -36,3 +36,18 @@ export interface CategoryInfo {
   icon: string;
   description: string;
 }
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  avatar?: string;
+  bio?: string;
+  gender?: string;
+  birthday?: string;
+  role?: 'user' | 'admin';
+  createdAt?: any;
+  updatedAt?: any;
+}

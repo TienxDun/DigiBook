@@ -2,14 +2,15 @@
 import React, { useState, useCallback, useMemo, useEffect, createContext, useContext } from 'react';
 import { HashRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { 
+  auth, 
+  googleProvider,
   onAuthStateChanged, 
   signInWithPopup, 
   signOut,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { auth, googleProvider } from "./services/firebase";
+} from "./services/firebase";
 import Header from './components/Header';
 import BookCard from './components/BookCard';
 import CartSidebar from './components/CartSidebar';
@@ -23,6 +24,7 @@ import OrderSuccess from './pages/OrderSuccess';
 import MyOrdersPage from './pages/MyOrdersPage';
 import OrderDetailPage from './pages/OrderDetailPage';
 import WishlistPage from './pages/WishlistPage';
+import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
 import { Book, CartItem } from './types';
 import { db } from './services/db';
@@ -500,6 +502,7 @@ const App: React.FC = () => {
               <Route path="/order-success" element={<OrderSuccess />} />
               <Route path="/my-orders" element={<MyOrdersPage />} />
               <Route path="/my-orders/:orderId" element={<OrderDetailPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
               <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
             </Routes>
           </main>

@@ -140,7 +140,12 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, onOpenCart, onSea
                   <p className="text-[11px] font-black text-slate-900 leading-none">{user.name}</p>
                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Thành viên</p>
                 </div>
-                <img src={user.avatar} className="w-9 h-9 rounded-xl shadow-sm border border-white" alt={user.name} />
+                <img 
+                  src={user.avatar} 
+                  className="w-9 h-9 rounded-xl shadow-sm border border-white object-cover" 
+                  alt={user.name} 
+                  referrerPolicy="no-referrer"
+                />
               </button>
 
               {showUserMenu && (
@@ -153,6 +158,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, onOpenCart, onSea
                     <p className="text-[10px] text-slate-400 font-medium truncate">{user.email}</p>
                   </div>
                   <div className="px-2">
+                    <Link to="/profile" className="flex items-center gap-4 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 rounded-2xl transition-all">
+                      <i className="fa-solid fa-user-circle text-sm opacity-50"></i> Thông tin cá nhân
+                    </Link>
                     <Link to="/my-orders" className="flex items-center gap-4 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 rounded-2xl transition-all">
                       <i className="fa-solid fa-receipt text-sm opacity-50"></i> Đơn hàng của tôi
                     </Link>

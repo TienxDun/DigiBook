@@ -37,6 +37,21 @@ Mỗi tài liệu đại diện cho một cuốn sách.
 - `bio`: String
 - `avatar`: String (URL từ Firebase Storage)
 
+### Collection: `users`
+Lưu thông tin chi tiết của người dùng đã đăng ký.
+- `id`: String (Document ID - Trùng với Firebase Auth UID)
+- `name`: String
+- `email`: String (Duy nhất)
+- `phone`: String
+- `address`: String
+- `avatar`: String (URL ảnh đại diện)
+- `bio`: String (Giới thiệu bản thân)
+- `gender`: String ("Nam", "Nữ", "Khác")
+- `birthday`: String (Định dạng YYYY-MM-DD)
+- `role`: String ("user", "admin")
+- `createdAt`: Timestamp
+- `updatedAt`: Timestamp
+
 ### Collection: `orders`
 - `id`: String (Document ID)
 - `userId`: String

@@ -17,7 +17,7 @@ import {
   limit
 } from "firebase/firestore";
 import { db_fs, auth } from "./firebase";
-import { Book, CartItem, CategoryInfo, Author } from '../types';
+import { Book, CartItem, CategoryInfo, Author, UserProfile } from '../types';
 import { MOCK_BOOKS, CATEGORIES } from '../constants';
 
 export interface Review {
@@ -371,6 +371,32 @@ class DataService {
       [],
       'FETCH_LOGS',
       `Lấy danh sách nhật ký hệ thống (offset: ${offset}, limit: ${limitCount})`
+    );
+  }
+
+  // Quản lý thông tin cá nhân
+  async getUserProfile(userId: string): Promise<UserProfile | null> {
+    return this.wrap(
+      getDoc(doc(db_fs, 'users', userId)).then(snap => {
+        if (snap.exists()) return snap.data() as UserProfile;
+        return null;
+      }),
+      null,
+      'FETCH_USER_PROFILE',
+      userId
+    );
+  }
+
+  async updateUserProfile(profile: Partial<UserProfile> & { id: string }): Promise<void> {
+    await this.wrap(
+      setDoc(doc(db_fs, 'users', profile.id), { 
+        ...profile, 
+        updatedAt: serverTimestamp(),
+        // Nếu là tài khoản mới hoàn toàn, thêm createdAt
+      }, { merge: true }),
+      undefined,
+      'UPDATE_USER_PROFILE',
+      profile.id
     );
   }
 }
