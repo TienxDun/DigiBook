@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CartItem } from '../types';
-import { useAuth } from '../App';
+import { useAuth } from '../AuthContext';
 import { db } from '../services/db';
 
 const formatPrice = (price: number) => {

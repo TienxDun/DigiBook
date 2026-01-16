@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../App';
+import { useAuth } from '../AuthContext';
 import { db } from '../services/db';
 import { UserProfile } from '../types';
 

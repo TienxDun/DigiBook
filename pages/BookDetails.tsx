@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Book } from '../types';
-import { useAuth } from '../App';
+import { useAuth } from '../AuthContext';
 import { db, Review } from '../services/db';
 
 const formatPrice = (price: number) => {

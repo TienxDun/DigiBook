@@ -1,10 +1,13 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../App';
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../AuthContext';
 
 const Footer: React.FC = () => {
   const { user } = useAuth();
+  const location = useLocation();
+
+  if (location.pathname.startsWith('/admin')) return null;
 
   return (
     <footer className="bg-slate-900 text-white pt-20 pb-10">

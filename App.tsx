@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback, useMemo, useEffect, createContext, useContext } from 'react';
-import { HashRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { 
   auth, 
   googleProvider,
@@ -30,40 +30,23 @@ import { Book, CartItem } from './types';
 import { db } from './services/db';
 import { CATEGORIES } from './constants';
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-  isAdmin?: boolean;
-}
-
-interface AuthContextType {
-  user: User | null;
-  loginWithGoogle: () => Promise<void>;
-  loginWithEmail: (e: string, p: string) => Promise<void>;
-  registerWithEmail: (n: string, e: string, p: string) => Promise<void>;
-  logout: () => Promise<void>;
-  showLoginModal: boolean;
-  setShowLoginModal: (show: boolean) => void;
-  wishlist: Book[];
-  toggleWishlist: (book: Book) => void;
-  loading: boolean;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
-  return context;
-};
+import { AuthContext, User, useAuth } from './AuthContext';
 
 const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return null;
   if (!user || !user.isAdmin) return <Navigate to="/" replace />;
   return <>{children}</>;
+};
+
+const MainContent: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
+  return (
+    <main className={`flex-grow ${isAdmin ? '' : 'pt-20 lg:pt-20'}`}>
+      {children}
+    </main>
+  );
 };
 
 const App: React.FC = () => {
@@ -330,7 +313,7 @@ const App: React.FC = () => {
             </div>
           ) }
 
-          <main className="flex-grow pt-20 lg:pt-20">
+          <MainContent>
             <Routes>
               <Route path="/" element={
                 <div className="space-y-0">
@@ -517,7 +500,7 @@ const App: React.FC = () => {
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
             </Routes>
-          </main>
+          </MainContent>
           
           <Footer />
           <MobileNav cartCount={cart.reduce((s, i) => s + i.quantity, 0)} onOpenCart={() => setIsCartOpen(true)} />

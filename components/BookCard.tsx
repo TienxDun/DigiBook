@@ -2,7 +2,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Book } from '../types';
-import { useAuth } from '../App';
+import { useAuth } from '../AuthContext';
 import { db } from '../services/db';
 
 interface BookCardProps {

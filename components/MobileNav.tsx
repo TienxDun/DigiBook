@@ -1,11 +1,13 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../App';
+import { useAuth } from '../AuthContext';
 
 const MobileNav: React.FC<{ cartCount: number, onOpenCart: () => void }> = ({ cartCount, onOpenCart }) => {
   const location = useLocation();
   const { user, setShowLoginModal } = useAuth();
+
+  if (location.pathname.startsWith('/admin')) return null;
 
   const navItems = [
     { path: '/', label: 'Trang chủ', icon: 'fa-house' },

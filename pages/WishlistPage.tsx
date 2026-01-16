@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Book } from '../types';
 import BookCard from '../components/BookCard';
-import { useAuth } from '../App';
+import { useAuth } from '../AuthContext';
 
 interface WishlistPageProps {
   onAddToCart: (book: Book) => void;

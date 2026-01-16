@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { CartItem } from '../types';
-import { useAuth } from '../App';
+import { useAuth } from '../AuthContext';
 
 interface HeaderProps {
   cartCount: number;
@@ -12,12 +12,13 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, onOpenCart, onSearch }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, wishlist, logout, setShowLoginModal } = useAuth();
+  
   const [searchValue, setSearchValue] = useState('');
   const [scrolled, setScrolled] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { user, wishlist, setShowLoginModal, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   useEffect(() => {
@@ -39,6 +40,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, onOpenCart, onSea
     { name: 'Tủ sách', path: '/category/Tất cả sách' },
     { name: 'Ưu đãi', path: '/category/Kinh tế', highlight: true },
   ];
+
+  if (location.pathname.startsWith('/admin')) return null;
 
   return (
     <header 

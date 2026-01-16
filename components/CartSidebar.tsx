@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CartItem } from '../types';
-import { useAuth } from '../App';
+import { useAuth } from '../AuthContext';
 
 interface CartSidebarProps {
   isOpen: boolean;
