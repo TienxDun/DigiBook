@@ -152,9 +152,20 @@ const AdminDashboard: React.FC = () => {
   const handleOpenAddBook = () => {
     setEditingBook(null);
     setBookFormData({
-      title: '', authorId: authors[0]?.id || '', category: categories[0]?.name || '',
-      price: 0, stock_quantity: 10, description: '', isbn: '', cover: '',
-      publishYear: new Date().getFullYear(), pages: 0, language: 'Tiếng Việt'
+      title: '',
+      authorId: authors[0]?.id || '',
+      category: categories[0]?.name || '',
+      price: 0,
+      original_price: undefined,
+      stock_quantity: 10,
+      description: '',
+      isbn: '',
+      cover: '',
+      publishYear: new Date().getFullYear(),
+      pages: 0,
+      publisher: '',
+      language: 'Tiếng Việt',
+      badge: ''
     });
     setIsBookModalOpen(true);
   };
@@ -171,6 +182,38 @@ const AdminDashboard: React.FC = () => {
     await db.saveBook(finalBook);
     setIsBookModalOpen(false);
     refreshData();
+  };
+
+  const handleEditBook = (book: Book) => {
+    setEditingBook(book);
+    setBookFormData({
+      title: book.title,
+      authorId: book.authorId || authors.find(a => a.name === book.author)?.id || '',
+      category: book.category,
+      price: book.price,
+      original_price: book.original_price,
+      stock_quantity: book.stock_quantity,
+      description: book.description,
+      isbn: book.isbn,
+      pages: book.pages,
+      publisher: book.publisher,
+      publishYear: book.publishYear,
+      language: book.language,
+      cover: book.cover,
+      badge: book.badge
+    });
+    setIsBookModalOpen(true);
+  };
+
+  const handleDeleteBook = async (book: Book) => {
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa sách "${book.title}"?`)) return;
+    try {
+      await db.deleteBook(book.id);
+      refreshData();
+    } catch (error) {
+      console.error('Error deleting book:', error);
+      alert('Có lỗi xảy ra khi xóa sách');
+    }
   };
 
   return (
@@ -475,10 +518,16 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex gap-2 mt-4">
-                    <button className="flex-1 bg-slate-100 text-slate-600 py-2 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all">
+                    <button 
+                      onClick={() => handleEditBook(book)}
+                      className="flex-1 bg-slate-100 text-slate-600 py-2 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all"
+                    >
                       <i className="fa-solid fa-edit mr-1"></i>Sửa
                     </button>
-                    <button className="flex-1 bg-rose-100 text-rose-600 py-2 rounded-xl text-xs font-bold hover:bg-rose-200 transition-all">
+                    <button 
+                      onClick={() => handleDeleteBook(book)}
+                      className="flex-1 bg-rose-100 text-rose-600 py-2 rounded-xl text-xs font-bold hover:bg-rose-200 transition-all"
+                    >
                       <i className="fa-solid fa-trash mr-1"></i>Xóa
                     </button>
                   </div>
@@ -555,6 +604,220 @@ const AdminDashboard: React.FC = () => {
           </div>
         )}
       </main>
+
+      {/* Book Modal */}
+      {isBookModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[300] p-4">
+          <div className="bg-white rounded-[2rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-8 border-b border-slate-100">
+              <h2 className="text-xl font-black text-slate-900">
+                {editingBook ? 'Chỉnh sửa sách' : 'Thêm sách mới'}
+              </h2>
+            </div>
+            
+            <form onSubmit={handleSaveBook} className="p-8 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Tiêu đề *</label>
+                  <input
+                    type="text"
+                    required
+                    value={bookFormData.title || ''}
+                    onChange={(e) => setBookFormData({...bookFormData, title: e.target.value})}
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="Nhập tiêu đề sách"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Tác giả *</label>
+                  <select
+                    required
+                    value={bookFormData.authorId || ''}
+                    onChange={(e) => setBookFormData({...bookFormData, authorId: e.target.value})}
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value="">Chọn tác giả</option>
+                    {authors.map(author => (
+                      <option key={author.id} value={author.id}>{author.name}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Danh mục *</label>
+                  <select
+                    required
+                    value={bookFormData.category || ''}
+                    onChange={(e) => setBookFormData({...bookFormData, category: e.target.value})}
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value="">Chọn danh mục</option>
+                    {categories.map(category => (
+                      <option key={category.name} value={category.name}>{category.name}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Giá (VNĐ) *</label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    value={bookFormData.price || ''}
+                    onChange={(e) => setBookFormData({...bookFormData, price: Number(e.target.value)})}
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="0"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Giá gốc (VNĐ)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={bookFormData.original_price || ''}
+                    onChange={(e) => setBookFormData({...bookFormData, original_price: Number(e.target.value) || undefined})}
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="Để trống nếu không có"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Số lượng tồn kho *</label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    value={bookFormData.stock_quantity || ''}
+                    onChange={(e) => setBookFormData({...bookFormData, stock_quantity: Number(e.target.value)})}
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="0"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">ISBN</label>
+                  <input
+                    type="text"
+                    value={bookFormData.isbn || ''}
+                    onChange={(e) => setBookFormData({...bookFormData, isbn: e.target.value})}
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="ISBN-13 hoặc ISBN-10"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Số trang</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={bookFormData.pages || ''}
+                    onChange={(e) => setBookFormData({...bookFormData, pages: Number(e.target.value) || 0})}
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="0"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Nhà xuất bản</label>
+                  <input
+                    type="text"
+                    value={bookFormData.publisher || ''}
+                    onChange={(e) => setBookFormData({...bookFormData, publisher: e.target.value})}
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="Nhà xuất bản"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Năm xuất bản</label>
+                  <input
+                    type="number"
+                    min="1000"
+                    max={new Date().getFullYear()}
+                    value={bookFormData.publishYear || ''}
+                    onChange={(e) => setBookFormData({...bookFormData, publishYear: Number(e.target.value) || new Date().getFullYear()})}
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder={new Date().getFullYear().toString()}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Ngôn ngữ</label>
+                  <select
+                    value={bookFormData.language || 'Tiếng Việt'}
+                    onChange={(e) => setBookFormData({...bookFormData, language: e.target.value})}
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value="Tiếng Việt">Tiếng Việt</option>
+                    <option value="English">English</option>
+                    <option value="Français">Français</option>
+                    <option value="Deutsch">Deutsch</option>
+                    <option value="Español">Español</option>
+                    <option value="日本語">日本語</option>
+                    <option value="中文">中文</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Badge</label>
+                  <select
+                    value={bookFormData.badge || ''}
+                    onChange={(e) => setBookFormData({...bookFormData, badge: e.target.value})}
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value="">Không có</option>
+                    <option value="Bán chạy">Bán chạy</option>
+                    <option value="Kinh điển">Kinh điển</option>
+                    <option value="Mới">Mới</option>
+                    <option value="Giảm giá">Giảm giá</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">URL ảnh bìa</label>
+                <input
+                  type="url"
+                  value={bookFormData.cover || ''}
+                  onChange={(e) => setBookFormData({...bookFormData, cover: e.target.value})}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="https://example.com/book-cover.jpg"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Mô tả</label>
+                <textarea
+                  value={bookFormData.description || ''}
+                  onChange={(e) => setBookFormData({...bookFormData, description: e.target.value})}
+                  rows={4}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+                  placeholder="Mô tả về cuốn sách..."
+                />
+              </div>
+              
+              <div className="flex gap-4 pt-6 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsBookModalOpen(false)}
+                  className="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition-all"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all"
+                >
+                  {editingBook ? 'Cập nhật' : 'Thêm sách'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
