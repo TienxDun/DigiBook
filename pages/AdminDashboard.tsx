@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { db, Order, OrderItem, SystemLog } from '../services/db';
-import { Book, CategoryInfo, Author } from '../types';
+import { Book, CategoryInfo, Author, Coupon } from '../types';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -10,11 +10,12 @@ const formatPrice = (price: number) => {
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'overview' | 'books' | 'orders' | 'categories' | 'authors' | 'logs'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'books' | 'orders' | 'categories' | 'authors' | 'coupons' | 'logs'>('overview');
   const [books, setBooks] = useState<Book[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [categories, setCategories] = useState<CategoryInfo[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [logs, setLogs] = useState<SystemLog[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
@@ -42,6 +43,19 @@ const AdminDashboard: React.FC = () => {
   const [editingCategory, setEditingCategory] = useState<CategoryInfo | null>(null);
   const [categoryFormData, setCategoryFormData] = useState<Partial<CategoryInfo & {id?: string}>>({});
 
+  const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
+  const [editingCoupon, setEditingCoupon] = useState<string | null>(null);
+  const [couponFormData, setCouponFormData] = useState<Partial<Coupon>>({
+    code: '',
+    discountType: 'percentage',
+    discountValue: 0,
+    minOrderValue: 0,
+    expiryDate: '',
+    isActive: true,
+    usedCount: 0,
+    usageLimit: 100
+  });
+
   const availableIcons = [
     'fa-book', 'fa-lightbulb', 'fa-graduation-cap', 'fa-heart', 'fa-palette', 
     'fa-utensils', 'fa-laptop-code', 'fa-globe', 'fa-star', 'fa-rocket',
@@ -62,14 +76,16 @@ const AdminDashboard: React.FC = () => {
 
   const refreshData = async () => {
     try {
-      const [booksData, catsData, authorsData] = await Promise.all([
+      const [booksData, catsData, authorsData, couponsData] = await Promise.all([
         db.getBooks(),
         db.getCategories(),
-        db.getAuthors()
+        db.getAuthors(),
+        db.getCoupons()
       ]);
       setBooks(booksData);
       setCategories(catsData);
       setAuthors(authorsData);
+      setCoupons(couponsData);
       
       const allOrders = await db.getOrdersByUserId('admin');
       setOrders(allOrders);
@@ -84,6 +100,11 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  // Auto load data khi component mount
+  useEffect(() => {
+    refreshData();
+  }, []);
+
   // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -97,8 +118,29 @@ const AdminDashboard: React.FC = () => {
     const lowStock = books.filter(b => b.stock_quantity > 0 && b.stock_quantity < 10).length;
     const outOfStock = books.filter(b => b.stock_quantity <= 0).length;
     const pendingOrders = orders.filter(o => o.statusStep < 3).length;
-    return { totalRevenue, lowStock, outOfStock, pendingOrders, totalOrders: orders.length };
-  }, [orders, books]);
+    const completedOrders = orders.filter(o => o.statusStep === 3).length;
+    const totalBooks = books.reduce((sum, b) => sum + b.stock_quantity, 0);
+    const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
+    const todayOrders = orders.filter(o => {
+      const orderDate = o.createdAt?.toDate ? o.createdAt.toDate() : new Date(o.date);
+      const today = new Date();
+      return orderDate.toDateString() === today.toDateString();
+    }).length;
+    return { 
+      totalRevenue, 
+      lowStock, 
+      outOfStock, 
+      pendingOrders, 
+      completedOrders,
+      totalOrders: orders.length,
+      totalBooks,
+      avgOrderValue,
+      todayOrders,
+      totalCategories: categories.length,
+      totalAuthors: authors.length,
+      totalCoupons: coupons.length
+    };
+  }, [orders, books, categories, authors, coupons]);
 
   const handleSeedData = async () => {
     if (!window.confirm("Bạn có chắc chắn muốn đẩy dữ liệu mẫu lên Firestore?")) return;
@@ -339,6 +381,56 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleSaveCoupon = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!couponFormData.code || !couponFormData.discountValue || !couponFormData.expiryDate) {
+      alert('Vui lòng nhập đầy đủ thông tin: Mã code, giá trị giảm, và ngày hết hạn');
+      return;
+    }
+    try {
+      const couponData: Coupon = {
+        code: couponFormData.code!.toUpperCase(),
+        discountType: couponFormData.discountType || 'percentage',
+        discountValue: couponFormData.discountValue!,
+        minOrderValue: couponFormData.minOrderValue || 0,
+        expiryDate: couponFormData.expiryDate!,
+        isActive: couponFormData.isActive ?? true,
+        usedCount: couponFormData.usedCount || 0,
+        usageLimit: couponFormData.usageLimit || 100
+      };
+      await db.saveCoupon(couponData);
+      setIsCouponModalOpen(false);
+      setEditingCoupon(null);
+      setCouponFormData({
+        code: '',
+        discountType: 'percentage',
+        discountValue: 0,
+        minOrderValue: 0,
+        expiryDate: '',
+        isActive: true,
+        usedCount: 0,
+        usageLimit: 100
+      });
+      await refreshData();
+      alert(editingCoupon ? 'Cập nhật mã khuyến mãi thành công!' : 'Tạo mã khuyến mãi thành công!');
+    } catch (error) {
+      console.error('Error saving coupon:', error);
+      alert('Lỗi khi lưu mã khuyến mãi. Vui lòng kiểm tra lại thông tin.');
+    }
+  };
+
+  const handleDeleteCoupon = async (code: string) => {
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa mã khuyến mãi "${code}"?`)) return;
+    try {
+      await db.deleteCoupon(code);
+      await refreshData();
+      alert('Xóa mã khuyến mãi thành công!');
+    } catch (error) {
+      console.error('Error deleting coupon:', error);
+      alert('Lỗi khi xóa mã khuyến mãi. Vui lòng thử lại.');
+    }
+  };
+
   const handleViewOrderDetails = async (order: Order) => {
     try {
       const orderWithItems = await db.getOrderWithItems(order.id);
@@ -388,6 +480,7 @@ const AdminDashboard: React.FC = () => {
             { id: 'authors', icon: 'fa-feather-pointed', label: 'Tác giả' },
             { id: 'categories', icon: 'fa-tags', label: 'Danh mục' },
             { id: 'orders', icon: 'fa-receipt', label: 'Đơn hàng' },
+            { id: 'coupons', icon: 'fa-ticket', label: 'Khuyến mãi' },
             { id: 'logs', icon: 'fa-terminal', label: 'Nhật ký' }
           ].map(tab => (
             <button
@@ -417,17 +510,143 @@ const AdminDashboard: React.FC = () => {
             <h2 className="text-3xl font-black text-slate-900">
               {activeTab === 'overview' ? 'Báo cáo tổng quan' : 
                activeTab === 'books' ? 'Quản lý kho hàng' : 
-               activeTab === 'logs' ? 'Nhật ký hệ thống' : 'Quản lý Đơn hàng'}
+               activeTab === 'logs' ? 'Nhật ký hệ thống' : 
+               activeTab === 'coupons' ? 'Quản lý Khuyến mãi' : 'Quản lý Đơn hàng'}
             </h2>
           </div>
-          <div className="relative group">
-            <input 
-              type="text" placeholder="Tìm kiếm nhanh..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-80 px-4 py-3 pl-10 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 ring-indigo-50 font-bold shadow-sm transition-all"
-            />
-            <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <div className="flex items-center gap-4">
+            {activeTab === 'coupons' && (
+              <button 
+                onClick={() => {
+                  setEditingCoupon(null);
+                  setCouponFormData({
+                    code: '',
+                    discountType: 'percentage',
+                    discountValue: 0,
+                    minOrderValue: 0,
+                    expiryDate: '',
+                    isActive: true,
+                    usedCount: 0,
+                    usageLimit: 100
+                  });
+                  setIsCouponModalOpen(true);
+                }}
+                className="flex items-center gap-3 px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-indigo-100"
+              >
+                <i className="fa-solid fa-plus"></i>
+                <span>Tạo mã mới</span>
+              </button>
+            )}
+            <div className="relative group">
+              <input 
+                type="text" placeholder="Tìm kiếm nhanh..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-80 px-4 py-3 pl-10 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 ring-indigo-50 font-bold shadow-sm transition-all"
+              />
+              <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            </div>
           </div>
         </header>
+
+        {activeTab === 'coupons' && (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden min-h-[500px]">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-slate-50 border-b border-slate-100">
+                  <tr>
+                    <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mã khuyến mãi</th>
+                    <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Giảm giá</th>
+                    <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Đơn tối thiểu</th>
+                    <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Ngày hết hạn</th>
+                    <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Lượt dùng</th>
+                    <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Trạng thái</th>
+                    <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {coupons.length > 0 ? coupons.map(coupon => (
+                    <tr key={coupon.id} className="hover:bg-slate-50 transition-all group">
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                            <i className="fa-solid fa-ticket"></i>
+                          </div>
+                          <span className="text-sm font-black text-slate-900 tracking-wider">
+                            {coupon.code}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6 text-center">
+                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[11px] font-black uppercase tracking-widest">
+                          {coupon.discountType === 'percentage' 
+                            ? `Giảm ${coupon.discountValue}%` 
+                            : `Giảm ${coupon.discountValue.toLocaleString()}đ`}
+                        </span>
+                      </td>
+                      <td className="px-8 py-6 text-center text-[13px] font-bold text-slate-600">
+                        {coupon.minOrderValue.toLocaleString()}đ
+                      </td>
+                      <td className="px-8 py-6 text-center text-[11px] font-bold text-slate-500">
+                        {new Date(coupon.expiryDate).toLocaleDateString('vi-VN')}
+                      </td>
+                      <td className="px-8 py-6 text-center">
+                        <span className="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
+                          {coupon.usageCount || 0}
+                        </span>
+                      </td>
+                      <td className="px-8 py-6 text-center">
+                        <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${
+                          coupon.isActive 
+                          ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-100' 
+                          : 'bg-slate-200 text-slate-500'
+                        }`}>
+                          {coupon.isActive ? 'Đang chạy' : 'Tạm dừng'}
+                        </span>
+                      </td>
+                      <td className="px-8 py-6 text-right">
+                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                          <button 
+                            onClick={() => {
+                              setEditingCoupon(coupon.code);
+                              setCouponFormData({
+                                code: coupon.code,
+                                discountType: coupon.discountType,
+                                discountValue: coupon.discountValue,
+                                minOrderValue: coupon.minOrderValue,
+                                expiryDate: coupon.expiryDate,
+                                isActive: coupon.isActive,
+                                usedCount: coupon.usedCount || 0,
+                                usageLimit: coupon.usageLimit || 100
+                              });
+                              setIsCouponModalOpen(true);
+                            }}
+                            className="w-10 h-10 bg-white shadow-sm border border-slate-100 text-indigo-500 rounded-xl hover:bg-indigo-500 hover:text-white transition-all flex items-center justify-center"
+                          >
+                            <i className="fa-solid fa-pen-to-square"></i>
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteCoupon(coupon.code)}
+                            className="w-10 h-10 bg-white shadow-sm border border-slate-100 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center"
+                          >
+                            <i className="fa-solid fa-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={7} className="px-8 py-20 text-center">
+                        <div className="flex flex-col items-center gap-4 opacity-30">
+                          <i className="fa-solid fa-ticket-simple text-6xl"></i>
+                          <span className="text-lg font-bold">Chưa có mã khuyến mãi nào</span>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {activeTab === 'logs' && (
           <div className="space-y-6 animate-fadeIn">
@@ -601,22 +820,173 @@ const AdminDashboard: React.FC = () => {
 
         {/* ... (Overview, Books và các tab khác được giữ nguyên cấu trúc) ... */}
         {activeTab === 'overview' && (
-           <div className="space-y-8 animate-fadeIn">
+          <div className="space-y-8 animate-fadeIn">
+            {/* Main Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                { label: 'Doanh thu', value: formatPrice(stats.totalRevenue), color: 'bg-emerald-500', icon: 'fa-dollar-sign' },
-                { label: 'Đơn hàng', value: stats.totalOrders, color: 'bg-indigo-500', icon: 'fa-shopping-cart' },
-                { label: 'Sách trong kho', value: books.length, color: 'bg-amber-500', icon: 'fa-book' },
-                { label: 'Hết hàng', value: stats.outOfStock, color: 'bg-rose-500', icon: 'fa-box-open' }
+                { 
+                  label: 'Tổng doanh thu', 
+                  value: formatPrice(stats.totalRevenue), 
+                  color: 'bg-gradient-to-br from-emerald-500 to-emerald-600', 
+                  icon: 'fa-chart-line',
+                  subtext: `Trung bình ${formatPrice(stats.avgOrderValue)}/đơn`
+                },
+                { 
+                  label: 'Đơn hàng hôm nay', 
+                  value: stats.todayOrders, 
+                  color: 'bg-gradient-to-br from-blue-500 to-blue-600', 
+                  icon: 'fa-calendar-day',
+                  subtext: `Tổng ${stats.totalOrders} đơn`
+                },
+                { 
+                  label: 'Đơn chờ xử lý', 
+                  value: stats.pendingOrders, 
+                  color: 'bg-gradient-to-br from-amber-500 to-amber-600', 
+                  icon: 'fa-clock',
+                  subtext: `${stats.completedOrders} đã hoàn thành`
+                },
+                { 
+                  label: 'Sản phẩm', 
+                  value: books.length, 
+                  color: 'bg-gradient-to-br from-indigo-500 to-indigo-600', 
+                  icon: 'fa-book',
+                  subtext: `${stats.totalBooks} quyển trong kho`
+                }
               ].map((item, i) => (
-                <div key={i} className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-                  <div className={`w-12 h-12 ${item.color} rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-current/20`}>
-                    <i className={`fa-solid ${item.icon}`}></i>
+                <div key={i} className="bg-white p-6 rounded-[2rem] shadow-lg border border-slate-100 hover:shadow-xl transition-all group relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-slate-50 to-transparent rounded-full -mr-16 -mt-16 opacity-50"></div>
+                  <div className="relative">
+                    <div className={`w-14 h-14 ${item.color} rounded-2xl flex items-center justify-center text-white mb-4 shadow-xl group-hover:scale-110 transition-transform`}>
+                      <i className={`fa-solid ${item.icon} text-xl`}></i>
+                    </div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{item.label}</p>
+                    <p className="text-3xl font-black text-slate-900 mb-1">{item.value}</p>
+                    <p className="text-xs text-slate-500 font-semibold">{item.subtext}</p>
                   </div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{item.label}</p>
-                  <p className="text-2xl font-black text-slate-900">{item.value}</p>
                 </div>
               ))}
+            </div>
+
+            {/* Secondary Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">Trạng thái kho</h3>
+                  <i className="fa-solid fa-warehouse text-slate-300"></i>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-600">Sắp hết hàng</span>
+                    <span className="px-3 py-1 bg-amber-50 text-amber-600 rounded-lg text-xs font-black">{stats.lowStock}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-600">Hết hàng</span>
+                    <span className="px-3 py-1 bg-rose-50 text-rose-600 rounded-lg text-xs font-black">{stats.outOfStock}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-600">Tổng số đầu sách</span>
+                    <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-black">{books.length}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">Nội dung</h3>
+                  <i className="fa-solid fa-database text-slate-300"></i>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-600">Tác giả</span>
+                    <span className="px-3 py-1 bg-purple-50 text-purple-600 rounded-lg text-xs font-black">{stats.totalAuthors}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-600">Danh mục</span>
+                    <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-black">{stats.totalCategories}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-600">Mã khuyến mãi</span>
+                    <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-black">{stats.totalCoupons}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-6 rounded-[2rem] shadow-lg text-white">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-black uppercase tracking-wider">Thao tác nhanh</h3>
+                  <i className="fa-solid fa-bolt text-white/50"></i>
+                </div>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => setActiveTab('books')}
+                    className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2.5 rounded-xl text-xs font-bold transition-all text-left flex items-center gap-2"
+                  >
+                    <i className="fa-solid fa-book"></i>
+                    <span>Quản lý kho sách</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('orders')}
+                    className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2.5 rounded-xl text-xs font-bold transition-all text-left flex items-center gap-2"
+                  >
+                    <i className="fa-solid fa-shopping-cart"></i>
+                    <span>Xử lý đơn hàng</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('coupons')}
+                    className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2.5 rounded-xl text-xs font-bold transition-all text-left flex items-center gap-2"
+                  >
+                    <i className="fa-solid fa-ticket"></i>
+                    <span>Tạo khuyến mãi</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-lg font-black text-slate-900">Đơn hàng gần đây</h3>
+                  <p className="text-xs text-slate-500 mt-1">5 đơn hàng mới nhất</p>
+                </div>
+                <button
+                  onClick={() => setActiveTab('orders')}
+                  className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+                >
+                  <span>Xem tất cả</span>
+                  <i className="fa-solid fa-arrow-right"></i>
+                </button>
+              </div>
+              <div className="space-y-3">
+                {orders.slice(0, 5).map(order => (
+                  <div key={order.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all group">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                        order.statusStep === 0 ? 'bg-amber-100 text-amber-600' :
+                        order.statusStep === 1 ? 'bg-blue-100 text-blue-600' :
+                        order.statusStep === 2 ? 'bg-indigo-100 text-indigo-600' :
+                        'bg-emerald-100 text-emerald-600'
+                      }`}>
+                        <i className="fa-solid fa-shopping-bag text-sm"></i>
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-slate-900">{order.customer.name}</p>
+                        <p className="text-xs text-slate-500">{order.customer.phone}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-black text-slate-900">{formatPrice(order.payment.total)}</p>
+                      <p className="text-xs text-slate-500">{order.status}</p>
+                    </div>
+                  </div>
+                ))}
+                {orders.length === 0 && (
+                  <div className="text-center py-8 text-slate-400">
+                    <i className="fa-solid fa-inbox text-4xl mb-2"></i>
+                    <p className="text-sm font-bold">Chưa có đơn hàng nào</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -1170,6 +1540,110 @@ const AdminDashboard: React.FC = () => {
                   className="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all"
                 >
                   {editingAuthor ? 'Cập nhật' : 'Thêm tác giả'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Coupon Modal */}
+      {isCouponModalOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[300] p-4">
+          <div className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl overflow-hidden border border-slate-100">
+            <div className="p-8 border-b border-slate-100">
+              <h2 className="text-xl font-black text-slate-900">
+                {editingCoupon ? 'Chỉnh sửa mã' : 'Tạo mã khuyến mãi mới'}
+              </h2>
+            </div>
+            
+            <form onSubmit={handleSaveCoupon} className="p-8 space-y-6">
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-widest text-[10px]">Mã code *</label>
+                <input
+                  type="text"
+                  required
+                  disabled={!!editingCoupon}
+                  value={couponFormData.code || ''}
+                  onChange={(e) => setCouponFormData({...couponFormData, code: e.target.value.toUpperCase()})}
+                  className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:bg-white transition-all font-black text-indigo-600 tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
+                  placeholder="Vd: SUMMER2024"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-widest text-[10px]">Loại giảm giá</label>
+                  <select
+                    value={couponFormData.discountType || 'percentage'}
+                    onChange={(e) => setCouponFormData({...couponFormData, discountType: e.target.value as 'percentage' | 'fixed'})}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-indigo-100 font-bold"
+                  >
+                    <option value="percentage">Phần trăm (%)</option>
+                    <option value="fixed">Số tiền cố định (đ)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-widest text-[10px]">
+                    {couponFormData.discountType === 'percentage' ? 'Phần trăm giảm' : 'Số tiền giảm'}
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    value={couponFormData.discountValue || 0}
+                    onChange={(e) => setCouponFormData({...couponFormData, discountValue: Number(e.target.value)})}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-indigo-100 font-black"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-widest text-[10px]">Giá trị đơn tối thiểu (đ)</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={couponFormData.minOrderValue || 0}
+                  onChange={(e) => setCouponFormData({...couponFormData, minOrderValue: Number(e.target.value)})}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-indigo-100 font-bold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-widest text-[10px]">Ngày hết hạn</label>
+                <input
+                  type="date"
+                  required
+                  value={couponFormData.expiryDate || ''}
+                  onChange={(e) => setCouponFormData({...couponFormData, expiryDate: e.target.value})}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-indigo-100 font-bold"
+                />
+              </div>
+
+              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl">
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  checked={couponFormData.isActive ?? true}
+                  onChange={(e) => setCouponFormData({...couponFormData, isActive: e.target.checked})}
+                  className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <label htmlFor="isActive" className="text-sm font-bold text-slate-700">Kích hoạt mã khuyến mãi này</label>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsCouponModalOpen(false)}
+                  className="flex-1 px-6 py-4 border border-slate-200 text-slate-500 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all"
+                >
+                  Hủy bỏ
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-6 py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-indigo-100"
+                >
+                  {editingCoupon ? 'Cập nhật mã' : 'Tạo mã mới'}
                 </button>
               </div>
             </form>

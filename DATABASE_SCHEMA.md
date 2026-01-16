@@ -72,6 +72,17 @@ Lưu thông tin chi tiết của người dùng đã đăng ký.
 - `content`: String
 - `createdAt`: Timestamp
 
+### Collection: `coupons`
+Lưu trữ các mã giảm giá của hệ thống.
+- `id`: String (Mã code - Document ID)
+- `code`: String (In hoa, không dấu)
+- `discountValue`: Number (Số tiền giảm hoặc % tùy logic)
+- `minOrderValue`: Number (Giá trị đơn hàng tối thiểu)
+- `expiryDate`: String (YYYY-MM-DD)
+- `usageLimit`: Number (Tổng số lần sử dụng)
+- `usedCount`: Number (Số lần đã sử dụng)
+- `isActive`: Boolean
+
 ### Collection: `system_logs`
 - `action`: String
 - `detail`: String

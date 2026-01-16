@@ -24,7 +24,7 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
 
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'online'>('cod');
   const [couponCode, setCouponCode] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string, value: number } | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string, value: number, type: 'percentage' | 'fixed' } | null>(null);
   const [couponError, setCouponError] = useState('');
 
   // Auto-fill user profile if logged in
@@ -52,19 +52,25 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
   // Calculations
   const subtotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
   const shipping = subtotal > 500000 ? 0 : 25000;
-  const discount = appliedCoupon ? appliedCoupon.value : 0;
+  const discount = useMemo(() => {
+    if (!appliedCoupon) return 0;
+    if (appliedCoupon.type === 'percentage') {
+      return (subtotal * appliedCoupon.value) / 100;
+    }
+    return appliedCoupon.value;
+  }, [appliedCoupon, subtotal]);
   const total = subtotal + shipping - discount;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleApplyCoupon = () => {
+  const handleApplyCoupon = async () => {
     setCouponError('');
     // FIX: Method added to DataService
-    const coupon = db.validateCoupon(couponCode, subtotal);
+    const coupon = await db.validateCoupon(couponCode, subtotal);
     if (coupon) {
-      setAppliedCoupon({ code: coupon.code, value: coupon.value });
+      setAppliedCoupon({ code: coupon.code, value: coupon.value, type: coupon.type });
       setCouponCode('');
     } else {
       setCouponError('Mã giảm giá không hợp lệ hoặc không đủ điều kiện.');
@@ -101,6 +107,10 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
         total
       }
     }, cart);
+
+    if (appliedCoupon) {
+      await db.incrementCouponUsage(appliedCoupon.code);
+    }
 
     onClearCart();
     setIsProcessing(false);

@@ -17,7 +17,7 @@ import {
   limit
 } from "firebase/firestore";
 import { db_fs, auth } from "./firebase";
-import { Book, CartItem, CategoryInfo, Author, UserProfile } from '../types';
+import { Book, CartItem, CategoryInfo, Author, UserProfile, Coupon } from '../types';
 import { MOCK_BOOKS, CATEGORIES } from '../constants';
 
 export interface Review {
@@ -175,36 +175,28 @@ class DataService {
   async getBooks(): Promise<Book[]> {
     return this.wrap(
       getDocs(collection(db_fs, 'books')).then(snap => snap.docs.map(d => ({ id: d.id, ...d.data() } as Book))),
-      [],
-      'FETCH_BOOKS',
-      'Lấy danh sách toàn bộ sách'
+      []
     );
   }
 
   async getBookById(id: string): Promise<Book | undefined> {
     return this.wrap(
       getDoc(doc(db_fs, 'books', id)).then(snap => snap.exists() ? { id: snap.id, ...snap.data() } as Book : undefined),
-      undefined,
-      'FETCH_BOOK',
-      `ID: ${id}`
+      undefined
     );
   }
 
   async getCategories(): Promise<CategoryInfo[]> {
     return this.wrap(
       getDocs(collection(db_fs, 'categories')).then(snap => snap.docs.map(d => d.data() as CategoryInfo)),
-      [],
-      'FETCH_CATEGORIES',
-      'Lấy danh sách danh mục'
+      []
     );
   }
 
   async getAuthors(): Promise<Author[]> {
     return this.wrap(
       getDocs(collection(db_fs, 'authors')).then(snap => snap.docs.map(d => ({ id: d.id, ...d.data() } as Author))),
-      [],
-      'FETCH_AUTHORS',
-      'Lấy danh sách tác giả'
+      []
     );
   }
 
@@ -267,18 +259,14 @@ class DataService {
         const orders = snap.docs.map(d => ({ id: d.id, ...d.data() } as Order));
         return orders.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
       }),
-      [],
-      'FETCH_ORDERS',
-      userId
+      []
     );
   }
 
   async getOrderWithItems(orderId: string): Promise<(Order & { items: OrderItem[] }) | undefined> {
     return this.wrap(
       getDoc(doc(db_fs, 'orders', orderId)).then(snap => snap.exists() ? { id: snap.id, ...snap.data() } as any : undefined),
-      undefined,
-      'FETCH_ORDER_ITEMS',
-      orderId
+      undefined
     );
   }
 
@@ -295,11 +283,64 @@ class DataService {
     );
   }
 
-  validateCoupon(code: string, subtotal: number) {
-    const isValid = code === 'WELCOME5' && subtotal >= 200000;
-    this.logActivity('COUPON_VAL', code, isValid ? 'SUCCESS' : 'ERROR');
-    if (isValid) return { code: 'WELCOME5', value: 50000 };
+  async validateCoupon(code: string, subtotal: number): Promise<{ code: string, value: number, type: 'percentage' | 'fixed' } | null> {
+    const couponRef = doc(db_fs, 'coupons', code.toUpperCase());
+    const snap = await getDoc(couponRef);
+    
+    if (!snap.exists()) {
+      return null;
+    }
+
+    const data = snap.data() as Coupon;
+    const now = new Date().toISOString().split('T')[0];
+    
+    const isValid = data.isActive && 
+                    subtotal >= data.minOrderValue && 
+                    data.usedCount < data.usageLimit &&
+                    data.expiryDate >= now;
+    
+    if (isValid) return { code: data.code, value: data.discountValue, type: data.discountType };
     return null;
+  }
+
+  async getCoupons(): Promise<Coupon[]> {
+    return this.wrap(
+      getDocs(collection(db_fs, 'coupons')).then(snap => 
+        snap.docs.map(d => ({ id: d.id, ...d.data() } as Coupon))
+      ),
+      []
+    );
+  }
+
+  async saveCoupon(coupon: Coupon): Promise<void> {
+    const code = coupon.code.toUpperCase();
+    await this.wrap(
+      setDoc(doc(db_fs, 'coupons', code), { ...coupon, code, updatedAt: serverTimestamp() }, { merge: true }),
+      undefined,
+      'SAVE_COUPON',
+      code
+    );
+  }
+
+  async deleteCoupon(code: string): Promise<void> {
+    await this.wrap(
+      deleteDoc(doc(db_fs, 'coupons', code.toUpperCase())),
+      undefined,
+      'DELETE_COUPON',
+      code
+    );
+  }
+
+  async incrementCouponUsage(code: string): Promise<void> {
+    const couponRef = doc(db_fs, 'coupons', code.toUpperCase());
+    await this.wrap(
+      updateDoc(couponRef, {
+        usedCount: increment(1)
+      }),
+      undefined,
+      'COUPON_USE',
+      code
+    );
   }
 
   async getReviewsByBookId(bookId: string): Promise<Review[]> {
@@ -309,9 +350,7 @@ class DataService {
           const reviews = snap.docs.map(d => ({ id: d.id, ...d.data() } as Review));
           return reviews.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
         }),
-      [],
-      'FETCH_REVIEWS',
-      bookId
+      []
     );
   }
 
@@ -368,9 +407,7 @@ class DataService {
           const allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() } as SystemLog));
           return allDocs.slice(offset); // Skip offset, return remaining
         }),
-      [],
-      'FETCH_LOGS',
-      `Lấy danh sách nhật ký hệ thống (offset: ${offset}, limit: ${limitCount})`
+      []
     );
   }
 
@@ -381,9 +418,7 @@ class DataService {
         if (snap.exists()) return snap.data() as UserProfile;
         return null;
       }),
-      null,
-      'FETCH_USER_PROFILE',
-      userId
+      null
     );
   }
 

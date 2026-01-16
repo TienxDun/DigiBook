@@ -51,3 +51,15 @@ export interface UserProfile {
   createdAt?: any;
   updatedAt?: any;
 }
+
+export interface Coupon {
+  id?: string;
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  minOrderValue: number;
+  expiryDate: string;
+  usageLimit: number;
+  usedCount: number;
+  isActive: boolean;
+}
