@@ -1,20 +1,21 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { CartItem } from '../types';
+import { CartItem, CategoryInfo } from '../types';
 import { useAuth } from '../AuthContext';
-import { CATEGORIES } from '../constants';
+
 
 interface HeaderProps {
   cartCount: number;
   cartItems: CartItem[];
+  categories: CategoryInfo[];
   onOpenCart: () => void;
   onSearch: (query: string) => void;
   searchQuery: string;
   onRefreshData?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, onOpenCart, onSearch, searchQuery, onRefreshData }) => {
+const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpenCart, onSearch, searchQuery, onRefreshData }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, wishlist, logout, setShowLoginModal } = useAuth();
@@ -108,7 +109,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, onOpenCart, onSea
               {showCategoryMenu && (
                 <div className="absolute top-full left-0 mt-4 w-[480px] bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 z-[100] animate-fadeIn">
                   <div className="grid grid-cols-2 gap-4">
-                    {CATEGORIES.map((cat) => (
+                    {categories.length > 0 ? categories.map((cat) => (
                       <Link 
                         key={cat.name}
                         to={`/category/${cat.name}`}
@@ -123,7 +124,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, onOpenCart, onSea
                           <p className="text-[9px] text-slate-400 font-bold line-clamp-1">{cat.description}</p>
                         </div>
                       </Link>
-                    ))}
+                    )) : (
+                      <p className="col-span-2 text-[10px] font-bold text-slate-400 text-center py-4">Đang tải danh mục...</p>
+                    )}
                   </div>
                   <div className="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between">
                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Khám phá thế giới sách</p>

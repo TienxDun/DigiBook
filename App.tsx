@@ -33,7 +33,6 @@ import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
 import { Book, CartItem } from './types';
 import { db } from './services/db';
-import { CATEGORIES } from './constants';
 
 import { AuthContext, User, useAuth } from './AuthContext';
 
@@ -58,6 +57,7 @@ const LayoutWrapper: React.FC<{
   children: React.ReactNode, 
   cartCount: number, 
   cartItems: CartItem[], 
+  categories: CategoryInfo[],
   onOpenCart: () => void, 
   onSearch: (q: string) => void,
   searchQuery: string,
@@ -66,7 +66,7 @@ const LayoutWrapper: React.FC<{
   onCloseCart: () => void,
   onRemoveCart: (id: string) => void,
   onUpdateCartQty: (id: string, delta: number) => void
-}> = ({ children, cartCount, cartItems, onOpenCart, onSearch, searchQuery, onRefreshData, isCartOpen, onCloseCart, onRemoveCart, onUpdateCartQty }) => {
+}> = ({ children, cartCount, cartItems, categories, onOpenCart, onSearch, searchQuery, onRefreshData, isCartOpen, onCloseCart, onRemoveCart, onUpdateCartQty }) => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
 
@@ -76,6 +76,7 @@ const LayoutWrapper: React.FC<{
         <Header 
           cartCount={cartCount} 
           cartItems={cartItems} 
+          categories={categories}
           onOpenCart={onOpenCart} 
           onSearch={onSearch} 
           searchQuery={searchQuery}
@@ -104,6 +105,7 @@ const App: React.FC = () => {
   const [wishlist, setWishlist] = useState<Book[]>(() => JSON.parse(localStorage.getItem('digibook_wishlist') || '[]'));
   const [user, setUser] = useState<User | null>(null);
   const [allBooks, setAllBooks] = useState<Book[]>([]);
+  const [categories, setCategories] = useState<CategoryInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -120,10 +122,14 @@ const App: React.FC = () => {
     try {
       setBookOffset(0); // Reset pagination
       setSearchQuery(''); // Clear search
-      const books = await db.getBooks();
-      setAllBooks(books);
+      const [booksData, catsData] = await Promise.all([
+        db.getBooks(),
+        db.getCategories()
+      ]);
+      setAllBooks(booksData);
+      setCategories(catsData);
     } catch (e) {
-      console.error("Failed to fetch books", e);
+      console.error("Failed to fetch data", e);
     } finally {
       setLoading(false);
     }
@@ -295,6 +301,7 @@ const App: React.FC = () => {
         <LayoutWrapper 
           cartCount={cart.reduce((s, i) => s + i.quantity, 0)}
           cartItems={cart}
+          categories={categories}
           onOpenCart={() => setIsCartOpen(true)}
           onSearch={setSearchQuery}
           searchQuery={searchQuery}
@@ -548,7 +555,7 @@ const App: React.FC = () => {
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {CATEGORIES.map((cat, i) => {
+                        {categories.length > 0 ? categories.map((cat, i) => {
                           const colors = [
                             { border: 'hover:border-indigo-500/50', bg: 'bg-indigo-50', icon: 'text-indigo-600', shadow: 'hover:shadow-indigo-500/20', glow: 'from-indigo-500/20' },
                             { border: 'hover:border-rose-500/50', bg: 'bg-rose-50', icon: 'text-rose-500', shadow: 'hover:shadow-rose-500/20', glow: 'from-rose-500/20' },
@@ -586,7 +593,11 @@ const App: React.FC = () => {
                               <i className={`fa-solid ${cat.icon} absolute -right-4 -top-4 text-7xl opacity-[0.03] group-hover:opacity-[0.08] transition-all duration-700 group-hover:scale-125 -rotate-12`}></i>
                             </Link>
                           );
-                        })}
+                        }) : (
+                          <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-20 bg-slate-50/50 rounded-[3rem] border-2 border-dashed border-slate-200">
+                             <p className="text-slate-400 font-black tracking-[0.2em] uppercase text-xs">Đang tải vũ trụ tri thức...</p>
+                          </div>
+                        )}
                       </div>
 
                       <div className="mt-16 flex justify-center">

@@ -2,10 +2,9 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { db } from '../services/db';
-import { CATEGORIES } from '../constants';
 import BookCard from '../components/BookCard';
 import Pagination from '../components/Pagination';
-import { Book } from '../types';
+import { Book, CategoryInfo } from '../types';
 
 interface CategoryPageProps {
   onAddToCart: (book: Book) => void;
@@ -19,14 +18,19 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [timeLeft, setTimeLeft] = useState({ hours: 12, minutes: 45, seconds: 30 });
   const [allBooks, setAllBooks] = useState<Book[]>([]);
+  const [categories, setCategories] = useState<CategoryInfo[]>([]);
   const topRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const loadBooks = async () => {
-      const books = await db.getBooks();
+    const loadData = async () => {
+      const [books, cats] = await Promise.all([
+        db.getBooks(),
+        db.getCategories()
+      ]);
       setAllBooks(books);
+      setCategories(cats);
     };
-    loadBooks();
+    loadData();
 
     const timer = setInterval(() => {
       setTimeLeft(prev => {
@@ -70,7 +74,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
     topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const currentCategory = CATEGORIES.find(c => c.name.toLowerCase() === categoryName?.toLowerCase()) || CATEGORIES[0];
+  const currentCategory = categories.find(c => c.name.toLowerCase() === categoryName?.toLowerCase()) || categories[0] || { name: categoryName || 'Danh mục', icon: 'fa-book', description: 'Khám phá thế giới tri thức' };
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-20 fade-in" ref={topRef}>
@@ -122,7 +126,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
 
       <div className="max-w-7xl mx-auto px-4 -mt-8 relative z-20">
         <div className="mb-8 flex overflow-x-auto pb-4 gap-3 no-scrollbar scroll-smooth">
-          {CATEGORIES.map((cat, i) => {
+          {categories.map((cat, i) => {
             const isActive = categoryName === cat.name || (!categoryName && cat.name === 'Tất cả sách');
             const colors = [
               { active: 'bg-indigo-600 text-white shadow-indigo-100', inactive: 'bg-white text-slate-600 hover:bg-indigo-50 hover:text-indigo-600' },

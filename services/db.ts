@@ -22,7 +22,15 @@ import {
 } from "firebase/firestore";
 import { db_fs, auth } from "./firebase";
 import { Book, CartItem, CategoryInfo, Author, UserProfile, Coupon, AIModelConfig } from '../types';
-import { CATEGORIES } from '../constants';
+
+const INITIAL_CATEGORIES: CategoryInfo[] = [
+  { name: "Tất cả sách", icon: "fa-book-open", description: "Tất cả bộ sưu tập tinh hoa." },
+  { name: "Văn học", icon: "fa-hat-wizard", description: "Thế giới của những điều tưởng tượng." },
+  { name: "Kỹ năng", icon: "fa-brain", description: "Tri thức thực tế và phát triển bản thân." },
+  { name: "Kinh tế", icon: "fa-chart-line", description: "Kinh doanh, đầu tư và tài chính." },
+  { name: "Lịch sử", icon: "fa-landmark", description: "Tìm về nguồn cội và những dấu mốc." },
+  { name: "Thiếu nhi", icon: "fa-child", description: "Những trang sách nuôi dưỡng tâm hồn trẻ thơ." }
+];
 
 export const AVAILABLE_AI_MODELS: AIModelConfig[] = [
   { id: 'gemini-3-pro-preview', name: 'Gemini 3 Pro (Tốt nhất)', category: 'Frontier AI', rpm: '5', tpm: '1M', rpd: '50' },
@@ -180,7 +188,7 @@ class DataService {
     if (!db_fs) return { success: false, count: 0, error: "Firebase chưa được cấu hình" };
     try {
       const batch = writeBatch(db_fs);
-      CATEGORIES.forEach(cat => {
+      INITIAL_CATEGORIES.forEach(cat => {
         const ref = doc(db_fs, 'categories', cat.name);
         batch.set(ref, cat);
       });
@@ -189,8 +197,8 @@ class DataService {
       // To add books, use the Admin "Auto Sync from Internet" feature
       
       await batch.commit();
-      this.logActivity('SEED_DATA', `Seeded ${CATEGORIES.length} categories`);
-      return { success: true, count: CATEGORIES.length };
+      this.logActivity('SEED_DATA', `Seeded ${INITIAL_CATEGORIES.length} categories`);
+      return { success: true, count: INITIAL_CATEGORIES.length };
     } catch (error: any) {
       this.logActivity('SEED_DATA', error.message, 'ERROR');
       return { success: false, count: 0, error: error.message };
