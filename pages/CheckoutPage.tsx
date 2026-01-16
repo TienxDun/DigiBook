@@ -21,14 +21,31 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
     address: '', 
     note: '' 
   });
+
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'online'>('cod');
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string, value: number } | null>(null);
   const [couponError, setCouponError] = useState('');
 
-  // Auto-fill user name if logged in
+  // Auto-fill user profile if logged in
   useEffect(() => {
-    if (user && !formData.name) setFormData(prev => ({ ...prev, name: user.name }));
+    const fillProfile = async () => {
+      if (user) {
+        try {
+          const profile = await db.getUserProfile(user.id);
+          setFormData(prev => ({
+            ...prev,
+            name: profile?.name || user.name || '',
+            phone: profile?.phone || '',
+            address: profile?.address || ''
+          }));
+        } catch (e) {
+          console.error("Error auto-filling profile:", e);
+        }
+      }
+    };
+    
+    fillProfile();
     if (cart.length === 0) navigate('/');
   }, [user, cart, navigate]);
 
