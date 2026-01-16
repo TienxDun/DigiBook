@@ -75,6 +75,7 @@ const App: React.FC = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [bookOffset, setBookOffset] = useState(0);
   
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
@@ -196,6 +197,10 @@ const App: React.FC = () => {
       book.author.toLowerCase().includes(q)
     );
   }, [allBooks, searchQuery]);
+
+  useEffect(() => {
+    setBookOffset(0);
+  }, [searchQuery]);
 
   if (loading) return (
     <div className="h-screen flex flex-col items-center justify-center bg-white">
@@ -325,16 +330,16 @@ const App: React.FC = () => {
             </div>
           ) }
 
-          <main className="flex-grow pt-24 lg:pt-0">
+          <main className="flex-grow pt-20 lg:pt-20">
             <Routes>
               <Route path="/" element={
                 <div className="space-y-0">
                   {/* Hero Section */}
-                  <section className="relative min-h-[70vh] flex items-center overflow-hidden bg-white">
+                  <section className="relative min-h-[70vh] flex items-center overflow-hidden bg-white mt-[-80px] lg:mt-[-80px]">
                     <div className="absolute top-0 right-0 w-1/2 h-full bg-slate-50 -skew-x-12 translate-x-32 hidden lg:block"></div>
                     <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-slate-50/50 to-transparent lg:hidden"></div>
                     
-                    <div className="w-[92%] xl:w-[60%] mx-auto px-4 relative z-10 flex flex-col lg:flex-row items-center gap-10 py-12">
+                    <div className="w-[92%] xl:w-[60%] mx-auto px-4 relative z-10 flex flex-col lg:flex-row items-center gap-10 pt-28 pb-12 lg:pt-32">
                       <div className="flex-1 text-center lg:text-left">
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 rounded-full text-indigo-600 text-[9px] font-black uppercase tracking-[0.2em] mb-6">
                           <i className="fa-solid fa-sparkles"></i> New Generation Bookstore
@@ -415,30 +420,29 @@ const App: React.FC = () => {
                   </section>
 
                   {/* Categories Grid */}
-                  <section className="py-16 bg-white">
+                  <section className="py-12 bg-white">
                     <div className="w-[92%] xl:w-[60%] mx-auto px-4">
-                      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+                      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                         <div>
-                          <p className="text-[9px] font-black text-indigo-600 uppercase tracking-[0.3em] mb-2">Explore More</p>
-                          <h2 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">Bộ sưu tập tinh hoa</h2>
+                          <p className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em] mb-2">Explore More</p>
+                          <h2 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">Bộ sưu tập <span className="text-indigo-600">tinh hoa</span></h2>
                         </div>
-                        <Link to="/category/Tất cả sách" className="text-xs font-black text-indigo-600 flex items-center gap-2 group">
+                        <Link to="/category/Tất cả sách" className="text-[11px] font-black text-indigo-600 flex items-center gap-2 group bg-indigo-50 px-5 py-2.5 rounded-xl hover:bg-indigo-600 hover:text-white transition-all">
                           Xem tất cả <i className="fa-solid fa-arrow-right-long group-hover:translate-x-1.5 transition-transform"></i>
                         </Link>
                       </div>
-                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                         {CATEGORIES.map((cat, i) => (
                           <Link 
                             key={i} 
                             to={`/category/${cat.name}`}
-                            className="bg-slate-50 p-6 rounded-[2rem] flex flex-col items-center justify-center text-center gap-3 hover:bg-white hover:shadow-2xl hover:shadow-indigo-500/5 transition-all group border border-transparent hover:border-slate-100"
+                            className="bg-slate-50 p-5 rounded-[2rem] flex flex-col items-center justify-center text-center gap-3 hover:bg-white hover:shadow-2xl hover:shadow-indigo-500/10 transition-all group border border-transparent hover:border-indigo-100"
                           >
-                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-400 group-hover:text-indigo-600 group-hover:scale-110 transition-all shadow-sm">
-                              <i className={`fa-solid ${cat.icon} text-base`}></i>
+                            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-slate-400 group-hover:text-indigo-600 group-hover:bg-indigo-50 transition-all shadow-sm border border-slate-100/50">
+                              <i className={`fa-solid ${cat.icon} text-lg`}></i>
                             </div>
                             <div>
-                              <p className="font-black text-slate-900 text-[10px] mb-0.5">{cat.name}</p>
-                              <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest">Explore</p>
+                              <p className="font-black text-slate-900 text-[11px] mb-0.5">{cat.name}</p>
                             </div>
                           </Link>
                         ))}
@@ -447,24 +451,32 @@ const App: React.FC = () => {
                   </section>
 
                   {/* Books Section */}
-                  <section className="py-16 bg-slate-50">
+                  <section className="py-12 bg-slate-50">
                     <div className="w-[92%] xl:w-[60%] mx-auto px-4">
-                      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+                      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                         <div>
-                          <p className="text-[9px] font-black text-rose-500 uppercase tracking-[0.3em] mb-2">Curated For You</p>
-                          <h2 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">Tác phẩm đề cử</h2>
+                          <p className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] mb-2">Curated For You</p>
+                          <h2 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">Tác phẩm <span className="text-rose-500">đề cử</span></h2>
                         </div>
                         <div className="flex gap-2">
-                           <button className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-100 transition-all">
+                           <button 
+                             onClick={() => setBookOffset(prev => Math.max(0, prev - 5))}
+                             disabled={bookOffset === 0}
+                             className={`w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center transition-all ${bookOffset === 0 ? 'opacity-30 cursor-not-allowed' : 'text-slate-400 hover:text-indigo-600 hover:border-indigo-100 hover:shadow-lg active:scale-95'}`}
+                           >
                               <i className="fa-solid fa-chevron-left text-[10px]"></i>
                            </button>
-                           <button className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-100 transition-all">
+                           <button 
+                             onClick={() => setBookOffset(prev => Math.min(Math.max(0, processedBooks.length - 10), prev + 5))}
+                             disabled={bookOffset + 10 >= processedBooks.length}
+                             className={`w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center transition-all ${bookOffset + 10 >= processedBooks.length ? 'opacity-30 cursor-not-allowed' : 'text-slate-400 hover:text-indigo-600 hover:border-indigo-100 hover:shadow-lg active:scale-95'}`}
+                           >
                               <i className="fa-solid fa-chevron-right text-[10px]"></i>
                            </button>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-6">
-                        {processedBooks.slice(0, 8).map((book) => (
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 transition-all duration-500">
+                        {processedBooks.slice(bookOffset, bookOffset + 10).map((book) => (
                           <BookCard key={book.id} book={book} onAddToCart={addToCart} />
                         ))}
                       </div>
@@ -472,22 +484,22 @@ const App: React.FC = () => {
                   </section>
 
                   {/* Promo Banner Section */}
-                  <section className="py-16 bg-white">
+                  <section className="py-10 bg-white">
                     <div className="w-[92%] xl:w-[60%] mx-auto px-4">
-                       <div className="bg-slate-900 rounded-[3rem] p-10 lg:p-12 relative overflow-hidden flex flex-col lg:flex-row items-center gap-12 shadow-xl">
+                       <div className="bg-slate-900 rounded-[2.5rem] p-8 lg:p-10 relative overflow-hidden flex flex-col lg:flex-row items-center gap-10 shadow-xl">
                           <div className="absolute top-0 right-0 w-1/2 h-full bg-indigo-600/10 blur-[100px]"></div>
                           <div className="relative z-10 flex-1 text-center lg:text-left">
-                             <h2 className="text-3xl lg:text-4xl font-black text-white mb-6 tracking-tighter leading-tight">
+                             <h2 className="text-2xl lg:text-3xl font-black text-white mb-4 tracking-tighter leading-tight">
                                 Trở thành thành viên <br />
                                 nhận ngay <span className="text-indigo-400">ưu đãi 50k</span>
                              </h2>
-                             <p className="text-slate-400 text-sm mb-8 max-w-lg">Sử dụng mã <strong>WELCOME5</strong> cho đơn hàng từ 200k. Chỉ áp dụng cho tài khoản mới đăng ký.</p>
-                             <button onClick={() => setShowLoginModal(true)} className="px-10 py-4 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-all active:scale-95 text-xs">
+                             <p className="text-slate-400 text-xs mb-6 max-w-lg">Sử dụng mã <strong>WELCOME5</strong> cho đơn hàng từ 200k. Chỉ áp dụng cho tài khoản mới đăng ký.</p>
+                             <button onClick={() => setShowLoginModal(true)} className="px-8 py-3.5 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-all active:scale-95 text-[10px]">
                                 Đăng ký thành viên
                              </button>
                           </div>
                           <div className="flex-1 relative hidden lg:block">
-                             <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=800&auto=format&fit=crop" className="w-full rounded-[2rem] shadow-2xl rotate-2" alt="" />
+                             <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=800&auto=format&fit=crop" className="w-full rounded-2xl shadow-2xl rotate-2" alt="" />
                           </div>
                        </div>
                     </div>
