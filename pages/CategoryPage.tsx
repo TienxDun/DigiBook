@@ -190,7 +190,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
 
         {paginatedBooks.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6 mb-16">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5 mb-16">
               {paginatedBooks.map(book => (
                 <BookCard key={book.id} book={book} onAddToCart={onAddToCart} />
               ))}

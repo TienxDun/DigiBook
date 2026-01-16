@@ -227,7 +227,7 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart }) => {
                         </>
                       ) : (
                         <>
-                          <i className="fa-solid fa-sparkles text-indigo-500 text-xs"></i> Khám phá Tác gia
+                          <i className="fa-solid fa-wand-magic-sparkles text-indigo-500 text-xs"></i> Khám phá Tác giả
                         </>
                       )}
                     </button>

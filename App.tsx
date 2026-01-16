@@ -28,6 +28,7 @@ import OrderSuccess from './pages/OrderSuccess';
 import MyOrdersPage from './pages/MyOrdersPage';
 import OrderDetailPage from './pages/OrderDetailPage';
 import WishlistPage from './pages/WishlistPage';
+import SearchResults from './pages/SearchResults';
 import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
 import { Book, CartItem } from './types';
@@ -59,11 +60,13 @@ const LayoutWrapper: React.FC<{
   cartItems: CartItem[], 
   onOpenCart: () => void, 
   onSearch: (q: string) => void,
+  searchQuery: string,
+  onRefreshData?: () => void,
   isCartOpen: boolean,
   onCloseCart: () => void,
   onRemoveCart: (id: string) => void,
   onUpdateCartQty: (id: string, delta: number) => void
-}> = ({ children, cartCount, cartItems, onOpenCart, onSearch, isCartOpen, onCloseCart, onRemoveCart, onUpdateCartQty }) => {
+}> = ({ children, cartCount, cartItems, onOpenCart, onSearch, searchQuery, onRefreshData, isCartOpen, onCloseCart, onRemoveCart, onUpdateCartQty }) => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
 
@@ -75,13 +78,15 @@ const LayoutWrapper: React.FC<{
           cartItems={cartItems} 
           onOpenCart={onOpenCart} 
           onSearch={onSearch} 
+          searchQuery={searchQuery}
+          onRefreshData={onRefreshData}
         />
       )}
       
       <MainContent>{children}</MainContent>
       
       {!isAdmin && <Footer />}
-      {!isAdmin && <MobileNav cartCount={cartCount} onOpenCart={onOpenCart} />}
+      {!isAdmin && <MobileNav cartCount={cartCount} onOpenCart={onOpenCart} onRefreshData={onRefreshData} />}
       
       <CartSidebar 
         isOpen={isCartOpen} 
@@ -113,6 +118,8 @@ const App: React.FC = () => {
 
   const fetchInitialData = async () => {
     try {
+      setBookOffset(0); // Reset pagination
+      setSearchQuery(''); // Clear search
       const books = await db.getBooks();
       setAllBooks(books);
     } catch (e) {
@@ -290,6 +297,8 @@ const App: React.FC = () => {
           cartItems={cart}
           onOpenCart={() => setIsCartOpen(true)}
           onSearch={setSearchQuery}
+          searchQuery={searchQuery}
+          onRefreshData={fetchInitialData}
           isCartOpen={isCartOpen}
           onCloseCart={() => setIsCartOpen(false)}
           onRemoveCart={(id) => setCart(c => c.filter(i => i.id !== id))}
@@ -440,14 +449,14 @@ const App: React.FC = () => {
                     <div className="w-[92%] xl:w-[60%] mx-auto px-4 relative z-10 flex flex-col lg:flex-row items-center gap-10 pt-28 pb-12 lg:pt-32">
                       <div className="flex-1 text-center lg:text-left">
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 rounded-full text-indigo-600 text-[9px] font-black uppercase tracking-[0.2em] mb-6">
-                          <i className="fa-solid fa-sparkles"></i> New Generation Bookstore
+                          <i className="fa-solid fa-wand-magic-sparkles"></i> New Generation Bookstore
                         </div>
-                        <h1 className="text-4xl lg:text-6xl font-black text-slate-900 leading-[1.1] mb-6 tracking-tighter">
+                        <h1 className="text-5xl lg:text-7xl font-black text-slate-900 leading-[1] mb-8 tracking-tighter">
                           Khai phá <br />
                           <span className="text-indigo-600">Tiềm năng</span> <br />
                           qua từng trang sách.
                         </h1>
-                        <p className="text-slate-500 text-base lg:text-lg max-w-lg mb-10 leading-relaxed font-medium">
+                        <p className="text-slate-500 text-lg lg:text-xl max-w-lg mb-10 leading-relaxed font-semibold">
                           DigiBook mang đến trải nghiệm đọc sách hiện đại, nơi tri thức và công nghệ hội tụ để thắp sáng tư duy của bạn.
                         </p>
                         <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
@@ -598,32 +607,32 @@ const App: React.FC = () => {
                     <div className="w-[92%] xl:w-[60%] mx-auto px-4 relative">
                       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
                         <div className="max-w-xl">
-                          <div className="inline-flex items-center gap-2 px-3 py-1 bg-rose-50 rounded-lg mb-4">
-                            <i className="fa-solid fa-sparkles text-rose-500 text-[10px]"></i>
-                            <p className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em]">Curated For You</p>
+                          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-rose-50 rounded-lg mb-4">
+                            <i className="fa-solid fa-wand-magic-sparkles text-rose-500 text-[12px]"></i>
+                            <p className="text-[12px] font-black text-rose-500 uppercase tracking-[0.2em]">Curated For You</p>
                           </div>
-                          <h2 className="text-3xl lg:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+                          <h2 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
                             Tác phẩm <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-orange-500">đề cử</span> dành riêng cho bạn
                           </h2>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex gap-2.5">
                            <button 
                              onClick={() => setBookOffset(prev => Math.max(0, prev - 5))}
                              disabled={bookOffset === 0}
-                             className={`w-14 h-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center transition-all ${bookOffset === 0 ? 'opacity-30 cursor-not-allowed shadow-inner' : 'text-slate-400 hover:text-indigo-600 hover:border-indigo-500 hover:shadow-2xl hover:shadow-indigo-500/10 active:scale-90 shadow-sm'}`}
+                             className={`w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center transition-all ${bookOffset === 0 ? 'opacity-30 cursor-not-allowed' : 'text-slate-500 hover:text-indigo-600 hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/10 active:scale-90 shadow-sm'}`}
                            >
-                              <i className="fa-solid fa-chevron-left"></i>
+                              <i className="fa-solid fa-chevron-left text-xs"></i>
                            </button>
                            <button 
                              onClick={() => setBookOffset(prev => Math.min(Math.max(0, processedBooks.length - 10), prev + 5))}
                              disabled={bookOffset + 10 >= processedBooks.length}
-                             className={`w-14 h-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center transition-all ${bookOffset + 10 >= processedBooks.length ? 'opacity-30 cursor-not-allowed shadow-inner' : 'text-slate-400 hover:text-indigo-600 hover:border-indigo-500 hover:shadow-2xl hover:shadow-indigo-500/10 active:scale-90 shadow-sm'}`}
+                             className={`w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center transition-all ${bookOffset + 10 >= processedBooks.length ? 'opacity-30 cursor-not-allowed' : 'text-slate-500 hover:text-indigo-600 hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/10 active:scale-90 shadow-sm'}`}
                            >
-                              <i className="fa-solid fa-chevron-right"></i>
+                              <i className="fa-solid fa-chevron-right text-xs"></i>
                            </button>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 transition-all duration-700">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 transition-all duration-700">
                         {processedBooks.slice(bookOffset, bookOffset + 10).map((book) => (
                           <BookCard key={book.id} book={book} onAddToCart={addToCart} />
                         ))}
@@ -655,6 +664,7 @@ const App: React.FC = () => {
                 </div>
               } />
               <Route path="/book/:id" element={<BookDetails onAddToCart={addToCart} />} />
+              <Route path="/search/:query" element={<SearchResults onAddToCart={addToCart} />} />
               <Route path="/category/:categoryName" element={<CategoryPage onAddToCart={addToCart} />} />
               <Route path="/author/:authorName" element={<AuthorPage onAddToCart={addToCart} />} />
               <Route path="/wishlist" element={<WishlistPage onAddToCart={addToCart} />} />

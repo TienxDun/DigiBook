@@ -3,7 +3,11 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 
-const MobileNav: React.FC<{ cartCount: number, onOpenCart: () => void }> = ({ cartCount, onOpenCart }) => {
+const MobileNav: React.FC<{ cartCount: number; onOpenCart: () => void; onRefreshData?: () => void }> = ({ 
+  cartCount, 
+  onOpenCart, 
+  onRefreshData 
+}) => {
   const location = useLocation();
   const { user, setShowLoginModal } = useAuth();
 
@@ -24,6 +28,9 @@ const MobileNav: React.FC<{ cartCount: number, onOpenCart: () => void }> = ({ ca
             <Link 
               key={item.path} 
               to={item.path} 
+              onClick={() => {
+                if (item.path === '/') onRefreshData?.();
+              }}
               className={`flex flex-col items-center justify-center w-full h-full transition-all relative ${isActive ? item.color : 'text-slate-400'}`}
             >
               <div className={`w-11 h-11 rounded-[1.2rem] flex items-center justify-center transition-all duration-500 ${isActive ? `${item.bg} shadow-sm scale-110` : 'hover:bg-slate-50'}`}>
