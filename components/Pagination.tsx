@@ -9,10 +9,35 @@ interface PaginationProps {
 
 const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
   const getPages = () => {
-    const pages = [];
-    for (let i = 1; i <= totalPages; i++) {
+    const pages: (number | string)[] = [];
+    const delta = 1;
+
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+      return pages;
+    }
+
+    pages.push(1);
+
+    if (currentPage > delta + 2) {
+      pages.push('...');
+    }
+
+    const start = Math.max(2, currentPage - delta);
+    const end = Math.min(totalPages - 1, currentPage + delta);
+
+    for (let i = start; i <= end; i++) {
       pages.push(i);
     }
+
+    if (currentPage < totalPages - (delta + 1)) {
+      pages.push('...');
+    }
+
+    pages.push(totalPages);
+
     return pages;
   };
 
@@ -26,18 +51,24 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
         <i className="fa-solid fa-chevron-left text-xs"></i>
       </button>
 
-      {getPages().map((page) => (
-        <button
-          key={page}
-          onClick={() => onPageChange(page)}
-          className={`w-12 h-12 rounded-xl font-extrabold transition-all ${
-            currentPage === page
-              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100'
-              : 'bg-white border border-slate-100 text-slate-500 hover:border-indigo-100 hover:text-indigo-600'
-          }`}
-        >
-          {page}
-        </button>
+      {getPages().map((page, index) => (
+        typeof page === 'number' ? (
+          <button
+            key={index}
+            onClick={() => onPageChange(page)}
+            className={`w-12 h-12 rounded-xl font-extrabold transition-all ${
+              currentPage === page
+                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100'
+                : 'bg-white border border-slate-100 text-slate-500 hover:border-indigo-100 hover:text-indigo-600'
+            }`}
+          >
+            {page}
+          </button>
+        ) : (
+          <span key={index} className="w-12 h-12 flex items-center justify-center text-slate-400 font-extrabold">
+            {page}
+          </span>
+        )
       ))}
 
       <button

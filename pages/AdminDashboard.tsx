@@ -107,6 +107,29 @@ const AdminDashboard: React.FC = () => {
       return orderDate.toDateString() === today.toDateString();
     }).length;
 
+    // Tính toán doanh thu 7 ngày gần nhất
+    const last7Days = [...Array(7)].map((_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      return d.toDateString();
+    }).reverse();
+
+    const revenueByDay = last7Days.map(dateStr => {
+      const dayTotal = orders
+        .filter(o => {
+          const oDate = o.createdAt?.toDate ? o.createdAt.toDate() : new Date(o.date);
+          return oDate.toDateString() === dateStr;
+        })
+        .reduce((sum, o) => sum + (o.payment?.total || 0), 0);
+      
+      return {
+        date: new Date(dateStr).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }),
+        total: dayTotal
+      };
+    });
+
+    const maxRevenue = Math.max(...revenueByDay.map(d => d.total), 1);
+
     return { 
       totalRevenue, 
       lowStock, 
@@ -119,7 +142,9 @@ const AdminDashboard: React.FC = () => {
       todayOrders: todayOrdersCount,
       totalCategories: categories.length,
       totalAuthors: authors.length,
-      totalCoupons: coupons.length
+      totalCoupons: coupons.length,
+      revenueByDay,
+      maxRevenue
     };
   }, [orders, books, categories, authors, coupons]);
 
@@ -153,15 +178,15 @@ const AdminDashboard: React.FC = () => {
         ></div>
       )}
 
-      {/* Sidebar - Cố định bên trái - Nâng cấp màu Midnight Premium */}
-      <aside className={`w-80 flex flex-col fixed inset-y-0 z-[100] shadow-2xl transition-all duration-500 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} ${adminTheme === 'midnight' ? 'bg-[#0f172a]' : 'bg-white border-r border-slate-100'}`}>
-        <div className={`p-6 border-b flex items-center justify-between gap-4 h-24 ${adminTheme === 'midnight' ? 'border-white/5' : 'border-slate-100'}`}>
+      {/* Sidebar - Cố định bên trái - Nâng cấp màu Midnight Premium (Luôn luôn tối) */}
+      <aside className={`w-80 flex flex-col fixed inset-y-0 z-[100] shadow-2xl transition-all duration-500 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} bg-[#0f172a]`}>
+        <div className="p-6 border-b border-white/5 flex items-center justify-between gap-4 h-24">
           <div className="flex items-center gap-4">
             <Link to="/" className="w-12 h-12 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center text-white hover:scale-110 shadow-lg shadow-indigo-500/20 transition-all active:scale-95 group">
               <i className="fa-solid fa-house-chimney group-hover:rotate-12 transition-transform"></i>
             </Link>
             <div>
-              <h1 className={`text-sm font-black tracking-tight uppercase ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>DigiBook</h1>
+              <h1 className="text-sm font-black tracking-tight uppercase text-white">DigiBook</h1>
               <p className="text-[9px] font-bold text-indigo-400 uppercase tracking-[0.2em] mt-0.5">Admin Dashboard</p>
             </div>
           </div>
@@ -191,23 +216,23 @@ const AdminDashboard: React.FC = () => {
               className={`flex items-center gap-4 w-full px-5 py-4 rounded-2xl text-[11px] font-bold uppercase tracking-wider transition-all duration-300 group
                 ${activeTab === tab.id 
                   ? "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-xl shadow-indigo-500/30 ring-1 ring-white/20" 
-                  : `${adminTheme === 'midnight' ? 'text-slate-400 hover:text-white hover:bg-white/5' : 'text-slate-500 hover:text-indigo-600 hover:bg-slate-50'} hover:translate-x-1`
+                  : "text-slate-400 hover:text-white hover:bg-white/5 hover:translate-x-1"
                 }`}
             >
-              <i className={`fa-solid ${tab.icon} w-5 text-center text-sm ${activeTab === tab.id ? 'text-white' : `${adminTheme === 'midnight' ? 'text-slate-500 group-hover:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-500'}`}`}></i>
+              <i className={`fa-solid ${tab.icon} w-5 text-center text-sm ${activeTab === tab.id ? 'text-white' : 'text-slate-500 group-hover:text-indigo-400'}`}></i>
               <span>{tab.label}</span>
             </button>
           ))}
         </nav>
 
         {/* Footer Sidebar - Dark Style */}
-        <div className={`p-6 border-t mx-4 mb-4 rounded-3xl transition-colors ${adminTheme === 'midnight' ? 'bg-[#1e293b]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+        <div className="p-6 border-t border-white/5 mx-4 mb-4 rounded-3xl transition-colors bg-[#1e293b]/50">
           <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border shadow-inner ${adminTheme === 'midnight' ? 'bg-indigo-500/10 border-indigo-500/20' : 'bg-white border-slate-200'}`}>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center border border-indigo-500/20 bg-indigo-500/10 shadow-inner">
               <i className="fa-solid fa-crown text-indigo-400"></i>
             </div>
             <div>
-              <span className={`text-[10px] font-black uppercase block tracking-wider ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>Super Admin</span>
+              <span className="text-[10px] font-black uppercase block tracking-wider text-white">Super Admin</span>
               <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2 mt-0.5">
                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
                 Vận hành tốt
@@ -301,52 +326,46 @@ const AdminDashboard: React.FC = () => {
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
                 <div className={`lg:col-span-2 p-6 lg:p-8 rounded-[2rem] lg:rounded-[3rem] border shadow-2xl relative overflow-hidden transition-all ${adminTheme === 'midnight' ? 'bg-[#0f172a]/50 border-white/5' : 'bg-white border-slate-100'}`}>
-                  <div className={`absolute top-0 right-0 p-8 opacity-[0.05] pointer-events-none ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>
-                    <i className="fa-solid fa-database text-[80px] lg:text-[120px]"></i>
-                  </div>
                   <div className="flex items-center justify-between mb-8">
                     <div>
-                      <h3 className={`text-lg lg:text-xl font-black uppercase tracking-tight ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>Hệ thống dữ liệu</h3>
-                      <p className="text-[10px] lg:text-micro font-bold text-indigo-400/60 uppercase tracking-premium mt-1">Khởi tạo và đồng bộ dữ liệu Firestore</p>
+                      <h3 className={`text-lg lg:text-xl font-black uppercase tracking-tight ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>Biểu đồ doanh thu</h3>
+                      <p className="text-[10px] lg:text-micro font-bold text-indigo-400/60 uppercase tracking-premium mt-1">Phân tích tăng trưởng 7 ngày qua</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                       <span className="flex items-center gap-2 text-micro font-bold text-emerald-400 uppercase">
+                          <i className="fa-solid fa-caret-up"></i> 12.5%
+                       </span>
                     </div>
                   </div>
                   
-                  <div className={`rounded-2xl lg:rounded-3xl p-6 lg:p-8 border ${adminTheme === 'midnight' ? 'bg-black/20 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 lg:gap-6">
-                      <div className={`w-16 h-16 lg:w-20 lg:h-20 rounded-2xl shadow-inner border flex items-center justify-center text-2xl lg:text-3xl ${adminTheme === 'midnight' ? 'bg-white/5 border-white/10 text-indigo-400' : 'bg-white border-slate-200 text-indigo-500'}`}>
-                        <i className="fa-solid fa-server"></i>
+                  {/* Revenue Chart Visualization */}
+                  <div className="h-64 mt-10 flex items-end justify-between gap-2 lg:gap-4 px-2">
+                    {stats.revenueByDay.map((day: any, i: number) => (
+                      <div key={i} className="flex-1 flex flex-col items-center gap-4 group cursor-pointer">
+                        <div className="relative w-full flex justify-center items-end h-48">
+                           {/* Bar */}
+                           <div 
+                             className="w-full max-w-[40px] bg-gradient-to-t from-indigo-600/80 to-indigo-400 rounded-xl lg:rounded-2xl transition-all duration-700 group-hover:scale-x-110 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] relative group"
+                             style={{ height: `${(day.total / stats.maxRevenue) * 100}%`, minHeight: '4px' }}
+                           >
+                              {/* Tooltip */}
+                              <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl z-20">
+                                 {formatPrice(day.total)}
+                              </div>
+                           </div>
+                        </div>
+                        <span className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${adminTheme === 'midnight' ? 'text-slate-500 group-hover:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-600'}`}>
+                          {day.date}
+                        </span>
                       </div>
-                      <div>
-                        <h4 className={`text-xs lg:text-sm font-black uppercase ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>Cloud Firestore Seed Tool</h4>
-                        <p className="text-[10px] lg:text-xs text-slate-400 mt-1 leading-relaxed max-w-md">Thiết lập môi trường làm việc nhanh chóng bằng cách đẩy dữ liệu mẫu lên Cloud.</p>
-                      </div>
-                    </div>
+                    ))}
+                  </div>
 
-                    <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-                      <button
-                        onClick={handleSeedData}
-                        disabled={isSeeding}
-                        className="px-6 lg:px-8 py-3.5 bg-indigo-600 text-white rounded-xl lg:rounded-2xl text-[10px] lg:text-micro font-bold uppercase tracking-premium hover:bg-indigo-500 disabled:bg-slate-700 transition-all shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-3 active:scale-95"
-                      >
-                        {isSeeding ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-cloud-arrow-up"></i>}
-                        {isSeeding ? "Đang đẩy dữ liệu..." : "Seed Dữ liệu"}
-                      </button>
-                      <button className={`px-6 lg:px-8 py-3.5 border rounded-xl lg:rounded-2xl text-[10px] lg:text-micro font-bold uppercase tracking-premium transition-all flex items-center justify-center gap-3 ${adminTheme === 'midnight' ? 'bg-white/5 text-white border-white/10 hover:bg-white/10' : 'bg-white text-slate-900 border-slate-200 hover:bg-slate-50'}`}>
-                        <i className="fa-solid fa-file-export"></i>
-                        Xuất JSON
-                      </button>
-                    </div>
-
-                    {seedStatus && (
-                      <div className={`mt-6 p-4 rounded-xl lg:rounded-2xl flex items-center gap-4 animate-scaleIn ${
-                        seedStatus.type === "success" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : 
-                        seedStatus.type === "info" ? "bg-blue-500/10 text-blue-400 border border-blue-500/20" :
-                        "bg-rose-500/10 text-rose-400 border border-rose-500/20"
-                      }`}>
-                        <i className={`fa-solid ${seedStatus.type === "success" ? "fa-circle-check" : seedStatus.type === "info" ? "fa-circle-info" : "fa-triangle-exclamation"}`}></i>
-                        <span className="text-[9px] lg:text-micro font-bold uppercase tracking-premium">{seedStatus.msg}</span>
-                      </div>
-                    )}
+                  {/* Grid Lines Overlay */}
+                  <div className="absolute inset-x-8 top-32 bottom-20 flex flex-col justify-between pointer-events-none opacity-5">
+                    {[...Array(5)].map((_, i) => (
+                      <div key={i} className={`w-full h-px ${adminTheme === 'midnight' ? 'bg-white' : 'bg-slate-900'}`}></div>
+                    ))}
                   </div>
                 </div>
 

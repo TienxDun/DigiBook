@@ -117,6 +117,12 @@ const OrderDetailPage: React.FC = () => {
                 <p className="text-micro text-slate-400 font-bold uppercase tracking-premium mb-0.5">Địa chỉ</p>
                 <p className="font-medium text-slate-600 text-xs leading-relaxed">{orderWithItems.customer.address}</p>
               </div>
+              {orderWithItems.customer.note && (
+                <div>
+                  <p className="text-micro text-slate-400 font-bold uppercase tracking-premium mb-0.5">Ghi chú</p>
+                  <p className="font-medium text-indigo-600 text-xs italic leading-relaxed">"{orderWithItems.customer.note}"</p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -131,6 +137,16 @@ const OrderDetailPage: React.FC = () => {
                 <span className="text-slate-500 font-bold uppercase tracking-premium text-micro">Tạm tính</span>
                 <span className="font-bold text-slate-300">{formatPrice(orderWithItems.payment.subtotal)}</span>
               </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-500 font-bold uppercase tracking-premium text-micro">Phí vận chuyển</span>
+                <span className="font-bold text-slate-300">{formatPrice(orderWithItems.payment.shipping)}</span>
+              </div>
+              {orderWithItems.payment.couponDiscount > 0 && (
+                <div className="flex justify-between text-xs text-emerald-400">
+                  <span className="font-bold uppercase tracking-premium text-micro">Giảm giá</span>
+                  <span className="font-bold">-{formatPrice(orderWithItems.payment.couponDiscount)}</span>
+                </div>
+              )}
               <div className="pt-3.5 border-t border-white/10 flex justify-between items-center">
                 <span className="text-sm font-extrabold uppercase tracking-premium">Tổng tiền</span>
                 <span className="text-xl font-extrabold text-indigo-400">{formatPrice(orderWithItems.payment.total)}</span>

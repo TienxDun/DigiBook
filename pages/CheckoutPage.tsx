@@ -99,7 +99,8 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
           name: formData.name, 
           phone: formData.phone, 
           address: formData.address, 
-          email: user.email 
+          email: user.email,
+          note: formData.note 
         },
         payment: {
           method: paymentMethod === 'online' ? 'Chuyển khoản / Thẻ' : 'Tiền mặt khi nhận hàng (COD)',

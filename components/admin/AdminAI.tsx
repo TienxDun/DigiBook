@@ -2,26 +2,11 @@ import React, { useState } from 'react';
 import { db } from '../../services/db';
 import { toast } from 'react-hot-toast';
 import { ErrorHandler } from '../../services/errorHandler';
+import { AVAILABLE_AI_MODELS } from '../../constants/ai-models';
 
 interface AIConfig {
   activeModelId: string;
 }
-
-interface AIModel {
-  id: string;
-  name: string;
-  category: string;
-  rpm: number;
-  tpm: number;
-  rpd: number;
-}
-
-const AVAILABLE_AI_MODELS: AIModel[] = [
-  { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash (Experimental)', category: 'Flash - Ultra Fast', rpm: 10, tpm: 1000000, rpd: 1500 },
-  { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', category: 'Flash - Stable', rpm: 15, tpm: 1000000, rpd: 1500 },
-  { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', category: 'Pro - High Performance', rpm: 2, tpm: 32000, rpd: 50 },
-  { id: 'gemini-1.0-pro', name: 'Gemini 1.0 Pro', category: 'Pro - Legacy', rpm: 15, tpm: 32000, rpd: 1500 }
-];
 
 interface AdminAIProps {
   aiConfig: AIConfig;
@@ -57,7 +42,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData }) => {
             </div>
             <div>
               <p className="text-micro font-bold uppercase tracking-premium opacity-60">Model Hiện tại</p>
-              <h3 className="text-xl font-extrabold">{AVAILABLE_AI_MODELS.find(m => m.id === aiConfig.activeModelId)?.name || 'Gemini 3 Flash'}</h3>
+              <h3 className="text-xl font-extrabold">{AVAILABLE_AI_MODELS.find(m => m.id === aiConfig.activeModelId)?.name || 'Gemini 1.5 Flash'}</h3>
             </div>
           </div>
           <div className="space-y-2">

@@ -237,7 +237,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData }) => {
                     </div>
                     <div className="flex justify-between items-center text-rose-500">
                       <span className="text-xs font-bold">Giảm giá:</span>
-                      <span className="text-sm font-extrabold">-{formatPrice(selectedOrder.payment.discount)}</span>
+                      <span className="text-sm font-extrabold">-{formatPrice(selectedOrder.payment.couponDiscount)}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-bold text-slate-500">Phí vận chuyển:</span>
@@ -278,13 +278,13 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData }) => {
                               )}
                               <div>
                                 <p className="text-sm font-extrabold text-slate-900 line-clamp-1">{item.title}</p>
-                                <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">ID: {item.id.slice(-6)}</p>
+                                <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">ID: {item.bookId.slice(-6)}</p>
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4 text-center text-sm font-extrabold text-slate-700">x{item.quantity}</td>
-                          <td className="px-6 py-4 text-right text-sm font-bold text-slate-500">{formatPrice(item.price)}</td>
-                          <td className="px-6 py-4 text-right text-sm font-extrabold text-indigo-600">{formatPrice(item.price * item.quantity)}</td>
+                          <td className="px-6 py-4 text-right text-sm font-bold text-slate-500">{formatPrice(item.priceAtPurchase)}</td>
+                          <td className="px-6 py-4 text-right text-sm font-extrabold text-indigo-600">{formatPrice(item.priceAtPurchase * item.quantity)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -304,7 +304,10 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData }) => {
                       onClick={() => handleUpdateOrderStatus(selectedOrder.id, status.step)}
                       className={`px-4 py-2 rounded-xl text-micro font-bold uppercase tracking-premium transition-all ${
                         selectedOrder.statusStep === status.step
-                        ? `bg-${status.color}-600 text-white shadow-lg shadow-${status.color}-100 ring-4 ring-${status.color}-50`
+                        ? (status.color === 'emerald' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100 ring-4 ring-emerald-50' :
+                           status.color === 'indigo' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 ring-4 ring-indigo-50' :
+                           status.color === 'blue' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100 ring-4 ring-blue-50' :
+                           'bg-amber-600 text-white shadow-lg shadow-amber-100 ring-4 ring-amber-50')
                         : 'bg-white text-slate-400 hover:text-slate-600'
                       }`}
                     >

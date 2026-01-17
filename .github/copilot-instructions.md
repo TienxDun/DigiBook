@@ -1,128 +1,44 @@
-# DigiBook AI Development Guide
+﻿# DigiBook AI Coding Instructions
 
-## ⚠️ Quy Tắc Giao Tiếp / Communication Rules
-**ALWAYS respond to the user in Vietnamese (Tiếng Việt)** - This is a Vietnamese bookstore project and all communication with the developer must be in Vietnamese. Code comments and documentation can be in English, but explanations and responses to the user must be in Vietnamese.
+You are an expert AI developer working on **DigiBook**, a modern bookstore application built with **React 19**, **Vite**, **Firebase (Firestore/Auth)**, and **Tailwind CSS**.
 
-## Architecture Overview
-This is a **Vietnamese online bookstore SPA** built with React 19, TypeScript, Vite, Firebase (Firestore + Auth), and Tailwind CSS. The app uses HashRouter for client-side routing and supports both online (Firebase) and offline (mock data) modes with automatic fallback.
+## 🌐 Communication & Workflow
 
-### Core Structure
-- **App Entry**: `index.tsx` → `App.tsx` (main router + context providers)
-- **State Management**: React Context (`AuthContext`) + local state + localStorage for cart/wishlist
-- **Database Layer**: `services/db.ts` - single abstraction over Firestore with automatic mock fallback
-- **Authentication**: Firebase Auth with Google OAuth and email/password via `services/firebase.ts`
-- **Routing**: HashRouter with routes in [App.tsx](App.tsx) (pages: Home, BookDetails, Category, Author, Checkout, Orders, Admin)
-- **Components**: Shared UI in `components/` (Header, BookCard, CartSidebar, Footer, etc.)
+- **Language**: Always respond to the user in **Vietnamese**.
+- **Execution**: For any task, first create a structured **TODO list** and execute it step-by-step. Use the `manage_todo_list` tool to track progress.
 
-### Critical Data Flow Pattern
-1. `db.ts` auto-detects Firebase connectivity on init and sets `useMock` flag
-2. All CRUD operations first check `useMock` - if true, use `MOCK_BOOKS` from [constants.tsx](constants.tsx); if false, use Firestore
-3. Cart/wishlist persist to `localStorage` with keys `digibook_cart` and `digibook_wishlist`
-4. Admin detection: User email must equal `admin@gmail.com` (checked in [App.tsx](App.tsx#L102))
+## 🏗️ Architecture & Service Boundaries
 
-## Development Workflow
+- **Database Logic**: All Firestore interactions must be centralized in [services/db.ts](services/db.ts). Use the exported `db` instance. Avoid raw Firebase calls in components.
+- **Authentication**: Usage of [AuthContext.tsx](AuthContext.tsx) is preferred via the `useAuth()` hook for user state and auth actions (login, logout, wishlist).
+- **Admin Hub**: Admin-specific components are isolated in [components/admin/](components/admin/). They follow a "Dashboard-as-Container" pattern where [AdminDashboard.tsx](pages/AdminDashboard.tsx) coordinates them.
+- **Error Handling**: Use `ErrorHandler.handle(error, context)` from [services/errorHandler.ts](services/errorHandler.ts) for all admin operations to ensure consistent logging to Firestore and user notifications via `react-hot-toast`.
 
-### Essential Commands
-```bash
-npm run dev       # Start dev server on localhost:3000 (Vite HMR enabled)
-npm run build     # Production build → dist/ folder
-npm run preview   # Preview production build locally
-```
+##  Data Modeling & Types
 
-### Firebase Setup (Required for Online Mode)
-- Config in [services/firebase.ts](services/firebase.ts) - credentials are hardcoded (not environment-based)
-- If Firebase fails, app automatically uses mock data from [constants.tsx](constants.tsx)
-- To test offline mode: comment out `initializeApp` in [services/firebase.ts](services/firebase.ts#L47)
+- **Source of Truth**: All TypeScript interfaces are defined in [types.ts](types.ts). Always refer to this file when creating or modifying data models.
+- **Key Models**:
+    - `Book`: Includes metadata like `isbn`, `pages`, and `badge` (e.g., "Bán chạy").
+    - `UserProfile`: Contains `role` ('admin' | 'user') and `status` ('active' | 'banned').
+    - `Order`: Deeply nested object containing `customer`, `payment`, and `items`.
+- **Dates**: Use Firestore `serverTimestamp()` for `createdAt`/`updatedAt` fields in mutations. Handle local display with `toDate()` or `toLocaleDateString()`.
 
-### Admin Access
-- Login with `admin@gmail.com` (Google or email/password)
-- AdminDashboard route protected by `<AdminRoute>` wrapper in [App.tsx](App.tsx#L62)
-- Admin features: Book/Author/Category CRUD, Order management, System logs, Data seeding
+##  Styling & UI Conventions
 
-## Project-Specific Conventions
+- **Tailwind CSS**: Use utility classes exclusively. Avoid custom CSS files unless absolutely necessary.
+- **Icons**: Use **FontAwesome** classes (e.g., `fas fa-book`).
+- **Feedback**: Use `react-hot-toast` for temporary feedback.
+- **Badges**: Use consistent status ribbons for books:
+    - [BookCard.tsx](components/BookCard.tsx): `badge` property handles "Bán chạy", "Kinh điển", etc.
 
-### TypeScript Types
-- All domain types in [types.ts](types.ts): `Book`, `Author`, `CartItem`, `CategoryInfo`
-- Extended types in [services/db.ts](services/db.ts): `Review`, `Order`, `SystemLog`, `OrderItem`
+##  Critical Workflows & Commands
 
-### Component Patterns
-- **BookCard**: Receives `Book` prop, handles add-to-cart + wishlist toggle via context
-- **CartSidebar**: Controlled by `isCartOpen` state in [App.tsx](App.tsx), uses `cart` state
-- **Pagination**: Reusable component in `components/Pagination.tsx` for book lists and logs
+- **Local Dev**: Run `npm run dev` to start the Vite server on port 5173 (standard) or 3000 (as per README).
+- **Environment**: Firebase config requires `VITE_FIREBASE_*` variables in `.env`.
+- **Logging**: For any significant data mutation in the Admin panel, call `db.logActivity(action, detail, status)` to maintain the system audit trail in the `system_logs` collection.
 
-### Firestore Collections Schema (See [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md))
-```
-books/        - title, author, authorId, category, price, stock_quantity, rating, cover, description, isbn
-categories/   - name (ID), icon (FontAwesome), description
-authors/      - name, bio, avatar
-orders/       - userId, status, statusStep, customer{}, payment{}, items[]
-reviews/      - bookId, userId, rating, content
-system_logs/  - action, detail, status, user, createdAt
-```
+##  Common Pitfalls
 
-### State Management Pattern
-- Global auth state via `useAuth()` hook (exported from [App.tsx](App.tsx#L56))
-- Cart/wishlist methods passed as props from [App.tsx](App.tsx) to child components
-- No external state library - Context + useState + localStorage
-
-### Styling Approach
-- Tailwind utility classes throughout (no component-level CSS files)
-- Responsive breakpoints: `md:` (tablets), `lg:` (desktops)
-- Font Awesome icons via CDN (loaded in [index.html](index.html))
-- Vietnamese text content throughout UI
-
-### Mock Data System
-- `MOCK_BOOKS` and `CATEGORIES` in [constants.tsx](constants.tsx) - used when Firebase unavailable
-- Mock data includes 50+ Vietnamese books across 8 categories
-- All `db.ts` methods have parallel implementations for mock mode
-
-## Integration Points
-
-### Firebase Services
-- **Auth**: Google OAuth + Email/Password via `signInWithPopup`, `signInWithEmailAndPassword`, `createUserWithEmailAndPassword`
-- **Firestore**: CRUD operations abstracted in `db.ts` class methods (`getBooks`, `addBook`, `updateBook`, etc.)
-- **Security**: Firestore rules check for `admin@gmail.com` for write operations
-
-### Environment Variables
-- `GEMINI_API_KEY` (optional) - exposed as `process.env.GEMINI_API_KEY` via [vite.config.ts](vite.config.ts#L13-L14)
-- No `.env` file in repo - credentials hardcoded in [services/firebase.ts](services/firebase.ts#L31-L37)
-
-### Deployment Configuration
-- Target platform: Railway (static hosting or Node.js with `npm run preview`)
-- [railway.json](railway.json) specifies build/start commands
-- [DEPLOY_PLAN.md](DEPLOY_PLAN.md) contains full deployment steps
-
-## Common Patterns to Follow
-
-### Adding a New Book Field
-1. Update `Book` interface in [types.ts](types.ts#L9-L27)
-2. Add field to `MOCK_BOOKS` entries in [constants.tsx](constants.tsx)
-3. Update Firestore schema docs in [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)
-4. Modify `db.ts` methods if field requires special handling
-5. Update AdminDashboard book form in [pages/AdminDashboard.tsx](pages/AdminDashboard.tsx)
-
-### Adding a New Page
-1. Create `pages/NewPage.tsx` component
-2. Add route in [App.tsx](App.tsx) `<Routes>` section
-3. Add navigation link in [components/Header.tsx](components/Header.tsx) or [components/MobileNav.tsx](components/MobileNav.tsx)
-4. For admin pages, wrap route in `<AdminRoute>` component
-
-### Working with Orders
-- Orders created via `db.createOrder()` in [pages/CheckoutPage.tsx](pages/CheckoutPage.tsx)
-- Order status: "Đang xử lý" / "Đang giao" / "Đã giao" / "Đã hủy"
-- Status step: 0-3 (for progress indicator)
-- User views orders at `/my-orders`, admin views all orders in dashboard
-
-### System Logging
-- All admin actions logged via `db.logSystemAction(action, detail, status, user)`
-- Visible in Admin Dashboard → Logs tab
-- Used for audit trail of CRUD operations
-
-## Key Files Reference
-- [App.tsx](App.tsx) - Main app logic, routing, auth context
-- [services/db.ts](services/db.ts) - Database abstraction layer (Firebase + mock fallback)
-- [services/firebase.ts](services/firebase.ts) - Firebase initialization
-- [constants.tsx](constants.tsx) - Mock data and category definitions
-- [types.ts](types.ts) - TypeScript type definitions
-- [pages/AdminDashboard.tsx](pages/AdminDashboard.tsx) - Admin CRUD interface (826 lines)
-- [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) - Firestore collections documentation
+- **Hardcoded Emails**: Do NOT hardcode admin emails. Use `user.role === 'admin'` check instead.
+- **Firestore Persistence**: If you encounter `BloomFilterError`, clear IndexedDB persistence using `db.clearPersistence()` (exposed via `firebase.ts`).
+- **Null Checks**: Always check `db_fs` and `auth` availability from `services/firebase.ts` before use, as initialization might fail due to missing environment variables.

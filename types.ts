@@ -91,6 +91,7 @@ export interface Order {
     phone: string;
     address: string;
     email: string;
+    note?: string;
   };
   payment: {
     method: string;
