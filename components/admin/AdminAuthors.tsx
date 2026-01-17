@@ -3,6 +3,7 @@ import { Author } from '../../types';
 import { db } from '../../services/db';
 import { toast } from 'react-hot-toast';
 import { ErrorHandler } from '../../services/errorHandler';
+import Pagination from '../Pagination';
 
 interface AdminAuthorsProps {
   authors: Author[];
@@ -15,6 +16,12 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData }) => 
   const [authorFormData, setAuthorFormData] = useState<Partial<Author>>({});
   const [selectedAuthors, setSelectedAuthors] = useState<string[]>([]);
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(authors.length / itemsPerPage);
+  const paginatedAuthors = authors.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handleOpenAddAuthor = () => {
     setEditingAuthor(null);
@@ -163,7 +170,7 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData }) => 
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {authors.map(author => (
+            {paginatedAuthors.map(author => (
               <tr key={author.id} className={`group hover:bg-slate-50/50 transition-all ${selectedAuthors.includes(author.id) ? 'bg-indigo-50/30' : ''}`}>
                 <td className="p-6 text-center">
                   <div 
@@ -225,6 +232,20 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData }) => 
           </div>
         )}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="p-6 border-t border-slate-100 bg-slate-50/30">
+            <Pagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => {
+                setCurrentPage(page);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Author Modal */}

@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { db } from '../../services/db';
 import { Book, CategoryInfo, Author } from '../../types';
 import { ErrorHandler } from '../../services/errorHandler';
+import Pagination from '../Pagination';
 
 interface AdminBooksProps {
   books: Book[];
@@ -23,6 +24,10 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
   const [isSyncing, setIsSyncing] = useState(false);
   const [seedStatus, setSeedStatus] = useState<{msg: string, type: 'success' | 'error' | 'info'} | null>(null);
 
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
+
   // Modal State
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
@@ -35,6 +40,9 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
       return true;
     });
   }, [books, filterStock]);
+
+  const totalPages = Math.ceil(filteredBooks.length / itemsPerPage);
+  const paginatedBooks = filteredBooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const toggleSelectBook = (id: string) => {
     setSelectedBooks(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
@@ -293,7 +301,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {filteredBooks.map(book => (
+            {paginatedBooks.map(book => (
               <tr key={book.id} className={`group hover:bg-slate-50/50 transition-all ${selectedBooks.includes(book.id) ? 'bg-indigo-50/30' : ''}`}>
                 <td className="p-6 text-center">
                   <div 
@@ -363,6 +371,20 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
           </div>
         )}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="p-6 border-t border-slate-100 bg-slate-50/30">
+            <Pagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => {
+                setCurrentPage(page);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Book Modal */}

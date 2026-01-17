@@ -127,6 +127,15 @@ const App: React.FC = () => {
     if (firebaseUser) {
       // 1. Lấy profile hiện tại từ Firestore
       const profile = await db.getUserProfile(firebaseUser.uid);
+
+      // KIỂM TRA TRẠNG THÁI KHÓA TÀI KHOẢN
+      if (profile?.status === 'banned') {
+        await signOut(auth);
+        setUser(null);
+        toast.error('Tài khoản của bạn đã bị khóa bởi quản trị viên.', { id: 'auth-banned' });
+        db.logActivity('AUTH_BANNED_BLOCK', `User ${firebaseUser.email} tried to login but is banned`, 'WARNING');
+        return false;
+      }
       
       // 2. Chuẩn bị dữ liệu hiển thị (ưu tiên forceName -> profile Firestore -> firebase)
       const userData = {
@@ -140,18 +149,20 @@ const App: React.FC = () => {
       setUser(userData);
 
       // 3. Tự động tạo/cập nhật profile trong Firestore nếu chưa có hoặc dữ liệu mới đầy đủ hơn
-      // Hoặc nếu có forceName (lúc đăng ký) thì phải cập nhật ngay vào DB
       if (!profile || forceName || (firebaseUser.displayName && !profile.name)) {
         await db.updateUserProfile({
           id: firebaseUser.uid,
           name: userData.name,
           email: userData.email,
           avatar: userData.avatar,
-          role: userData.isAdmin ? 'admin' : 'user'
+          role: userData.isAdmin ? 'admin' : 'user',
+          ...( !profile && { status: 'active' } ) // Chỉ đặt status khi tạo mới
         });
       }
+      return true;
     } else {
       setUser(null);
+      return false;
     }
   }, []);
 
@@ -191,7 +202,8 @@ const App: React.FC = () => {
       const result = await signInWithPopup(auth, googleProvider);
       
       // Đồng bộ profile ngay lập tức
-      await syncUser(result.user);
+      const success = await syncUser(result.user);
+      if (!success) return;
       
       db.logActivity('AUTH_LOGIN_GOOGLE', `Email: ${result.user.email}`, 'SUCCESS');
       setShowLoginModal(false);
@@ -242,7 +254,8 @@ const App: React.FC = () => {
       const result = await signInWithEmailAndPassword(auth, e, p);
       
       // Đồng bộ profile ngay lập tức
-      await syncUser(result.user);
+      const success = await syncUser(result.user);
+      if (!success) return;
 
       db.logActivity('AUTH_LOGIN_EMAIL', `Email: ${result.user.email}`, 'SUCCESS');
       setShowLoginModal(false);

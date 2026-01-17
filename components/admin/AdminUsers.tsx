@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { db } from '../../services/db';
+import Pagination from '../Pagination';
 
 interface User {
   id: string;
@@ -25,6 +26,10 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData }) => {
   const [userRoleFilter, setUserRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
   const [userStatusFilter, setUserStatusFilter] = useState<'all' | 'active' | 'banned'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const handleUpdateUserRole = async (userId: string, currentRole: 'admin' | 'user') => {
     const newRole = currentRole === 'admin' ? 'user' : 'admin';
@@ -67,13 +72,17 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData }) => {
 
   const filteredUsers = users.filter(user => {
     const matchesRole = userRoleFilter === 'all' || user.role === userRoleFilter;
-    const matchesStatus = userStatusFilter === 'all' || user.status === userStatusFilter;
+    const effectiveStatus = user.status || 'active';
+    const matchesStatus = userStatusFilter === 'all' || effectiveStatus === userStatusFilter;
     const matchesSearch = !searchQuery || 
       user.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
       user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.phone?.includes(searchQuery);
     return matchesRole && matchesStatus && matchesSearch;
   });
+
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const paginatedUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -154,7 +163,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData }) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {filteredUsers.length > 0 ? filteredUsers.map(user => (
+            {paginatedUsers.length > 0 ? paginatedUsers.map(user => (
               <tr key={user.id} className="hover:bg-slate-50/50 transition-all group">
                 <td className="px-8 py-6">
                   <div className="flex items-center gap-4">
@@ -264,6 +273,20 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData }) => {
           </tbody>
         </table>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="p-6 border-t border-slate-100 bg-slate-50/30">
+            <Pagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => {
+                setCurrentPage(page);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

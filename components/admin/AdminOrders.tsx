@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { db, Order, OrderItem } from '../../services/db';
 import { ErrorHandler } from '../../services/errorHandler';
+import Pagination from '../Pagination';
 
 interface AdminOrdersProps {
   orders: Order[];
@@ -25,6 +26,10 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData }) => {
   const [updatingOrderStatus, setUpdatingOrderStatus] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const filteredOrders = useMemo(() => {
     return orders.filter(order => 
       order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -32,6 +37,9 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData }) => {
       order.customer.phone.includes(searchQuery)
     );
   }, [orders, searchQuery]);
+
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  const paginatedOrders = filteredOrders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handleViewOrderDetails = async (order: Order) => {
     try {
@@ -99,7 +107,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData }) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {filteredOrders.length > 0 ? filteredOrders.map(order => (
+            {paginatedOrders.length > 0 ? paginatedOrders.map(order => (
               <tr key={order.id} className="hover:bg-slate-50/50 transition-all group">
                 <td className="px-8 py-5 text-sm font-bold text-slate-900">#{order.id.slice(-8)}</td>
                 <td className="px-8 py-5">
@@ -153,6 +161,20 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData }) => {
           </tbody>
         </table>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="p-6 border-t border-slate-100 bg-slate-50/30">
+            <Pagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => {
+                setCurrentPage(page);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Order Details Modal */}
