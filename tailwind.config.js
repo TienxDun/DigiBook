@@ -12,7 +12,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Plus Jakarta Sans', 'sans-serif'],
+        sans: ['Be Vietnam Pro', 'Inter', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         'micro': '10px',

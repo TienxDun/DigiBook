@@ -1,707 +1,84 @@
-# Kế Hoạch Cải Thiện DigiBook
+# K? Ho?ch C?i Thi?n DigiBook (C?p nh?t 17/01/2026)
 
-## 📊 Tổng Quan
-**Đánh giá tổng thể:** 7.5/10  
-**Ngày phân tích:** 16/01/2026  
-**Trạng thái:** Dự án hoàn chỉnh về chức năng, cần cải thiện về bảo mật và hiệu năng
-
----
-
-## 🏗️ PHASE 1 - ĐANG TRIỂN KHAI (Ưu tiên Cao)
-
-### 1. Bảo mật Firebase Credentials (Đã hoàn thành)
-**Trạng thái:** ✅ Đã xử lý  
-**Mô tả:** Đã chuyển cấu hình sang biến môi trường (`.env`) và sử dụng `import.meta.env`.
+##  T?ng Quan Hi?n T?i
+**�i?m d�nh gi�:** 7.5/10  
+**T�nh tr?ng:** D? �n d� c� khung ch?c nang t?t (React 19, Vite, Firebase), giao di?n hi?n d?i nhung dang g?p v?n d? v? kh? nang m? r?ng (scalability) v� qu?n l� tr?ng th�i t?p trung.
 
 ---
 
-### 2. Cải thiện Admin Authorization
-**Mức độ:** 🟠 HIGH (Đang xử lý)
-**Vấn đề:** Hiện tại vẫn còn check hardcoded email trong `App.tsx` (line 137). cần chuyển đổi hoàn toàn sang `profile.role === 'admin'`.
+##  1. T?i Uu H�a Hi?u Nang (Performance)
 
-**Giải pháp:**
-```typescript
-// Option 1: Firestore Custom Claims (Khuyến nghị)
-// 1. Cập nhật Firestore Rules
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read, write: if request.auth.uid == userId;
-      allow read: if request.auth.token.admin == true;
-    }
-    match /books/{bookId} {
-      allow read: if true;
-      allow write: if request.auth.token.admin == true;
-    }
-  }
-}
+### 1.1. Chi?n Lu?c Truy V?n D? Li?u
+*   **V?n d?:** `db.getBooks()` dang t?i TO�N B? collection s�ch v? client. Khi s? lu?ng s�ch tang l�n 1000+, web s? b? treo.
+*   **Gi?i ph�p:** 
+    *   S? d?ng **Firestore Pagination** (startAfter, limit).
+    *   Th�m t�nh nang **Infinite Scroll** ho?c **Ph�n trang th?c t?** thay v� client-side slicing.
+    *   T?i uu `getRelatedBooks` d? ch? fetch c�c field c?n thi?t.
 
-// 2. Tạo collection 'users' trong Firestore với field 'role'
-// 3. Cập nhật App.tsx
-const checkAdminRole = async (uid: string) => {
-  const userDoc = await db.collection('users').doc(uid).get();
-  return userDoc.data()?.role === 'admin';
-};
+### 1.2. State Management & Caching
+*   **V?n d?:** `App.tsx` dang qu?n l� qu� nhi?u state (`cart`, `wishlist`, `allBooks`, `user`).
+*   **Gi?i ph�p:** 
+    *   **Zustand**: T�ch `cart` v� `wishlist` sang `useCartStore` v� `useWishlistStore`. �i?u n�y gi�p code g?n hon v� d? t�i s? d?ng.
+    *   **TanStack Query (React Query)**: Thay th? vi?c th? c�ng fetch d? li?u trong `useEffect`. N� s? t? d?ng caching, x? l� tr?ng th�i loading/error cho to�n b? app.
 
-// Option 2: Admin email whitelist từ Firestore (Đơn giản hơn)
-const adminEmails = await db.getAdminEmails(); // Lưu trong Firestore
-const isAdmin = adminEmails.includes(firebaseUser.email);
-```
-
-**Thời gian ước tính:** 2-3 giờ  
-**Lợi ích:** Flexible admin management, better security, audit trail
+### 1.3. H�nh ?nh & T�i Nguy�n
+*   **Gi?i ph�p:** 
+    *   S? d?ng d?nh d?ng **WebP** cho ?nh b�a s�ch.
+    *   Th�m component `SmartImage` v?i placeholder m�u s?c ho?c blur-up effect.
+    *   T?i uu h�a bundle size b?ng c�ch ki?m tra c�c thu vi?n l?n qua `rollup-plugin-visualizer`.
 
 ---
 
-### 3. Hệ thống Error Handling (Đã hoàn thành)
-**Mức độ:** ✅ COMPLETED
-**Giải pháp đã chạy:** Đã tạo `services/errorHandler.ts` và tích hợp vào toàn bộ các component Admin mới.
+##  2. N�ng C?p Tr?i Nghi?m Ngu?i D�ng (UX)
+
+### 2.1. T�m Ki?m Th�ng Minh (AI & Search)
+*   **Gi?i ph�p:** 
+    *   S? d?ng **Debounce** cho thanh t�m ki?m (hi?n t?i c� v? dang k�ch ho?t search li�n t?c).
+    *   Hi?n th? k?t qu? t�m ki?m nhanh (Quick Suggestions).
+    *   T�ch h?p s�u hon Admin AI d? g?i � s�ch d?a tr�n h�nh vi ngu?i d�ng.
+
+### 2.2. Giao Di?n & Animation
+*   **Gi?i ph�p:** 
+    *   **Framer Motion**: Th�m hi?u ?ng chuy?n trang (Page Transitions) v� micro-interactions khi th�m v�o gi? h�ng.
+    *   **Skeleton Standard**: T?o b? Skeleton th?ng nh?t cho BookCard, Category, Profile.
+    *   **Dark Mode**: Tri?n khai giao di?n t?i ho�n ch?nh.
+
+### 2.3. Quy Tr�nh Thanh To�n (Checkout)
+*   **Gi?i ph�p:** 
+    *   Th�m bu?c x�c nh?n d?a ch? qua b?n d? ho?c g?i � d?a ch? (Google Maps API).
+    *   T�ch h?p da d?ng phuong th?c thanh to�n tr?c tuy?n (Momo, VNPay, Zalopay - gi? l?p ho?c th?t).
 
 ---
 
-### 4. Setup Error Monitoring Service
-**Mức độ:** 🟠 HIGH
-**Công cụ đề xuất:** Sentry (free tier 5K events/month)
+##  3. B?o M?t & Logic H? Th?ng
+
+### 3.1. Ph�n Quy?n (RBAC)
+*   **V?n d?:** Hardcoded check email admin trong code.
+*   **Gi?i ph�p:**
+    *   Ho�n thi?n chuy?n d?i sang `profile.role === 'admin'`.
+    *   Thi?t l?p **Firestore Security Rules** ch?t ch?, ch? cho ph�p admin ghi v�o collection `books` v� `system_logs`.
+
+### 3.2. Error Handling & Monitoring
+*   **Gi?i ph�p:**
+    *   T�ch h?p **Sentry** d? theo d�i l?i real-time t? ph�a ngu?i d�ng.
+    *   Ho�n thi?n `ErrorHandler` d? ghi log chi ti?t m?i thao t�c nh?y c?m c?a Admin.
 
 ---
 
-## ⚡ PHASE 2 - CẢI THIỆN HIỆU NĂNG
+##  L? Tr�nh Th?c Hi?n (TODO List)
 
-### 5. Code Splitting & Lazy Loading
-**Mức độ:** 🟡 MEDIUM
-**Vấn đề:** Tất cả pages được import trực tiếp, bundle size lớn
-
----
-
-### 6. Refactor AdminDashboard Component (Đã hoàn thành)
-**Mức độ:** ✅ COMPLETED
-**Trạng thái:** Tệp `AdminDashboard.tsx` đã được tách thành 8 component nhỏ trong thư mục `src/components/admin/`.
-
-### 7. State Management Upgrade
-**Mức độ:** 🟡 MEDIUM  
-**Vấn đề:** 38+ useState trong một component, khó maintain
-
-**Giải pháp:**
-
-**Option 1: useReducer (Không cần thêm dependencies)**
-```typescript
-type AdminState = {
-  books: Book[];
-  orders: Order[];
-  categories: CategoryInfo[];
-  authors: Author[];
-  logs: SystemLog[];
-  searchQuery: string;
-  filterStock: 'all' | 'low' | 'out';
-  // ... other states
-};
-
-type AdminAction = 
-  | { type: 'SET_BOOKS'; payload: Book[] }
-  | { type: 'SET_SEARCH'; payload: string }
-  | { type: 'SET_FILTER'; payload: 'all' | 'low' | 'out' };
-
-const adminReducer = (state: AdminState, action: AdminAction): AdminState => {
-  switch (action.type) {
-    case 'SET_BOOKS':
-      return { ...state, books: action.payload };
-    case 'SET_SEARCH':
-      return { ...state, searchQuery: action.payload };
-    // ... other cases
-    default:
-      return state;
-  }
-};
-
-// Usage
-const [state, dispatch] = useReducer(adminReducer, initialState);
-```
-
-**Option 2: Zustand (Lightweight, 1KB)**
-```bash
-npm install zustand
-
-# store/adminStore.ts
-import { create } from 'zustand';
-
-export const useAdminStore = create((set) => ({
-  books: [],
-  orders: [],
-  setBooks: (books) => set({ books }),
-  setOrders: (orders) => set({ orders }),
-  refreshData: async () => {
-    const data = await db.getBooks();
-    set({ books: data });
-  }
-}));
-
-# Usage in component
-const { books, setBooks } = useAdminStore();
-```
-
-**Thời gian ước tính:** 3-4 giờ (useReducer) hoặc 2 giờ (Zustand)  
-**Lợi ích:** Centralized state, easier debugging, better performance
+1.  [ ] **Tu?n 1: C?u tr�c & State**
+    *   C�i d?t `zustand` v� `@tanstack/react-query`.
+    *   Refactor `App.tsx`: T�ch logic auth, cart, wishlist sang hooks/stores.
+2.  [ ] **Tu?n 2: Database & Pagination**
+    *   C?p nh?t `services/db.ts` h? tr? ph�n trang.
+    *   C?p nh?t `CategoryPage` v� `HomePage` d? s? d?ng Query hooks.
+3.  [ ] **Tu?n 3: UX/UI & AI**
+    *   Th�m Framer Motion cho c�c tuong t�c ch�nh.
+    *   C?i thi?n c�ng c? t�m ki?m v?i debounce v� g?i �.
+4.  [ ] **Tu?n 4: Testing & Security**
+    *   Vi?t unit test cho logic gi? h�ng v� thanh to�n.
+    *   C?u h�nh Security Rules tr�n Firebase Console.
 
 ---
-
-### 8. Add Unit Testing
-**Mức độ:** 🟡 MEDIUM  
-**Công cụ:** Vitest + Testing Library
-
-**Setup:**
-```bash
-npm install -D vitest @testing-library/react @testing-library/jest-dom jsdom
-
-# vite.config.ts
-export default defineConfig({
-  plugins: [react()],
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/test/setup.ts'
-  }
-});
-
-# package.json
-{
-  "scripts": {
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "coverage": "vitest --coverage"
-  }
-}
-```
-
-**Ví dụ test:**
-```typescript
-// components/__tests__/BookCard.test.tsx
-import { render, screen, fireEvent } from '@testing-library/react';
-import { BookCard } from '../BookCard';
-
-describe('BookCard', () => {
-  it('renders book information correctly', () => {
-    const book = {
-      id: '1',
-      title: 'Test Book',
-      author: 'Test Author',
-      price: 100000
-    };
-    
-    render(<BookCard book={book} />);
-    
-    expect(screen.getByText('Test Book')).toBeInTheDocument();
-    expect(screen.getByText('Test Author')).toBeInTheDocument();
-  });
-  
-  it('calls addToCart when button clicked', () => {
-    const mockAddToCart = jest.fn();
-    render(<BookCard book={mockBook} onAddToCart={mockAddToCart} />);
-    
-    fireEvent.click(screen.getByText('Thêm vào giỏ'));
-    expect(mockAddToCart).toHaveBeenCalledWith(mockBook);
-  });
-});
-```
-
-**Coverage targets:**
-- Utils functions: 90%
-- Components: 70%
-- Services: 80%
-
-**Thời gian ước tính:** 1 tuần  
-**Lợi ích:** Catch bugs early, refactor confidence, documentation
-
----
-
-## 🎨 PHASE 3 - ENHANCEMENTS (3-4 tuần) - TÍNH NĂNG BỔ SUNG
-
-### 9. React Query Integration
-**Mức độ:** 🟢 NICE TO HAVE  
-**Lợi ích:** Automatic caching, background refetching, optimistic updates
-
-**Setup:**
-```bash
-npm install @tanstack/react-query
-
-# App.tsx
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      cacheTime: 10 * 60 * 1000, // 10 minutes
-      refetchOnWindowFocus: false
-    }
-  }
-});
-
-<QueryClientProvider client={queryClient}>
-  <App />
-</QueryClientProvider>
-```
-
-**Usage:**
-```typescript
-// hooks/useBooks.ts
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
-export const useBooks = () => {
-  return useQuery({
-    queryKey: ['books'],
-    queryFn: () => db.getBooks(),
-    staleTime: 5 * 60 * 1000
-  });
-};
-
-export const useUpdateBook = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (book: Book) => db.saveBook(book),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['books'] });
-    }
-  });
-};
-
-// Component
-const { data: books, isLoading, error } = useBooks();
-const updateBook = useUpdateBook();
-```
-
-**Thời gian ước tính:** 2-3 ngày  
-**Lợi ích:** Less boilerplate, automatic caching, loading states, error handling
-
----
-
-### 10. SEO Optimization
-**Mức độ:** 🟢 NICE TO HAVE  
-**Vấn đề:** SPA không có server-side rendering, SEO kém
-
-**Giải pháp:**
-```bash
-npm install react-helmet-async
-
-# App.tsx wrapper
-import { HelmetProvider } from 'react-helmet-async';
-
-<HelmetProvider>
-  <App />
-</HelmetProvider>
-
-# pages/HomePage.tsx
-import { Helmet } from 'react-helmet-async';
-
-<Helmet>
-  <title>DigiBook - Nhà Sách Trực Tuyến Uy Tín</title>
-  <meta name="description" content="Mua sách online giá rẻ, giao hàng nhanh. Hơn 10,000 đầu sách đa dạng thể loại." />
-  <meta property="og:title" content="DigiBook - Nhà Sách Trực Tuyến" />
-  <meta property="og:image" content="/og-image.jpg" />
-  <link rel="canonical" href="https://digibook.vn/" />
-</Helmet>
-
-# pages/BookDetails.tsx
-<Helmet>
-  <title>{book.title} - {book.author} | DigiBook</title>
-  <meta name="description" content={book.description.slice(0, 160)} />
-  <meta property="og:type" content="book" />
-  <meta property="og:title" content={book.title} />
-  <meta property="og:image" content={book.cover} />
-  <meta property="book:author" content={book.author} />
-  <meta property="book:isbn" content={book.isbn} />
-</Helmet>
-```
-
-**Thời gian ước tính:** 1 ngày  
-**Lợi ích:** Better Google ranking, social media sharing
-
----
-
-### 11. Accessibility Improvements
-**Mức độ:** 🟢 NICE TO HAVE  
-**Checklist:**
-
-```typescript
-// 1. Keyboard Navigation
-<button
-  onClick={handleClick}
-  onKeyPress={(e) => e.key === 'Enter' && handleClick()}
-  tabIndex={0}
->
-
-// 2. ARIA Labels
-<button aria-label="Thêm vào giỏ hàng">
-  <i className="fa-solid fa-cart-plus"></i>
-</button>
-
-<div role="alert" aria-live="polite">
-  {successMessage}
-</div>
-
-// 3. Focus Management
-const modalRef = useRef<HTMLDivElement>(null);
-
-useEffect(() => {
-  if (isOpen) {
-    modalRef.current?.focus();
-  }
-}, [isOpen]);
-
-// 4. Color Contrast (WCAG AA)
-// Đảm bảo tỷ lệ tương phản text/background >= 4.5:1
-// Tools: https://webaim.org/resources/contrastchecker/
-
-// 5. Screen Reader Support
-<img src={book.cover} alt={`Bìa sách ${book.title} của tác giả ${book.author}`} />
-```
-
-**Testing tools:**
-- axe DevTools (Chrome extension)
-- Lighthouse Accessibility audit
-- NVDA/JAWS screen readers
-
-**Thời gian ước tính:** 3-4 ngày  
-**Lợi ích:** Inclusive design, legal compliance, SEO benefits
-
----
-
-### 12. Performance Optimization
-**Mức độ:** 🟢 NICE TO HAVE  
-
-**Danh sách tối ưu:**
-
-1. **Image Optimization**
-```typescript
-// Dùng next/image hoặc tự implement lazy loading
-<img 
-  src={book.cover} 
-  loading="lazy"
-  decoding="async"
-  alt={book.title}
-/>
-
-// Hoặc dùng Intersection Observer
-const [isVisible, setIsVisible] = useState(false);
-const imgRef = useRef<HTMLImageElement>(null);
-
-useEffect(() => {
-  const observer = new IntersectionObserver(([entry]) => {
-    if (entry.isIntersecting) {
-      setIsVisible(true);
-      observer.disconnect();
-    }
-  });
-  
-  if (imgRef.current) {
-    observer.observe(imgRef.current);
-  }
-  
-  return () => observer.disconnect();
-}, []);
-```
-
-2. **Memo & useMemo**
-```typescript
-// AdminDashboard.tsx - wrap expensive computations
-const stats = useMemo(() => {
-  // ... calculations
-}, [orders, books]);
-
-// Wrap components that don't need re-render
-const BookCard = React.memo(({ book, onAddToCart }) => {
-  // ...
-});
-```
-
-3. **Virtual Scrolling** (for long lists)
-```bash
-npm install react-window
-
-import { FixedSizeList } from 'react-window';
-
-<FixedSizeList
-  height={600}
-  itemCount={books.length}
-  itemSize={100}
-  width="100%"
->
-  {({ index, style }) => (
-    <div style={style}>
-      <BookCard book={books[index]} />
-    </div>
-  )}
-</FixedSizeList>
-```
-
-4. **Bundle Size Analysis**
-```bash
-npm install -D rollup-plugin-visualizer
-
-# vite.config.ts
-import { visualizer } from 'rollup-plugin-visualizer';
-
-export default defineConfig({
-  plugins: [
-    react(),
-    visualizer({ open: true })
-  ]
-});
-
-npm run build # Sẽ tạo stats.html
-```
-
-**Targets:**
-- First Contentful Paint: < 1.5s
-- Time to Interactive: < 3.5s
-- Bundle size: < 200KB (gzipped)
-
-**Thời gian ước tính:** 1 tuần  
-**Lợi ích:** Better UX, lower bounce rate, SEO boost
-
----
-
-### 13. Caching Strategy
-**Mức độ:** 🟢 NICE TO HAVE  
-
-**Service Worker với Workbox:**
-```bash
-npm install -D workbox-webpack-plugin
-
-# vite.config.ts
-import { VitePWA } from 'vite-plugin-pwa';
-
-export default defineConfig({
-  plugins: [
-    VitePWA({
-      registerType: 'autoUpdate',
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/firebasestorage\.googleapis\.com/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'firebase-images',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-              }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/firestore\.googleapis\.com/,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'firestore-data',
-              expiration: {
-                maxAgeSeconds: 60 * 5 // 5 minutes
-              }
-            }
-          }
-        ]
-      }
-    })
-  ]
-});
-```
-
-**LocalStorage caching cho static data:**
-```typescript
-// utils/cache.ts
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-
-export const getCachedData = <T>(key: string): T | null => {
-  const cached = localStorage.getItem(key);
-  if (!cached) return null;
-  
-  const { data, timestamp } = JSON.parse(cached);
-  if (Date.now() - timestamp > CACHE_DURATION) {
-    localStorage.removeItem(key);
-    return null;
-  }
-  
-  return data;
-};
-
-export const setCachedData = <T>(key: string, data: T) => {
-  localStorage.setItem(key, JSON.stringify({
-    data,
-    timestamp: Date.now()
-  }));
-};
-
-// Usage in db.ts
-async getBooks(): Promise<Book[]> {
-  const cached = getCachedData<Book[]>('books');
-  if (cached) return cached;
-  
-  const books = await this.fetchBooks();
-  setCachedData('books', books);
-  return books;
-}
-```
-
-**Thời gian ước tính:** 2-3 ngày  
-**Lợi ích:** Offline support, faster load times, reduced API calls
-
----
-
-## 📋 Checklist Tổng Hợp
-
-### Security
-- [x] Move Firebase credentials to .env
-- [ ] Implement proper admin role system
-- [ ] Add Firestore security rules
-- [ ] Setup HTTPS (Railway auto-provides)
-- [ ] Add rate limiting for API calls
-- [ ] Implement CSRF protection
-
-### Performance
-- [ ] Code splitting với React.lazy()
-- [ ] Image lazy loading
-- [ ] Virtual scrolling for long lists
-- [ ] Memoize expensive calculations
-- [ ] Bundle size optimization
-- [ ] Service Worker caching
-
-### Code Quality
-- [x] Refactor AdminDashboard (1393 lines → modules)
-- [ ] Replace 38+ useState với useReducer/Zustand
-- [ ] Remove magic numbers (extract constants)
-- [ ] Add TypeScript strict mode
-- [ ] Remove duplicate code patterns
-- [ ] Add JSDoc comments
-
-### Testing
-- [ ] Setup Vitest + Testing Library
-- [ ] Unit tests for utils (90% coverage)
-- [ ] Component tests (70% coverage)
-- [ ] Service tests (80% coverage)
-- [ ] E2E tests với Playwright (optional)
-
-### DevOps
-- [ ] Setup Sentry error monitoring
-- [ ] Add Google Analytics / Plausible
-- [ ] CI/CD pipeline (GitHub Actions)
-- [ ] Automated testing on PR
-- [ ] Lighthouse CI checks
-- [ ] Automated deployment to Railway
-
-### UX/UI
-- [ ] Add loading skeletons
-- [ ] Toast notifications (react-hot-toast)
-- [ ] Better error messages
-- [ ] Accessibility improvements
-- [ ] Mobile responsiveness review
-- [ ] Add empty states illustrations
-
-### SEO
-- [ ] react-helmet-async meta tags
-- [ ] sitemap.xml generation
-- [ ] robots.txt configuration
-- [ ] Open Graph tags
-- [ ] Schema.org structured data
-- [ ] Canonical URLs
-
----
-
-## 🎯 Roadmap Timeline
-
-```
-Week 1-2 (CRITICAL)
-├── Day 1-2: Security fixes (Firebase .env, admin roles)
-├── Day 3-4: Error handling system + Sentry setup
-└── Day 5-10: Testing setup + initial tests
-
-Week 3-4 (IMPORTANT)
-├── Day 11-12: Code splitting implementation
-├── Day 13-17: AdminDashboard refactoring
-└── Day 18-20: State management upgrade
-
-Week 5-8 (ENHANCEMENTS)
-├── Week 5: React Query integration
-├── Week 6: SEO & Accessibility
-├── Week 7: Performance optimization
-└── Week 8: Caching & PWA features
-```
-
----
-
-## 💰 Chi Phí Dự Kiến
-
-### Công cụ miễn phí
-- Sentry: Free tier (5K events/month) ✅
-- Vercel/Railway: Free tier ✅
-- Firebase: Spark plan (free) ✅
-- Google Analytics: Free ✅
-
-### Chi phí dev time (nếu outsource)
-- Phase 1 (Critical): 40-60 giờ × 300K = 12-18 triệu VNĐ
-- Phase 2 (Important): 60-80 giờ × 300K = 18-24 triệu VNĐ
-- Phase 3 (Enhancements): 80-100 giờ × 300K = 24-30 triệu VNĐ
-
-**Tổng: 54-72 triệu VNĐ** (nếu thuê dev)  
-**Tự làm: 0đ + thời gian**
-
----
-
-## 📚 Tài Liệu Tham Khảo
-
-### Security
-- [Firebase Security Best Practices](https://firebase.google.com/docs/rules)
-- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
-
-### Performance
-- [Web Vitals](https://web.dev/vitals/)
-- [React Performance Optimization](https://react.dev/learn/render-and-commit)
-
-### Testing
-- [Vitest Documentation](https://vitest.dev/)
-- [Testing Library Best Practices](https://testing-library.com/docs/queries/about)
-
-### Accessibility
-- [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
-- [A11y Project Checklist](https://www.a11yproject.com/checklist/)
-
----
-
-## ✅ Tiếp Theo
-
-**Hành động ngay:**
-1. **Critical security fix** - Move Firebase credentials (30 phút)
-2. **Admin role system** - Implement proper authorization (2-3 giờ)
-3. **Error monitoring** - Setup Sentry (2 giờ)
-
-**Câu hỏi cho bạn:**
-- Bạn muốn bắt đầu với item nào trước?
-- Có timeline cụ thể cho việc deploy production không?
-- Budget cho dev time là bao nhiêu? (tự làm hay thuê?)
-
----
-
-## ✅ CẬP NHẬT TIẾN ĐỘ (16/01/2026)
-
-### 1. Tối ưu hóa AdminDashboard 🚀 (HOÀN THÀNH)
-**Mô tả:** Đã tiến hành tái cấu trúc toàn diện trang quản trị monolithic từ ~2000 dòng code xuống còn ~200 dòng.
-**Các thay đổi:**
-- Tách file monolithic `AdminDashboard.tsx` thành các component nhỏ, tái sử dụng được trong `src/components/admin/`.
-- [x] `AdminBooks`: Quản lý kho sách.
-- [x] `AdminOrders`: Quản lý đơn hàng.
-- [x] `AdminAuthors`: Quản lý tác giả.
-- [x] `AdminCategories`: Quản lý danh mục.
-- [x] `AdminCoupons`: Quản lý mã giảm giá.
-- [x] `AdminUsers`: Quản lý tài khoản người dùng & phân quyền.
-- [x] `AdminAI`: Cấu hình model và tham số AI.
-- [x] `AdminLogs`: Hệ thống nhật ký hoạt động.
-- Di chuyển các hằng số dùng chung (ví dụ: `AVAILABLE_ICONS`) vào `src/constants/categories.ts`.
-- Tối ưu hóa State Management: Các component tự quản lý state modal và xử lý dữ liệu riêng, đồng bộ với Parent qua callback `refreshData`.
-
-**Kết quả:**
-- Code sạch hơn, dễ bảo trì, dễ mở rộng thêm tính năng mới cho từng tab mà không ảnh hưởng toàn cục.
-- Giảm thiểu rủi ro xung đột code (merge conflicts) khi có nhiều dev làm việc cùng lúc.
-
----
-
-*Tài liệu này sẽ được cập nhật khi có thêm phát hiện hoặc yêu cầu mới.*
+*B?n k? ho?ch n�y du?c so?n th?o b?i GitHub Copilot nh?m t?i uu h�a DigiBook th�nh m?t n?n t?ng thuong m?i di?n t? chuy�n nghi?p.*

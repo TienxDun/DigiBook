@@ -5,7 +5,7 @@
 @layer base {
   body {
     @apply bg-slate-50 text-slate-900 overflow-x-hidden;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Be Vietnam Pro', 'Inter', sans-serif;
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
     text-rendering: optimizeLegibility;

@@ -133,7 +133,7 @@ const App: React.FC = () => {
         await signOut(auth);
         setUser(null);
         toast.error('Tài khoản của bạn đã bị khóa bởi quản trị viên.', { id: 'auth-banned' });
-        db.logActivity('AUTH_BANNED_BLOCK', `User ${firebaseUser.email} tried to login but is banned`, 'WARNING');
+        db.logActivity('AUTH_BANNED_BLOCK', `User ${firebaseUser.email} tried to login but is banned`, 'ERROR');
         return false;
       }
       
@@ -143,7 +143,7 @@ const App: React.FC = () => {
         name: forceName || profile?.name || firebaseUser.displayName || "Độc giả",
         email: firebaseUser.email || profile?.email || "",
         avatar: profile?.avatar || firebaseUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(forceName || firebaseUser.displayName || 'U')}&background=4f46e5&color=fff`,
-        isAdmin: (profile?.role === 'admin') || (firebaseUser.email === 'admin@gmail.com')
+        isAdmin: profile?.role === 'admin'
       };
       
       setUser(userData);
