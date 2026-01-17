@@ -12,7 +12,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Be Vietnam Pro', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['Lexend', 'system-ui', 'sans-serif'],
+        display: ['Bricolage Grotesque', 'sans-serif'],
       },
       fontSize: {
         'micro': '10px',
@@ -24,5 +25,7 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/container-queries'),
+  ],
 }

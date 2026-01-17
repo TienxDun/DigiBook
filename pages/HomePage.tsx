@@ -1,8 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Book, CategoryInfo, CartItem } from '../types';
 import { db } from '../services/db';
+import { useAuth } from '../AuthContext';
 import BookCard from '../components/BookCard';
 import { BookCardSkeleton } from '../components/Skeleton';
 
@@ -13,6 +15,32 @@ interface HomePageProps {
 }
 
 const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }) => {
+  const { user, wishlist } = useAuth();
+  const [aiRecs, setAiRecs] = useState<string>('');
+  const [isAiLoading, setIsAiLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchAiRecs = async () => {
+      if (!allBooks.length || aiRecs) return;
+      
+      setIsAiLoading(true);
+      try {
+        const prompt = user 
+          ? `Người dùng ${user.name} thích các sách: ${wishlist.map(b => b.title).join(', ')}. Hãy gợi ý 3 chủ đề sách họ nên đọc tiếp theo bằng tiếng Việt, ngắn gọn trong 1 câu.`
+          : `Gợi ý 3 chủ đề sách đang là xu hướng năm 2026 cho độc giả mới tại DigiBook, bằng tiếng Việt, ngắn gọn trong 1 câu.`;
+        
+        const response = await db.getAIInsights(allBooks[0], prompt);
+        setAiRecs(response);
+      } catch (err) {
+        console.error("AI Recs error:", err);
+      } finally {
+        setIsAiLoading(false);
+      }
+    };
+
+    fetchAiRecs();
+  }, [user, wishlist, allBooks, aiRecs]);
+
   return (
     <div className="space-y-0">
       {/* Hero Section */}
@@ -171,6 +199,102 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }
                 Xem tất cả danh mục <i className="fa-solid fa-arrow-right-long group-hover:translate-x-2 transition-transform"></i>
               </span>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Bento Spotlight Section */}
+      <section className="py-12 bg-white">
+        <div className="w-[92%] xl:w-[60%] mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-4 h-auto md:h-[600px]">
+            {/* Main Featured Book (Large) */}
+            <div className="md:col-span-2 md:row-span-2 bg-slate-900 rounded-[2.5rem] p-8 lg:p-12 text-white relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_30%,rgba(99,102,241,0.15),transparent)]"></div>
+              <div className="relative z-10 h-full flex flex-col justify-between">
+                <div>
+                  <span className="px-3 py-1 bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-premium rounded-full mb-6 inline-block">Bán chạy nhất</span>
+                  <h3 className="text-3xl lg:text-5xl font-display font-extrabold mb-4 leading-tight">Khám phá tri thức <br/>thế hệ mới.</h3>
+                  <p className="text-slate-400 text-sm max-w-xs font-medium leading-relaxed">Bộ sưu tập những cuốn sách thay đổi tư duy xuất sắc nhất năm 2026.</p>
+                </div>
+                <Link to="/category/Kỹ năng" className="w-fit px-6 py-3 bg-white text-slate-900 rounded-xl font-bold text-micro uppercase tracking-premium hover:bg-indigo-500 hover:text-white transition-all">Xem bộ sưu tập</Link>
+              </div>
+              <img 
+                src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop" 
+                className="absolute -right-20 -bottom-20 w-80 h-auto rotate-12 group-hover:rotate-6 group-hover:scale-110 transition-all duration-700 opacity-40 lg:opacity-100" 
+                alt="" 
+              />
+            </div>
+
+            {/* AI Personalization (Bento Small) */}
+            <div className="md:col-span-2 bg-indigo-50 rounded-[2.5rem] p-8 relative overflow-hidden group">
+              <div className="relative z-10 flex flex-col h-full">
+                <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white mb-4 shadow-lg shadow-indigo-100 italic font-display text-xl">AI</div>
+                <h4 className="text-xl font-display font-extrabold text-slate-900 mb-2">Gợi ý dành riêng cho {user ? user.name.split(' ')[0] : 'bạn'}</h4>
+                
+                <div className="flex-grow flex items-center">
+                  <AnimatePresence mode="wait">
+                    {isAiLoading ? (
+                      <motion.div 
+                        key="loading"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex items-center gap-3 py-4"
+                      >
+                        <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                        <p className="text-[11px] font-bold text-indigo-400 uppercase tracking-premium">Đang phân tích sở thích...</p>
+                      </motion.div>
+                    ) : aiRecs ? (
+                      <motion.div
+                        key="recs"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="py-2"
+                      >
+                        <div className="relative p-4 bg-white/80 backdrop-blur-md rounded-2xl border border-indigo-100 shadow-sm">
+                          <i className="fa-solid fa-quote-left absolute -top-2 -left-2 text-indigo-200 text-xl"></i>
+                          <p className="text-sm font-medium text-slate-700 leading-relaxed italic line-clamp-2">"{aiRecs}"</p>
+                        </div>
+                      </motion.div>
+                    ) : (
+                      <p className="text-slate-500 text-xs font-medium max-w-[240px]">Dựa trên sở thích đọc sách của bạn để tìm ra cuốn sách tiếp theo.</p>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="flex -space-x-2">
+                    {allBooks.slice(0, 3).map((b, i) => (
+                      <img key={i} src={b.cover} className="w-8 h-12 object-cover rounded shadow-md border border-white" />
+                    ))}
+                    <div className="w-8 h-12 bg-white rounded flex items-center justify-center text-[10px] font-bold text-indigo-600 shadow-md border border-white">+{allBooks.length > 5 ? '5' : '2'}</div>
+                  </div>
+                  <Link to="/wishlist" className="text-micro font-bold text-indigo-600 uppercase tracking-premium hover:underline">
+                    Xem Wishlist <i className="fa-solid fa-arrow-right ml-1"></i>
+                  </Link>
+                </div>
+              </div>
+              <div className="absolute right-0 bottom-0 w-32 h-32 bg-indigo-200/20 blur-3xl rounded-full"></div>
+            </div>
+
+            {/* Category Spotlight (Bento Small) */}
+            <div className="md:col-span-1 bg-amber-50 rounded-[2.5rem] p-8 relative overflow-hidden group cursor-pointer">
+              <div className="relative z-10 flex flex-col items-center text-center">
+                <div className="w-12 h-12 bg-amber-400 text-white rounded-full flex items-center justify-center mb-4">
+                  <i className="fa-solid fa-briefcase text-xl"></i>
+                </div>
+                <h4 className="text-md font-display font-extrabold text-slate-900">Kinh doanh</h4>
+                <p className="text-amber-600/60 text-[10px] font-extrabold uppercase mt-1 tracking-premium">120+ Tựa sách</p>
+              </div>
+            </div>
+
+            {/* Coupon (Bento Small) */}
+            <div className="md:col-span-1 bg-rose-50 rounded-[2.5rem] p-8 relative overflow-hidden group flex flex-col justify-center items-center text-center">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(244,63,94,0.1),transparent)]"></div>
+              <span className="text-micro font-bold text-rose-500 uppercase tracking-ultra mb-2">Mã giảm giá</span>
+              <div className="text-2xl font-display font-black text-slate-900 border-2 border-dashed border-rose-200 px-4 py-2 rounded-xl bg-white group-hover:scale-110 transition-transform">DIGI26</div>
+              <p className="text-slate-400 text-[9px] font-bold uppercase mt-4">Giảm 15% tất cả đơn hàng</p>
+            </div>
           </div>
         </div>
       </section>

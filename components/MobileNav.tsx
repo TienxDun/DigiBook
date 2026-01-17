@@ -20,7 +20,7 @@ const MobileNav: React.FC<{ cartCount: number; onOpenCart: () => void; onRefresh
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-2xl border-t border-slate-100 z-[100] lg:hidden safe-bottom shadow-[0_-15px_50px_-15px_rgba(0,0,0,0.12)]">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white/70 backdrop-blur-3xl border-t border-white/20 z-[100] lg:hidden safe-bottom shadow-[0_-15px_50px_-15px_rgba(0,0,0,0.12)]">
       <div className="flex justify-around items-center h-20 px-4">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;

@@ -35,7 +35,6 @@ import {
   Order 
 } from '../types';
 import { INITIAL_CATEGORIES } from '../constants/categories';
-import { AVAILABLE_AI_MODELS } from '../constants/ai-models';
 
 class DataService {
   private connectionTested = false;
@@ -643,83 +642,113 @@ class DataService {
     );
   }
 
-  async getAIInsight(bookTitle: string, author: string, description: string): Promise<string> {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) {
-      return "Tính năng AI đang tạm thời chưa khả dụng do thiếu cấu hình API Key. Vui lòng liên hệ quản trị viên.";
-    }
+  // --- AI & EXTERNAL SERVICES ---
+
+  private async callAIService(prompt: string, actionName: string): Promise<string> {
+    const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    const groqKey = import.meta.env.VITE_GROQ_API_KEY;
+    const openRouterKey = import.meta.env.VITE_OPENROUTER_API_KEY;
 
     try {
       const config = await this.getAIConfig();
-      const modelId = config.activeModelId || 'gemini-3-flash';
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
-      const prompt = `Bạn là một chuyên gia phê bình sách kỳ cựu tại DigiBook. Hãy viết một đoạn tóm tắt ngắn gọn (khoảng 100-150 chữ) mang tính khơi gợi và phân tích giá trị cốt lõi của cuốn sách sau bằng tiếng Việt.
-      Tên sách: ${bookTitle}
-      Tác giả: ${author}
-      Mô tả cơ bản: ${description}
-      
-      Yêu cầu:
-      - Ngôn ngữ chuyên nghiệp, sang trọng, cuốn hút.
-      - Nêu bật tại sao độc giả nên đọc cuốn sách này.
-      - Không lặp lại nguyên văn mô tả cơ bản.
-      - Bắt đầu đoạn bằng một câu khẳng định mạnh mẽ về cuốn sách.`;
+      const modelId = config.activeModelId;
 
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        })
-      });
+      // XÁC ĐỊNH PROVIDER DỰA TRÊN MODEL ID
+      
+      // 1. OPENROUTER (Nếu model ID có chứa '/' - định dạng chuẩn của OpenRouter)
+      if (openRouterKey && modelId.includes('/')) {
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openRouterKey}`,
+            'HTTP-Referer': window.location.origin,
+            'X-Title': 'DigiBook App',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: modelId,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+        const data = await response.json();
+        const text = data.choices?.[0]?.message?.content;
+        if (text) {
+          this.logActivity(actionName, `Generated using OpenRouter (${modelId})`);
+          return text.trim();
+        }
+      }
 
-      const data = await response.json();
-      const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      
-      if (!textOutput) throw new Error("AI không trả về kết quả.");
-      
-      // Log việc sử dụng API
-      this.logActivity('AI_INSIGHT', `Generated insight for "${bookTitle}" using ${modelId}`);
-      
-      return textOutput.trim();
+      // 2. GROQ (Nếu model ID chứa 'llama', 'mixtral' hoặc 'gemma' và không thuộc OpenRouter)
+      if (groqKey && (modelId.includes('llama') || modelId.includes('mixtral') || modelId.includes('gemma')) && !modelId.includes('/')) {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${groqKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: modelId,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+        const data = await response.json();
+        const text = data.choices?.[0]?.message?.content;
+        if (text) {
+          this.logActivity(actionName, `Generated using Groq (${modelId})`);
+          return text.trim();
+        }
+      }
+
+      // 3. GEMINI (Mặc định cho các model gemini-* hoặc fallback cuối)
+      if (geminiKey) {
+        // Fallback model nếu modelId không hợp lệ cho Gemini trực tiếp
+        const geminiModel = modelId.startsWith('gemini-') ? modelId : 'gemini-2.5-flash-lite';
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiKey}`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }]
+          })
+        });
+
+        const data = await response.json();
+        const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        
+        if (textOutput) {
+          this.logActivity(actionName, `Generated using Gemini (${geminiModel})`);
+          return textOutput.trim();
+        }
+      }
+
+      throw new Error("Không có API Key khả dụng cho Model đã chọn.");
     } catch (error: any) {
-      console.error("Gemini AI Error:", error);
-      this.logActivity('AI_INSIGHT_ERROR', `Failed for "${bookTitle}": ${error.message}`, 'ERROR');
+      console.error("AI Service Error:", error);
+      this.logActivity(`${actionName}_ERROR`, error.message, 'ERROR');
       return "AI đang bận một chút, bạn hãy quay lại sau nhé! Lỗi: " + error.message;
     }
   }
 
+  async getAIInsight(bookTitle: string, author: string, description: string): Promise<string> {
+    const prompt = `Bạn là một chuyên gia phê bình sách kỳ cựu tại DigiBook. Hãy viết một đoạn tóm tắt ngắn gọn (khoảng 100-150 chữ) mang tính khơi gợi và phân tích giá trị cốt lõi của cuốn sách sau bằng tiếng Việt.
+    Tên sách: ${bookTitle}
+    Tác giả: ${author}
+    Mô tả cơ bản: ${description}
+    
+    Yêu cầu:
+    - Ngôn ngữ chuyên nghiệp, sang trọng, cuốn hút.
+    - Nêu bật tại sao độc giả nên đọc cuốn sách này.
+    - Không lặp lại nguyên văn mô tả cơ bản.
+    - Bắt đầu đoạn bằng một câu khẳng định mạnh mẽ về cuốn sách.`;
+
+    return this.callAIService(prompt, 'AI_INSIGHT');
+  }
+
   async getAuthorAIInsight(authorName: string): Promise<string> {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) return "Thông tin về tác giả đang được cập nhật...";
+    const prompt = `Bạn là một chuyên gia nghiên cứu văn học. Hãy viết một đoạn giới thiệu chuyên sâu và lôi cuốn (khoảng 150-200 chữ) về tác giả "${authorName}". 
+    Hãy nêu bật phong cách sáng tác đặc trưng, những chủ đề chính trong tác phẩm của họ và tầm ảnh hưởng của họ trong giới văn học. Trả lời bằng tiếng Việt, giọng văn trang trọng nhưng giàu cảm xúc.`;
 
-    try {
-      const config = await this.getAIConfig();
-      const modelId = config.activeModelId || 'gemini-3-flash'; // Default to the top model
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
-      const prompt = `Bạn là một chuyên gia nghiên cứu văn học. Hãy viết một đoạn giới thiệu chuyên sâu và lôi cuốn (khoảng 150-200 chữ) về tác giả "${authorName}". 
-      Hãy nêu bật phong cách sáng tác đặc trưng, những chủ đề chính trong tác phẩm của họ và tầm ảnh hưởng của họ trong giới văn học. Trả lời bằng tiếng Việt, giọng văn trang trọng nhưng giàu cảm xúc.`;
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        })
-      });
-
-      const data = await response.json();
-      const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      
-      if (textOutput) {
-        this.logActivity('AI_AUTHOR_INSIGHT', `Generated insight for "${authorName}" using ${modelId}`);
-      }
-
-      return textOutput ? textOutput.trim() : "Thông tin về tác giả đang được cập nhật...";
-    } catch (error: any) {
-      console.error("Author AI Error:", error);
-      this.logActivity('AI_AUTHOR_ERROR', `Failed for "${authorName}": ${error.message}`, 'ERROR');
-      return "Thông tin về tác giả đang được cập nhật...";
-    }
+    return this.callAIService(prompt, 'AI_AUTHOR_INSIGHT');
   }
 
   // AI Configuration Management
@@ -730,10 +759,10 @@ class DataService {
       if (snap.exists()) {
         return snap.data() as { activeModelId: string };
       }
-      return { activeModelId: 'gemini-3-flash' };
+      return { activeModelId: 'gemini-2.5-flash-lite' };
     } catch (error) {
       console.error("Error getting AI config:", error);
-      return { activeModelId: 'gemini-3-flash' };
+      return { activeModelId: 'gemini-2.5-flash-lite' };
     }
   }
 
@@ -748,6 +777,65 @@ class DataService {
       'UPDATE_AI_CONFIG',
       `Switched to model: ${modelId}`
     );
+  }
+
+  // --- AI Models CRUD ---
+  async getAIModels(): Promise<AIModelConfig[]> {
+    const defaultModel: AIModelConfig = { 
+      id: 'gemini-2.5-flash-lite', 
+      name: 'Gemini 2.5 Flash Lite', 
+      category: 'Google Gemini', 
+      rpm: '20', 
+      tpm: '2M', 
+      rpd: '2K' 
+    };
+
+    try {
+      const snap = await getDocs(collection(db_fs, 'ai_models'));
+      const models = snap.docs.map(doc => ({ ...doc.data() } as AIModelConfig));
+      if (models.length === 0) return [defaultModel];
+      return models;
+    } catch (error) {
+      console.error("Error getting AI models:", error);
+      return [defaultModel];
+    }
+  }
+
+  async addAIModel(model: AIModelConfig): Promise<void> {
+    await this.wrap(
+      setDoc(doc(db_fs, 'ai_models', model.id), {
+        ...model,
+        createdAt: serverTimestamp()
+      }),
+      undefined,
+      'ADD_AI_MODEL',
+      `Model: ${model.name} (${model.id})`
+    );
+  }
+
+  async updateAIModelInfo(model: AIModelConfig): Promise<void> {
+    await this.wrap(
+      updateDoc(doc(db_fs, 'ai_models', model.id), {
+        ...model,
+        updatedAt: serverTimestamp()
+      }),
+      undefined,
+      'UPDATE_AI_MODEL',
+      `Model: ${model.id}`
+    );
+  }
+
+  async deleteAIModel(modelId: string): Promise<void> {
+    await this.wrap(
+      deleteDoc(doc(db_fs, 'ai_models', modelId)),
+      undefined,
+      'DELETE_AI_MODEL',
+      `Model: ${modelId}`
+    );
+  }
+
+  async getAIInsights(book: Book | null, customPrompt: string): Promise<string> {
+    return this.callAIService(customPrompt, 'AI_GENERAL_INSIGHT');
   }
 
   // --- User Management ---
@@ -805,6 +893,5 @@ class DataService {
 
 export const db = new DataService();
 
-export { AVAILABLE_AI_MODELS } from '../constants/ai-models';
 export type { Order, OrderItem, Review, SystemLog };
 

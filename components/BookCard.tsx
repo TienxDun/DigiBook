@@ -1,6 +1,7 @@
 
 import React, { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Book } from '../types';
 import { useAuth } from '../AuthContext';
 import { db } from '../services/db';
@@ -46,14 +47,22 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart }) => {
   };
 
   return (
-    <div 
-      className={`relative group flex flex-col h-[320px] bg-white rounded-2xl p-2.5 border border-slate-100/80 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500 w-full ring-1 ring-transparent hover:ring-indigo-100 ${stockQuantity <= 0 ? 'grayscale opacity-60' : ''}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+    <motion.div 
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+      className="@container w-full"
     >
-      {/* Media Container - Reduced Height for Compact Look */}
-      <div className="relative w-full h-[160px] rounded-xl overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 mb-2 border border-slate-50 transition-all duration-500 group-hover:shadow-inner">
-        <div className="absolute inset-0">
+      <div 
+        className={`relative group flex flex-col @[400px]:flex-row h-[320px] @[400px]:h-[200px] bg-white rounded-2xl p-2.5 border border-slate-100 shadow-sm hover:shadow-[12px_12px_0px_0px_rgba(99,102,241,0.08)] hover:-translate-y-1 hover:-translate-x-1 transition-all duration-500 w-full ring-1 ring-transparent hover:ring-indigo-100 ${stockQuantity <= 0 ? 'grayscale opacity-60' : ''}`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {/* Media Container */}
+        <div className="relative w-full @[400px]:w-[140px] h-[160px] @[400px]:h-full rounded-xl overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 mb-2 @[400px]:mb-0 border border-slate-50 transition-all duration-500 group-hover:shadow-inner flex-shrink-0">
+          <div className="absolute inset-0">
           {/* Status Badges - Glassmorphism */}
           <div className="absolute top-2 left-2 z-20 flex flex-col gap-1.5 items-start">
             {stockQuantity <= 0 && (
@@ -101,7 +110,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart }) => {
       </div>
 
       {/* Info Container */}
-      <div className="flex flex-col flex-grow px-1.5">
+      <div className="flex flex-col flex-grow px-1.5 @[400px]:pl-4">
         <div className="flex justify-between items-center mb-2">
           <Link to={`/category/${book.category}`} className="text-micro font-bold text-indigo-500 bg-indigo-50/50 hover:bg-indigo-100 px-2 py-0.5 rounded-full uppercase tracking-premium transition-colors">
             {book.category}
@@ -113,7 +122,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart }) => {
         </div>
 
         <Link to={`/book/${book.id}`} className="block mb-1">
-          <h3 className="font-extrabold text-slate-900 text-sm leading-tight line-clamp-2 h-9 group-hover:text-indigo-600 transition-colors duration-300">
+          <h3 className="font-bold text-slate-800 text-sm leading-tight line-clamp-2 h-9 group-hover:text-indigo-600 transition-colors duration-300 font-display tracking-tight">
             {book.title}
           </h3>
         </Link>
@@ -149,7 +158,8 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart }) => {
         </div>
       </div>
     </div>
-  );
+  </motion.div>
+);
 };
 
 export default BookCard;

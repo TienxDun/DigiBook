@@ -38,8 +38,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, items, onRem
         onClick={onClose}
       />
       
-      <aside className={`fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-[70] transition-transform duration-500 ease-out transform ${isOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col`}>
-        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+      <aside className={`fixed top-0 right-0 h-full w-full max-w-md bg-white/80 backdrop-blur-3xl shadow-2xl z-[70] transition-transform duration-500 ease-out transform ${isOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col border-l border-white/20`}>
+        <div className="p-6 border-b border-white/10 flex items-center justify-between">
           <h2 className="text-xl font-extrabold text-slate-900 uppercase tracking-tight">Giỏ hàng của bạn</h2>
           <button onClick={onClose} className="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500">
             <i className="fa-solid fa-xmark text-lg"></i>
