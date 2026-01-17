@@ -1,84 +1,84 @@
-# K? Ho?ch C?i Thi?n DigiBook (C?p nh?t 17/01/2026)
+﻿# Kế Hoạch Cải Thiện DigiBook (Cập nhật 17/01/2026)
 
-##  T?ng Quan Hi?n T?i
-**�i?m d�nh gi�:** 7.5/10  
-**T�nh tr?ng:** D? �n d� c� khung ch?c nang t?t (React 19, Vite, Firebase), giao di?n hi?n d?i nhung dang g?p v?n d? v? kh? nang m? r?ng (scalability) v� qu?n l� tr?ng th�i t?p trung.
+## Tổng Quan Hiện Tại
+**Điểm đánh giá:** 7.5/10  
+**Tình trạng:** Dự án đã có khung chức năng tốt (React 19, Vite, Firebase), giao diện hiện đại nhưng đang gặp vấn đề về khả năng mở rộng (scalability) và quản lý trạng thái tập trung.
 
 ---
 
-##  1. T?i Uu H�a Hi?u Nang (Performance)
+## 1. Tối Ưu Hóa Hiệu Năng (Performance)
 
-### 1.1. Chi?n Lu?c Truy V?n D? Li?u
-*   **V?n d?:** `db.getBooks()` dang t?i TO�N B? collection s�ch v? client. Khi s? lu?ng s�ch tang l�n 1000+, web s? b? treo.
-*   **Gi?i ph�p:** 
-    *   S? d?ng **Firestore Pagination** (startAfter, limit).
-    *   Th�m t�nh nang **Infinite Scroll** ho?c **Ph�n trang th?c t?** thay v� client-side slicing.
-    *   T?i uu `getRelatedBooks` d? ch? fetch c�c field c?n thi?t.
+### 1.1. Chiến Lược Truy Vấn Dữ Liệu
+*   **Vấn đề:** db.getBooks() đang tải TOÀN BỘ collection sách về client. Khi số lượng sách tăng lên 1000+, web sẽ bị treo.
+*   **Giải pháp:** 
+    *   Sử dụng Firestore Pagination (startAfter, limit).
+    *   Thêm tính năng Infinite Scroll hoặc Phân trang thực tế thay vì client-side slicing.
+    *   Tối ưu getRelatedBooks để chỉ fetch các field cần thiết.
 
 ### 1.2. State Management & Caching
-*   **V?n d?:** `App.tsx` dang qu?n l� qu� nhi?u state (`cart`, `wishlist`, `allBooks`, `user`).
-*   **Gi?i ph�p:** 
-    *   **Zustand**: T�ch `cart` v� `wishlist` sang `useCartStore` v� `useWishlistStore`. �i?u n�y gi�p code g?n hon v� d? t�i s? d?ng.
-    *   **TanStack Query (React Query)**: Thay th? vi?c th? c�ng fetch d? li?u trong `useEffect`. N� s? t? d?ng caching, x? l� tr?ng th�i loading/error cho to�n b? app.
+*   **Vấn đề:** App.tsx đang quản lý quá nhiều state (cart, wishlist, allBooks, user).
+*   **Giải pháp:** 
+    *   Zustand: Tách cart và wishlist sang useCartStore và useWishlistStore. Điều này giúp code gọn hơn và dễ tái sử dụng.
+    *   TanStack Query (React Query): Thay thế việc thủ công fetch dữ liệu trong useEffect. Nó sẽ tự động caching, xử lý trạng thái loading/error cho toàn bộ app.
 
-### 1.3. H�nh ?nh & T�i Nguy�n
-*   **Gi?i ph�p:** 
-    *   S? d?ng d?nh d?ng **WebP** cho ?nh b�a s�ch.
-    *   Th�m component `SmartImage` v?i placeholder m�u s?c ho?c blur-up effect.
-    *   T?i uu h�a bundle size b?ng c�ch ki?m tra c�c thu vi?n l?n qua `rollup-plugin-visualizer`.
-
----
-
-##  2. N�ng C?p Tr?i Nghi?m Ngu?i D�ng (UX)
-
-### 2.1. T�m Ki?m Th�ng Minh (AI & Search)
-*   **Gi?i ph�p:** 
-    *   S? d?ng **Debounce** cho thanh t�m ki?m (hi?n t?i c� v? dang k�ch ho?t search li�n t?c).
-    *   Hi?n th? k?t qu? t�m ki?m nhanh (Quick Suggestions).
-    *   T�ch h?p s�u hon Admin AI d? g?i � s�ch d?a tr�n h�nh vi ngu?i d�ng.
-
-### 2.2. Giao Di?n & Animation
-*   **Gi?i ph�p:** 
-    *   **Framer Motion**: Th�m hi?u ?ng chuy?n trang (Page Transitions) v� micro-interactions khi th�m v�o gi? h�ng.
-    *   **Skeleton Standard**: T?o b? Skeleton th?ng nh?t cho BookCard, Category, Profile.
-    *   **Dark Mode**: Tri?n khai giao di?n t?i ho�n ch?nh.
-
-### 2.3. Quy Tr�nh Thanh To�n (Checkout)
-*   **Gi?i ph�p:** 
-    *   Th�m bu?c x�c nh?n d?a ch? qua b?n d? ho?c g?i � d?a ch? (Google Maps API).
-    *   T�ch h?p da d?ng phuong th?c thanh to�n tr?c tuy?n (Momo, VNPay, Zalopay - gi? l?p ho?c th?t).
+### 1.3. Hình Ảnh & Tài Nguyên
+*   **Giải pháp:** 
+    *   Sử dụng định dạng WebP cho ảnh bìa sách.
+    *   Thêm component SmartImage với placeholder màu sắc hoặc blur-up effect.
+    *   Tối ưu hóa bundle size bằng cách kiểm tra các thư viện lớn qua rollup-plugin-visualizer.
 
 ---
 
-##  3. B?o M?t & Logic H? Th?ng
+## 2. Nâng Cấp Trải Nghiệm Người Dùng (UX)
 
-### 3.1. Ph�n Quy?n (RBAC)
-*   **V?n d?:** Hardcoded check email admin trong code.
-*   **Gi?i ph�p:**
-    *   Ho�n thi?n chuy?n d?i sang `profile.role === 'admin'`.
-    *   Thi?t l?p **Firestore Security Rules** ch?t ch?, ch? cho ph�p admin ghi v�o collection `books` v� `system_logs`.
+### 2.1. Tìm Kiếm Thông Minh (AI & Search)
+*   **Giải pháp:** 
+    *   Sử dụng Debounce cho thanh tìm kiếm (hiện tại có vẻ đang kích hoạt search liên tục).
+    *   Hiển thị kết quả tìm kiếm nhanh (Quick Suggestions).
+    *   Tích hợp sâu hơn Admin AI để gợi ý sách dựa trên hành vi người dùng.
+
+### 2.2. Giao Diện & Animation
+*   **Giải pháp:** 
+    *   Framer Motion: Thêm hiệu ứng chuyển trang (Page Transitions) và micro-interactions khi thêm vào giỏ hàng.
+    *   Skeleton Standard: Tạo bộ Skeleton thống nhất cho BookCard, Category, Profile.
+    *   Dark Mode: Triển khai giao diện tối hoàn chỉnh.
+
+### 2.3. Quy Trình Thanh Toán (Checkout)
+*   **Giải pháp:** 
+    *   Thêm bước xác nhận địa chỉ qua bản đồ hoặc gợi ý địa chỉ (Google Maps API).
+    *   Tích hợp đa dạng phương thức thanh toán trực tuyến (Momo, VNPay, Zalopay - giả lập hoặc thật).
+
+---
+
+## 3. Bảo Mật & Logic Hệ Thống
+
+### 3.1. Phân Quyền (RBAC)
+*   **Vấn đề:** Hardcoded check email admin trong code.
+*   **Giải pháp:**
+    *   Hoàn thiện chuyển đổi sang profile.role === 'admin'.
+    *   Thiết lập Firestore Security Rules chặt chẽ, chỉ cho phép admin ghi vào collection books và system_logs.
 
 ### 3.2. Error Handling & Monitoring
-*   **Gi?i ph�p:**
-    *   T�ch h?p **Sentry** d? theo d�i l?i real-time t? ph�a ngu?i d�ng.
-    *   Ho�n thi?n `ErrorHandler` d? ghi log chi ti?t m?i thao t�c nh?y c?m c?a Admin.
+*   **Giải pháp:**
+    *   Tích hợp Sentry để theo dõi lỗi real-time từ phía người dùng.
+    *   Hoàn thiện ErrorHandler để ghi log chi tiết mọi thao tác nhạy cảm của Admin.
 
 ---
 
-##  L? Tr�nh Th?c Hi?n (TODO List)
+## Lộ Trình Thực Hiện (TODO List)
 
-1.  [ ] **Tu?n 1: C?u tr�c & State**
-    *   C�i d?t `zustand` v� `@tanstack/react-query`.
-    *   Refactor `App.tsx`: T�ch logic auth, cart, wishlist sang hooks/stores.
-2.  [ ] **Tu?n 2: Database & Pagination**
-    *   C?p nh?t `services/db.ts` h? tr? ph�n trang.
-    *   C?p nh?t `CategoryPage` v� `HomePage` d? s? d?ng Query hooks.
-3.  [ ] **Tu?n 3: UX/UI & AI**
-    *   Th�m Framer Motion cho c�c tuong t�c ch�nh.
-    *   C?i thi?n c�ng c? t�m ki?m v?i debounce v� g?i �.
-4.  [ ] **Tu?n 4: Testing & Security**
-    *   Vi?t unit test cho logic gi? h�ng v� thanh to�n.
-    *   C?u h�nh Security Rules tr�n Firebase Console.
+1.  [ ] **Tuần 1: Cấu trúc & State**
+    *   Cài đặt zustand và @tanstack/react-query.
+    *   Refactor App.tsx: Tách logic auth, cart, wishlist sang hooks/stores.
+2.  [ ] **Tuần 2: Database & Pagination**
+    *   Cập nhật services/db.ts hỗ trợ phân trang.
+    *   Cập nhật CategoryPage và HomePage để sử dụng Query hooks.
+3.  [ ] **Tuần 3: UX/UI & AI**
+    *   Thêm Framer Motion cho các tương tác chính.
+    *   Cải thiện công cụ tìm kiếm với debounce và gợi ý.
+4.  [ ] **Tuần 4: Testing & Security**
+    *   Viết unit test cho logic giỏ hàng và thanh toán.
+    *   Cấu hình Security Rules trên Firebase Console.
 
 ---
-*B?n k? ho?ch n�y du?c so?n th?o b?i GitHub Copilot nh?m t?i uu h�a DigiBook th�nh m?t n?n t?ng thuong m?i di?n t? chuy�n nghi?p.*
+*Bản kế hoạch này được soạn thảo bởi GitHub Copilot nhằm tối ưu hóa DigiBook thành một nền tảng thương mại điện tử chuyên nghiệp.*

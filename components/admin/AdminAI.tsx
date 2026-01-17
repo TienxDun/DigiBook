@@ -42,7 +42,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData }) => {
             </div>
             <div>
               <p className="text-micro font-bold uppercase tracking-premium opacity-60">Model Hiện tại</p>
-              <h3 className="text-xl font-extrabold">{AVAILABLE_AI_MODELS.find(m => m.id === aiConfig.activeModelId)?.name || 'Gemini 1.5 Flash'}</h3>
+              <h3 className="text-xl font-extrabold">{AVAILABLE_AI_MODELS.find(m => m.id === aiConfig.activeModelId)?.name || 'Gemini 2.5 Flash Lite'}</h3>
             </div>
           </div>
           <div className="space-y-2">

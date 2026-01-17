@@ -651,7 +651,7 @@ class DataService {
 
     try {
       const config = await this.getAIConfig();
-      const modelId = config.activeModelId || 'gemini-3-pro-preview';
+      const modelId = config.activeModelId || 'gemini-3-flash';
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
       const prompt = `Bạn là một chuyên gia phê bình sách kỳ cựu tại DigiBook. Hãy viết một đoạn tóm tắt ngắn gọn (khoảng 100-150 chữ) mang tính khơi gợi và phân tích giá trị cốt lõi của cuốn sách sau bằng tiếng Việt.
       Tên sách: ${bookTitle}
@@ -694,7 +694,7 @@ class DataService {
 
     try {
       const config = await this.getAIConfig();
-      const modelId = config.activeModelId || 'gemini-3-pro-preview'; // Default to the top model
+      const modelId = config.activeModelId || 'gemini-3-flash'; // Default to the top model
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
       const prompt = `Bạn là một chuyên gia nghiên cứu văn học. Hãy viết một đoạn giới thiệu chuyên sâu và lôi cuốn (khoảng 150-200 chữ) về tác giả "${authorName}". 
       Hãy nêu bật phong cách sáng tác đặc trưng, những chủ đề chính trong tác phẩm của họ và tầm ảnh hưởng của họ trong giới văn học. Trả lời bằng tiếng Việt, giọng văn trang trọng nhưng giàu cảm xúc.`;
@@ -730,10 +730,10 @@ class DataService {
       if (snap.exists()) {
         return snap.data() as { activeModelId: string };
       }
-      return { activeModelId: 'gemini-3-pro-preview' };
+      return { activeModelId: 'gemini-3-flash' };
     } catch (error) {
       console.error("Error getting AI config:", error);
-      return { activeModelId: 'gemini-3-pro-preview' };
+      return { activeModelId: 'gemini-3-flash' };
     }
   }
 

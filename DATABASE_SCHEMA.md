@@ -6,94 +6,128 @@ Hệ thống sử dụng **Google Cloud Firestore** - Cơ sở dữ liệu tài 
 
 ### Collection: `books`
 Mỗi tài liệu đại diện cho một cuốn sách.
-- `id`: String (Document ID)
+- `id`: String (Document ID - Thường là ISBN)
 - `title`: String
-- `author`: String (Tên hiển thị)
+- `author`: String (Tên tác giả hiển thị)
 - `authorId`: String (Liên kết đến collection `authors`)
-- `category`: String (Tên danh mục)
-- `price`: Number
-- `original_price`: Number (Tùy chọn)
+- `authorBio`: String (Mô tả ngắn về tác giả)
+- `category`: String (Tên danh mục - Liên kết đến `categories`)
+- `price`: Number (VND)
+- `original_price`: Number (Giá trước giảm giá)
 - `stock_quantity`: Number
-- `rating`: Number (Điểm trung bình)
-- `cover`: String (Đường dẫn URL từ Firebase Storage - Thay thế hoàn toàn Unsplash)
-- `description`: String
-- `isbn`: String
+- `rating`: Number (Điểm trung bình, từ 0-5)
+- `cover`: String (URL hình ảnh từ Firebase Storage hoặc Google Books)
+- `description`: String (Mô tả chi tiết cuốn sách)
+- `isbn`: String (Mã số tiêu chuẩn quốc tế)
 - `pages`: Number
 - `publisher`: String
 - `publishYear`: Number
-- `language`: String
-- `badge`: String (Ví dụ: "Bán chạy", "Kinh điển")
+- `language`: String (Mặc định: "Tiếng Việt")
+- `badge`: String (Ví dụ: "Bán chạy", "Kinh điển", "Mới")
 - `createdAt`: Timestamp
 - `updatedAt`: Timestamp
 
 ### Collection: `categories`
 - `name`: String (Document ID - Duy nhất)
-- `icon`: String (FontAwesome class)
+- `icon`: String (FontAwesome class, ví dụ: "fas fa-book")
 - `description`: String
 
 ### Collection: `authors`
 - `id`: String (Document ID)
 - `name`: String
-- `bio`: String
-- `avatar`: String (URL từ Firebase Storage)
+- `bio`: String (Tiểu sử tác giả)
+- `avatar`: String (URL ảnh đại diện)
+- `createdAt`: Timestamp
 
 ### Collection: `users`
 Lưu thông tin chi tiết của người dùng đã đăng ký.
 - `id`: String (Document ID - Trùng với Firebase Auth UID)
 - `name`: String
 - `email`: String (Duy nhất)
-- `phone`: String
-- `address`: String
+- `phone`: String (Tùy chọn)
+- `address`: String (Tùy chọn)
 - `avatar`: String (URL ảnh đại diện)
 - `bio`: String (Giới thiệu bản thân)
 - `gender`: String ("Nam", "Nữ", "Khác")
 - `birthday`: String (Định dạng YYYY-MM-DD)
 - `role`: String ("user", "admin")
+- `status`: String ("active", "banned")
 - `createdAt`: Timestamp
 - `updatedAt`: Timestamp
 
 ### Collection: `orders`
 - `id`: String (Document ID)
-- `userId`: String
-- `status`: String ("Đang xử lý", "Đã giao",...)
-- `statusStep`: Number (0-3)
-- `date`: String (Ngày hiển thị)
-- `customer`: Object { name, phone, address, email }
-- `payment`: Object { method, subtotal, shipping, couponDiscount, total }
-- `items`: Array [ { bookId, title, priceAtPurchase, quantity, cover } ]
+- `userId`: String (ID người dùng đặt hàng)
+- `status`: String ("Đang xử lý", "Đã xác nhận", "Đang giao", "Đã giao", "Đã hủy")
+- `statusStep`: Number (0-4 tương ứng với các trạng thái)
+- `date`: String (Ngày đặt hàng định dạng vi-VN)
+- `customer`: Object
+    - `name`: String
+    - `phone`: String
+    - `address`: String
+    - `email`: String
+    - `note`: String (Ghi chú đơn hàng)
+- `payment`: Object
+    - `method`: String ("COD", "Chuyển khoản")
+    - `subtotal`: Number (Tổng tiền hàng chưa giảm)
+    - `shipping`: Number (Phí vận chuyển)
+    - `couponDiscount`: Number (Tiền giảm giá từ coupon)
+    - `total`: Number (Tổng tiền thanh toán cuối cùng)
+- `items`: Array (Danh sách sản phẩm trong đơn)
+    - `bookId`: String
+    - `title`: String
+    - `priceAtPurchase`: Number (Giá tại thời điểm mua)
+    - `quantity`: Number
+    - `cover`: String
 - `createdAt`: Timestamp
+- `updatedAt`: Timestamp
 
 ### Collection: `reviews`
 - `id`: String (Document ID)
-- `bookId`: String (Index lọc)
-- `userId`: String
-- `userName`: String
-- `rating`: Number
-- `content`: String
+- `bookId`: String (ID cuốn sách được đánh giá)
+- `userId`: String (ID người đánh giá)
+- `userName`: String (Tên hiển thị người đánh giá)
+- `rating`: Number (Điểm đánh giá 1-5)
+- `content`: String (Nội dung nhận xét)
 - `createdAt`: Timestamp
 
 ### Collection: `coupons`
-Lưu trữ các mã giảm giá của hệ thống.
-- `id`: String (Mã code - Document ID)
-- `code`: String (In hoa, không dấu)
-- `discountValue`: Number (Số tiền giảm hoặc % tùy logic)
-- `minOrderValue`: Number (Giá trị đơn hàng tối thiểu)
-- `expiryDate`: String (YYYY-MM-DD)
-- `usageLimit`: Number (Tổng số lần sử dụng)
-- `usedCount`: Number (Số lần đã sử dụng)
-- `isActive`: Boolean
+- `id`: String (Document ID - Chính là mã Code in hoa)
+- `code`: String (Mã giảm giá)
+- `discountType`: String ("percentage" hoặc "fixed")
+- `discountValue`: Number (Giá trị giảm)
+- `minOrderValue`: Number (Giá trị đơn hàng tối thiểu để áp dụng)
+- `expiryDate`: String (Ngày hết hạn YYYY-MM-DD)
+- `usageLimit`: Number (Giới hạn tổng số lần sử dụng)
+- `usedCount`: Number (Số lần đã sử dụng thực tế)
+- `isActive`: Boolean (Trạng thái kích hoạt)
+- `updatedAt`: Timestamp
 
 ### Collection: `system_logs`
-- `action`: String
-- `detail`: String
+Nhật ký hoạt động của hệ thống (Admin).
+- `id`: String (Document ID)
+- `action`: String (Ví dụ: "SAVE_BOOK", "DELETE_ORDER")
+- `detail`: String (Mô tả chi tiết hành động hoặc lỗi)
 - `status`: String ("SUCCESS", "ERROR")
-- `user`: String (Email)
+- `user`: String (Email người thực hiện hoặc "Anonymous")
 - `createdAt`: Timestamp
 
-## 2. Quy tắc chỉ mục (Indexes)
-Firestore mặc định tạo chỉ mục đơn cho từng trường. 
-- **Chỉ mục tổ hợp (Composite Index):** Cần thiết khi thực hiện truy vấn lọc theo một trường và sắp xếp theo trường khác.
+### Collection: `system_configs`
+Cấu hình các cài đặt hệ thống.
+#### Document: `ai_settings`
+- `activeModelId`: String (ID của AI model đang dùng, ví dụ: "gemini-1.5-flash")
+- `updatedAt`: Timestamp
+- `updatedBy`: String (Email admin)
 
-## 3. Bảo mật (Security Rules)
-- `allow read`: Công khai cho mọi người.
-- `allow write`: Chỉ cho phép người dùng Admin (kiểm tra email `admin@gmail.com`).
+## 2. Lưu trữ Local (Local Storage)
+Một số dữ liệu không nhạy cảm được lưu tại trình duyệt để tăng trải nghiệm:
+- `digibook_cart`: Danh sách giỏ hàng hiện tại.
+- `digibook_wishlist`: Danh sách sản phẩm yêu thích của người dùng.
+
+## 3. Quy tắc chỉ mục (Indexes)
+Firestore mặc định tạo chỉ mục đơn cho từng trường. 
+- **Chỉ mục tổ hợp (Composite Index):** Cần thiết cho các truy vấn phức tạp (ví dụ: lọc `status` và sắp xếp theo `createdAt`).
+
+## 4. Bảo mật (Security Rules)
+- `allow read`: Công khai cho hầu hết collection (trừ `system_logs`, `system_configs`).
+- `allow write`: Chỉ cho phép người dùng có `role === admin`. Riêng `orders` và `reviews`, người dùng đăng nhập có thể tạo mới.
