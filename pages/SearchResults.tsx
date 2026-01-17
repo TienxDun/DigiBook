@@ -44,9 +44,9 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onAddToCart }) => {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 rounded-lg mb-4">
               <i className="fa-solid fa-magnifying-glass text-indigo-500 text-[10px]"></i>
-              <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em]">Kết quả tìm kiếm</p>
+              <p className="text-micro font-bold text-indigo-500 uppercase tracking-premium">Kết quả tìm kiếm</p>
             </div>
-            <h1 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+            <h1 className="text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
               {loading ? 'Đang tìm kiếm...' : (
                 <>
                   Tìm thấy <span className="text-indigo-600">{filteredBooks.length}</span> kết quả <br className="hidden lg:block"/> 
@@ -56,7 +56,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onAddToCart }) => {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-             <Link to="/" className="px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-indigo-600 hover:border-indigo-100 transition-all flex items-center gap-2 active:scale-95 shadow-sm">
+             <Link to="/" className="px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-micro font-bold uppercase tracking-premium text-slate-500 hover:text-indigo-600 hover:border-indigo-100 transition-all flex items-center gap-2 active:scale-95 shadow-sm">
                 <i className="fa-solid fa-arrow-left"></i> Quay lại
              </Link>
           </div>
@@ -85,13 +85,13 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onAddToCart }) => {
               <div className="w-24 h-24 bg-slate-50 rounded-3xl flex items-center justify-center text-slate-200 mb-8">
                 <i className="fa-solid fa-book-open-reader text-5xl"></i>
               </div>
-              <h3 className="text-xl font-black text-slate-900 mb-4 uppercase tracking-tight">Không tìm thấy tác phẩm</h3>
+              <h3 className="text-xl font-extrabold text-slate-900 mb-4 uppercase tracking-premium">Không tìm thấy tác phẩm</h3>
               <p className="text-slate-400 text-sm max-w-md mx-auto leading-relaxed font-medium mb-10">
                 Rất tiếc, DigiBook không tìm thấy kết quả phù hợp với từ khóa này. <br/> Hãy thử tìm kiếm theo tên tác giả hoặc thể loại xem sao nhé!
               </p>
               <div className="flex flex-wrap justify-center gap-3">
                  {['Văn học', 'Kinh tế', 'Kỹ năng', 'Thiếu nhi'].map(tag => (
-                   <Link key={tag} to={`/category/${tag}`} className="px-5 py-2.5 bg-slate-50 hover:bg-indigo-50 text-slate-500 hover:text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest transition-all">
+                   <Link key={tag} to={`/category/${tag}`} className="px-5 py-2.5 bg-slate-50 hover:bg-indigo-50 text-slate-500 hover:text-indigo-600 rounded-full text-micro font-bold uppercase tracking-premium transition-all">
                      {tag}
                    </Link>
                  ))}
@@ -109,8 +109,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onAddToCart }) => {
                  <i className="fa-solid fa-wand-magic-sparkles"></i>
               </div>
               <div>
-                 <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Có thể bạn quan tâm</h2>
-                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Gợi ý dành riêng cho bạn</p>
+                 <h2 className="text-xl font-extrabold text-slate-900 uppercase tracking-tight">Có thể bạn quan tâm</h2>
+                 <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Gợi ý dành riêng cho bạn</p>
               </div>
            </div>
            

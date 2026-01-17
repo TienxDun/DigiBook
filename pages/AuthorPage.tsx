@@ -110,28 +110,28 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart }) => {
 
               <div className="flex-1 text-center lg:text-left">
                 <div className="flex flex-wrap justify-center lg:justify-start items-center gap-2 mb-4">
-                  <span className="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] border border-indigo-500/20">Tác giả tiêu biểu</span>
-                  <span className="px-3 py-1 bg-white/5 text-slate-400 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] border border-white/5">{mainCategory}</span>
+                  <span className="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-lg text-micro font-bold uppercase tracking-premium border border-indigo-500/20">Tác giả tiêu biểu</span>
+                  <span className="px-3 py-1 bg-white/5 text-slate-400 rounded-lg text-micro font-bold uppercase tracking-premium border border-white/5">{mainCategory}</span>
                 </div>
                 
-                <h1 className="text-3xl lg:text-5xl font-black text-white mb-6 tracking-tighter leading-tight">{authorName}</h1>
+                <h1 className="text-3xl lg:text-5xl font-extrabold text-white mb-6 tracking-tight leading-tight">{authorName}</h1>
                 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 lg:gap-6">
                   <div className="bg-white/5 p-3 rounded-2xl border border-white/5 backdrop-blur-sm">
-                    <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1">Tác phẩm</p>
-                    <p className="text-2xl font-black text-white">{authorBooks.length}</p>
+                    <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-1">Tác phẩm</p>
+                    <p className="text-2xl font-extrabold text-white">{authorBooks.length}</p>
                   </div>
                   <div className="bg-white/5 p-3 rounded-2xl border border-white/5 backdrop-blur-sm">
-                    <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1">Đánh giá</p>
-                    <p className="text-2xl font-black text-white">4.9<span className="text-xs text-indigo-400">/5</span></p>
+                    <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-1">Đánh giá</p>
+                    <p className="text-2xl font-extrabold text-white">4.9<span className="text-xs text-indigo-400">/5</span></p>
                   </div>
                   <div className="bg-white/5 p-3 rounded-2xl border border-white/5 backdrop-blur-sm">
-                    <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1">Độc giả</p>
-                    <p className="text-2xl font-black text-white">12k+</p>
+                    <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-1">Độc giả</p>
+                    <p className="text-2xl font-extrabold text-white">12k+</p>
                   </div>
                   <div className="bg-white/5 p-3 rounded-2xl border border-white/5 backdrop-blur-sm">
-                    <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1">Theo dõi</p>
-                    <p className="text-2xl font-black text-white">4.2k</p>
+                    <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-1">Theo dõi</p>
+                    <p className="text-2xl font-extrabold text-white">4.2k</p>
                   </div>
                 </div>
               </div>
@@ -149,8 +149,8 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart }) => {
                   <i className="fa-solid fa-feather-pointed text-sm"></i>
                 </div>
                 <div>
-                  <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight">Tiểu sử & Sự nghiệp</h2>
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Hành trình trải nghiệm và sáng tạo</p>
+                  <h2 className="text-lg font-extrabold text-slate-900 uppercase tracking-premium">Tiểu sử & Sự nghiệp</h2>
+                  <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Hành trình trải nghiệm và sáng tạo</p>
                 </div>
               </div>
 
@@ -162,9 +162,9 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart }) => {
 
               {/* Genres Focus */}
               <div className="mt-8 flex flex-wrap gap-2">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">Tags:</span>
+                <span className="text-micro font-bold text-slate-400 uppercase tracking-premium mr-2">Tags:</span>
                 {Array.from(new Set(authorBooks.map(b => b.category))).map(cat => (
-                  <Link key={cat} to={`/category/${cat}`} className="px-4 py-1.5 bg-slate-50 text-slate-600 rounded-full text-[9px] font-extrabold uppercase tracking-widest hover:bg-indigo-50 hover:text-indigo-600 transition-all border border-slate-100">
+                  <Link key={cat} to={`/category/${cat}`} className="px-4 py-1.5 bg-slate-50 text-slate-600 rounded-full text-micro font-bold uppercase tracking-premium hover:bg-indigo-50 hover:text-indigo-600 transition-all border border-slate-100">
                     {cat}
                   </Link>
                 ))}
@@ -179,8 +179,8 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart }) => {
                     <i className="fa-solid fa-book-bookmark text-sm"></i>
                   </div>
                   <div>
-                    <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight">Tất cả tác phẩm</h2>
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Hiện có {authorBooks.length} cuốn trên giá sách DigiBook</p>
+                    <h2 className="text-lg font-extrabold text-slate-900 uppercase tracking-premium">Tất cả tác phẩm</h2>
+                    <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Hiện có {authorBooks.length} cuốn trên giá sách DigiBook</p>
                   </div>
                 </div>
               </div>
@@ -194,7 +194,7 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart }) => {
               ) : (
                 <div className="py-16 text-center bg-white rounded-[2.5rem] border-2 border-dashed border-slate-200">
                   <i className="fa-solid fa-box-open text-4xl text-slate-200 mb-4"></i>
-                  <p className="text-slate-400 font-black uppercase tracking-widest text-[10px]">Hiện đang cập nhật thêm tác phẩm...</p>
+                  <p className="text-slate-400 font-bold uppercase tracking-premium text-micro">Hiện đang cập nhật thêm tác phẩm...</p>
                 </div>
               )}
             </div>
@@ -211,8 +211,8 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart }) => {
                     <i className="fa-solid fa-wand-magic-sparkles text-white text-base animate-pulse"></i>
                   </div>
                   <div>
-                    <h2 className="text-base font-black text-white uppercase tracking-tight">AI Author Profile</h2>
-                    <p className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest mt-0.5">Phân tích bởi {activeModelName}</p>
+                    <h2 className="text-base font-extrabold text-white uppercase tracking-premium">AI Author Profile</h2>
+                    <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mt-0.5">Phân tích bởi {activeModelName}</p>
                   </div>
                 </div>
 
@@ -225,15 +225,15 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart }) => {
                       </p>
                     </div>
                     <div className="mt-6 pt-6 border-t border-white/5">
-                       <p className="text-[9px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-3">Các điểm nhấn sáng tạo:</p>
+                       <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-3">Các điểm nhấn sáng tạo:</p>
                        <div className="space-y-2">
                           <div className="flex items-center gap-2">
                              <div className="w-1 h-1 rounded-full bg-emerald-500"></div>
-                             <span className="text-[10px] font-bold text-slate-300">Tư duy độc bản & đột phá</span>
+                             <span className="text-micro font-bold text-slate-300">Tư duy độc bản & đột phá</span>
                           </div>
                           <div className="flex items-center gap-2">
                              <div className="w-1 h-1 rounded-full bg-emerald-500"></div>
-                             <span className="text-[10px] font-bold text-slate-300">Kết nối cảm xúc mạnh mẽ</span>
+                             <span className="text-micro font-bold text-slate-300">Kết nối cảm xúc mạnh mẽ</span>
                           </div>
                        </div>
                     </div>
@@ -246,7 +246,7 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart }) => {
                     <button 
                       onClick={handleGetAIInsight}
                       disabled={loadingAI}
-                      className="w-full py-4 bg-white text-slate-900 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-indigo-50 transition-all shadow-xl shadow-white/5 flex items-center justify-center gap-2 active:scale-95 disabled:bg-slate-800 disabled:text-slate-500"
+                      className="w-full py-4 bg-white text-slate-900 rounded-2xl font-extrabold uppercase tracking-premium text-micro hover:bg-indigo-50 transition-all shadow-xl shadow-white/5 flex items-center justify-center gap-2 active:scale-95 disabled:bg-slate-800 disabled:text-slate-500"
                     >
                       {loadingAI ? (
                         <>
@@ -267,9 +267,9 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart }) => {
             {/* Newsletter or CTA */}
             <div className="bg-emerald-600 p-8 rounded-3xl text-white shadow-xl shadow-emerald-100/50 relative overflow-hidden">
                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16"></div>
-               <h4 className="text-base font-black mb-1 tracking-tight">Theo dõi {authorName}</h4>
-               <p className="text-[10px] text-emerald-100 font-medium mb-4 leading-relaxed">Nhận thông báo ngay khi có tác phẩm hoặc sự kiện mới nhất.</p>
-               <button className="w-full py-3.5 bg-white text-emerald-600 rounded-xl font-black uppercase tracking-widest text-[9px] hover:bg-emerald-50 transition-colors shadow-lg shadow-black/10">
+               <h4 className="text-base font-extrabold mb-1 tracking-premium uppercase">Theo dõi {authorName}</h4>
+               <p className="text-xs text-emerald-100 font-medium mb-4 leading-relaxed">Nhận thông báo ngay khi có tác phẩm hoặc sự kiện mới nhất.</p>
+               <button className="w-full py-3.5 bg-white text-emerald-600 rounded-xl font-extrabold uppercase tracking-premium text-micro hover:bg-emerald-50 transition-colors shadow-lg shadow-black/10">
                  Đăng ký ngay
                </button>
             </div>

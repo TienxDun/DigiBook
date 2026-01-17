@@ -139,12 +139,12 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
             ].map((step, i, arr) => (
               <React.Fragment key={i}>
                 <div className="flex flex-col items-center gap-2">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-[10px] transition-all ${
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-extrabold text-micro transition-all ${
                     step.active ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'bg-slate-100 text-slate-400'
                   }`}>
                     {step.done ? <i className="fa-solid fa-check"></i> : i + 1}
                   </div>
-                  <span className={`text-[9px] font-black uppercase tracking-widest ${step.active ? 'text-indigo-600' : 'text-slate-400'}`}>
+                  <span className={`text-micro font-bold uppercase tracking-premium ${step.active ? 'text-indigo-600' : 'text-slate-400'}`}>
                     {step.label}
                   </span>
                 </div>
@@ -164,14 +164,14 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                   <i className="fa-solid fa-truck-fast text-lg"></i>
                 </div>
                 <div>
-                  <h2 className="text-lg font-black text-slate-900 leading-tight">Thông tin giao hàng</h2>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Nơi chúng tôi gửi tri thức đến bạn</p>
+                  <h2 className="text-lg font-extrabold text-slate-900 leading-tight tracking-tight uppercase">Thông tin giao hàng</h2>
+                  <p className="text-micro text-slate-400 font-bold uppercase tracking-premium">Nơi chúng tôi gửi tri thức đến bạn</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Họ và tên</label>
+                  <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-1">Họ và tên</label>
                   <input 
                     name="name" 
                     value={formData.name} 
@@ -181,7 +181,7 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Số điện thoại</label>
+                  <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-1">Số điện thoại</label>
                   <input 
                     name="phone" 
                     value={formData.phone} 
@@ -191,7 +191,7 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                   />
                 </div>
                 <div className="md:col-span-2 space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Địa chỉ chi tiết</label>
+                  <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-1">Địa chỉ chi tiết</label>
                   <input 
                     name="address" 
                     value={formData.address} 
@@ -201,7 +201,7 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                   />
                 </div>
                 <div className="md:col-span-2 space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Ghi chú đơn hàng (Tùy chọn)</label>
+                  <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-1">Ghi chú đơn hàng (Tùy chọn)</label>
                   <textarea 
                     name="note" 
                     value={formData.note} 
@@ -219,8 +219,8 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                   <i className="fa-solid fa-credit-card text-lg"></i>
                 </div>
                 <div>
-                  <h2 className="text-lg font-black text-slate-900 leading-tight">Phương thức thanh toán</h2>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">An toàn & bảo mật tuyệt đối</p>
+                  <h2 className="text-lg font-extrabold text-slate-900 leading-tight tracking-tight uppercase">Phương thức thanh toán</h2>
+                  <p className="text-micro text-slate-400 font-bold uppercase tracking-premium">An toàn & bảo mật tuyệt đối</p>
                 </div>
               </div>
 
@@ -237,8 +237,8 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                     {paymentMethod === 'cod' && <div className="w-2.5 h-2.5 bg-indigo-600 rounded-full"></div>}
                   </div>
                   <div>
-                    <p className="font-black text-slate-900 text-[13px]">Thanh toán khi nhận hàng</p>
-                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Tiền mặt (COD)</p>
+                    <p className="font-extrabold text-slate-900 text-[13px]">Thanh toán khi nhận hàng</p>
+                    <p className="text-micro text-slate-400 font-bold uppercase tracking-premium">Tiền mặt (COD)</p>
                   </div>
                   <i className="fa-solid fa-money-bill-wave ml-auto text-slate-300 text-lg"></i>
                 </button>
@@ -255,8 +255,8 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                     {paymentMethod === 'online' && <div className="w-2.5 h-2.5 bg-indigo-600 rounded-full"></div>}
                   </div>
                   <div>
-                    <p className="font-black text-slate-900 text-[13px]">Thanh toán trực tuyến</p>
-                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Thẻ / Chuyển khoản</p>
+                    <p className="font-extrabold text-slate-900 text-[13px]">Thanh toán trực tuyến</p>
+                    <p className="text-micro text-slate-400 font-bold uppercase tracking-premium">Thẻ / Chuyển khoản</p>
                   </div>
                   <i className="fa-solid fa-building-columns ml-auto text-slate-300 text-lg"></i>
                 </button>
@@ -266,7 +266,7 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
 
           <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
             <div className="bg-white rounded-3xl p-6 lg:p-8 border border-slate-100 shadow-sm overflow-hidden">
-              <h3 className="text-base font-black text-slate-900 mb-5">Tóm tắt đơn hàng</h3>
+              <h3 className="text-base font-extrabold text-slate-900 mb-5 uppercase tracking-premium">Tóm tắt đơn hàng</h3>
               
               <div className="max-h-60 overflow-y-auto no-scrollbar space-y-4 mb-6">
                 {cart.map(item => (
@@ -275,9 +275,9 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                       <img src={item.cover} alt={item.title} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-slate-900 text-[11px] truncate group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{item.title}</h4>
-                      <p className="text-[9px] text-slate-400 font-bold mb-0.5">SL: {item.quantity}</p>
-                      <p className="font-black text-slate-900 text-[11px]">{formatPrice(item.price * item.quantity)}</p>
+                      <h4 className="font-extrabold text-slate-900 text-label truncate group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{item.title}</h4>
+                      <p className="text-micro text-slate-400 font-bold mb-0.5">SL: {item.quantity}</p>
+                      <p className="font-extrabold text-slate-900 text-label">{formatPrice(item.price * item.quantity)}</p>
                     </div>
                   </div>
                 ))}
@@ -294,15 +294,15 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                   />
                   <button 
                     onClick={handleApplyCoupon}
-                    className="absolute right-1 top-1 bottom-1 px-3 bg-slate-900 text-white rounded-md text-[9px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all"
+                    className="absolute right-1 top-1 bottom-1 px-3 bg-slate-900 text-white rounded-md text-micro font-bold uppercase tracking-premium hover:bg-indigo-600 transition-all"
                   >
                     Áp dụng
                   </button>
                 </div>
-                {couponError && <p className="text-[9px] text-rose-500 font-bold ml-1">{couponError}</p>}
+                {couponError && <p className="text-micro text-rose-500 font-bold ml-1">{couponError}</p>}
                 {appliedCoupon && (
                   <div className="flex items-center justify-between px-3 py-1.5 bg-emerald-50 rounded-lg mt-1.5 border border-emerald-100">
-                    <span className="text-[9px] font-black text-emerald-700 uppercase tracking-widest flex items-center gap-2">
+                    <span className="text-micro font-bold text-emerald-700 uppercase tracking-premium flex items-center gap-2">
                       <i className="fa-solid fa-ticket"></i> {appliedCoupon.code}
                     </span>
                     <button onClick={() => setAppliedCoupon(null)} className="text-emerald-700 hover:text-rose-500 text-xs"><i className="fa-solid fa-circle-xmark"></i></button>
@@ -311,30 +311,30 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
               </div>
 
               <div className="space-y-2.5 pt-5 border-t border-slate-50">
-                <div className="flex justify-between text-[11px] font-bold text-slate-500">
-                  <span className="uppercase tracking-widest text-[9px]">Tạm tính ({cart.length})</span>
+                <div className="flex justify-between text-label font-bold text-slate-500">
+                  <span className="uppercase tracking-premium text-micro">Tạm tính ({cart.length})</span>
                   <span>{formatPrice(subtotal)}</span>
                 </div>
-                <div className="flex justify-between text-[11px] font-bold text-slate-500">
-                  <span className="uppercase tracking-widest text-[9px]">Vận chuyển</span>
+                <div className="flex justify-between text-label font-bold text-slate-500">
+                  <span className="uppercase tracking-premium text-micro">Vận chuyển</span>
                   <span>{shipping === 0 ? 'Miễn phí' : formatPrice(shipping)}</span>
                 </div>
                 {appliedCoupon && (
-                  <div className="flex justify-between text-[11px] font-bold text-emerald-600">
-                    <span className="uppercase tracking-widest text-[9px]">Giảm giá (Coupon)</span>
+                  <div className="flex justify-between text-label font-bold text-emerald-600">
+                    <span className="uppercase tracking-premium text-micro">Giảm giá (Coupon)</span>
                     <span>-{formatPrice(discount)}</span>
                   </div>
                 )}
                 <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
-                  <span className="text-sm font-black text-slate-900 uppercase tracking-widest">Tổng tiền</span>
-                  <span className="text-xl font-black text-indigo-600 tracking-tight">{formatPrice(total)}</span>
+                  <span className="text-sm font-extrabold text-slate-900 uppercase tracking-premium">Tổng tiền</span>
+                  <span className="text-xl font-extrabold text-indigo-600 tracking-tight">{formatPrice(total)}</span>
                 </div>
               </div>
 
               <button 
                 onClick={handleCompleteOrder} 
                 disabled={isProcessing}
-                className={`w-full mt-6 py-4 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-2.5 ${
+                className={`w-full mt-6 py-4 rounded-xl font-extrabold text-micro uppercase tracking-premium transition-all shadow-xl flex items-center justify-center gap-2.5 ${
                   isProcessing 
                   ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none' 
                   : 'bg-slate-900 text-white hover:bg-indigo-600 shadow-slate-200'
@@ -361,7 +361,7 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
             </div>
 
             <div className="px-6 text-center">
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">
+              <p className="text-micro font-bold text-slate-400 uppercase tracking-premium leading-relaxed">
                 Bằng việc nhấn đặt hàng, bạn đồng ý với <a href="#" className="text-indigo-600 underline">Điều khoản</a> & <a href="#" className="text-indigo-600 underline">Chính sách</a> của DigiBook.
               </p>
             </div>

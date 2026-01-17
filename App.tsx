@@ -310,7 +310,7 @@ const App: React.FC = () => {
   if (loading) return (
     <div className="h-screen flex flex-col items-center justify-center bg-white">
         <div className="w-16 h-16 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mb-6"></div>
-        <span className="text-slate-400 font-black tracking-widest uppercase text-xs animate-pulse">Đang tải DigiBook...</span>
+        <span className="text-slate-400 font-extrabold tracking-premium uppercase text-micro animate-pulse">Đang tải DigiBook...</span>
     </div>
   );
 
@@ -352,10 +352,10 @@ const App: React.FC = () => {
                     <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center mb-4 mx-auto shadow-lg shadow-slate-200">
                       <i className="fa-solid fa-book-open text-white text-xl"></i>
                     </div>
-                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                    <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight uppercase">
                       {authMode === 'login' ? 'Chào mừng bạn' : 'Tham gia cùng cửa hàng'}
                     </h2>
-                    <p className="text-slate-400 text-[11px] font-bold uppercase tracking-widest mt-2">
+                    <p className="text-micro font-bold uppercase tracking-premium text-slate-400 mt-2">
                        DigiBook • Không gian tri thức
                     </p>
                   </div>
@@ -368,7 +368,7 @@ const App: React.FC = () => {
                     className="space-y-4"
                   >
                     {authError && (
-                      <div className="p-3 bg-rose-50 text-rose-500 text-[10px] font-black uppercase tracking-wider rounded-xl flex items-center gap-2 animate-shake">
+                      <div className="p-3 bg-rose-50 text-rose-500 text-micro font-bold uppercase tracking-premium rounded-xl flex items-center gap-2 animate-shake">
                         <i className="fa-solid fa-circle-exclamation text-sm"></i>
                         {authError}
                       </div>
@@ -432,7 +432,7 @@ const App: React.FC = () => {
                                   setAuthError(err.message);
                                 }
                               }}
-                              className="text-[10px] font-black text-slate-400 hover:text-slate-900 uppercase tracking-widest transition-colors"
+                              className="text-micro font-bold text-slate-400 hover:text-slate-900 uppercase tracking-premium transition-colors"
                             >
                               Quên mật khẩu?
                             </button>
@@ -459,25 +459,25 @@ const App: React.FC = () => {
                     
                     <button 
                       type="submit"
-                      className="w-full py-4 bg-slate-900 text-white rounded-xl font-black uppercase tracking-widest text-[11px] hover:bg-black transition-all active:scale-[0.98] shadow-lg shadow-slate-100"
+                      className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold uppercase tracking-premium text-micro hover:bg-black transition-all active:scale-[0.98] shadow-lg shadow-slate-100"
                     >
                       {authMode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}
                     </button>
 
                     <div className="relative py-2 flex items-center gap-3">
                       <div className="flex-1 h-px bg-slate-100"></div>
-                      <span className="text-[9px] font-black text-slate-300 uppercase tracking-tighter px-1">Hoặc sử dụng</span>
+                      <span className="text-micro font-bold text-slate-300 uppercase tracking-premium px-1">Hoặc sử dụng</span>
                       <div className="flex-1 h-px bg-slate-100"></div>
                     </div>
 
                     <button 
                       type="button"
                       onClick={loginWithGoogle} 
-                      className="w-full py-4 bg-white border-2 border-slate-100 rounded-2xl font-black flex items-center justify-center gap-4 hover:bg-slate-50 hover:border-slate-300 transition-all text-slate-700 active:scale-[0.98] relative overflow-hidden group shadow-lg shadow-slate-100/50"
+                      className="w-full py-4 bg-white border-2 border-slate-100 rounded-2xl font-bold flex items-center justify-center gap-4 hover:bg-slate-50 hover:border-slate-300 transition-all text-slate-700 active:scale-[0.98] relative overflow-hidden group shadow-lg shadow-slate-100/50"
                     >
                       <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" className="w-5" alt="Google Logo" />
                       
-                      <span className="text-[11px] font-black uppercase tracking-widest">Tiếp tục bằng Google</span>
+                      <span className="text-micro font-bold uppercase tracking-premium">Tiếp tục bằng Google</span>
 
                       {/* Vệt màu thương hiệu Google tinh tế ở dưới cùng */}
                       <div className="absolute bottom-0 left-0 w-full h-[3px] flex opacity-80 group-hover:opacity-100 transition-opacity">
@@ -496,7 +496,7 @@ const App: React.FC = () => {
                           setAuthError(''); 
                           setConfirmPassword('');
                         }} 
-                        className="text-[10px] font-black text-slate-400 hover:text-slate-900 transition-colors uppercase tracking-widest"
+                        className="text-micro font-bold text-slate-400 hover:text-slate-900 transition-colors uppercase tracking-premium"
                       >
                         {authMode === 'login' ? 'Chưa có tài khoản? Đăng ký' : 'Đã có tài khoản? Đăng nhập'}
                       </button>
@@ -512,7 +512,7 @@ const App: React.FC = () => {
               <div className="flex items-center justify-center min-h-[60vh]">
                 <div className="flex flex-col items-center gap-4">
                   <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-slate-500 font-black uppercase tracking-[0.2em] text-xs">Phù phép không gian tri thức...</p>
+                  <p className="text-micro font-bold uppercase tracking-premium text-slate-500">Phù phép không gian tri thức...</p>
                 </div>
               </div>
             }>

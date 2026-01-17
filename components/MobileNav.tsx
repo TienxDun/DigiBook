@@ -36,7 +36,7 @@ const MobileNav: React.FC<{ cartCount: number; onOpenCart: () => void; onRefresh
               <div className={`w-11 h-11 rounded-[1.2rem] flex items-center justify-center transition-all duration-500 ${isActive ? `${item.bg} shadow-sm scale-110` : 'hover:bg-slate-50'}`}>
                 <i className={`fa-solid ${item.icon} ${isActive ? 'text-xl' : 'text-lg opacity-60'}`}></i>
               </div>
-              <span className={`text-[9px] font-black uppercase tracking-[0.1em] mt-2 transition-all duration-300 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-40 translate-y-1'}`}>{item.label}</span>
+              <span className={`text-micro font-bold uppercase tracking-premium mt-2 transition-all duration-300 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-40 translate-y-1'}`}>{item.label}</span>
               {isActive && (
                 <span className={`absolute -top-1 left-1/2 -translate-x-1/2 w-10 h-1.5 ${item.color.replace('text', 'bg')} rounded-b-full shadow-lg`}></span>
               )}
@@ -52,13 +52,13 @@ const MobileNav: React.FC<{ cartCount: number; onOpenCart: () => void; onRefresh
             <div className="relative">
               <i className={`fa-solid fa-bag-shopping text-lg ${cartCount > 0 ? 'text-amber-500' : 'text-slate-400'}`}></i>
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 w-5 h-5 bg-amber-500 text-white text-[9px] flex items-center justify-center rounded-full font-black border-2 border-white shadow-md">
+                <span className="absolute -top-2 -right-2 w-5 h-5 bg-amber-500 text-white text-micro flex items-center justify-center rounded-full font-bold border-2 border-white shadow-md">
                   {cartCount}
                 </span>
               )}
             </div>
           </div>
-          <span className={`text-[9px] font-black uppercase tracking-[0.1em] mt-2 transition-all ${cartCount > 0 ? 'text-amber-600 opacity-100' : 'text-slate-400 opacity-40'}`}>Giỏ hàng</span>
+          <span className={`text-micro font-bold uppercase tracking-premium mt-2 transition-all ${cartCount > 0 ? 'text-amber-600 opacity-100' : 'text-slate-400 opacity-40'}`}>Giỏ hàng</span>
         </button>
 
         <button 
@@ -70,14 +70,14 @@ const MobileNav: React.FC<{ cartCount: number; onOpenCart: () => void; onRefresh
               <div className="w-11 h-11 rounded-[1.2rem] p-0.5 border-2 border-indigo-100 overflow-hidden shadow-sm hover:border-indigo-500 transition-all">
                 <img src={user.avatar} className="w-full h-full object-cover rounded-[1rem]" alt="" />
               </div>
-              <span className="text-[9px] font-black uppercase tracking-[0.1em] mt-2 text-indigo-600">Tôi</span>
+              <span className="text-micro font-bold uppercase tracking-premium mt-2 text-indigo-600">Tôi</span>
             </Link>
           ) : (
             <div className="flex flex-col items-center group">
               <div className="w-11 h-11 rounded-[1.2rem] bg-slate-50 flex items-center justify-center group-hover:bg-indigo-50 transition-all">
                 <i className="fa-solid fa-user text-lg text-slate-400 group-hover:text-indigo-600 opacity-60 group-hover:opacity-100 transition-all"></i>
               </div>
-              <span className="text-[9px] font-black uppercase tracking-[0.1em] mt-2 text-slate-400 opacity-40 group-hover:opacity-100 transition-all">Tài khoản</span>
+              <span className="text-micro font-bold uppercase tracking-premium mt-2 text-slate-400 opacity-40 group-hover:opacity-100 transition-all">Tài khoản</span>
             </div>
           )}
         </button>

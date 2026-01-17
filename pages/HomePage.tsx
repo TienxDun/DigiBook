@@ -22,19 +22,19 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }
         
         <div className="w-[92%] xl:w-[60%] mx-auto px-4 relative z-10 flex flex-col lg:flex-row items-center gap-10 pt-28 pb-12 lg:pt-32">
           <div className="flex-1 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 rounded-full text-indigo-600 text-[9px] font-black uppercase tracking-[0.2em] mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 rounded-full text-indigo-600 text-micro font-extrabold uppercase tracking-ultra mb-6">
               <i className="fa-solid fa-wand-magic-sparkles"></i> New Generation Bookstore
             </div>
-            <h1 className="text-5xl lg:text-7xl font-black text-slate-900 leading-[1] mb-8 tracking-tighter">
+            <h1 className="text-5xl lg:text-7xl font-extrabold text-slate-900 leading-[1.1] mb-8 tracking-tighter">
               Khai phá <br />
               <span className="text-indigo-600">Tiềm năng</span> <br />
               qua từng trang sách.
             </h1>
-            <p className="text-slate-500 text-lg lg:text-xl max-w-lg mb-10 leading-relaxed font-semibold">
+            <p className="text-slate-500 text-lg lg:text-xl max-w-lg mb-10 leading-relaxed font-medium">
               DigiBook mang đến trải nghiệm đọc sách hiện đại, nơi tri thức và công nghệ hội tụ để thắp sáng tư duy của bạn.
             </p>
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
-              <Link to="/category/Tất cả sách" className="px-8 py-4 bg-slate-900 text-white rounded-xl font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-xl shadow-slate-900/10 active:scale-95 text-xs">
+              <Link to="/category/Tất cả sách" className="px-8 py-4 bg-slate-900 text-white rounded-xl font-bold uppercase tracking-premium hover:bg-indigo-600 transition-all shadow-xl shadow-slate-900/10 active:scale-95 text-xs">
                 Khám phá ngay
               </Link>
               <div className="flex items-center gap-3">
@@ -44,8 +44,8 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }
                   ))}
                 </div>
                 <div className="text-left">
-                  <p className="text-xs font-black text-slate-900 leading-none">5,000+ Độc giả</p>
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Đã tin dùng</p>
+                  <p className="text-sm font-bold text-slate-900 leading-none">5,000+ Độc giả</p>
+                  <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Đã tin dùng</p>
                 </div>
               </div>
             </div>
@@ -62,8 +62,8 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }
                    <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4.2] object-cover rounded-[1.5rem] shadow-2xl transition-transform duration-700 hover:-translate-y-2" alt="Kệ sách DigiBook" />
                    <div className="w-full aspect-[3/4.2] bg-indigo-600 rounded-[1.5rem] shadow-2xl flex flex-col items-center justify-center p-6 text-center text-white">
                       <i className="fa-solid fa-star-half-stroke text-3xl mb-3 text-amber-300"></i>
-                      <p className="text-xl font-black">4.9/5</p>
-                      <p className="text-[9px] font-black uppercase tracking-widest opacity-60">Đánh giá trung bình</p>
+                      <p className="text-xl font-extrabold">4.9/5</p>
+                      <p className="text-micro font-bold uppercase tracking-premium opacity-60">Đánh giá trung bình</p>
                    </div>
                 </div>
              </div>
@@ -81,7 +81,7 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }
                <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-xl shadow-cyan-200 relative z-10">
                   <i className="fa-solid fa-certificate"></i>
                </div>
-               <h3 className="text-xl font-black text-slate-900 mb-4 relative z-10">Sách Bản Quyền</h3>
+               <h3 className="text-xl font-extrabold text-slate-900 mb-4 relative z-10">Sách Bản Quyền</h3>
                <p className="text-slate-500 leading-relaxed font-medium text-xs tracking-wide relative z-10">Cam kết 100% sách chính hãng từ các nhà xuất bản uy tín nhất Việt Nam và thế giới.</p>
             </div>
             <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 group lg:-translate-y-12 relative overflow-hidden border-b-4 border-b-orange-500/20">
@@ -89,7 +89,7 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }
                <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-rose-500 rounded-2xl flex items-center justify-center text-white text-2xl mb-8 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500 shadow-xl shadow-orange-200 relative z-10">
                   <i className="fa-solid fa-bolt"></i>
                </div>
-               <h3 className="text-xl font-black text-slate-900 mb-4 relative z-10">Giao Tốc Hành</h3>
+               <h3 className="text-xl font-extrabold text-slate-900 mb-4 relative z-10">Giao Tốc Hành</h3>
                <p className="text-slate-500 leading-relaxed font-medium text-xs tracking-wide relative z-10">Dịch vụ giao hàng 2h tại nội thành và đóng gói cẩn thận từng trang sách quý giá của bạn.</p>
             </div>
             <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-500 group relative overflow-hidden">
@@ -97,7 +97,7 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }
                <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center text-white text-2xl mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-xl shadow-emerald-200 relative z-10">
                   <i className="fa-solid fa-headset"></i>
                </div>
-               <h3 className="text-xl font-black text-slate-900 mb-4 relative z-10">Hỗ Trợ 24/7</h3>
+               <h3 className="text-xl font-extrabold text-slate-900 mb-4 relative z-10">Hỗ Trợ 24/7</h3>
                <p className="text-slate-500 leading-relaxed font-medium text-xs tracking-wide relative z-10">Đội ngũ chuyên gia luôn sẵn sàng tư vấn và giúp bạn tìm ra những cuốn sách phù hợp nhất.</p>
             </div>
           </div>
@@ -111,9 +111,9 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }
             <div className="max-w-xl">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 rounded-lg mb-4">
                  <div className="w-2 h-2 bg-indigo-600 rounded-full animate-pulse"></div>
-                 <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Danh mục nổi bật</p>
+                 <p className="text-micro font-bold text-indigo-600 uppercase tracking-premium">Danh mục nổi bật</p>
               </div>
-              <h2 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">Khai phá tri thức theo <span className="text-indigo-600">chủ đề</span>.</h2>
+              <h2 className="text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">Khai phá tri thức theo <span className="text-indigo-600">chủ đề</span>.</h2>
             </div>
             <p className="text-slate-500 font-medium max-w-sm text-sm leading-relaxed">Duyệt qua hàng ngàn tựa sách được phân loại tỉ mỉ để giúp bạn tìm thấy nguồn cảm hứng nhanh nhất.</p>
           </div>
@@ -144,10 +144,10 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }
                   </div>
                   
                   <div className="relative z-10">
-                    <h3 className="text-xl font-black text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors">{cat.name}</h3>
+                    <h3 className="text-xl font-extrabold text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors">{cat.name}</h3>
                     <p className="text-slate-500 text-xs font-medium leading-relaxed mb-6 line-clamp-2">{cat.description}</p>
                     
-                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-indigo-600 transition-all">
+                    <div className="flex items-center gap-2 text-micro font-bold uppercase tracking-premium text-slate-400 group-hover:text-indigo-600 transition-all">
                       <span>Khám phá ngay</span>
                       <i className="fa-solid fa-chevron-right group-hover:translate-x-2 transition-transform"></i>
                     </div>
@@ -159,13 +159,13 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }
               );
             }) : (
               <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-20 bg-slate-50/50 rounded-[3rem] border-2 border-dashed border-slate-200">
-                 <p className="text-slate-400 font-black tracking-[0.2em] uppercase text-xs">Đang tải vũ trụ tri thức...</p>
+                 <p className="text-slate-400 font-extrabold tracking-premium uppercase text-xs">Đang tải vũ trụ tri thức...</p>
               </div>
             )}
           </div>
 
           <div className="mt-16 flex justify-center">
-            <Link to="/category/Tất cả sách" className="group relative px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest overflow-hidden hover:shadow-2xl hover:shadow-indigo-500/20 transition-all active:scale-95">
+            <Link to="/category/Tất cả sách" className="group relative px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold text-micro uppercase tracking-premium overflow-hidden hover:shadow-2xl hover:shadow-indigo-500/20 transition-all active:scale-95">
               <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <span className="relative flex items-center gap-3">
                 Xem tất cả danh mục <i className="fa-solid fa-arrow-right-long group-hover:translate-x-2 transition-transform"></i>
@@ -184,11 +184,11 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }
             <div className="max-w-xl">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-rose-50 rounded-lg mb-4">
                 <i className="fa-solid fa-wand-magic-sparkles text-rose-500 text-[12px]"></i>
-                <p className="text-[12px] font-black text-rose-500 uppercase tracking-[0.2em]">Curated For You</p>
+                <p className="text-label font-bold text-rose-500 uppercase tracking-premium">Curated For You</p>
               </div>
-              <h2 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">Sách mới nhất <span className="text-rose-500">hôm nay</span>.</h2>
+              <h2 className="text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">Sách mới nhất <span className="text-rose-500">hôm nay</span>.</h2>
             </div>
-            <Link to="/category/Tất cả sách" className="text-indigo-600 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 group">
+            <Link to="/category/Tất cả sách" className="text-indigo-600 font-bold text-micro uppercase tracking-premium flex items-center gap-2 group">
               Xem toàn bộ kho sách <i className="fa-solid fa-arrow-right group-hover:translate-x-2 transition-transform"></i>
             </Link>
           </div>
@@ -212,15 +212,15 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }
               <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_120%,#4f46e5,transparent)] opacity-20"></div>
               
               <div className="flex-1 relative z-10 text-center lg:text-left">
-                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full mb-6 text-indigo-300 text-[10px] font-black uppercase tracking-widest">
+                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full mb-6 text-indigo-300 text-micro font-bold uppercase tracking-premium">
                     <i className="fa-solid fa-gift"></i> Đặc quyền thành viên
                  </div>
-                 <h2 className="text-4xl lg:text-5xl font-black text-white mb-6 leading-tight">
+                 <h2 className="text-4xl lg:text-5xl font-extrabold text-white mb-6 leading-tight">
                     Chào mừng bạn đến với <br />
                     vũ trụ tri thức <span className="text-indigo-400">DigiBook</span>.
                  </h2>
                  <p className="text-slate-400 text-xs mb-6 max-w-lg">Sử dụng mã <strong>WELCOME5</strong> cho đơn hàng từ 200k. Chỉ áp dụng cho tài khoản mới đăng ký.</p>
-                 <button className="px-8 py-3.5 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-all active:scale-95 text-[10px]">
+                 <button className="px-8 py-3.5 bg-indigo-600 text-white rounded-xl font-bold uppercase tracking-premium hover:bg-white hover:text-slate-900 transition-all active:scale-95 text-micro">
                     Đăng ký thành viên
                  </button>
               </div>

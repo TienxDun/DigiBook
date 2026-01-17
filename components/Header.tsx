@@ -90,7 +90,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
             <div className={`transition-all duration-700 bg-slate-900 group-hover:bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-indigo-200/20 ${scrolled ? 'w-10 h-10 rotate-0' : 'w-12 h-12 -rotate-3 group-hover:rotate-0'}`}>
               <i className={`fa-solid fa-book-bookmark ${scrolled ? 'text-sm' : 'text-xl'}`}></i>
             </div>
-            <span className={`font-black tracking-tighter text-slate-900 hidden sm:block transition-all duration-500 ${scrolled ? 'text-xl' : 'text-2xl'}`}>
+            <span className={`font-extrabold tracking-tighter text-slate-900 hidden sm:block transition-all duration-500 ${scrolled ? 'text-xl' : 'text-2xl'}`}>
               Digi<span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">Book</span>
             </span>
           </Link>
@@ -99,7 +99,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
             <div className="relative" ref={categoryMenuRef}>
               <button 
                 onClick={() => setShowCategoryMenu(!showCategoryMenu)}
-                className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.15em] transition-all py-1 ${showCategoryMenu ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-900'}`}
+                className={`flex items-center gap-2 text-micro font-bold uppercase tracking-premium transition-all py-1 ${showCategoryMenu ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-900'}`}
               >
                 <i className="fa-solid fa-grid-2 text-[12px]"></i>
                 Danh mục
@@ -120,17 +120,17 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
                           <i className={`fa-solid ${cat.icon} text-lg`}></i>
                         </div>
                         <div className="flex-1">
-                          <p className="text-[11px] font-black text-slate-900 uppercase tracking-tight">{cat.name}</p>
-                          <p className="text-[9px] text-slate-400 font-bold line-clamp-1">{cat.description}</p>
+                          <p className="text-label font-extrabold text-slate-900 uppercase tracking-tight">{cat.name}</p>
+                          <p className="text-micro text-slate-400 font-bold line-clamp-1">{cat.description}</p>
                         </div>
                       </Link>
                     )) : (
-                      <p className="col-span-2 text-[10px] font-bold text-slate-400 text-center py-4">Đang tải danh mục...</p>
+                      <p className="col-span-2 text-label font-bold text-slate-400 text-center py-4">Đang tải danh mục...</p>
                     )}
                   </div>
                   <div className="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Khám phá thế giới sách</p>
-                    <Link to="/category/Tất cả sách" className="text-[9px] font-black text-indigo-600 uppercase tracking-widest hover:underline">Xem tất cả</Link>
+                    <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Khám phá thế giới sách</p>
+                    <Link to="/category/Tất cả sách" className="text-micro font-bold text-indigo-600 uppercase tracking-premium hover:underline">Xem tất cả</Link>
                   </div>
                 </div>
               )}
@@ -146,7 +146,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
                     onRefreshData?.();
                   }
                 }}
-                className={`text-[10px] font-black uppercase tracking-[0.15em] transition-all relative py-1
+                className={`text-micro font-bold uppercase tracking-premium transition-all relative py-1
                   ${location.pathname === link.path ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-900'}
                 `}
               >
@@ -168,7 +168,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
               onKeyDown={handleKeyDown}
               onFocus={() => setIsSearchFocused(true)}
               onBlur={() => setIsSearchFocused(false)}
-              className={`w-full py-3.5 pl-12 pr-6 rounded-2xl text-[11px] font-bold outline-none transition-all duration-500 border ${
+              className={`w-full py-3.5 pl-12 pr-6 rounded-2xl text-label font-bold outline-none transition-all duration-500 border ${
                 isSearchFocused 
                 ? 'bg-white border-indigo-200 ring-[6px] ring-indigo-500/5 shadow-2xl shadow-indigo-200/50' 
                 : 'bg-slate-100/50 border-transparent hover:bg-slate-100 hover:border-slate-200'
@@ -209,7 +209,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
             >
               <i className="fa-solid fa-bag-shopping text-[16px] group-hover:scale-110 transition-transform"></i>
               {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] bg-indigo-600 text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white px-1 shadow-md">
+                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] bg-indigo-600 text-white text-micro font-bold rounded-full flex items-center justify-center border-2 border-white px-1 shadow-md">
                   {cartCount}
                 </span>
               )}
@@ -226,8 +226,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
                 className="flex items-center gap-3 p-1 rounded-2xl transition-all hover:bg-slate-50 active:scale-95"
               >
                 <div className="text-right hidden xl:block">
-                  <p className="text-[10px] font-black text-slate-900 leading-none mb-1">{user.name}</p>
-                  <p className="text-[8px] font-bold text-indigo-600 uppercase tracking-widest leading-none">{user.isAdmin ? 'Quản trị viên' : 'Thành viên'}</p>
+                  <p className="text-label font-extrabold text-slate-900 leading-none mb-1">{user.name}</p>
+                  <p className="text-micro font-bold text-indigo-600 uppercase tracking-premium leading-none">{user.isAdmin ? 'Quản trị viên' : 'Thành viên'}</p>
                 </div>
                 <div className="relative">
                   <img 
@@ -246,24 +246,24 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
                   onMouseLeave={() => setShowUserMenu(false)}
                 >
                   <div className="px-5 py-3 border-b border-slate-50 mb-2">
-                    <p className="text-[11px] font-black text-slate-900 truncate uppercase mt-1 tracking-tight">{user.name}</p>
-                    <p className="text-[9px] text-slate-400 font-bold truncate tracking-widest">{user.email}</p>
+                    <p className="text-label font-extrabold text-slate-900 truncate uppercase mt-1 tracking-tight">{user.name}</p>
+                    <p className="text-micro text-slate-400 font-bold truncate tracking-premium">{user.email}</p>
                   </div>
                   <div className="px-2">
-                    <Link to="/profile" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 hover:text-indigo-600 rounded-2xl transition-all group">
+                    <Link to="/profile" className="flex items-center gap-3 px-4 py-2.5 text-micro font-bold uppercase tracking-premium text-slate-600 hover:bg-slate-50 hover:text-indigo-600 rounded-2xl transition-all group">
                       <div className="w-8 h-8 bg-slate-50 group-hover:bg-indigo-50 rounded-xl flex items-center justify-center transition-all">
                         <i className="fa-regular fa-circle-user text-base opacity-70 group-hover:opacity-100"></i>
                       </div>
                       Hồ sơ của bạn
                     </Link>
-                    <Link to="/my-orders" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 hover:text-indigo-600 rounded-2xl transition-all group">
+                    <Link to="/my-orders" className="flex items-center gap-3 px-4 py-2.5 text-micro font-bold uppercase tracking-premium text-slate-600 hover:bg-slate-50 hover:text-indigo-600 rounded-2xl transition-all group">
                       <div className="w-8 h-8 bg-slate-50 group-hover:bg-indigo-50 rounded-xl flex items-center justify-center transition-all">
                         <i className="fa-regular fa-file-lines text-base opacity-70 group-hover:opacity-100"></i>
                       </div>
                       Quản lý đơn hàng
                     </Link>
                     {user.isAdmin && (
-                      <Link to="/admin" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all group">
+                      <Link to="/admin" className="flex items-center gap-3 px-4 py-2.5 text-micro font-bold uppercase tracking-premium text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all group">
                         <div className="w-8 h-8 bg-indigo-50 group-hover:bg-indigo-100 rounded-xl flex items-center justify-center transition-all">
                           <i className="fa-solid fa-chart-pie text-base"></i>
                         </div>
@@ -273,7 +273,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
                     <div className="h-px bg-slate-50 my-2 mx-3"></div>
                     <button 
                       onClick={() => { logout(); setShowUserMenu(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-50 rounded-2xl transition-all text-left group"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-micro font-bold uppercase tracking-premium text-rose-500 hover:bg-rose-50 rounded-2xl transition-all text-left group"
                     >
                       <div className="w-8 h-8 bg-rose-50/50 group-hover:bg-rose-100/50 rounded-xl flex items-center justify-center transition-all">
                         <i className="fa-solid fa-arrow-right-from-bracket text-xs"></i>
@@ -287,7 +287,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
           ) : (
             <button 
               onClick={() => setShowLoginModal(true)}
-              className="group relative px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-xl shadow-slate-900/10 active:scale-95 overflow-hidden"
+              className="group relative px-6 py-3 bg-slate-900 text-white rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-600 transition-all shadow-xl shadow-slate-900/10 active:scale-95 overflow-hidden"
             >
               <span className="relative z-10">Khám phá ngay</span>
               <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>

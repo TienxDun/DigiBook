@@ -93,11 +93,11 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
           <div className="max-w-7xl mx-auto px-4 relative z-10">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
               <div className="text-white text-center lg:text-left">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-rose-500 rounded-full text-[9px] font-black uppercase tracking-widest mb-4 animate-bounce">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-rose-500 rounded-full text-micro font-bold uppercase tracking-premium mb-4 animate-bounce">
                   <i className="fa-solid fa-bolt"></i>
                   Flash Sale Đang Diễn Ra
                 </div>
-                <h1 className="text-4xl lg:text-6xl font-black mb-4 tracking-tighter">
+                <h1 className="text-4xl lg:text-6xl font-extrabold mb-4 tracking-tight">
                   Đại Tiệc <span className="text-amber-400">Ưu Đãi</span>
                 </h1>
                 <p className="text-indigo-100 text-base max-w-lg mb-8 font-medium opacity-90">
@@ -110,10 +110,10 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
                     { label: 'Giây', value: timeLeft.seconds }
                   ].map((unit, i) => (
                     <div key={i} className="flex flex-col items-center">
-                      <div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center text-xl font-black mb-1.5 border border-white/20">
+                      <div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center text-xl font-extrabold mb-1.5 border border-white/20">
                         {String(unit.value).padStart(2, '0')}
                       </div>
-                      <span className="text-[10px] font-black uppercase tracking-widest opacity-60">{unit.label}</span>
+                      <span className="text-micro font-bold uppercase tracking-premium opacity-60">{unit.label}</span>
                     </div>
                   ))}
                 </div>
@@ -151,7 +151,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
               <Link
                 key={i}
                 to={`/category/${cat.name}`}
-                className={`flex-shrink-0 px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2.5 transition-all duration-300 border border-slate-100 shadow-sm ${
+                className={`flex-shrink-0 px-5 py-3 rounded-xl font-bold text-micro uppercase tracking-premium flex items-center gap-2.5 transition-all duration-300 border border-slate-100 shadow-sm ${
                   isActive ? `${color.active} shadow-lg scale-105 border-transparent` : color.inactive
                 }`}
               >
@@ -170,28 +170,28 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
                    <i className={`fa-solid ${currentCategory.icon} text-lg`}></i>
                  </div>
                  <div>
-                   <p className="text-[9px] font-black uppercase tracking-[0.2em] text-indigo-500 mb-0.5">Danh mục</p>
-                   <h1 className="text-xl lg:text-3xl font-black text-slate-900 tracking-tight">{categoryName || 'Tất cả sách'}</h1>
+                   <p className="text-micro font-bold uppercase tracking-premium text-indigo-500 mb-0.5">Danh mục</p>
+                   <h1 className="text-xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">{categoryName || 'Tất cả sách'}</h1>
                  </div>
                </div>
              )}
              {isPromotionPage && (
                <div className="flex gap-2">
-                 <button className="px-4 py-2 bg-rose-50 text-rose-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-rose-100">Sale 50%</button>
-                 <button className="px-4 py-2 bg-amber-50 text-amber-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-amber-100">Hot</button>
-                 <button className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-emerald-100">Freeship</button>
+                 <button className="px-4 py-2 bg-rose-50 text-rose-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-rose-100">Sale 50%</button>
+                 <button className="px-4 py-2 bg-amber-50 text-amber-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-amber-100">Hot</button>
+                 <button className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-emerald-100">Freeship</button>
                </div>
              )}
           </div>
           <div className="flex items-center gap-4 bg-slate-50/50 p-1.5 rounded-xl border border-slate-100 w-full md:w-auto group focus-within:border-indigo-500 focus-within:bg-white transition-all">
             <div className="flex items-center gap-2 pl-2.5">
               <i className="fa-solid fa-arrow-down-wide-short text-slate-400 text-[10px]"></i>
-              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Sắp xếp theo</span>
+              <span className="text-micro font-bold text-slate-400 uppercase tracking-premium whitespace-nowrap">Sắp xếp theo</span>
             </div>
             <select 
               value={sortBy} 
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-transparent text-[10px] font-black text-slate-900 outline-none pr-5 py-1.5 cursor-pointer flex-1 md:flex-none uppercase tracking-wider"
+              className="bg-transparent text-micro font-bold text-slate-900 outline-none pr-5 py-1.5 cursor-pointer flex-1 md:flex-none uppercase tracking-premium"
             >
               <option value="newest">Mới nhất</option>
               <option value="price-low">Giá: Thấp đến Cao</option>
@@ -219,7 +219,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
         ) : (
           <div className="col-span-full py-24 text-center bg-white rounded-3xl border-2 border-dashed border-slate-200">
             <i className="fa-solid fa-book-open-reader text-4xl text-slate-200 mb-5"></i>
-            <h3 className="text-lg font-black text-slate-900">Không tìm thấy sản phẩm nào</h3>
+            <h3 className="text-lg font-extrabold text-slate-900">Không tìm thấy sản phẩm nào</h3>
             <Link to="/" className="inline-block mt-6 px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-sm transition-all hover:scale-105">Quay lại trang chủ</Link>
           </div>
         )}
@@ -231,8 +231,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
                 <i className="fa-solid fa-truck-fast"></i>
               </div>
               <div>
-                <h4 className="font-black text-slate-900 mb-1 text-sm">Giao hàng tốc hành</h4>
-                <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Nhận sách chỉ trong 2-3 ngày làm việc.</p>
+                <h4 className="font-extrabold text-slate-900 mb-1 text-sm">Giao hàng tốc hành</h4>
+                <p className="text-micro text-slate-500 font-bold uppercase tracking-premium leading-relaxed">Nhận sách chỉ trong 2-3 ngày làm việc.</p>
               </div>
             </div>
             <div className="bg-white p-6 rounded-3xl border border-slate-100 flex items-start gap-5 group hover:shadow-lg transition-all">
@@ -240,8 +240,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
                 <i className="fa-solid fa-shield-heart"></i>
               </div>
               <div>
-                <h4 className="font-black text-slate-900 mb-1 text-sm">Sách bản quyền</h4>
-                <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Cam kết 100% sách chính hãng.</p>
+                <h4 className="font-extrabold text-slate-900 mb-1 text-sm">Sách bản quyền</h4>
+                <p className="text-micro text-slate-500 font-bold uppercase tracking-premium leading-relaxed">Cam kết 100% sách chính hãng.</p>
               </div>
             </div>
             <div className="bg-white p-6 rounded-3xl border border-slate-100 flex items-start gap-5 group hover:shadow-lg transition-all">
@@ -249,8 +249,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
                 <i className="fa-solid fa-headset"></i>
               </div>
               <div>
-                <h4 className="font-black text-slate-900 mb-1 text-sm">Hỗ trợ 24/7</h4>
-                <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Đội ngũ hỗ trợ nhiệt tình, giải đáp mọi thắc mắc.</p>
+                <h4 className="font-extrabold text-slate-900 mb-1 text-sm">Hỗ trợ 24/7</h4>
+                <p className="text-micro text-slate-500 font-bold uppercase tracking-premium leading-relaxed">Đội ngũ hỗ trợ nhiệt tình, giải đáp mọi thắc mắc.</p>
               </div>
             </div>
           </div>

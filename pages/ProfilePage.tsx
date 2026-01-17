@@ -116,7 +116,7 @@ const ProfilePage: React.FC = () => {
                 <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 text-4xl mb-6">
                     <i className="fa-solid fa-user-slash"></i>
                 </div>
-                <h2 className="text-2xl font-black text-slate-900 mb-2">Bạn chưa đăng nhập</h2>
+                <h2 className="text-2xl font-extrabold text-slate-900 mb-2 uppercase tracking-tight">Bạn chưa đăng nhập</h2>
                 <p className="text-slate-500 mb-8 max-w-sm">Vui lòng đăng nhập để xem và cập nhật thông tin cá nhân của bạn.</p>
             </div>
         );
@@ -149,15 +149,15 @@ const ProfilePage: React.FC = () => {
                             </button>
                         </div>
                         <div className="text-center md:text-left">
-                            <h1 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tight mb-2">{user.name}</h1>
+                            <h1 className="text-3xl lg:text-5xl font-extrabold text-slate-900 tracking-tight mb-2 uppercase">{user.name}</h1>
                             <p className="text-slate-500 font-bold flex items-center justify-center md:justify-start gap-2">
                                 <i className="fa-solid fa-envelope text-indigo-500"></i> {user.email}
                             </p>
                             <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
-                                <span className="px-4 py-1.5 bg-white border border-slate-200 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                <span className="px-4 py-1.5 bg-white border border-slate-200 rounded-full text-micro font-bold uppercase tracking-premium text-slate-400">
                                     {user.isAdmin ? 'Quản trị viên' : 'Độc giả thân thiết'}
                                 </span>
-                                <span className="px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                                <span className="px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-micro font-bold uppercase tracking-premium">
                                     ID: {user.id.substring(0, 8)}...
                                 </span>
                             </div>
@@ -170,7 +170,7 @@ const ProfilePage: React.FC = () => {
                         <div className="space-y-6">
                             <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-white">
                                 <h1 className="sr-only">Hồ sơ cá nhân</h1>
-                                <h2 className="text-lg font-black text-slate-900 mb-6 flex items-center gap-3">
+                                <h2 className="text-lg font-extrabold text-slate-900 mb-6 flex items-center gap-3 uppercase tracking-tight">
                                     <i className="fa-solid fa-address-card text-indigo-600"></i>
                                     Tiểu sử
                                 </h2>
@@ -184,11 +184,11 @@ const ProfilePage: React.FC = () => {
                             
                             <div className="bg-gradient-to-br from-slate-900 to-indigo-900 rounded-[2.5rem] p-8 text-white shadow-2xl">
                                 <i className="fa-solid fa-shield-halved text-3xl mb-6 text-indigo-400"></i>
-                                <h2 className="text-xl font-black mb-2 tracking-tight">Bảo mật tài khoản</h2>
+                                <h2 className="text-xl font-extrabold mb-2 tracking-tight uppercase">Bảo mật tài khoản</h2>
                                 <p className="text-slate-400 text-xs mb-6 font-medium leading-relaxed">Thông tin cá nhân của bạn được mã hóa và bảo mật tuyệt đối theo tiêu chuẩn quốc tế.</p>
                                 <button 
                                     onClick={() => setShowPasswordModal(true)}
-                                    className="w-full py-3 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-black uppercase tracking-widest transition-all"
+                                    className="w-full py-3 bg-white/10 hover:bg-white/20 rounded-xl text-micro font-bold uppercase tracking-premium transition-all"
                                 >
                                     Đổi mật khẩu
                                 </button>
@@ -209,20 +209,20 @@ const ProfilePage: React.FC = () => {
                                     </button>
 
                                     <div className="mb-8">
-                                        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Đổi mật khẩu</h2>
+                                        <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight uppercase">Đổi mật khẩu</h2>
                                         <p className="text-slate-400 text-xs font-medium mt-1">Cập nhật mật khẩu mới cho tài khoản của bạn</p>
                                     </div>
 
                                     <form onSubmit={handlePasswordChange} className="space-y-6">
                                         {pwError && (
-                                            <div className="p-4 bg-rose-50 border border-rose-100 text-rose-600 text-[11px] font-bold rounded-2xl flex items-center gap-3">
+                                            <div className="p-4 bg-rose-50 border border-rose-100 text-micro font-bold rounded-2xl flex items-center gap-3 text-rose-600">
                                                 <i className="fa-solid fa-triangle-exclamation text-sm"></i>
                                                 {pwError}
                                             </div>
                                         )}
 
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Mật khẩu cũ</label>
+                                            <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Mật khẩu cũ</label>
                                             <div className="relative group">
                                                 <i className="fa-solid fa-key absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
                                                 <input 
@@ -237,7 +237,7 @@ const ProfilePage: React.FC = () => {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Mật khẩu mới</label>
+                                            <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Mật khẩu mới</label>
                                             <div className="relative group">
                                                 <i className="fa-solid fa-lock absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
                                                 <input 
@@ -252,7 +252,7 @@ const ProfilePage: React.FC = () => {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Xác nhận mật khẩu</label>
+                                            <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Xác nhận mật khẩu</label>
                                             <div className="relative group">
                                                 <i className="fa-solid fa-shield-check absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
                                                 <input 
@@ -269,7 +269,7 @@ const ProfilePage: React.FC = () => {
                                         <button 
                                             type="submit"
                                             disabled={pwLoading}
-                                            className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50"
+                                            className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-extrabold uppercase tracking-premium text-micro shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50"
                                         >
                                             {pwLoading ? 'Đang cập nhật...' : 'Cập nhật mật khẩu'}
                                         </button>
@@ -284,7 +284,7 @@ const ProfilePage: React.FC = () => {
                                 <form onSubmit={handleSave} className="space-y-8">
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Họ và tên</label>
+                                            <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Họ và tên</label>
                                             <div className="relative group">
                                                 <i className="fa-solid fa-user absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
                                                 <input 
@@ -296,7 +296,7 @@ const ProfilePage: React.FC = () => {
                                             </div>
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Số điện thoại</label>
+                                            <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Số điện thoại</label>
                                             <div className="relative group">
                                                 <i className="fa-solid fa-phone absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
                                                 <input 
@@ -311,7 +311,7 @@ const ProfilePage: React.FC = () => {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Địa chỉ giao hàng</label>
+                                        <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Địa chỉ giao hàng</label>
                                         <div className="relative group">
                                             <i className="fa-solid fa-location-dot absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
                                             <input 
@@ -326,14 +326,14 @@ const ProfilePage: React.FC = () => {
 
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Giới tính</label>
+                                            <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Giới tính</label>
                                             <div className="flex gap-4">
                                                 {['Nam', 'Nữ', 'Khác'].map(g => (
                                                     <button 
                                                         key={g}
                                                         type="button"
                                                         onClick={() => setFormData({...formData, gender: g})}
-                                                        className={`flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
+                                                        className={`flex-1 py-4 rounded-2xl font-extrabold text-micro uppercase tracking-premium transition-all ${
                                                             formData.gender === g 
                                                             ? 'bg-slate-900 text-white shadow-lg' 
                                                             : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
@@ -345,7 +345,7 @@ const ProfilePage: React.FC = () => {
                                             </div>
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Ngày sinh</label>
+                                            <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Ngày sinh</label>
                                             <div className="relative group">
                                                 <i className="fa-solid fa-calendar absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
                                                 <input 
@@ -362,7 +362,7 @@ const ProfilePage: React.FC = () => {
                                         <button 
                                             type="submit"
                                             disabled={saving}
-                                            className="w-full py-5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-[1.2rem] font-black uppercase tracking-[0.2em] hover:shadow-2xl hover:shadow-indigo-500/40 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:translate-y-0 transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3"
+                                            className="w-full py-5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-[1.2rem] font-extrabold uppercase tracking-premium text-micro hover:shadow-2xl hover:shadow-indigo-500/40 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:translate-y-0 transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3"
                                         >
                                             {saving ? (
                                                 <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>

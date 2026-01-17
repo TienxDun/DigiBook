@@ -700,8 +700,8 @@ const AdminDashboard: React.FC = () => {
     <div className="min-h-screen bg-slate-50 flex relative z-[200]">
       <aside className="w-64 bg-slate-900 text-white flex flex-col sticky top-0 h-screen z-50 shadow-2xl">
         <div className="p-8 border-b border-white/5">
-          <h1 className="text-xl font-black tracking-tighter text-white">Digi<span className="text-indigo-400">Admin</span></h1>
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Hệ thống quản trị</p>
+          <h1 className="text-xl font-extrabold tracking-tighter text-white">Digi<span className="text-indigo-400">Admin</span></h1>
+          <p className="text-micro font-bold text-slate-500 uppercase tracking-premium mt-1">Hệ thống quản trị</p>
         </div>
         
         <nav className="flex-1 p-4 space-y-2 mt-4">
@@ -719,7 +719,7 @@ const AdminDashboard: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => { setActiveTab(tab.id as any); setSearchQuery(''); }}
-              className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[13px] font-black tracking-wide transition-all ${
+              className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-bold tracking-wide transition-all ${
                 activeTab === tab.id ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/20' : 'text-slate-500 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -732,7 +732,7 @@ const AdminDashboard: React.FC = () => {
         </nav>
 
         <div className="p-4 mt-auto border-t border-white/5">
-          <Link to="/" className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-indigo-400 hover:bg-white/5 transition-all group">
+          <Link to="/" className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl text-micro font-bold uppercase tracking-premium text-indigo-400 hover:bg-white/5 transition-all group">
             <i className="fa-solid fa-arrow-left-long group-hover:-translate-x-1 transition-transform"></i>
             <span>Xem cửa hàng</span>
           </Link>
@@ -757,7 +757,7 @@ const AdminDashboard: React.FC = () => {
                 }`}></i>
               </div>
               <div>
-                <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-0.5">Thông báo hệ thống</p>
+                <p className="text-micro font-bold uppercase tracking-premium text-slate-400 mb-0.5">Thông báo hệ thống</p>
                 <p className="text-sm font-bold text-slate-900">{seedStatus.msg}</p>
               </div>
             </div>
@@ -766,7 +766,7 @@ const AdminDashboard: React.FC = () => {
 
         <header className="flex justify-between items-center gap-6 mb-12">
           <div>
-            <h2 className="text-3xl font-black text-slate-900">
+            <h2 className="text-3xl font-extrabold text-slate-900">
               {activeTab === 'overview' ? 'Báo cáo tổng quan' : 
                activeTab === 'books' ? 'Quản lý kho hàng' : 
                activeTab === 'logs' ? 'Nhật ký hệ thống' : 
@@ -792,7 +792,7 @@ const AdminDashboard: React.FC = () => {
                   });
                   setIsCouponModalOpen(true);
                 }}
-                className="flex items-center gap-3 px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-indigo-100"
+                className="flex items-center gap-3 px-6 py-3 bg-indigo-600 text-white rounded-2xl font-bold text-micro uppercase tracking-premium hover:bg-indigo-700 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-indigo-100"
               >
                 <i className="fa-solid fa-plus"></i>
                 <span>Tạo mã mới</span>
@@ -814,13 +814,13 @@ const AdminDashboard: React.FC = () => {
               <table className="w-full text-left border-collapse">
                 <thead className="bg-slate-50 border-b border-slate-100">
                   <tr>
-                    <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mã khuyến mãi</th>
-                    <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Giảm giá</th>
-                    <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Đơn tối thiểu</th>
-                    <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Ngày hết hạn</th>
-                    <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Lượt dùng</th>
-                    <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Trạng thái</th>
-                    <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Thao tác</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Mã khuyến mãi</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Giảm giá</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Đơn tối thiểu</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Ngày hết hạn</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Lượt dùng</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Trạng thái</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-right">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -831,13 +831,13 @@ const AdminDashboard: React.FC = () => {
                           <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
                             <i className="fa-solid fa-ticket"></i>
                           </div>
-                          <span className="text-sm font-black text-slate-900 tracking-wider">
+                          <span className="text-sm font-extrabold text-slate-900 tracking-wider">
                             {coupon.code}
                           </span>
                         </div>
                       </td>
                       <td className="px-8 py-6 text-center">
-                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[11px] font-black uppercase tracking-widest">
+                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-micro font-bold uppercase tracking-premium">
                           {coupon.discountType === 'percentage' 
                             ? `Giảm ${coupon.discountValue}%` 
                             : `Giảm ${coupon.discountValue.toLocaleString()}đ`}
@@ -846,19 +846,19 @@ const AdminDashboard: React.FC = () => {
                       <td className="px-8 py-6 text-center text-[13px] font-bold text-slate-600">
                         {coupon.minOrderValue.toLocaleString()}đ
                       </td>
-                      <td className="px-8 py-6 text-center text-[11px] font-bold text-slate-500">
+                      <td className="px-8 py-6 text-center text-micro font-bold text-slate-500">
                         {new Date(coupon.expiryDate).toLocaleDateString('vi-VN')}
                       </td>
                       <td className="px-8 py-6 text-center">
-                        <span className="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
+                        <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
                           {coupon.usedCount || 0}
                         </span>
-                        <span className="text-[10px] text-slate-400 font-bold ml-1">
+                        <span className="text-micro text-slate-400 font-bold ml-1">
                           / {coupon.usageLimit || 100}
                         </span>
                       </td>
                       <td className="px-8 py-6 text-center">
-                        <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${
+                        <span className={`px-3 py-1 rounded-lg text-micro font-bold uppercase tracking-premium ${
                           coupon.isActive 
                           ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-100' 
                           : 'bg-slate-200 text-slate-500'
@@ -922,18 +922,18 @@ const AdminDashboard: React.FC = () => {
                     <i className="fa-solid fa-microchip text-xl"></i>
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Model Hiện tại</p>
-                    <h3 className="text-xl font-black">{AVAILABLE_AI_MODELS.find(m => m.id === aiConfig.activeModelId)?.name || 'Gemini 3 Flash'}</h3>
+                    <p className="text-micro font-bold uppercase tracking-premium opacity-60">Model Hiện tại</p>
+                    <h3 className="text-xl font-extrabold">{AVAILABLE_AI_MODELS.find(m => m.id === aiConfig.activeModelId)?.name || 'Gemini 3 Flash'}</h3>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="opacity-60">Trạng thái:</span>
-                    <span className="font-bold">Đang hoạt động</span>
+                    <span className="opacity-60 font-medium">Trạng thái:</span>
+                    <span className="font-extrabold uppercase tracking-tight">Hoạt động</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="opacity-60">Phiên bản:</span>
-                    <span className="font-bold">Latest Preview</span>
+                    <span className="opacity-60 font-medium">Phiên bản:</span>
+                    <span className="font-extrabold uppercase tracking-tight">Latest</span>
                   </div>
                 </div>
               </div>
@@ -943,7 +943,7 @@ const AdminDashboard: React.FC = () => {
                   <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center">
                     <i className="fa-solid fa-circle-info"></i>
                   </div>
-                  <h3 className="font-black text-slate-900">Lưu ý về hạn mức (Rate Limits)</h3>
+                  <h3 className="font-extrabold text-slate-900 uppercase tracking-tight">Lưu ý về hạn mức (Rate Limits)</h3>
                 </div>
                 <p className="text-sm text-slate-500 leading-relaxed font-medium">
                   Hệ thống sử dụng Gemini API. Các model có hạn mức khác nhau về RPM (Requests/Min) và TPM (Tokens/Min). 
@@ -955,8 +955,8 @@ const AdminDashboard: React.FC = () => {
             {/* Model Selection Table */}
             <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
               <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center">
-                <h3 className="font-black text-slate-900 text-lg">Danh sách Model khả dụng</h3>
-                <div className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                <h3 className="font-extrabold text-slate-900 text-lg uppercase tracking-tight">Danh sách Model khả dụng</h3>
+                <div className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-micro font-bold uppercase tracking-premium">
                   {AVAILABLE_AI_MODELS.length} Model được hỗ trợ
                 </div>
               </div>
@@ -964,12 +964,12 @@ const AdminDashboard: React.FC = () => {
                 <table className="w-full text-left border-collapse">
                   <thead className="bg-slate-50 border-b border-slate-100">
                     <tr>
-                      <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Model ID</th>
-                      <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Phân loại</th>
-                      <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">RPM</th>
-                      <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">TPM</th>
-                      <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">RPD</th>
-                      <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Hành động</th>
+                      <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Model ID</th>
+                      <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Phân loại</th>
+                      <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">RPM</th>
+                      <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">TPM</th>
+                      <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">RPD</th>
+                      <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-right">Hành động</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
@@ -981,13 +981,13 @@ const AdminDashboard: React.FC = () => {
                               <i className="fa-solid fa-microchip text-xs"></i>
                             </div>
                             <div>
-                              <p className="text-sm font-black text-slate-900">{model.name}</p>
-                              <code className="text-[10px] text-slate-400">{model.id}</code>
+                              <p className="text-sm font-extrabold text-slate-900">{model.name}</p>
+                              <code className="text-micro font-bold text-slate-400">{model.id}</code>
                             </div>
                           </div>
                         </td>
                         <td className="px-8 py-6">
-                          <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest">
+                          <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-micro font-bold uppercase tracking-premium">
                             {model.category}
                           </span>
                         </td>
@@ -996,7 +996,7 @@ const AdminDashboard: React.FC = () => {
                         <td className="px-8 py-6 text-center text-sm font-bold text-slate-600">{model.rpd}</td>
                         <td className="px-8 py-6 text-right">
                           {aiConfig.activeModelId === model.id ? (
-                            <div className="flex items-center justify-end gap-2 text-indigo-600 font-black text-[10px] uppercase tracking-widest">
+                            <div className="flex items-center justify-end gap-2 text-indigo-600 font-bold text-micro uppercase tracking-premium">
                               <i className="fa-solid fa-circle-check"></i>
                               <span>Đang sử dụng</span>
                             </div>
@@ -1004,7 +1004,7 @@ const AdminDashboard: React.FC = () => {
                             <button
                               disabled={isUpdatingAI}
                               onClick={() => handleUpdateAIModel(model.id)}
-                              className="px-4 py-2 bg-white border border-slate-200 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all disabled:opacity-50"
+                              className="px-4 py-2 bg-white border border-slate-200 text-slate-900 rounded-xl text-micro font-bold uppercase tracking-premium hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all disabled:opacity-50"
                             >
                               Sử dụng
                             </button>
@@ -1025,13 +1025,13 @@ const AdminDashboard: React.FC = () => {
             <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Vai trò:</span>
+                  <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Vai trò:</span>
                   <div className="flex gap-2 p-1 bg-slate-100 rounded-xl">
                     {(['all', 'admin', 'user'] as const).map(role => (
                       <button
                         key={role}
                         onClick={() => setUserRoleFilter(role)}
-                        className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                        className={`px-4 py-1.5 rounded-lg text-micro font-bold uppercase tracking-premium transition-all ${
                           userRoleFilter === role 
                           ? 'bg-slate-900 text-white shadow-lg' 
                           : 'text-slate-500 hover:text-slate-900'
@@ -1044,13 +1044,13 @@ const AdminDashboard: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Trạng thái:</span>
+                  <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Trạng thái:</span>
                   <div className="flex gap-2 p-1 bg-slate-100 rounded-xl">
                     {(['all', 'active', 'banned'] as const).map(status => (
                       <button
                         key={status}
                         onClick={() => setUserStatusFilter(status)}
-                        className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                        className={`px-4 py-1.5 rounded-lg text-micro font-bold uppercase tracking-premium transition-all ${
                           userStatusFilter === status 
                           ? (status === 'banned' ? 'bg-rose-500 text-white shadow-lg shadow-rose-100' : 'bg-slate-900 text-white shadow-lg shadow-slate-100')
                           : 'text-slate-500 hover:text-slate-900'
@@ -1088,12 +1088,12 @@ const AdminDashboard: React.FC = () => {
               <table className="w-full text-left border-collapse">
                 <thead className="bg-slate-50 border-b border-slate-100">
                   <tr>
-                    <th className="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Người dùng</th>
-                    <th className="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Liên hệ</th>
-                    <th className="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Thông tin thêm</th>
-                    <th className="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Vai trò</th>
-                    <th className="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Trạng thái</th>
-                    <th className="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Thao tác</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Người dùng</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Liên hệ</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Thông tin thêm</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Vai trò</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Trạng thái</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-right">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -1107,18 +1107,18 @@ const AdminDashboard: React.FC = () => {
                             alt={user.name} 
                           />
                           <div>
-                            <p className="text-sm font-black text-slate-900">{user.name || 'Hội viên DigiBook'}</p>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{user.email}</p>
+                            <p className="text-sm font-extrabold text-slate-900">{user.name || 'Hội viên DigiBook'}</p>
+                            <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">{user.email}</p>
                           </div>
                         </div>
                       </td>
                       <td className="px-8 py-6">
                         <div className="space-y-1.5">
-                          <p className="text-[11px] font-black text-slate-700 flex items-center gap-2">
+                          <p className="text-micro font-bold text-slate-700 flex items-center gap-2">
                             <i className="fa-solid fa-phone text-indigo-400 text-[10px]"></i>
                             {user.phone || 'Chưa có SĐT'}
                           </p>
-                          <p className="text-[10px] font-bold text-slate-400 flex items-start gap-2 max-w-[180px]">
+                          <p className="text-micro font-medium text-slate-400 flex items-start gap-2 max-w-[180px]">
                             <i className="fa-solid fa-location-dot text-slate-300 mt-0.5"></i>
                             <span className="leading-relaxed">{user.address || 'Địa chỉ trống'}</span>
                           </p>
@@ -1127,28 +1127,28 @@ const AdminDashboard: React.FC = () => {
                       <td className="px-8 py-6">
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
-                            <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider ${
+                            <span className={`px-2 py-0.5 rounded-lg text-micro font-bold uppercase tracking-premium ${
                               user.gender === 'Nữ' ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-blue-600'
                             }`}>
                               {user.gender || 'N/A'}
                             </span>
-                            <span className="text-[10px] font-black text-slate-500 bg-slate-100 px-2 py-0.5 rounded-lg">
+                            <span className="text-micro font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-lg">
                               {user.birthday || '--/--/----'}
                             </span>
                           </div>
                           {user.bio ? (
-                            <p className="text-[10px] text-slate-400 italic font-medium line-clamp-1 max-w-[150px]" title={user.bio}>
+                            <p className="text-xs text-slate-400 italic font-medium line-clamp-1 max-w-[150px]" title={user.bio}>
                               "{user.bio}"
                             </p>
                           ) : (
-                            <p className="text-[10px] text-slate-300 italic">Chưa có giới thiệu</p>
+                            <p className="text-xs text-slate-300 italic">Chưa có giới thiệu</p>
                           )}
                         </div>
                       </td>
                       <td className="px-8 py-6 text-center">
                         <button 
                           onClick={() => handleUpdateUserRole(user.id, user.role || 'user')}
-                          className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm ${
+                          className={`px-4 py-1.5 rounded-xl text-micro font-bold uppercase tracking-premium transition-all shadow-sm ${
                             user.role === 'admin' 
                             ? 'bg-indigo-600 text-white shadow-indigo-100 hover:scale-105' 
                             : 'bg-white border border-slate-100 text-slate-500 hover:bg-slate-50'
@@ -1159,7 +1159,7 @@ const AdminDashboard: React.FC = () => {
                       </td>
                       <td className="px-8 py-6 text-center">
                         <div className="flex flex-col items-center gap-1">
-                          <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${
+                          <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg text-micro font-bold uppercase tracking-premium ${
                             user.status === 'banned' 
                             ? 'bg-rose-50 text-rose-600' 
                             : 'bg-emerald-50 text-emerald-600'
@@ -1167,8 +1167,8 @@ const AdminDashboard: React.FC = () => {
                             <div className={`w-1.5 h-1.5 rounded-full ${user.status === 'banned' ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500'}`}></div>
                             {user.status === 'banned' ? 'Đã khóa' : 'Hoạt động'}
                           </span>
-                          <span className="text-[8px] font-bold text-slate-300 uppercase tracking-tighter">
-                            LC: {user.updatedAt?.toDate ? user.updatedAt.toDate().toLocaleDateString('vi-VN') : 'N/A'}
+                          <span className="text-micro font-medium text-slate-300 uppercase tracking-premium">
+                            Cập nhật: {user.updatedAt?.toDate ? user.updatedAt.toDate().toLocaleDateString('vi-VN') : 'N/A'}
                           </span>
                         </div>
                       </td>
@@ -1200,7 +1200,7 @@ const AdminDashboard: React.FC = () => {
                       <td colSpan={6} className="px-8 py-20 text-center">
                         <div className="flex flex-col items-center gap-4 opacity-30">
                           <i className="fa-solid fa-users-slash text-6xl text-slate-200"></i>
-                          <span className="text-sm font-black text-slate-400 uppercase tracking-widest">Không tìm thấy người dùng nào</span>
+                          <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Không tìm thấy người dùng nào</span>
                         </div>
                       </td>
                     </tr>
@@ -1216,15 +1216,15 @@ const AdminDashboard: React.FC = () => {
             {/* Log Filters Bar */}
             <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
               <div className="flex items-center gap-4">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Trạng thái:</span>
+                <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Trạng thái:</span>
                 <div className="flex gap-2 p-1 bg-slate-100 rounded-xl">
                   {(['ALL', 'SUCCESS', 'ERROR'] as const).map(status => (
                     <button
                       key={status}
                       onClick={() => setLogStatusFilter(status)}
-                      className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                      className={`px-4 py-1.5 rounded-lg text-micro font-bold uppercase tracking-premium transition-all ${
                         logStatusFilter === status 
-                        ? (status === 'ERROR' ? 'bg-rose-500 text-white' : status === 'SUCCESS' ? 'bg-emerald-500 text-white' : 'bg-slate-900 text-white')
+                        ? (status === 'ERROR' ? 'bg-rose-500 text-white shadow-lg shadow-rose-100' : status === 'SUCCESS' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-100' : 'bg-slate-900 text-white shadow-lg shadow-slate-100')
                         : 'text-slate-500 hover:text-slate-900'
                       }`}
                     >
@@ -1235,11 +1235,11 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-4">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Phân loại:</span>
+                <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Phân loại:</span>
                 <select 
                   value={logActionFilter}
                   onChange={(e) => setLogActionFilter(e.target.value)}
-                  className="bg-slate-100 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest outline-none border-none focus:ring-2 ring-indigo-100"
+                  className="bg-slate-100 px-4 py-2 rounded-xl text-micro font-bold uppercase tracking-premium outline-none border-none focus:ring-2 ring-indigo-100"
                 >
                   <option value="ALL">Tất cả hành động</option>
                   {uniqueActions.map(act => (
@@ -1261,35 +1261,35 @@ const AdminDashboard: React.FC = () => {
               <table className="w-full text-left">
                 <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest w-48">Thời gian</th>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest w-40">Hành động</th>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Chi tiết bản ghi</th>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest w-40">Tác nhân</th>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-32">Kết quả</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium w-48">Thời gian</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium w-40">Hành động</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Chi tiết bản ghi</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium w-40">Tác nhân</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center w-32">Kết quả</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {paginatedLogs.length > 0 ? paginatedLogs.map(log => (
                     <tr key={log.id} className="hover:bg-slate-50 transition-all group">
-                      <td className="px-8 py-5 text-[11px] text-slate-500 font-bold">
+                      <td className="px-8 py-5 text-micro font-bold text-slate-900 tracking-tight">
                         {log.createdAt?.toDate().toLocaleString('vi-VN', { 
                           day: '2-digit', month: '2-digit', year: 'numeric',
                           hour: '2-digit', minute: '2-digit', second: '2-digit'
                         })}
                       </td>
                       <td className="px-8 py-5">
-                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-tighter bg-slate-100 px-2 py-1 rounded-md">
+                        <span className="text-micro font-bold text-slate-900 uppercase tracking-tighter bg-slate-100 px-2 py-1 rounded-md">
                           {log.action}
                         </span>
                       </td>
-                      <td className="px-8 py-5 text-[11px] text-slate-600 font-medium max-w-md truncate group-hover:whitespace-normal group-hover:overflow-visible group-hover:bg-slate-50 transition-all">
+                      <td className="px-8 py-5 text-[13px] text-slate-600 font-bold max-w-md truncate group-hover:whitespace-normal group-hover:overflow-visible group-hover:bg-slate-50 transition-all">
                         {log.detail}
                       </td>
-                      <td className="px-8 py-5 text-[11px] text-slate-400 font-bold italic">
+                      <td className="px-8 py-5 text-micro text-slate-400 font-extrabold italic">
                         {log.user.split('@')[0]}
                       </td>
                       <td className="px-8 py-5 text-center">
-                        <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${
+                        <span className={`px-3 py-1 rounded-lg text-micro font-bold uppercase tracking-premium ${
                           log.status === 'SUCCESS' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
                         }`}>
                           {log.status}
@@ -1302,7 +1302,7 @@ const AdminDashboard: React.FC = () => {
                         <div className="opacity-20 mb-4">
                           <i className="fa-solid fa-terminal text-5xl"></i>
                         </div>
-                        <p className="text-xs font-black text-slate-300 uppercase tracking-[0.2em]">Không tìm thấy bản ghi nào khớp với bộ lọc</p>
+                        <p className="text-xs font-bold text-slate-300 uppercase tracking-premium">Không tìm thấy bản ghi nào khớp với bộ lọc</p>
                       </td>
                     </tr>
                   )}
@@ -1383,7 +1383,7 @@ const AdminDashboard: React.FC = () => {
 
         {/* ... (Overview, Books và các tab khác được giữ nguyên cấu trúc) ... */}
         {activeTab === 'overview' && (
-          <div className="space-y-8 animate-fadeIn">
+          <div className="space-y-8 fade-in">
             {/* Main Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
@@ -1422,8 +1422,8 @@ const AdminDashboard: React.FC = () => {
                     <div className={`w-14 h-14 ${item.color} rounded-2xl flex items-center justify-center text-white mb-4 shadow-xl group-hover:scale-110 transition-transform`}>
                       <i className={`fa-solid ${item.icon} text-xl`}></i>
                     </div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{item.label}</p>
-                    <p className="text-3xl font-black text-slate-900 mb-1">{item.value}</p>
+                    <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">{item.label}</p>
+                    <p className="text-3xl font-extrabold text-slate-900 mb-1">{item.value}</p>
                     <p className="text-xs text-slate-500 font-semibold">{item.subtext}</p>
                   </div>
                 </div>
@@ -1434,69 +1434,69 @@ const AdminDashboard: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">Trạng thái kho</h3>
+                  <h3 className="text-label font-bold text-slate-900 uppercase tracking-premium">Trạng thái kho</h3>
                   <i className="fa-solid fa-warehouse text-slate-300"></i>
                 </div>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-600">Sắp hết hàng</span>
-                    <span className="px-3 py-1 bg-amber-50 text-amber-600 rounded-lg text-xs font-black">{stats.lowStock}</span>
+                    <span className="px-3 py-1 bg-amber-50 text-amber-600 rounded-lg text-micro font-bold">{stats.lowStock}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-600">Hết hàng</span>
-                    <span className="px-3 py-1 bg-rose-50 text-rose-600 rounded-lg text-xs font-black">{stats.outOfStock}</span>
+                    <span className="px-3 py-1 bg-rose-50 text-rose-600 rounded-lg text-micro font-bold">{stats.outOfStock}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-600">Tổng số đầu sách</span>
-                    <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-black">{books.length}</span>
+                    <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-micro font-bold">{books.length}</span>
                   </div>
                 </div>
               </div>
 
               <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">Nội dung</h3>
+                  <h3 className="text-label font-bold text-slate-900 uppercase tracking-premium">Nội dung</h3>
                   <i className="fa-solid fa-database text-slate-300"></i>
                 </div>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-600">Tác giả</span>
-                    <span className="px-3 py-1 bg-purple-50 text-purple-600 rounded-lg text-xs font-black">{stats.totalAuthors}</span>
+                    <span className="px-3 py-1 bg-purple-50 text-purple-600 rounded-lg text-micro font-bold">{stats.totalAuthors}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-600">Danh mục</span>
-                    <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-black">{stats.totalCategories}</span>
+                    <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-micro font-bold">{stats.totalCategories}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-600">Mã khuyến mãi</span>
-                    <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-black">{stats.totalCoupons}</span>
+                    <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-micro font-bold">{stats.totalCoupons}</span>
                   </div>
                 </div>
               </div>
 
               <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-6 rounded-[2rem] shadow-lg text-white">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-black uppercase tracking-wider">Thao tác nhanh</h3>
+                  <h3 className="text-label font-bold uppercase tracking-premium">Thao tác nhanh</h3>
                   <i className="fa-solid fa-bolt text-white/50"></i>
                 </div>
                 <div className="space-y-2">
                   <button
                     onClick={() => setActiveTab('books')}
-                    className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2.5 rounded-xl text-xs font-bold transition-all text-left flex items-center gap-2"
+                    className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2.5 rounded-xl text-micro font-bold transition-all text-left flex items-center gap-2 uppercase tracking-premium"
                   >
                     <i className="fa-solid fa-book"></i>
                     <span>Quản lý kho sách</span>
                   </button>
                   <button
                     onClick={() => setActiveTab('orders')}
-                    className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2.5 rounded-xl text-xs font-bold transition-all text-left flex items-center gap-2"
+                    className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2.5 rounded-xl text-micro font-bold transition-all text-left flex items-center gap-2 uppercase tracking-premium"
                   >
                     <i className="fa-solid fa-shopping-cart"></i>
                     <span>Xử lý đơn hàng</span>
                   </button>
                   <button
                     onClick={() => setActiveTab('coupons')}
-                    className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2.5 rounded-xl text-xs font-bold transition-all text-left flex items-center gap-2"
+                    className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2.5 rounded-xl text-micro font-bold transition-all text-left flex items-center gap-2 uppercase tracking-premium"
                   >
                     <i className="fa-solid fa-ticket"></i>
                     <span>Tạo khuyến mãi</span>
@@ -1510,36 +1510,44 @@ const AdminDashboard: React.FC = () => {
               <div className="lg:col-span-8 bg-white p-8 lg:p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
                 <div className="flex items-center justify-between mb-10">
                   <div>
-                    <h3 className="text-xl font-black text-slate-900">Doanh thu hệ thống</h3>
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Phân tích 7 ngày gần nhất</p>
+                    <h3 className="text-xl font-extrabold text-slate-900">Doanh thu hệ thống</h3>
+                    <p className="text-micro text-slate-400 font-bold uppercase tracking-premium mt-1">Phân tích lưu lượng & doanh thu theo giờ</p>
                   </div>
                   <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-indigo-600"></div>
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tăng trưởng</span>
+                      <div className="w-3 h-3 rounded-full bg-indigo-600 animate-pulse"></div>
+                      <span className="text-micro font-bold text-indigo-600 uppercase tracking-premium">Thời gian thực</span>
                     </div>
-                    <select className="bg-slate-50 border-none rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-2 ring-indigo-50">
-                      <option>Tháng này</option>
-                      <option>Tháng trước</option>
+                    <select className="bg-slate-50 border-none rounded-xl px-4 py-2 text-micro font-bold uppercase tracking-premium outline-none focus:ring-2 ring-indigo-50">
+                      <option>Hôm nay</option>
+                      <option>Hôm qua</option>
                     </select>
                   </div>
                 </div>
                 
-                <div className="h-80 flex items-end justify-between gap-4 lg:gap-8 px-2 lg:px-4">
-                  {[45, 62, 38, 85, 55, 92, 75].map((v, i) => (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-4 group">
+                <div className="h-80 flex items-end justify-between gap-3 px-4 bg-slate-50/30 rounded-3xl border border-slate-50 pb-4 pt-10 relative">
+                  {/* Background Grid Lines (Optional but for visibility) */}
+                  <div className="absolute inset-x-0 top-1/4 h-px bg-slate-100/50 pointer-events-none"></div>
+                  <div className="absolute inset-x-0 top-2/4 h-px bg-slate-100/50 pointer-events-none"></div>
+                  <div className="absolute inset-x-0 top-3/4 h-px bg-slate-100/50 pointer-events-none"></div>
+
+                  {[15, 12, 8, 25, 45, 65, 80, 72, 90, 85, 60, 35].map((v, i) => (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-4 group h-full relative z-10">
                       <div className="relative w-full flex justify-center items-end h-full">
                          <div 
                            style={{ height: `${v}%` }} 
-                           className="w-full max-w-[48px] bg-indigo-50 group-hover:bg-indigo-600 rounded-2xl transition-all duration-700 relative shadow-inner"
+                           className="w-full max-w-[42px] bg-indigo-600 rounded-t-xl transition-all duration-1000 relative shadow-lg shadow-indigo-100 group-hover:bg-indigo-500 group-hover:scale-x-105 origin-bottom"
                          >
-                           <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-black px-3 py-1.5 rounded-xl opacity-0 group-hover:opacity-100 transition-all transform group-hover:-translate-y-2 shadow-xl whitespace-nowrap">
-                             {(v * 1200000).toLocaleString()}đ
+                           {/* Data Tooltip */}
+                           <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-micro font-bold px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all transform group-hover:-translate-y-2 shadow-2xl whitespace-nowrap z-30 flex flex-col items-center gap-0.5">
+                             <span className="text-indigo-400 text-micro uppercase">{((i+1)*2).toString().padStart(2, '0')}:00</span>
+                             <span>{(v * 450000).toLocaleString()}đ</span>
+                             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45"></div>
                            </div>
                          </div>
                       </div>
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] transform -rotate-45 sm:rotate-0">
-                        T{i + 2 === 8 ? 'CN' : i + 2}
+                      <span className="text-micro font-bold text-slate-400 group-hover:text-indigo-600 transition-colors">
+                        {((i+1)*2).toString().padStart(2, '0')}h
                       </span>
                     </div>
                   ))}
@@ -1548,7 +1556,7 @@ const AdminDashboard: React.FC = () => {
 
               <div className="lg:col-span-4 space-y-8">
                  <div className="bg-white p-8 lg:p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
-                    <h3 className="text-xl font-black text-slate-900 mb-8">Danh mục hot</h3>
+                    <h3 className="text-xl font-extrabold text-slate-900 mb-8">Danh mục hot</h3>
                     <div className="space-y-8">
                       {[
                         { name: 'Kinh tế', percent: 42, color: 'bg-indigo-600', icon: 'fa-chart-line' },
@@ -1559,29 +1567,18 @@ const AdminDashboard: React.FC = () => {
                         <div key={i} className="space-y-3">
                           <div className="flex justify-between items-center">
                             <div className="flex items-center gap-3">
-                              <div className={`w-8 h-8 ${cat.color} rounded-lg flex items-center justify-center text-white text-[10px]`}>
+                              <div className={`w-8 h-8 ${cat.color} rounded-lg flex items-center justify-center text-white text-micro`}>
                                 <i className={`fa-solid ${cat.icon}`}></i>
                               </div>
-                              <span className="text-xs font-black text-slate-700 uppercase tracking-widest">{cat.name}</span>
+                              <span className="text-micro font-bold text-slate-700 uppercase tracking-premium">{cat.name}</span>
                             </div>
-                            <span className="text-xs font-black text-slate-900">{cat.percent}%</span>
+                            <span className="text-micro font-bold text-slate-900">{cat.percent}%</span>
                           </div>
                           <div className="h-2.5 w-full bg-slate-50 rounded-full overflow-hidden border border-slate-100">
                             <div style={{ width: `${cat.percent}%` }} className={`h-full ${cat.color} rounded-full shadow-lg`}></div>
                           </div>
                         </div>
                       ))}
-                    </div>
-                 </div>
-
-                 <div className="bg-slate-900 p-8 lg:p-10 rounded-[2.5rem] text-white shadow-2xl shadow-indigo-100 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
-                    <div className="relative z-10">
-                      <h4 className="text-lg font-black mb-2 uppercase tracking-tight">Hệ thống AI</h4>
-                      <p className="text-[11px] text-slate-400 font-bold mb-6 leading-relaxed uppercase tracking-widest">Tự động hóa quản lý kho & báo cáo thông minh</p>
-                      <button className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-500/20 active:scale-95">
-                        Khởi chạy Agent
-                      </button>
                     </div>
                  </div>
               </div>
@@ -1591,12 +1588,12 @@ const AdminDashboard: React.FC = () => {
             <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-black text-slate-900">Đơn hàng gần đây</h3>
-                  <p className="text-xs text-slate-500 mt-1">5 đơn hàng mới nhất</p>
+                  <h3 className="text-lg font-extrabold text-slate-900 uppercase tracking-tight">Đơn hàng gần đây</h3>
+                  <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">5 đơn hàng mới nhất</p>
                 </div>
                 <button
                   onClick={() => setActiveTab('orders')}
-                  className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+                  className="text-micro font-bold uppercase tracking-premium text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
                 >
                   <span>Xem tất cả</span>
                   <i className="fa-solid fa-arrow-right"></i>
@@ -1615,20 +1612,20 @@ const AdminDashboard: React.FC = () => {
                         <i className="fa-solid fa-shopping-bag text-sm"></i>
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-slate-900">{order.customer.name}</p>
-                        <p className="text-xs text-slate-500">{order.customer.phone}</p>
+                        <p className="text-sm font-extrabold text-slate-900">{order.customer.name}</p>
+                        <p className="text-micro font-bold text-slate-500 uppercase tracking-premium">{order.customer.phone}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-black text-slate-900">{formatPrice(order.payment.total)}</p>
-                      <p className="text-xs text-slate-500">{order.status}</p>
+                      <p className="text-sm font-extrabold text-slate-900">{formatPrice(order.payment.total)}</p>
+                      <p className="text-micro font-bold uppercase tracking-premium text-slate-500">{order.status}</p>
                     </div>
                   </div>
                 ))}
                 {orders.length === 0 && (
                   <div className="text-center py-8 text-slate-400">
                     <i className="fa-solid fa-inbox text-4xl mb-2"></i>
-                    <p className="text-sm font-bold">Chưa có đơn hàng nào</p>
+                    <p className="text-micro font-bold uppercase tracking-premium">Chưa có đơn hàng nào</p>
                   </div>
                 )}
               </div>
@@ -1641,7 +1638,7 @@ const AdminDashboard: React.FC = () => {
           <div className="space-y-6 animate-fadeIn">
             <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
               <div className="flex items-center gap-4">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Lọc kho:</span>
+                <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Lọc kho:</span>
                 <div className="flex gap-2 p-1 bg-slate-100 rounded-xl">
                   {[
                     { id: 'all', label: 'Tất cả' },
@@ -1651,9 +1648,9 @@ const AdminDashboard: React.FC = () => {
                     <button
                       key={filter.id}
                       onClick={() => setFilterStock(filter.id as any)}
-                      className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                      className={`px-4 py-1.5 rounded-lg text-micro font-bold uppercase tracking-premium transition-all ${
                         filterStock === filter.id 
-                        ? 'bg-indigo-600 text-white' 
+                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
                         : 'text-slate-500 hover:text-slate-900'
                       }`}
                     >
@@ -1712,7 +1709,7 @@ const AdminDashboard: React.FC = () => {
                   <button 
                     onClick={handleBulkDeleteBooks}
                     disabled={isDeletingBulk}
-                    className="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-rose-100 transition-all flex items-center gap-2"
+                    className="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl text-micro font-bold uppercase tracking-premium hover:bg-rose-100 transition-all flex items-center gap-2"
                   >
                     <i className={isDeletingBulk ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-trash-can"}></i>
                     <span>Xóa hàng loạt</span>
@@ -1725,22 +1722,22 @@ const AdminDashboard: React.FC = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50/50 border-bottom border-slate-100">
-                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest w-12 text-center">
+                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium w-12 text-center">
                       <div 
                         onClick={toggleSelectAllBooks}
                         className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
                           selectedBooks.length === filteredBooks.length && filteredBooks.length > 0
-                          ? 'bg-indigo-600 border-indigo-600 text-white' 
-                          : 'border-slate-300 bg-white'
+                          ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100' 
+                          : 'border-slate-300 bg-white shadow-inner'
                         }`}
                       >
                         {selectedBooks.length === filteredBooks.length && filteredBooks.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
                       </div>
                     </th>
-                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Thông tin sách</th>
-                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest hidden md:table-cell">Giá bán</th>
-                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest hidden lg:table-cell">Tồn kho</th>
-                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Thao tác</th>
+                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium">Thông tin sách</th>
+                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium hidden md:table-cell">Giá bán</th>
+                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium hidden lg:table-cell">Tồn kho</th>
+                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium text-right">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -1762,17 +1759,17 @@ const AdminDashboard: React.FC = () => {
                         <div className="flex items-center gap-4">
                           <img src={book.cover || '/placeholder-book.jpg'} alt={book.title} className="w-12 h-16 object-cover rounded-lg shadow-sm" />
                           <div>
-                            <h3 className="font-bold text-slate-900 text-sm mb-0.5 line-clamp-1">{book.title}</h3>
-                            <p className="text-xs text-slate-500 font-medium">{book.author}</p>
-                            <p className="text-[10px] text-slate-400 mt-1 md:hidden font-bold">{formatPrice(book.price)} • {book.stock_quantity > 0 ? `${book.stock_quantity} cuốn` : 'Hết hàng'}</p>
+                            <h3 className="font-extrabold text-slate-900 text-sm mb-0.5 line-clamp-1">{book.title}</h3>
+                            <p className="text-micro font-bold text-slate-500 uppercase tracking-premium">{book.author}</p>
+                            <p className="text-micro text-slate-400 mt-1 md:hidden font-extrabold">{formatPrice(book.price)} • {book.stock_quantity > 0 ? `${book.stock_quantity} cuốn` : 'Hết hàng'}</p>
                           </div>
                         </div>
                       </td>
                       <td className="p-6 hidden md:table-cell">
-                        <span className="text-sm font-black text-indigo-600">{formatPrice(book.price)}</span>
+                        <span className="text-sm font-extrabold text-indigo-600 tracking-tight">{formatPrice(book.price)}</span>
                       </td>
                       <td className="p-6 hidden lg:table-cell">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase ${
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-micro font-bold uppercase tracking-premium ${
                           book.stock_quantity > 10 ? 'bg-emerald-50 text-emerald-600' :
                           book.stock_quantity > 0 ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'
                         }`}>
@@ -1810,7 +1807,7 @@ const AdminDashboard: React.FC = () => {
                   <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i className="fa-solid fa-box-open text-slate-300 text-2xl"></i>
                   </div>
-                  <h3 className="font-bold text-slate-400 uppercase tracking-widest text-xs">Không có dữ liệu phù hợp</h3>
+                  <h3 className="font-bold text-slate-400 uppercase tracking-premium text-micro">Không có dữ liệu phù hợp</h3>
                 </div>
               )}
             </div>
@@ -1821,12 +1818,12 @@ const AdminDashboard: React.FC = () => {
           <div className="space-y-6 animate-fadeIn">
             <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
               <div>
-                <h3 className="text-lg font-black text-slate-900">Quản lý tác giả</h3>
-                <p className="text-xs text-slate-500 mt-1">Tổng cộng {authors.length} tác giả</p>
+                <h3 className="text-lg font-extrabold text-slate-900 uppercase tracking-tight">Quản lý tác giả</h3>
+                <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Tổng cộng {authors.length} tác giả</p>
               </div>
               <button 
                 onClick={handleOpenAddAuthor}
-                className="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
+                className="bg-indigo-600 text-white px-6 py-3 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
               >
                 <i className="fa-solid fa-plus mr-2"></i>Thêm tác giả mới
               </button>
@@ -1841,26 +1838,26 @@ const AdminDashboard: React.FC = () => {
                       onClick={toggleSelectAllAuthors}
                       className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
                         selectedAuthors.length === authors.length && authors.length > 0
-                        ? 'bg-indigo-600 border-indigo-600 text-white' 
-                        : 'border-slate-300 group-hover:border-indigo-400'
+                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100' 
+                        : 'border-slate-300 group-hover:border-indigo-400 shadow-inner'
                       }`}
                     >
                       {selectedAuthors.length === authors.length && authors.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
                     </div>
-                    <span className="text-xs font-bold text-slate-600">Chọn tất cả ({authors.length})</span>
+                    <span className="text-micro font-bold text-slate-600 uppercase tracking-premium">Chọn tất cả ({authors.length})</span>
                   </label>
                   {selectedAuthors.length > 0 && (
                     <div className="h-4 w-px bg-slate-200"></div>
                   )}
                   {selectedAuthors.length > 0 && (
-                    <span className="text-xs font-bold text-indigo-600">Đã chọn {selectedAuthors.length} tác giả</span>
+                    <span className="text-micro font-bold text-indigo-600 uppercase tracking-premium">Đã chọn {selectedAuthors.length} tác giả</span>
                   )}
                 </div>
                 {selectedAuthors.length > 0 && (
                   <button 
                     onClick={handleBulkDeleteAuthors}
                     disabled={isDeletingBulk}
-                    className="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-rose-100 transition-all flex items-center gap-2"
+                    className="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl text-micro font-bold uppercase tracking-premium hover:bg-rose-100 transition-all flex items-center gap-2"
                   >
                     <i className={isDeletingBulk ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-trash-can"}></i>
                     <span>Xóa hàng loạt</span>
@@ -1873,21 +1870,21 @@ const AdminDashboard: React.FC = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50/50 border-bottom border-slate-100">
-                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest w-12 text-center">
+                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium w-12 text-center">
                       <div 
                         onClick={toggleSelectAllAuthors}
                         className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
                           selectedAuthors.length === authors.length && authors.length > 0
-                          ? 'bg-indigo-600 border-indigo-600 text-white' 
-                          : 'border-slate-300 bg-white'
+                          ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100' 
+                          : 'border-slate-300 bg-white shadow-inner'
                         }`}
                       >
                         {selectedAuthors.length === authors.length && authors.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
                       </div>
                     </th>
-                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tác giả</th>
-                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest hidden md:table-cell">Tiểu sử</th>
-                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Thao tác</th>
+                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium">Tác giả</th>
+                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium hidden md:table-cell">Tiểu sử</th>
+                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium text-right">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -1898,8 +1895,8 @@ const AdminDashboard: React.FC = () => {
                           onClick={() => toggleSelectAuthor(author.id)}
                           className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
                             selectedAuthors.includes(author.id)
-                            ? 'bg-indigo-600 border-indigo-600 text-white'
-                            : 'border-slate-300 bg-white group-hover:border-indigo-400'
+                            ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100'
+                            : 'border-slate-300 bg-white group-hover:border-indigo-400 shadow-inner'
                           }`}
                         >
                           {selectedAuthors.includes(author.id) && <i className="fa-solid fa-check text-[10px]"></i>}
@@ -1915,12 +1912,12 @@ const AdminDashboard: React.FC = () => {
                           />
                           <div>
                             <h4 className="font-bold text-slate-900 text-sm mb-0.5">{author.name}</h4>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Tác giả DigiBook</p>
+                            <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Tác giả DigiBook</p>
                           </div>
                         </div>
                       </td>
                       <td className="p-6 hidden md:table-cell max-w-xs xl:max-w-md">
-                        <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{author.bio || 'Chưa có tiểu sử'}</p>
+                        <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed font-medium">{author.bio || 'Chưa có tiểu sử'}</p>
                       </td>
                       <td className="p-6">
                         <div className="flex items-center justify-end gap-2">
@@ -1949,7 +1946,7 @@ const AdminDashboard: React.FC = () => {
                   <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i className="fa-solid fa-user-pen text-slate-300 text-2xl"></i>
                   </div>
-                  <h3 className="font-bold text-slate-400 uppercase tracking-widest text-xs">Chưa có tác giả nào</h3>
+                  <h3 className="font-bold text-slate-400 uppercase tracking-premium text-micro">Chưa có tác giả nào</h3>
                 </div>
               )}
             </div>
@@ -1960,12 +1957,12 @@ const AdminDashboard: React.FC = () => {
           <div className="space-y-6 animate-fadeIn">
             <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
               <div>
-                <h3 className="text-lg font-black text-slate-900">Quản lý danh mục</h3>
-                <p className="text-xs text-slate-500 mt-1">Tổng cộng {categories.length} danh mục</p>
+                <h3 className="text-lg font-extrabold text-slate-900 uppercase tracking-tight">Quản lý danh mục</h3>
+                <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Tổng cộng {categories.length} danh mục</p>
               </div>
               <button 
                 onClick={handleOpenAddCategory}
-                className="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
+                className="bg-indigo-600 text-white px-6 py-3 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
               >
                 <i className="fa-solid fa-plus mr-2"></i>Thêm danh mục mới
               </button>
@@ -1980,26 +1977,26 @@ const AdminDashboard: React.FC = () => {
                       onClick={toggleSelectAllCategories}
                       className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
                         selectedCategories.length === categories.length && categories.length > 0
-                        ? 'bg-indigo-600 border-indigo-600 text-white' 
-                        : 'border-slate-300 group-hover:border-indigo-400'
+                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100' 
+                        : 'border-slate-300 group-hover:border-indigo-400 shadow-inner'
                       }`}
                     >
                       {selectedCategories.length === categories.length && categories.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
                     </div>
-                    <span className="text-xs font-bold text-slate-600">Chọn tất cả ({categories.length})</span>
+                    <span className="text-micro font-bold text-slate-600 uppercase tracking-premium">Chọn tất cả ({categories.length})</span>
                   </label>
                   {selectedCategories.length > 0 && (
                     <div className="h-4 w-px bg-slate-200"></div>
                   )}
                   {selectedCategories.length > 0 && (
-                    <span className="text-xs font-bold text-indigo-600">Đã chọn {selectedCategories.length} danh mục</span>
+                    <span className="text-micro font-bold text-indigo-600 uppercase tracking-premium">Đã chọn {selectedCategories.length} danh mục</span>
                   )}
                 </div>
                 {selectedCategories.length > 0 && (
                   <button 
                     onClick={handleBulkDeleteCategories}
                     disabled={isDeletingBulk}
-                    className="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-rose-100 transition-all flex items-center gap-2"
+                    className="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl text-micro font-bold uppercase tracking-premium hover:bg-rose-100 transition-all flex items-center gap-2"
                   >
                     <i className={isDeletingBulk ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-trash-can"}></i>
                     <span>Xóa hàng loạt</span>
@@ -2012,21 +2009,21 @@ const AdminDashboard: React.FC = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50/50 border-bottom border-slate-100">
-                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest w-12 text-center">
+                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium w-12 text-center">
                       <div 
                         onClick={toggleSelectAllCategories}
                         className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
                           selectedCategories.length === categories.length && categories.length > 0
-                          ? 'bg-indigo-600 border-indigo-600 text-white' 
-                          : 'border-slate-300 bg-white'
+                          ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100' 
+                          : 'border-slate-300 bg-white shadow-inner'
                         }`}
                       >
                         {selectedCategories.length === categories.length && categories.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
                       </div>
                     </th>
-                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Danh mục</th>
-                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest hidden md:table-cell">Mô tả</th>
-                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Thao tác</th>
+                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium">Danh mục</th>
+                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium hidden md:table-cell">Mô tả</th>
+                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium text-right">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -2037,8 +2034,8 @@ const AdminDashboard: React.FC = () => {
                           onClick={() => toggleSelectCategory(category.name)}
                           className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
                             selectedCategories.includes(category.name)
-                            ? 'bg-indigo-600 border-indigo-600 text-white'
-                            : 'border-slate-300 bg-white group-hover:border-indigo-400'
+                            ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100'
+                            : 'border-slate-300 bg-white group-hover:border-indigo-400 shadow-inner'
                           }`}
                         >
                           {selectedCategories.includes(category.name) && <i className="fa-solid fa-check text-[10px]"></i>}
@@ -2051,12 +2048,12 @@ const AdminDashboard: React.FC = () => {
                           </div>
                           <div>
                             <h4 className="font-bold text-slate-900 text-sm mb-0.5">{category.name}</h4>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Danh mục sách</p>
+                            <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Danh mục sách</p>
                           </div>
                         </div>
                       </td>
                       <td className="p-6 hidden md:table-cell max-w-xs lg:max-w-md">
-                        <p className="text-xs text-slate-500 line-clamp-1 leading-relaxed">{category.description || 'Chưa có mô tả'}</p>
+                        <p className="text-xs text-slate-500 line-clamp-1 leading-relaxed font-medium">{category.description || 'Chưa có mô tả'}</p>
                       </td>
                       <td className="p-6">
                         <div className="flex items-center justify-end gap-2">
@@ -2085,7 +2082,7 @@ const AdminDashboard: React.FC = () => {
                   <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i className="fa-solid fa-tags text-slate-300 text-2xl"></i>
                   </div>
-                  <h3 className="font-bold text-slate-400 uppercase tracking-widest text-xs">Chưa có danh mục nào</h3>
+                  <h3 className="font-bold text-slate-400 uppercase tracking-premium text-micro">Chưa có danh mục nào</h3>
                 </div>
               )}
             </div>
@@ -2094,23 +2091,23 @@ const AdminDashboard: React.FC = () => {
 
         {activeTab === 'orders' && (
           <div className="space-y-6 animate-fadeIn">
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
               <table className="w-full text-left">
-                <thead className="bg-slate-50">
+                <thead className="bg-slate-50/50">
                   <tr>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Mã đơn</th>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Khách hàng</th>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tổng tiền</th>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Trạng thái</th>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ngày đặt</th>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Thao tác</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Mã đơn</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Khách hàng</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Tổng tiền</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Trạng thái</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Ngày đặt</th>
+                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Thao tác</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-slate-100">
                   {orders.length > 0 ? orders.map(order => (
-                    <tr key={order.id} className="hover:bg-slate-50 transition-all">
+                    <tr key={order.id} className="hover:bg-slate-50/50 transition-all">
                       <td className="px-8 py-5 text-sm font-bold text-slate-900">#{order.id.slice(-8)}</td>
-                      <td className="px-8 py-5 text-sm text-slate-600">{order.customer?.name || 'N/A'}</td>
+                      <td className="px-8 py-5 text-sm font-medium text-slate-600">{order.customer?.name || 'N/A'}</td>
                       <td className="px-8 py-5 text-sm font-bold text-indigo-600">{formatPrice(order.payment.total)}</td>
                       <td className="px-8 py-5">
                         <select
@@ -2129,7 +2126,7 @@ const AdminDashboard: React.FC = () => {
                               e.target.value = String(order.statusStep);
                             }
                           }}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-bold border-none outline-none cursor-pointer transition-all ${
+                          className={`px-4 py-2 rounded-xl text-micro font-bold uppercase tracking-premium border-none outline-none cursor-pointer transition-all shadow-sm ${
                             order.statusStep === 3 ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' :
                             order.statusStep === 2 ? 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100' :
                             order.statusStep === 1 ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' :
@@ -2137,21 +2134,21 @@ const AdminDashboard: React.FC = () => {
                           }`}
                         >
                           {orderStatusOptions.map(status => (
-                            <option key={status.step} value={status.step}>
+                            <option key={status.step} value={status.step} className="font-bold uppercase tracking-premium bg-white">
                               {status.label}
                             </option>
                           ))}
                         </select>
                       </td>
-                      <td className="px-8 py-5 text-sm text-slate-500">
+                      <td className="px-8 py-5 text-sm text-slate-500 font-medium whitespace-nowrap">
                         {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString('vi-VN') : order.date}
                       </td>
                       <td className="px-8 py-5 text-center">
                         <button
                           onClick={() => handleViewOrderDetails(order)}
-                          className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-bold hover:bg-indigo-100 transition-all"
+                          className="px-5 py-2.5 bg-indigo-50 text-indigo-600 rounded-xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-100 transition-all shadow-sm"
                         >
-                          <i className="fa-solid fa-eye mr-1"></i>Chi tiết
+                          <i className="fa-solid fa-eye mr-2"></i>Chi tiết
                         </button>
                       </td>
                     </tr>
@@ -2161,7 +2158,7 @@ const AdminDashboard: React.FC = () => {
                         <div className="opacity-20 mb-4">
                           <i className="fa-solid fa-receipt text-5xl"></i>
                         </div>
-                        <p className="text-xs font-black text-slate-300 uppercase tracking-[0.2em]">Chưa có đơn hàng nào</p>
+                        <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Chưa có đơn hàng nào</p>
                       </td>
                     </tr>
                   )}
@@ -2179,12 +2176,12 @@ const AdminDashboard: React.FC = () => {
             <div className="p-8 border-b border-slate-100 sticky top-0 bg-white z-10">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-black text-slate-900">Chi tiết đơn hàng</h2>
-                  <p className="text-sm text-slate-500 mt-1">Mã: #{selectedOrder.id.slice(-8)}</p>
+                  <h2 className="text-xl font-extrabold text-slate-900 uppercase tracking-tight">Chi tiết đơn hàng</h2>
+                  <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Mã đơn: #{selectedOrder.id.slice(-8)}</p>
                 </div>
                 <button
                   onClick={() => setIsOrderModalOpen(false)}
-                  className="w-10 h-10 bg-slate-100 rounded-xl hover:bg-slate-200 transition-all"
+                  className="w-10 h-10 bg-slate-100/50 text-slate-400 rounded-xl hover:bg-slate-100 hover:text-slate-600 transition-all flex items-center justify-center"
                 >
                   <i className="fa-solid fa-times"></i>
                 </button>
@@ -2193,46 +2190,51 @@ const AdminDashboard: React.FC = () => {
             
             <div className="p-8 space-y-6">
               {/* Progress Indicator */}
-              <div className="bg-slate-50 p-6 rounded-2xl">
-                <h3 className="text-sm font-black text-slate-700 mb-4">Trạng thái đơn hàng</h3>
-                <div className="flex items-center justify-between mb-4">
+              <div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100">
+                <h3 className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-6">Tiến độ đơn hàng</h3>
+                <div className="flex items-center justify-between mb-8">
                   {orderStatusOptions.map((status, index) => (
                     <React.Fragment key={status.step}>
-                      <div className="flex flex-col items-center">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm transition-all ${
+                      <div className="flex flex-col items-center flex-1 relative">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm transition-all z-10 ${
                           selectedOrder.statusStep >= status.step
-                            ? `bg-${status.color}-500 text-white`
-                            : 'bg-slate-200 text-slate-400'
+                            ? `bg-${status.color}-500 text-white shadow-lg shadow-${status.color}-100`
+                            : 'bg-white border-2 border-slate-100 text-slate-300'
                         }`}>
                           {selectedOrder.statusStep > status.step ? <i className="fa-solid fa-check"></i> : status.step + 1}
                         </div>
-                        <p className={`text-xs font-bold mt-2 ${
-                          selectedOrder.statusStep >= status.step ? 'text-slate-900' : 'text-slate-400'
+                        <p className={`text-micro font-bold mt-3 uppercase tracking-premium text-center ${
+                          selectedOrder.statusStep >= status.step ? 'text-slate-900' : 'text-slate-300'
                         }`}>
                           {status.label}
                         </p>
                       </div>
                       {index < orderStatusOptions.length - 1 && (
-                        <div className={`flex-1 h-1 mx-2 rounded ${
-                          selectedOrder.statusStep > status.step ? `bg-${status.color}-500` : 'bg-slate-200'
-                        }`}></div>
+                        <div className={`absolute left-0 right-0 h-1 mx-2 rounded -translate-y-8 ${
+                          selectedOrder.statusStep > status.step ? `bg-${status.color}-500` : 'bg-slate-100'
+                        }`} style={{
+                          left: `${(index * 25) + 12.5}%`,
+                          right: `${100 - ((index + 1) * 25) + 12.5}%`,
+                          width: 'calc(25% - 1.5rem)',
+                          margin: '0 0.75rem'
+                        }}></div>
                       )}
                     </React.Fragment>
                   ))}
                 </div>
                 
                 {/* Status Update Buttons */}
-                <div className="flex gap-2 pt-4 border-t border-slate-200">
-                  <span className="text-xs font-bold text-slate-500 mr-2">Cập nhật:</span>
+                <div className="flex flex-wrap gap-2 pt-6 border-t border-slate-200/60">
+                  <span className="text-micro font-bold text-slate-400 uppercase tracking-premium w-full mb-2">Cập nhật nhanh:</span>
                   {orderStatusOptions.map(status => (
                     <button
                       key={status.step}
                       onClick={() => handleUpdateOrderStatus(status.step)}
                       disabled={updatingOrderStatus || selectedOrder.statusStep === status.step}
-                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                      className={`px-4 py-2 rounded-xl text-micro font-bold uppercase tracking-premium transition-all ${
                         selectedOrder.statusStep === status.step
-                          ? `bg-${status.color}-500 text-white cursor-default`
-                          : `bg-slate-100 text-slate-600 hover:bg-${status.color}-50 hover:text-${status.color}-600 disabled:opacity-50`
+                          ? `bg-${status.color}-500 text-white shadow-lg shadow-${status.color}-100 pointer-events-none`
+                          : `bg-white text-slate-600 border border-slate-100 hover:bg-slate-50 disabled:opacity-50`
                       }`}
                     >
                       {status.label}
@@ -2242,42 +2244,42 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               {/* Customer Info */}
-              <div className="bg-white border border-slate-100 rounded-2xl p-6">
-                <h3 className="text-sm font-black text-slate-700 mb-4">Thông tin khách hàng</h3>
-                <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white border border-slate-100 rounded-3xl p-6">
+                <h3 className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-4">Thông tin khách hàng</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <p className="text-xs text-slate-500 mb-1">Họ tên</p>
-                    <p className="text-sm font-bold text-slate-900">{selectedOrder.customer?.name}</p>
+                    <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-1">Họ tên</p>
+                    <p className="font-bold text-slate-900">{selectedOrder.customer?.name}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-slate-500 mb-1">Số điện thoại</p>
-                    <p className="text-sm font-bold text-slate-900">{selectedOrder.customer?.phone}</p>
+                    <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-1">Số điện thoại</p>
+                    <p className="font-bold text-slate-900">{selectedOrder.customer?.phone}</p>
                   </div>
-                  <div className="col-span-2">
-                    <p className="text-xs text-slate-500 mb-1">Email</p>
-                    <p className="text-sm font-bold text-slate-900">{selectedOrder.customer?.email}</p>
+                  <div className="md:col-span-2 bg-slate-50/50 p-4 rounded-2xl">
+                    <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-1">Email liên hệ</p>
+                    <p className="font-bold text-slate-900">{selectedOrder.customer?.email}</p>
                   </div>
-                  <div className="col-span-2">
-                    <p className="text-xs text-slate-500 mb-1">Địa chỉ giao hàng</p>
-                    <p className="text-sm font-bold text-slate-900">{selectedOrder.customer?.address}</p>
+                  <div className="md:col-span-2">
+                    <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-1">Địa chỉ giao hàng</p>
+                    <p className="font-medium text-slate-700 leading-relaxed">{selectedOrder.customer?.address}</p>
                   </div>
                 </div>
               </div>
 
               {/* Order Items */}
-              <div className="bg-white border border-slate-100 rounded-2xl p-6">
-                <h3 className="text-sm font-black text-slate-700 mb-4">Sản phẩm ({selectedOrder.items?.length || 0})</h3>
-                <div className="space-y-3">
+              <div className="bg-white border border-slate-100 rounded-3xl p-6">
+                <h3 className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-4">Danh sách sản phẩm ({selectedOrder.items?.length || 0})</h3>
+                <div className="space-y-4">
                   {selectedOrder.items?.map((item, index) => (
-                    <div key={index} className="flex gap-4 items-center p-3 bg-slate-50 rounded-xl">
-                      <img src={item.cover} alt={item.title} className="w-12 h-16 object-cover rounded-lg" />
+                    <div key={index} className="flex gap-4 items-center p-4 bg-slate-50/50 rounded-2xl border border-slate-100 group hover:bg-indigo-50/30 transition-all">
+                      <img src={item.cover} alt={item.title} className="w-12 h-16 object-cover rounded-xl shadow-sm group-hover:scale-105 transition-all" />
                       <div className="flex-1">
-                        <p className="text-sm font-bold text-slate-900">{item.title}</p>
-                        <p className="text-xs text-slate-500">Số lượng: {item.quantity}</p>
+                        <p className="font-bold text-slate-900 mb-0.5">{item.title}</p>
+                        <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Số lượng: {item.quantity}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-bold text-indigo-600">{formatPrice(item.priceAtPurchase)}</p>
-                        <p className="text-xs text-slate-500">× {item.quantity}</p>
+                        <p className="font-bold text-indigo-600">{formatPrice(item.priceAtPurchase)}</p>
+                        <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Đơn giá</p>
                       </div>
                     </div>
                   ))}
@@ -2285,30 +2287,30 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               {/* Payment Summary */}
-              <div className="bg-white border border-slate-100 rounded-2xl p-6">
-                <h3 className="text-sm font-black text-slate-700 mb-4">Thanh toán</h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">Phương thức:</span>
-                    <span className="font-bold text-slate-900">{selectedOrder.payment?.method || 'COD'}</span>
+              <div className="bg-white border border-slate-100 rounded-3xl p-6">
+                <h3 className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-4">Tóm tắt thanh toán</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-500 font-medium">Phương thức:</span>
+                    <span className="font-bold text-slate-900 uppercase tracking-tight">{selectedOrder.payment?.method || 'COD'}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">Tạm tính:</span>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-500 font-medium">Tạm tính:</span>
                     <span className="font-bold text-slate-900">{formatPrice(selectedOrder.payment?.subtotal || 0)}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">Phí vận chuyển:</span>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-500 font-medium">Phí vận chuyển:</span>
                     <span className="font-bold text-slate-900">{formatPrice(selectedOrder.payment?.shipping || 0)}</span>
                   </div>
                   {selectedOrder.payment?.couponDiscount > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-slate-600">Giảm giá:</span>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-500 font-medium">Giảm giá voucher:</span>
                       <span className="font-bold text-emerald-600">-{formatPrice(selectedOrder.payment.couponDiscount)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-lg pt-3 border-t border-slate-200">
-                    <span className="font-black text-slate-900">Tổng cộng:</span>
-                    <span className="font-black text-indigo-600">{formatPrice(selectedOrder.payment?.total || 0)}</span>
+                  <div className="flex justify-between items-center pt-4 border-t border-slate-100">
+                    <span className="text-lg font-extrabold text-slate-900 uppercase tracking-tight">Tổng cộng:</span>
+                    <span className="text-xl font-extrabold text-indigo-600">{formatPrice(selectedOrder.payment?.total || 0)}</span>
                   </div>
                 </div>
               </div>
@@ -2316,9 +2318,9 @@ const AdminDashboard: React.FC = () => {
               {/* Close Button */}
               <button
                 onClick={() => setIsOrderModalOpen(false)}
-                className="w-full bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition-all"
+                className="w-full bg-slate-900/5 text-slate-900 py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-slate-900/10 transition-all flex items-center justify-center gap-2"
               >
-                Đóng
+                <span>Đóng cửa sổ</span>
               </button>
             </div>
           </div>
@@ -2327,19 +2329,22 @@ const AdminDashboard: React.FC = () => {
 
       {/* Category Modal */}
       {isCategoryModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[300] p-4">
-          <div className="bg-white rounded-[2rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-8 border-b border-slate-100">
-              <h2 className="text-xl font-black text-slate-900">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[300] p-4 animate-fadeIn">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl border border-slate-100">
+            <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-white text-slate-900">
+              <h2 className="text-xl font-extrabold uppercase tracking-tight">
                 {editingCategory ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới'}
               </h2>
+              <button onClick={() => setIsCategoryModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-100 transition-all">
+                <i className="fa-solid fa-times"></i>
+              </button>
             </div>
             
-            <form onSubmit={handleSaveCategory} className="p-8 space-y-6">
+            <form onSubmit={handleSaveCategory} className="p-8 space-y-6 overflow-y-auto">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">
+                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">
                   Tên danh mục *
-                  {editingCategory && <span className="text-xs text-amber-600 ml-2">(không thể sửa sau khi tạo)</span>}
+                  {editingCategory && <span className="text-[10px] text-amber-500 ml-2">(không thể thay đổi mã)</span>}
                 </label>
                 <input
                   type="text"
@@ -2347,25 +2352,25 @@ const AdminDashboard: React.FC = () => {
                   disabled={!!editingCategory}
                   value={categoryFormData.name || ''}
                   onChange={(e) => setCategoryFormData({...categoryFormData, name: e.target.value})}
-                  className={`w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-                    editingCategory ? 'bg-slate-100 cursor-not-allowed' : ''
+                  className={`w-full px-5 py-3.5 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium ${
+                    editingCategory ? 'bg-slate-50 text-slate-400 cursor-not-allowed' : 'bg-white'
                   }`}
-                  placeholder="Nhập tên danh mục"
+                  placeholder="Vd: Văn học, Kinh tế..."
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-3">Icon *</label>
+                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-3">Biểu tượng hiển thị (Icon) *</label>
                 <div className="grid grid-cols-5 gap-3">
                   {availableIcons.map(icon => (
                     <button
                       key={icon}
                       type="button"
                       onClick={() => setCategoryFormData({...categoryFormData, icon})}
-                      className={`p-4 rounded-xl border-2 transition-all hover:scale-110 ${
+                      className={`p-4 rounded-2xl border-2 transition-all hover:scale-105 flex items-center justify-center ${
                         categoryFormData.icon === icon
-                          ? 'border-indigo-600 bg-indigo-50 text-indigo-600'
-                          : 'border-slate-200 text-slate-400 hover:border-indigo-300'
+                          ? 'border-indigo-600 bg-indigo-50 text-indigo-600 shadow-md shadow-indigo-100'
+                          : 'border-slate-100 text-slate-300 hover:border-indigo-200 hover:text-indigo-400'
                       }`}
                     >
                       <i className={`fa-solid ${icon} text-2xl`}></i>
@@ -2375,13 +2380,13 @@ const AdminDashboard: React.FC = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Mô tả</label>
+                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Mô tả ngắn</label>
                 <textarea
                   value={categoryFormData.description || ''}
                   onChange={(e) => setCategoryFormData({...categoryFormData, description: e.target.value})}
                   rows={3}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
-                  placeholder="Mô tả về danh mục..."
+                  className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium resize-none shadow-inner"
+                  placeholder="Viết vài dòng mô tả về danh mục này..."
                 />
               </div>
               
@@ -2389,15 +2394,15 @@ const AdminDashboard: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsCategoryModalOpen(false)}
-                  className="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition-all"
+                  className="flex-1 bg-slate-50 text-slate-500 py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-slate-100 transition-all"
                 >
-                  Hủy
+                  Hủy thao tác
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all"
+                  className="flex-1 bg-indigo-600 text-white py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
                 >
-                  {editingCategory ? 'Cập nhật' : 'Thêm danh mục'}
+                  {editingCategory ? 'Lưu thay đổi' : 'Tạo danh mục'}
                 </button>
               </div>
             </form>
@@ -2407,55 +2412,59 @@ const AdminDashboard: React.FC = () => {
 
       {/* Author Modal */}
       {isAuthorModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[300] p-4">
-          <div className="bg-white rounded-[2rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-8 border-b border-slate-100">
-              <h2 className="text-xl font-black text-slate-900">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[300] p-4 animate-fadeIn">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl border border-slate-100">
+            <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-white text-slate-900">
+              <h2 className="text-xl font-extrabold uppercase tracking-tight">
                 {editingAuthor ? 'Chỉnh sửa tác giả' : 'Thêm tác giả mới'}
               </h2>
+              <button onClick={() => setIsAuthorModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-100 transition-all">
+                <i className="fa-solid fa-times"></i>
+              </button>
             </div>
             
-            <form onSubmit={handleSaveAuthor} className="p-8 space-y-6">
+            <form onSubmit={handleSaveAuthor} className="p-8 space-y-6 overflow-y-auto">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Tên tác giả *</label>
+                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Họ & Tên tác giả *</label>
                 <input
                   type="text"
                   required
                   value={authorFormData.name || ''}
                   onChange={(e) => setAuthorFormData({...authorFormData, name: e.target.value})}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Nhập tên tác giả"
+                  className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium shadow-inner"
+                  placeholder="Nhập tên đầy đủ của tác giả"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Tiểu sử</label>
+                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Tiểu sử tóm tắt</label>
                 <textarea
                   value={authorFormData.bio || ''}
                   onChange={(e) => setAuthorFormData({...authorFormData, bio: e.target.value})}
                   rows={4}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
-                  placeholder="Thông tin về tác giả..."
+                  className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium resize-none shadow-inner"
+                  placeholder="Hành trình sáng tác, giải thưởng..."
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Avatar URL</label>
+                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Đường dẫn ảnh chân dung (URL)</label>
                 <input
                   type="url"
                   value={authorFormData.avatar || ''}
                   onChange={(e) => setAuthorFormData({...authorFormData, avatar: e.target.value})}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="https://example.com/avatar.jpg (để trống sẽ dùng avatar mặc định)"
+                  className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium shadow-inner"
+                  placeholder="https://link-anh.com/tac-gia.jpg"
                 />
                 {authorFormData.avatar && (
-                  <div className="mt-3">
+                  <div className="mt-4 flex items-center gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-100">
                     <img 
                       src={authorFormData.avatar} 
                       alt="Preview" 
-                      className="w-20 h-20 object-cover rounded-full border-2 border-slate-200"
-                      onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=Preview&background=6366f1&color=fff'; }}
+                      className="w-16 h-16 object-cover rounded-full border-2 border-white shadow-md"
+                      onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=tac+gia&background=6366f1&color=fff'; }}
                     />
+                    <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Xem trước ảnh chân dung</span>
                   </div>
                 )}
               </div>
@@ -2464,15 +2473,15 @@ const AdminDashboard: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsAuthorModalOpen(false)}
-                  className="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition-all"
+                  className="flex-1 bg-slate-50 text-slate-500 py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-slate-100 transition-all"
                 >
-                  Hủy
+                  Đóng lại
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all"
+                  className="flex-1 bg-indigo-600 text-white py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
                 >
-                  {editingAuthor ? 'Cập nhật' : 'Thêm tác giả'}
+                  {editingAuthor ? 'Cập nhật' : 'Lưu tác giả'}
                 </button>
               </div>
             </form>
@@ -2482,43 +2491,49 @@ const AdminDashboard: React.FC = () => {
 
       {/* Coupon Modal */}
       {isCouponModalOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[300] p-4">
-          <div className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl overflow-hidden border border-slate-100">
-            <div className="p-8 border-b border-slate-100">
-              <h2 className="text-xl font-black text-slate-900">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[300] p-4">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-hidden border border-slate-100 flex flex-col">
+            <div className="p-8 border-b border-slate-100 flex justify-between items-center sm:sticky sm:top-0 bg-white/80 backdrop-blur-md z-10">
+              <h2 className="text-xl font-extrabold text-slate-900">
                 {editingCoupon ? 'Chỉnh sửa mã' : 'Tạo mã khuyến mãi mới'}
               </h2>
+              <button 
+                onClick={() => setIsCouponModalOpen(false)}
+                className="w-10 h-10 rounded-full bg-slate-50 text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all flex items-center justify-center"
+              >
+                <i className="fa-solid fa-xmark"></i>
+              </button>
             </div>
             
             <form onSubmit={handleSaveCoupon} className="p-8 space-y-6">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-widest text-[10px]">Mã code *</label>
+                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Mã code ưu đãi *</label>
                 <input
                   type="text"
                   required
                   disabled={!!editingCoupon}
                   value={couponFormData.code || ''}
                   onChange={(e) => setCouponFormData({...couponFormData, code: e.target.value.toUpperCase()})}
-                  className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:bg-white transition-all font-black text-indigo-600 tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
-                  placeholder="Vd: SUMMER2024"
+                  className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:bg-white transition-all font-extrabold text-indigo-600 tracking-premium disabled:opacity-50 disabled:cursor-not-allowed uppercase"
+                  placeholder="VD: SUMMER2024"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-widest text-[10px]">Loại giảm giá</label>
+                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Loại hình</label>
                   <select
                     value={couponFormData.discountType || 'percentage'}
                     onChange={(e) => setCouponFormData({...couponFormData, discountType: e.target.value as 'percentage' | 'fixed'})}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-indigo-100 font-bold"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-indigo-100 font-bold outline-none"
                   >
                     <option value="percentage">Phần trăm (%)</option>
                     <option value="fixed">Số tiền cố định (đ)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-widest text-[10px]">
-                    {couponFormData.discountType === 'percentage' ? 'Phần trăm giảm' : 'Số tiền giảm'}
+                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">
+                    {couponFormData.discountType === 'percentage' ? 'Giá trị (%)' : 'Giá trị (đ)'}
                   </label>
                   <input
                     type="number"
@@ -2526,14 +2541,14 @@ const AdminDashboard: React.FC = () => {
                     min="0"
                     value={couponFormData.discountValue || 0}
                     onChange={(e) => setCouponFormData({...couponFormData, discountValue: Number(e.target.value)})}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-indigo-100 font-black"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-indigo-100 font-bold text-indigo-600"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-widest text-[10px]">Giá trị đơn tối thiểu (đ)</label>
+                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Đơn tối thiểu (đ)</label>
                   <input
                     type="number"
                     min="0"
@@ -2543,7 +2558,7 @@ const AdminDashboard: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-widest text-[10px]">Giới hạn lượt dùng</label>
+                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Giới hạn sử dụng</label>
                   <input
                     type="number"
                     min="1"
@@ -2555,7 +2570,7 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-widest text-[10px]">Ngày hết hạn</label>
+                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Thời hạn kết thúc</label>
                 <input
                   type="date"
                   required
@@ -2565,30 +2580,30 @@ const AdminDashboard: React.FC = () => {
                 />
               </div>
 
-              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl">
+              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-[1.25rem]">
                 <input
                   type="checkbox"
                   id="isActive"
                   checked={couponFormData.isActive ?? true}
                   onChange={(e) => setCouponFormData({...couponFormData, isActive: e.target.checked})}
-                  className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                  className="w-5 h-5 rounded-lg border-slate-300 text-indigo-600 focus:ring-indigo-500"
                 />
-                <label htmlFor="isActive" className="text-sm font-bold text-slate-700">Kích hoạt mã khuyến mãi này</label>
+                <label htmlFor="isActive" className="text-micro font-bold text-slate-600 uppercase tracking-premium cursor-pointer">Kích hoạt mã khuyến mãi ngay</label>
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-4 pt-4">
                 <button
                   type="button"
                   onClick={() => setIsCouponModalOpen(false)}
-                  className="flex-1 px-6 py-4 border border-slate-200 text-slate-500 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all"
+                  className="flex-1 px-6 py-4 bg-slate-50 text-slate-500 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-slate-100 transition-all"
                 >
-                  Hủy bỏ
+                  Đóng
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-6 py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-indigo-100"
+                  className="flex-[2] px-6 py-4 bg-indigo-600 text-white rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all"
                 >
-                  {editingCoupon ? 'Cập nhật mã' : 'Tạo mã mới'}
+                  {editingCoupon ? 'Cập nhật mã' : 'Xác nhận tạo mã'}
                 </button>
               </div>
             </form>
@@ -2598,37 +2613,43 @@ const AdminDashboard: React.FC = () => {
 
       {/* Book Modal */}
       {isBookModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[300] p-4">
-          <div className="bg-white rounded-[2rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-8 border-b border-slate-100">
-              <h2 className="text-xl font-black text-slate-900">
-                {editingBook ? 'Chỉnh sửa sách' : 'Thêm sách mới'}
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[300] p-4 animate-fadeIn">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl border border-slate-100">
+            <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-white text-slate-900 sticky top-0 z-10">
+              <h2 className="text-xl font-extrabold uppercase tracking-tight">
+                {editingBook ? 'Chỉnh sửa thông tin sách' : 'Thêm sách mới vào kho'}
               </h2>
+              <button 
+                onClick={() => setIsBookModalOpen(false)}
+                className="w-10 h-10 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-100 transition-all"
+              >
+                <i className="fa-solid fa-times"></i>
+              </button>
             </div>
             
-            <form onSubmit={handleSaveBook} className="p-8 space-y-6">
+            <form onSubmit={handleSaveBook} className="p-8 space-y-6 overflow-y-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Tiêu đề *</label>
+                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Tiêu đề sách *</label>
                   <input
                     type="text"
                     required
                     value={bookFormData.title || ''}
                     onChange={(e) => setBookFormData({...bookFormData, title: e.target.value})}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Nhập tiêu đề sách"
+                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium"
+                    placeholder="Vd: Đắc Nhân Tâm"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Tác giả *</label>
+                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Tác giả *</label>
                   <select
                     required
                     value={bookFormData.authorId || ''}
                     onChange={(e) => setBookFormData({...bookFormData, authorId: e.target.value})}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-bold outline-none cursor-pointer"
                   >
-                    <option value="">Chọn tác giả</option>
+                    <option value="">Chọn tác giả từ danh sách</option>
                     {authors.map(author => (
                       <option key={author.id} value={author.id}>{author.name}</option>
                     ))}
@@ -2636,14 +2657,14 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Danh mục *</label>
+                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Thể loại / Danh mục *</label>
                   <select
                     required
                     value={bookFormData.category || ''}
                     onChange={(e) => setBookFormData({...bookFormData, category: e.target.value})}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-bold outline-none cursor-pointer"
                   >
-                    <option value="">Chọn danh mục</option>
+                    <option value="">Chọn một danh mục</option>
                     {categories.map(category => (
                       <option key={category.name} value={category.name}>{category.name}</option>
                     ))}
@@ -2664,83 +2685,96 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Giá gốc (VNĐ)</label>
+                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Giá bán (VNĐ) *</label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    value={bookFormData.price || ''}
+                    onChange={(e) => setBookFormData({...bookFormData, price: Number(e.target.value)})}
+                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-bold text-indigo-600"
+                    placeholder="0"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Giá gốc nếu có (VNĐ)</label>
                   <input
                     type="number"
                     min="0"
                     value={bookFormData.original_price || ''}
                     onChange={(e) => setBookFormData({...bookFormData, original_price: Number(e.target.value) || undefined})}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Để trống nếu không có"
+                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium text-slate-400"
+                    placeholder="Để trống nếu không giảm giá"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Số lượng tồn kho *</label>
+                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Số lượng tồn kho *</label>
                   <input
                     type="number"
                     required
                     min="0"
                     value={bookFormData.stock_quantity || ''}
                     onChange={(e) => setBookFormData({...bookFormData, stock_quantity: Number(e.target.value)})}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-bold"
                     placeholder="0"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">ISBN</label>
+                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Mã định danh ISBN</label>
                   <input
                     type="text"
                     value={bookFormData.isbn || ''}
                     onChange={(e) => setBookFormData({...bookFormData, isbn: e.target.value})}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium"
                     placeholder="ISBN-13 hoặc ISBN-10"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Số trang</label>
+                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Số trang</label>
                   <input
                     type="number"
                     min="1"
                     value={bookFormData.pages || ''}
                     onChange={(e) => setBookFormData({...bookFormData, pages: Number(e.target.value) || 0})}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium"
                     placeholder="0"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Nhà xuất bản</label>
+                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Nhà xuất bản</label>
                   <input
                     type="text"
                     value={bookFormData.publisher || ''}
                     onChange={(e) => setBookFormData({...bookFormData, publisher: e.target.value})}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Nhà xuất bản"
+                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium"
+                    placeholder="Vd: NXB Trẻ"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Năm xuất bản</label>
+                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Năm xuất bản</label>
                   <input
                     type="number"
                     min="1000"
                     max={new Date().getFullYear()}
                     value={bookFormData.publishYear || ''}
                     onChange={(e) => setBookFormData({...bookFormData, publishYear: Number(e.target.value) || new Date().getFullYear()})}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium"
                     placeholder={new Date().getFullYear().toString()}
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Ngôn ngữ</label>
+                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Ngôn ngữ chính</label>
                   <select
                     value={bookFormData.language || 'Tiếng Việt'}
                     onChange={(e) => setBookFormData({...bookFormData, language: e.target.value})}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-bold outline-none cursor-pointer"
                   >
                     <option value="Tiếng Việt">Tiếng Việt</option>
                     <option value="English">English</option>
@@ -2753,40 +2787,40 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Badge</label>
+                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Nhãn dán (Badge)</label>
                   <select
                     value={bookFormData.badge || ''}
                     onChange={(e) => setBookFormData({...bookFormData, badge: e.target.value})}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-bold outline-none cursor-pointer"
                   >
-                    <option value="">Không có</option>
+                    <option value="">Mặc định</option>
                     <option value="Bán chạy">Bán chạy</option>
                     <option value="Kinh điển">Kinh điển</option>
-                    <option value="Mới">Mới</option>
-                    <option value="Giảm giá">Giảm giá</option>
+                    <option value="Mới">Sách mới</option>
+                    <option value="Giảm giá">Đang giảm giá</option>
                   </select>
                 </div>
               </div>
               
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">URL ảnh bìa</label>
+                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Đường dẫn ảnh bìa (URL)</label>
                 <input
                   type="url"
                   value={bookFormData.cover || ''}
                   onChange={(e) => setBookFormData({...bookFormData, cover: e.target.value})}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="https://example.com/book-cover.jpg"
+                  className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium"
+                  placeholder="https://link-anh.com/bia-sach.jpg"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Mô tả</label>
+                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Mô tả chi tiết nội dung</label>
                 <textarea
                   value={bookFormData.description || ''}
                   onChange={(e) => setBookFormData({...bookFormData, description: e.target.value})}
                   rows={4}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
-                  placeholder="Mô tả về cuốn sách..."
+                  className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium resize-none shadow-inner"
+                  placeholder="Viết mô tả hấp dẫn về cuốn sách..."
                 />
               </div>
               
@@ -2794,15 +2828,15 @@ const AdminDashboard: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsBookModalOpen(false)}
-                  className="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition-all"
+                  className="flex-1 bg-slate-50 text-slate-500 py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-slate-100 transition-all"
                 >
-                  Hủy
+                  Hủy thao tác
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all"
+                  className="flex-1 bg-indigo-600 text-white py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
                 >
-                  {editingBook ? 'Cập nhật' : 'Thêm sách'}
+                  {editingBook ? 'Cập nhật sách' : 'Xác nhận thêm sách'}
                 </button>
               </div>
             </form>
