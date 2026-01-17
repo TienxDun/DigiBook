@@ -80,7 +80,8 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData }) => 
       </div>
 
       <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
-        <table className="w-full text-left">
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left min-w-[800px]">
           <thead className="bg-slate-50/50">
             <tr>
               <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Mã code</th>
@@ -133,6 +134,7 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData }) => 
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Coupon Modal */}

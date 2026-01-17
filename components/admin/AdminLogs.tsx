@@ -41,8 +41,8 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
       </div>
 
       <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden min-h-[500px]">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left border-collapse min-w-[1100px]">
             <thead className="bg-slate-50 border-b border-slate-100">
               <tr>
                 <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Thời gian</th>

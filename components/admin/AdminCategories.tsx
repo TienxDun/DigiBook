@@ -142,7 +142,8 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
       )}
 
       <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
-        <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left border-collapse min-w-[800px]">
           <thead>
             <tr className="bg-slate-50/50 border-bottom border-slate-100">
               <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium w-12 text-center">
@@ -221,6 +222,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
             <h3 className="font-bold text-slate-400 uppercase tracking-premium text-micro">Chưa có danh mục nào</h3>
           </div>
         )}
+        </div>
       </div>
 
       {/* Category Modal */}

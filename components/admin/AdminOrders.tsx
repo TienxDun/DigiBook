@@ -73,20 +73,21 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData }) => {
           <h3 className="text-lg font-extrabold text-slate-900 uppercase tracking-tight">Danh sách đơn hàng</h3>
           <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Quản lý và cập nhật trạng thái đơn hàng</p>
         </div>
-        <div className="relative group">
+        <div className="relative group w-full sm:w-80">
           <input 
             type="text" 
             placeholder="Tìm theo mã đơn, tên khách, SĐT..." 
             value={searchQuery} 
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-80 px-4 py-3 pl-10 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 ring-indigo-50 font-bold shadow-sm transition-all text-sm"
+            className="w-full px-4 py-3 pl-10 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 ring-indigo-50 font-bold shadow-sm transition-all text-sm"
           />
           <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
         </div>
       </div>
 
       <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
-        <table className="w-full text-left">
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left min-w-[1100px]">
           <thead className="bg-slate-50/50">
             <tr>
               <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Mã đơn</th>
@@ -151,6 +152,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData }) => {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Order Details Modal */}

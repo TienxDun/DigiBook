@@ -53,6 +53,18 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData }) => {
     }
   };
 
+  const handleDeleteUser = async (userId: string) => {
+    if (!window.confirm('CẢNH BÁO: Bạn có chắc chắn muốn XÓA VĨNH VIỄN tài khoản này? Mọi dữ liệu hồ sơ cá nhân trong hệ thống sẽ bị gỡ bỏ.')) return;
+    
+    try {
+      await db.deleteUser(userId);
+      refreshData();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Có lỗi xảy ra khi xóa tài khoản');
+    }
+  };
+
   const filteredUsers = users.filter(user => {
     const matchesRole = userRoleFilter === 'all' || user.role === userRoleFilter;
     const matchesStatus = userStatusFilter === 'all' || user.status === userStatusFilter;
@@ -107,15 +119,15 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData }) => {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="relative">
+        <div className="flex items-center gap-4 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-64">
             <i className="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
             <input 
               type="text"
               placeholder="Tìm theo tên, email, SĐT..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2.5 bg-slate-50 border-none rounded-2xl text-[11px] font-bold w-64 focus:ring-4 ring-indigo-50 focus:bg-white transition-all outline-none"
+              className="pl-10 pr-4 py-2.5 bg-slate-50 border-none rounded-2xl text-[11px] font-bold w-full focus:ring-4 ring-indigo-50 focus:bg-white transition-all outline-none"
             />
           </div>
           <button 
@@ -129,7 +141,8 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData }) => {
       </div>
 
       <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden min-h-[500px]">
-        <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left border-collapse min-w-[1100px]">
           <thead className="bg-slate-50 border-b border-slate-100">
             <tr>
               <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Người dùng</th>
@@ -229,6 +242,14 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData }) => {
                     >
                       <i className={`fa-solid ${user.status === 'banned' ? 'fa-unlock' : 'fa-user-slash'}`}></i>
                     </button>
+
+                    <button 
+                      onClick={() => handleDeleteUser(user.id)}
+                      title="Xóa tài khoản vĩnh viễn"
+                      className="w-10 h-10 rounded-2xl bg-white border border-slate-100 text-slate-400 hover:bg-rose-600 hover:text-white hover:border-rose-600 hover:shadow-lg hover:shadow-rose-100 transition-all shadow-sm flex items-center justify-center"
+                    >
+                      <i className="fa-solid fa-trash-can"></i>
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -242,6 +263,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData }) => {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );
