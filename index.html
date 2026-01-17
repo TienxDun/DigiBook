@@ -9,105 +9,20 @@
     <title>DigiBook | Nhà sách Trực tuyến Hiện đại - Tri thức thế hệ mới</title>
     <meta name="title" content="DigiBook | Nhà sách Trực tuyến Hiện đại - Tri thức thế hệ mới">
     <meta name="description" content="Khám phá hàng ngàn cuốn sách bản quyền tại DigiBook. Giao hàng nhanh 2h, hỗ trợ 24/7, phân tích sách thông minh bằng AI. Trải nghiệm mua sắm hiện đại và tiện lợi.">
-    <meta name="keywords" content="nhà sách online, mua sách trực tuyến, sách bản quyền, digibook, cửa hàng sách hiện đại, sách hay, review sách ai">
-    <meta name="author" content="DigiBook Team">
-    <meta name="robots" content="index, follow">
-
+    
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://digibook.com.vn/">
     <meta property="og:title" content="DigiBook | Nhà sách Trực tuyến Hiện đại">
-    <meta property="og:description" content="Trải nghiệm đọc sách thế hệ mới với phân tích AI. Giao diện sang trọng, thanh toán an toàn, kho tri thức khổng lồ.">
+    <meta property="og:description" content="Trải nghiệm đọc sách thế hệ mới với phân tích AI.">
     <meta property="og:image" content="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1200&auto=format&fit=crop">
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://digibook.com.vn/">
-    <meta property="twitter:title" content="DigiBook | Nhà sách Trực tuyến Hiện đại">
-    <meta property="twitter:description" content="Trải nghiệm đọc sách thế hệ mới với phân tích AI. Giao diện sang trọng, thanh toán an toàn.">
-    <meta property="twitter:image" content="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1200&auto=format&fit=crop">
-
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                    },
-                    fontSize: {
-                        'micro': '10px',
-                        'label': '12px',
-                    },
-                    letterSpacing: {
-                        'premium': '0.15em',
-                        'ultra': '0.25em',
-                    }
-                }
-            }
-        }
-    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            scroll-behavior: smooth;
-            -webkit-tap-highlight-color: transparent;
-            text-rendering: optimizeLegibility;
-            -webkit-font-smoothing: antialiased;
-        }
-        .glass-nav {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        /* Optimized Animations */
-        .fade-in {
-            animation: fadeIn 0.3s ease-out forwards;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes floatSimple {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        .animate-float {
-            animation: floatSimple 4s ease-in-out infinite;
-        }
-        /* Performance optimization */
-        .optimized-card {
-            will-change: transform, box-shadow;
-            backface-visibility: hidden;
-        }
-        .safe-bottom {
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-    </style>
-<script type="importmap">
-{
-  "imports": {
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-router-dom": "https://esm.sh/react-router-dom@6.22.3"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
+    <link rel="stylesheet" href="/index.css">
 </head>
-<body class="bg-slate-50 text-slate-900 overflow-x-hidden">
+<body class="bg-slate-50 text-slate-900 overflow-x-hidden selection:bg-indigo-100 selection:text-indigo-700">
     <div id="root"></div>
-<script type="module" src="/index.tsx"></script>
+    <script type="module" src="/index.tsx"></script>
 </body>
 </html>

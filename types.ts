@@ -53,6 +53,56 @@ export interface UserProfile {
   updatedAt?: any;
 }
 
+export interface Review {
+  id?: string;
+  bookId: string;
+  userId: string;
+  userName: string;
+  rating: number;
+  content: string;
+  createdAt: any;
+}
+
+export interface OrderItem {
+  bookId: string;
+  title: string;
+  priceAtPurchase: number;
+  quantity: number;
+  cover: string;
+}
+
+export interface SystemLog {
+  id: string;
+  action: string;
+  detail: string;
+  status: 'SUCCESS' | 'ERROR';
+  user: string;
+  createdAt: any;
+}
+
+export interface Order {
+  id: string;
+  userId: string;
+  date: string;
+  status: string;
+  statusStep: number;
+  customer: {
+    name: string;
+    phone: string;
+    address: string;
+    email: string;
+  };
+  payment: {
+    method: string;
+    subtotal: number;
+    shipping: number;
+    couponDiscount: number;
+    total: number;
+  };
+  createdAt?: any;
+  items?: OrderItem[];
+}
+
 export interface Coupon {
   id?: string;
   code: string;

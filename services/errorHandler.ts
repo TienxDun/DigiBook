@@ -1,5 +1,6 @@
 
 import { db } from './db';
+import { toast } from 'react-hot-toast';
 
 export interface ErrorResponse {
   success: false;
@@ -19,6 +20,7 @@ export class ErrorHandler {
     
     // Return user-friendly message
     const message = this.getUserMessage(error);
+    toast.error(`Lỗi ${context}: ${message}`);
     return { success: false, error: message };
   }
   

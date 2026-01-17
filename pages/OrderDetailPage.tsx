@@ -139,7 +139,6 @@ const OrderDetailPage: React.FC = () => {
             <button onClick={() => navigate('/')} className="w-full py-3.5 bg-white text-slate-900 rounded-xl font-extrabold text-micro uppercase tracking-premium hover:bg-indigo-50 transition-all shadow-lg active:scale-95 relative z-10">Tiếp tục mua sắm</button>
           </div>
         </div>
-        </div>
       </div>
     </div>
   );

@@ -1,18 +1,26 @@
-
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import toast from 'react-hot-toast';
-import { db, Order, OrderItem, SystemLog, AVAILABLE_AI_MODELS } from '../services/db';
-import { Book, CategoryInfo, Author, Coupon, AIModelConfig, UserProfile } from '../types';
-import { ErrorHandler } from '../services/errorHandler';
+﻿import React, { useState, useMemo, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { db } from "../services/db";
+import { Book, CategoryInfo, Author, Coupon, UserProfile, Order, SystemLog } from "../types";
+import AdminBooks from "../components/admin/AdminBooks";
+import AdminOrders from "../components/admin/AdminOrders";
+import AdminAuthors from "../components/admin/AdminAuthors";
+import AdminCategories from "../components/admin/AdminCategories";
+import AdminCoupons from "../components/admin/AdminCoupons";
+import AdminUsers from "../components/admin/AdminUsers";
+import AdminAI from "../components/admin/AdminAI";
+import AdminLogs from "../components/admin/AdminLogs";
 
 const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+  return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
 };
 
+interface AISettings {
+  activeModelId: string;
+}
+
 const AdminDashboard: React.FC = () => {
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'overview' | 'books' | 'orders' | 'categories' | 'authors' | 'coupons' | 'users' | 'logs' | 'ai'>('overview');
+  const [activeTab, setActiveTab] = useState<"overview" | "books" | "orders" | "categories" | "authors" | "coupons" | "users" | "logs" | "ai">("overview");
   const [books, setBooks] = useState<Book[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [categories, setCategories] = useState<CategoryInfo[]>([]);
@@ -20,82 +28,12 @@ const AdminDashboard: React.FC = () => {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [logs, setLogs] = useState<SystemLog[]>([]);
-  const [aiConfig, setAiConfig] = useState<{ activeModelId: string }>({ activeModelId: 'gemini-3-flash' });
-  const [isUpdatingAI, setIsUpdatingAI] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
-  const [filterStock, setFilterStock] = useState<'all' | 'low' | 'out'>('all');
+  const [aiConfig, setAIConfig] = useState<AISettings>({ activeModelId: "gemini-1.5-flash" });
   
-  // User Filters
-  const [userRoleFilter, setUserRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
-  const [userStatusFilter, setUserStatusFilter] = useState<'all' | 'active' | 'banned'>('all');
-
-  const [logStatusFilter, setLogStatusFilter] = useState<'ALL' | 'SUCCESS' | 'ERROR'>('ALL');
-  const [logActionFilter, setLogActionFilter] = useState<string>('ALL');
-  const [currentLogPage, setCurrentLogPage] = useState(1);
-  const logsPerPage = 20;
-  const [isLoadingMoreLogs, setIsLoadingMoreLogs] = useState(false);
   const [hasMoreLogs, setHasMoreLogs] = useState(true);
-
+  const [isLoadingMoreLogs, setIsLoadingMoreLogs] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [seedStatus, setSeedStatus] = useState<{msg: string, type: 'success' | 'error' | 'info'} | null>(null);
-  
-  const [isBookModalOpen, setIsBookModalOpen] = useState(false);
-  const [editingBook, setEditingBook] = useState<Book | null>(null);
-  const [bookFormData, setBookFormData] = useState<Partial<Book>>({});
-
-  const [isAuthorModalOpen, setIsAuthorModalOpen] = useState(false);
-  const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);
-  const [authorFormData, setAuthorFormData] = useState<Partial<Author>>({});
-
-  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<CategoryInfo | null>(null);
-  const [categoryFormData, setCategoryFormData] = useState<Partial<CategoryInfo & {id?: string}>>({});
-
-  const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
-  const [editingCoupon, setEditingCoupon] = useState<string | null>(null);
-  const [couponFormData, setCouponFormData] = useState<Partial<Coupon>>({
-    code: '',
-    discountType: 'percentage',
-    discountValue: 0,
-    minOrderValue: 0,
-    expiryDate: '',
-    isActive: true,
-    usedCount: 0,
-    usageLimit: 100
-  });
-
-  const availableIcons = [
-    'fa-book', 'fa-lightbulb', 'fa-graduation-cap', 'fa-heart', 'fa-palette', 
-    'fa-utensils', 'fa-laptop-code', 'fa-globe', 'fa-star', 'fa-rocket',
-    'fa-music', 'fa-camera', 'fa-gamepad', 'fa-baseball', 'fa-tree',
-    'fa-shopping-cart', 'fa-briefcase', 'fa-plane', 'fa-home', 'fa-users'
-  ];
-
-  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<(Order & { items: OrderItem[] }) | null>(null);
-  const [updatingOrderStatus, setUpdatingOrderStatus] = useState(false);
-
-  const orderStatusOptions = [
-    { step: 0, label: 'Đang xử lý', color: 'amber' },
-    { step: 1, label: 'Đã xác nhận', color: 'blue' },
-    { step: 2, label: 'Đang giao', color: 'indigo' },
-    { step: 3, label: 'Đã giao', color: 'emerald' }
-  ];
-
-  // Bulk Selection States
-  const [selectedBooks, setSelectedBooks] = useState<string[]>([]);
-  const [selectedAuthors, setSelectedAuthors] = useState<string[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [isDeletingBulk, setIsDeletingBulk] = useState(false);
-
-  // Reset selection when tab changes
-  useEffect(() => {
-    setSelectedBooks([]);
-    setSelectedAuthors([]);
-    setSelectedCategories([]);
-  }, [activeTab]);
+  const [seedStatus, setSeedStatus] = useState<{msg: string, type: "success" | "error" | "info"} | null>(null);
 
   const refreshData = async () => {
     try {
@@ -112,12 +50,12 @@ const AdminDashboard: React.FC = () => {
       setAuthors(authorsData);
       setCoupons(couponsData);
       setUsers(usersData);
-      setAiConfig(aiConfigData);
+      setAIConfig(aiConfigData);
       
-      const allOrders = await db.getOrdersByUserId('admin');
+      const allOrders = await db.getOrdersByUserId("admin");
       setOrders(allOrders);
 
-      if (activeTab === 'logs' || activeTab === 'ai') {
+      if (activeTab === "logs") {
         const logsData = await db.getSystemLogs(0, 50);
         setLogs(logsData);
         setHasMoreLogs(logsData.length === 50);
@@ -127,32 +65,40 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // Auto load data khi component mount
+  const onLoadMoreLogs = async () => {
+    if (isLoadingMoreLogs || !hasMoreLogs) return;
+    setIsLoadingMoreLogs(true);
+    try {
+      const nextLogs = await db.getSystemLogs(logs.length, 50);
+      if (nextLogs.length < 50) {
+        setHasMoreLogs(false);
+      }
+      setLogs(prev => [...prev, ...nextLogs]);
+    } catch (error) {
+      console.error("Error loading more logs:", error);
+    } finally {
+      setIsLoadingMoreLogs(false);
+    }
+  };
+
   useEffect(() => {
     refreshData();
-  }, []);
-
-  // Debounce search query
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [activeTab]);
 
   const stats = useMemo(() => {
-    const totalRevenue = orders.reduce((sum, o) => sum + o.payment.total, 0);
+    const totalRevenue = orders.reduce((sum, o) => sum + (o.payment?.total || 0), 0);
     const lowStock = books.filter(b => b.stock_quantity > 0 && b.stock_quantity < 10).length;
     const outOfStock = books.filter(b => b.stock_quantity <= 0).length;
     const pendingOrders = orders.filter(o => o.statusStep < 3).length;
     const completedOrders = orders.filter(o => o.statusStep === 3).length;
     const totalBooks = books.reduce((sum, b) => sum + b.stock_quantity, 0);
     const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
-    const todayOrders = orders.filter(o => {
+    const todayOrdersCount = orders.filter(o => {
       const orderDate = o.createdAt?.toDate ? o.createdAt.toDate() : new Date(o.date);
       const today = new Date();
       return orderDate.toDateString() === today.toDateString();
     }).length;
+
     return { 
       totalRevenue, 
       lowStock, 
@@ -162,7 +108,7 @@ const AdminDashboard: React.FC = () => {
       totalOrders: orders.length,
       totalBooks,
       avgOrderValue,
-      todayOrders,
+      todayOrders: todayOrdersCount,
       totalCategories: categories.length,
       totalAuthors: authors.length,
       totalCoupons: coupons.length
@@ -172,2677 +118,268 @@ const AdminDashboard: React.FC = () => {
   const handleSeedData = async () => {
     if (!window.confirm("Bạn có chắc chắn muốn đẩy dữ liệu mẫu lên Firestore?")) return;
     setIsSeeding(true);
-    setSeedStatus({ msg: "Đang đẩy dữ liệu lên Cloud Firestore...", type: 'info' });
+    setSeedStatus({ msg: "Đang đẩy dữ liệu lên Cloud Firestore...", type: "info" });
     try {
       const result = await db.seedDatabase();
       if (result.success) {
-        setSeedStatus({ msg: `Thành công! Đã cập nhật ${result.count} danh mục hệ thống.`, type: 'success' });
+        setSeedStatus({ msg: `Thành công! Đã cập nhật ${result.count} danh mục hệ thống.`, type: "success" });
         setTimeout(() => { refreshData(); setIsSeeding(false); }, 1500);
       } else {
         setIsSeeding(false);
-        setSeedStatus({ msg: `Lỗi: ${result.error}`, type: 'error' });
+        setSeedStatus({ msg: `Lỗi: ${result.error}`, type: "error" });
       }
     } catch (err: any) {
       setIsSeeding(false);
-      setSeedStatus({ msg: `Lỗi hệ thống: ${err.message}`, type: 'error' });
+      setSeedStatus({ msg: `Lỗi hệ thống: ${err.message}`, type: "error" });
     }
     setTimeout(() => setSeedStatus(null), 8000);
   };
 
-  const filteredBooks = useMemo(() => {
-    let result = books.filter(b => 
-      b.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      b.author.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    if (filterStock === 'low') result = result.filter(b => b.stock_quantity > 0 && b.stock_quantity < 10);
-    else if (filterStock === 'out') result = result.filter(b => b.stock_quantity <= 0);
-    return result;
-  }, [books, searchQuery, filterStock]);
-
-  const filteredCoupons = useMemo(() => {
-    return coupons.filter(c => 
-      c.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.discountType.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [coupons, searchQuery]);
-
-  const filteredUsers = useMemo(() => {
-    return users.filter(u => {
-      const matchesSearch = (u.name || "").toLowerCase().includes(debouncedSearchQuery.toLowerCase()) || 
-                          (u.email || "").toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-                          (u.phone || "").includes(debouncedSearchQuery);
-      const matchesRole = userRoleFilter === 'all' || (u.role || 'user') === userRoleFilter;
-      const matchesStatus = userStatusFilter === 'all' || (u.status || 'active') === userStatusFilter;
-      return matchesSearch && matchesRole && matchesStatus;
-    });
-  }, [users, debouncedSearchQuery, userRoleFilter, userStatusFilter]);
-
-  // Lấy danh sách các loại hành động duy nhất từ logs để làm bộ lọc
-  const uniqueActions = useMemo(() => {
-    const actions = new Set(logs.map(l => l.action.split('_')[0])); // Lấy phần đầu của action (ví dụ ORDER từ ORDER_CREATED)
-    return Array.from(actions).sort();
-  }, [logs]);
-
-  const filteredLogs = useMemo(() => {
-    return logs.filter(l => {
-      const matchesSearch = l.action.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-                          l.detail.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-                          l.user.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
-      
-      const matchesStatus = logStatusFilter === 'ALL' || l.status === logStatusFilter;
-      const matchesAction = logActionFilter === 'ALL' || l.action.startsWith(logActionFilter);
-
-      return matchesSearch && matchesStatus && matchesAction;
-    });
-  }, [logs, debouncedSearchQuery, logStatusFilter, logActionFilter]);
-
-  // Pagination logic
-  const totalLogPages = Math.ceil(filteredLogs.length / logsPerPage);
-  const paginatedLogs = useMemo(() => {
-    const startIndex = (currentLogPage - 1) * logsPerPage;
-    return filteredLogs.slice(startIndex, startIndex + logsPerPage);
-  }, [filteredLogs, currentLogPage, logsPerPage]);
-
-  const loadMoreLogs = useCallback(async () => {
-    if (isLoadingMoreLogs || !hasMoreLogs) return;
-    
-    setIsLoadingMoreLogs(true);
-    try {
-      // Load thêm 50 logs cũ hơn
-      const additionalLogs = await db.getSystemLogs(logs.length, 50);
-      if (additionalLogs.length === 0) {
-        setHasMoreLogs(false);
-      } else {
-        setLogs(prev => [...prev, ...additionalLogs]);
-      }
-    } catch (error) {
-      console.error('Error loading more logs:', error);
-    } finally {
-      setIsLoadingMoreLogs(false);
-    }
-  }, [logs.length, isLoadingMoreLogs, hasMoreLogs]);
-
-  const handleAutoSync = async () => {
-    setIsSyncing(true);
-    setSeedStatus({ msg: "Đang quét dữ liệu từ Google Books & Open Library...", type: 'info' });
-    try {
-      const queries = [
-        'sách kinh tế bán chạy', 
-        'văn học kinh điển', 
-        'tâm lý học hành vi', 
-        'lịch sử thế giới',
-        'triết học phương đông',
-        'sách thiếu nhi hay',
-        'phát triển bản thân',
-        'startup khởi nghiệp'
-      ];
-      const randomQuery = queries[Math.floor(Math.random() * queries.length)];
-      
-      const newBooks = await db.fetchBooksFromGoogle(randomQuery, 20);
-      
-      if (newBooks.length === 0) {
-        setSeedStatus({ msg: "Không tìm thấy sách mới phù hợp hoặc tất cả đã tồn tại.", type: 'info' });
-        setIsSyncing(false);
-        return;
-      }
-      
-      setSeedStatus({ msg: `Đã tìm thấy ${newBooks.length} sách mới. Đang đồng bộ...`, type: 'info' });
-      const count = await db.saveBooksBatch(newBooks);
-      
-      setSeedStatus({ msg: `Đồng bộ thành công ${count} cuốn sách từ Google Books!`, type: 'success' });
-      await refreshData();
-    } catch (error: any) {
-      console.error("Auto Sync Error:", error);
-      setSeedStatus({ msg: `Lỗi đồng bộ: ${error.message}`, type: 'error' });
-    } finally {
-      setIsSyncing(false);
-      setTimeout(() => setSeedStatus(null), 5000);
-    }
-  };
-
-  const handleOpenAddBook = () => {
-    setEditingBook(null);
-    setBookFormData({
-      title: '',
-      authorId: authors[0]?.id || '',
-      category: categories[0]?.name || '',
-      price: 0,
-      original_price: undefined,
-      stock_quantity: 10,
-      description: '',
-      isbn: '',
-      cover: '',
-      publishYear: new Date().getFullYear(),
-      pages: 0,
-      publisher: '',
-      language: 'Tiếng Việt',
-      badge: ''
-    });
-    setIsBookModalOpen(true);
-  };
-
-  const handleSaveBook = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const selectedAuthor = authors.find(a => a.id === bookFormData.authorId);
-      const finalBook = {
-        ...bookFormData,
-        id: editingBook ? editingBook.id : Date.now().toString(),
-        author: selectedAuthor?.name || 'Vô danh',
-        rating: editingBook?.rating || 5.0
-      } as Book;
-      await db.saveBook(finalBook);
-      toast.success(editingBook ? 'Cập nhật sách thành công' : 'Thêm sách mới thành công');
-      setIsBookModalOpen(false);
-      refreshData();
-    } catch (error) {
-      ErrorHandler.handle(error, 'lưu sách');
-    }
-  };
-
-  const handleEditBook = (book: Book) => {
-    setEditingBook(book);
-    setBookFormData({
-      title: book.title,
-      authorId: book.authorId || authors.find(a => a.name === book.author)?.id || '',
-      category: book.category,
-      price: book.price,
-      original_price: book.original_price,
-      stock_quantity: book.stock_quantity,
-      description: book.description,
-      isbn: book.isbn,
-      pages: book.pages,
-      publisher: book.publisher,
-      publishYear: book.publishYear,
-      language: book.language,
-      cover: book.cover,
-      badge: book.badge
-    });
-    setIsBookModalOpen(true);
-  };
-
-  const handleDeleteBook = async (book: Book) => {
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa sách "${book.title}"?`)) return;
-    try {
-      await db.deleteBook(book.id);
-      toast.success('Đã xóa sách thành công');
-      refreshData();
-    } catch (error) {
-      ErrorHandler.handle(error, 'xóa sách');
-    }
-  };
-
-  const handleOpenAddAuthor = () => {
-    setEditingAuthor(null);
-    setAuthorFormData({
-      name: '',
-      bio: '',
-      avatar: ''
-    });
-    setIsAuthorModalOpen(true);
-  };
-
-  const handleSaveAuthor = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const finalAuthor = {
-        ...authorFormData,
-        id: editingAuthor ? editingAuthor.id : Date.now().toString()
-      } as Author;
-      await db.saveAuthor(finalAuthor);
-      toast.success(editingAuthor ? 'Cập nhật tác giả thành công' : 'Thêm tác giả mới thành công');
-      setIsAuthorModalOpen(false);
-      refreshData();
-    } catch (error) {
-      ErrorHandler.handle(error, 'lưu tác giả');
-    }
-  };
-
-  const handleEditAuthor = (author: Author) => {
-    setEditingAuthor(author);
-    setAuthorFormData({
-      name: author.name,
-      bio: author.bio,
-      avatar: author.avatar
-    });
-    setIsAuthorModalOpen(true);
-  };
-
-  const handleDeleteAuthor = async (author: Author) => {
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa tác giả "${author.name}"?`)) return;
-    try {
-      await db.deleteAuthor(author.id);
-      toast.success('Đã xóa tác giả thành công');
-      refreshData();
-    } catch (error) {
-      ErrorHandler.handle(error, 'xóa tác giả');
-    }
-  };
-
-  const handleOpenAddCategory = () => {
-    setEditingCategory(null);
-    setCategoryFormData({
-      name: '',
-      icon: 'fa-book',
-      description: ''
-    });
-    setIsCategoryModalOpen(true);
-  };
-
-  const handleSaveCategory = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validation: Check for duplicate name when creating new
-    if (!editingCategory) {
-      const exists = categories.find(c => c.name.toLowerCase() === categoryFormData.name?.toLowerCase());
-      if (exists) {
-        toast.error('Danh mục với tên này đã tồn tại!');
-        return;
-      }
-    }
-    
-    const finalCategory = {
-      name: categoryFormData.name || '',
-      icon: categoryFormData.icon || 'fa-book',
-      description: categoryFormData.description || ''
-    } as CategoryInfo;
-    
-    try {
-      await db.saveCategory(finalCategory);
-      toast.success(editingCategory ? 'Cập nhật danh mục thành công' : 'Thêm danh mục mới thành công');
-      setIsCategoryModalOpen(false);
-      refreshData();
-    } catch (error) {
-      ErrorHandler.handle(error, 'lưu danh mục');
-    }
-  };
-
-  const handleEditCategory = (category: CategoryInfo & {id?: string}) => {
-    setEditingCategory(category);
-    setCategoryFormData({
-      id: (category as any).id || category.name,
-      name: category.name,
-      icon: category.icon,
-      description: category.description
-    });
-    setIsCategoryModalOpen(true);
-  };
-
-  const handleDeleteCategory = async (category: CategoryInfo) => {
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa danh mục "${category.name}"?`)) return;
-    try {
-      await db.deleteCategory(category.name);
-      toast.success('Đã xóa danh mục thành công');
-      refreshData();
-    } catch (error) {
-      ErrorHandler.handle(error, 'xóa danh mục');
-    }
-  };
-
-  const handleBulkDeleteBooks = async () => {
-    if (selectedBooks.length === 0) return;
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa ${selectedBooks.length} cuốn sách đã chọn?`)) return;
-    
-    setIsDeletingBulk(true);
-    try {
-      await db.deleteBooksBulk(selectedBooks);
-      toast.success(`Đã xóa ${selectedBooks.length} cuốn sách`);
-      setSelectedBooks([]);
-      refreshData();
-    } catch (err) {
-      ErrorHandler.handle(err, 'xóa hàng loạt sách');
-    } finally {
-      setIsDeletingBulk(false);
-    }
-  };
-
-  const handleBulkDeleteAuthors = async () => {
-    if (selectedAuthors.length === 0) return;
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa ${selectedAuthors.length} tác giả đã chọn?`)) return;
-    
-    setIsDeletingBulk(true);
-    try {
-      await db.deleteAuthorsBulk(selectedAuthors);
-      toast.success(`Đã xóa ${selectedAuthors.length} tác giả`);
-      setSelectedAuthors([]);
-      refreshData();
-    } catch (err) {
-      ErrorHandler.handle(err, 'xóa hàng loạt tác giả');
-    } finally {
-      setIsDeletingBulk(false);
-    }
-  };
-
-  const handleBulkDeleteCategories = async () => {
-    if (selectedCategories.length === 0) return;
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa ${selectedCategories.length} danh mục đã chọn?`)) return;
-    
-    setIsDeletingBulk(true);
-    try {
-      await db.deleteCategoriesBulk(selectedCategories);
-      toast.success(`Đã xóa ${selectedCategories.length} danh mục`);
-      setSelectedCategories([]);
-      refreshData();
-    } catch (err) {
-      ErrorHandler.handle(err, 'xóa hàng loạt danh mục');
-    } finally {
-      setIsDeletingBulk(false);
-    }
-  };
-
-  const toggleSelectBook = (id: string) => {
-    setSelectedBooks(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-  };
-
-  const toggleSelectAllBooks = () => {
-    if (selectedBooks.length === filteredBooks.length && filteredBooks.length > 0) {
-      setSelectedBooks([]);
-    } else {
-      setSelectedBooks(filteredBooks.map(b => b.id));
-    }
-  };
-
-  const toggleSelectAuthor = (id: string) => {
-    setSelectedAuthors(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-  };
-
-  const toggleSelectAllAuthors = () => {
-    if (selectedAuthors.length === authors.length && authors.length > 0) {
-      setSelectedAuthors([]);
-    } else {
-      setSelectedAuthors(authors.map(a => a.id));
-    }
-  };
-
-  const toggleSelectCategory = (name: string) => {
-    setSelectedCategories(prev => prev.includes(name) ? prev.filter(x => x !== name) : [...prev, name]);
-  };
-
-  const toggleSelectAllCategories = () => {
-    if (selectedCategories.length === categories.length && categories.length > 0) {
-      setSelectedCategories([]);
-    } else {
-      setSelectedCategories(categories.map(c => c.name));
-    }
-  };
-
-  const handleSaveCoupon = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!couponFormData.code || !couponFormData.discountValue || !couponFormData.expiryDate) {
-      toast.error('Vui lòng nhập đầy đủ thông tin: Mã code, giá trị giảm, và ngày hết hạn');
-      return;
-    }
-    try {
-      const couponData: Coupon = {
-        code: couponFormData.code!.toUpperCase(),
-        discountType: couponFormData.discountType || 'percentage',
-        discountValue: couponFormData.discountValue!,
-        minOrderValue: couponFormData.minOrderValue || 0,
-        expiryDate: couponFormData.expiryDate!,
-        isActive: couponFormData.isActive ?? true,
-        usedCount: couponFormData.usedCount || 0,
-        usageLimit: couponFormData.usageLimit || 100
-      };
-      await db.saveCoupon(couponData);
-      setIsCouponModalOpen(false);
-      setEditingCoupon(null);
-      setCouponFormData({
-        code: '',
-        discountType: 'percentage',
-        discountValue: 0,
-        minOrderValue: 0,
-        expiryDate: '',
-        isActive: true,
-        usedCount: 0,
-        usageLimit: 100
-      });
-      await refreshData();
-      toast.success(editingCoupon ? 'Cập nhật mã khuyến mãi thành công!' : 'Tạo mã khuyến mãi thành công!');
-    } catch (error) {
-      ErrorHandler.handle(error, 'lưu mã khuyến mãi');
-    }
-  };
-
-  const handleDeleteCoupon = async (code: string) => {
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa mã khuyến mãi "${code}"?`)) return;
-    try {
-      await db.deleteCoupon(code);
-      await refreshData();
-      toast.success('Xóa mã khuyến mãi thành công!');
-    } catch (error) {
-      ErrorHandler.handle(error, 'xóa mã khuyến mãi');
-    }
-  };
-
-  const handleViewOrderDetails = async (order: Order) => {
-    try {
-      const orderWithItems = await db.getOrderWithItems(order.id);
-      if (orderWithItems) {
-        setSelectedOrder(orderWithItems);
-        setIsOrderModalOpen(true);
-      }
-    } catch (error) {
-      ErrorHandler.handle(error, 'tải chi tiết đơn hàng');
-    }
-  };
-
-  const handleUpdateOrderStatus = async (newStatusStep: number) => {
-    if (!selectedOrder) return;
-    
-    const newStatusLabel = orderStatusOptions.find(opt => opt.step === newStatusStep)?.label || 'Đang xử lý';
-    
-    if (!window.confirm(`Cập nhật trạng thái đơn hàng thành "${newStatusLabel}"?`)) return;
-    
-    setUpdatingOrderStatus(true);
-    try {
-      await db.updateOrderStatus(selectedOrder.id, newStatusLabel, newStatusStep);
-      setSelectedOrder({ ...selectedOrder, status: newStatusLabel, statusStep: newStatusStep });
-      refreshData();
-      toast.success('Cập nhật trạng thái thành công!');
-    } catch (error) {
-      ErrorHandler.handle(error, 'cập nhật trạng thái đơn hàng');
-    } finally {
-      setUpdatingOrderStatus(false);
-    }
-  };
-
-  const handleUpdateAIModel = async (modelId: string) => {
-    if (!window.confirm(`Bạn có chắc muốn chuyển sang sử dụng model "${modelId}"?`)) return;
-    setIsUpdatingAI(true);
-    try {
-      await db.updateAIConfig(modelId);
-      setAiConfig({ activeModelId: modelId });
-      toast.success(`Đã chuyển đổi sang model ${modelId} thành công!`);
-    } catch (error) {
-      ErrorHandler.handle(error, 'cập nhật cấu hình AI');
-    } finally {
-      setIsUpdatingAI(false);
-    }
-  };
-
-  const handleUpdateUserRole = async (userId: string, currentRole: 'admin' | 'user') => {
-    const newRole = currentRole === 'admin' ? 'user' : 'admin';
-    if (!window.confirm(`Chuyển vai trò người dùng này sang ${newRole === 'admin' ? 'Quản trị viên' : 'Khách hàng'}?`)) return;
-    try {
-      await db.updateUserRole(userId, newRole);
-      toast.success('Cập nhật vai trò thành công');
-      refreshData();
-    } catch (error) {
-      ErrorHandler.handle(error, 'cập nhật vai trò người dùng');
-    }
-  };
-
-  const handleUpdateUserStatus = async (userId: string, currentStatus: 'active' | 'banned') => {
-    const newStatus = currentStatus === 'active' ? 'banned' : 'active';
-    const actionText = newStatus === 'banned' ? 'khóa' : 'mở khóa';
-    if (!window.confirm(`Bạn có chắc chắn muốn ${actionText} tài khoản này?`)) return;
-    try {
-      await db.updateUserStatus(userId, newStatus);
-      toast.success(`Đã ${actionText} tài khoản thành công`);
-      refreshData();
-    } catch (error) {
-      ErrorHandler.handle(error, 'cập nhật trạng thái người dùng');
-    }
-  };
-
-  const handleDeleteUser = async (user: UserProfile) => {
-    if (!window.confirm(`Bạn có chắc chắn muốn XÓA VĨNH VIỄN tài khoản "${user.name}"? Hành động này không thể hoàn tác.`)) return;
-    try {
-      await db.deleteUser(user.id);
-      toast.success('Đã xóa người dùng thành công');
-      refreshData();
-    } catch (error) {
-      ErrorHandler.handle(error, 'xóa người dùng');
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50 flex relative z-[200]">
-      <aside className="w-64 bg-slate-900 text-white flex flex-col sticky top-0 h-screen z-50 shadow-2xl">
-        <div className="p-8 border-b border-white/5">
-          <h1 className="text-xl font-extrabold tracking-tighter text-white">Digi<span className="text-indigo-400">Admin</span></h1>
-          <p className="text-micro font-bold text-slate-500 uppercase tracking-premium mt-1">Hệ thống quản trị</p>
+    <div className="flex min-h-screen bg-slate-50">
+      {/* Sidebar - Cố định bên trái - Nâng cấp màu Midnight Premium */}
+      <aside className="w-80 bg-[#0f172a] flex flex-col fixed inset-y-0 z-[100] shadow-2xl">
+        <div className="p-6 border-b border-white/5 flex items-center gap-4 h-24">
+          <Link to="/" className="w-12 h-12 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center text-white hover:scale-110 shadow-lg shadow-indigo-500/20 transition-all active:scale-95 group">
+            <i className="fa-solid fa-house-chimney group-hover:rotate-12 transition-transform"></i>
+          </Link>
+          <div>
+            <h1 className="text-sm font-black text-white tracking-tight uppercase">DigiBook</h1>
+            <p className="text-[9px] font-bold text-indigo-400 uppercase tracking-[0.2em] mt-0.5">Admin Dashboard</p>
+          </div>
         </div>
-        
-        <nav className="flex-1 p-4 space-y-2 mt-4">
+
+        <nav className="flex-1 overflow-y-auto p-5 space-y-2 mt-4 custom-scrollbar">
           {[
-            { id: 'overview', icon: 'fa-chart-pie', label: 'Tổng quan' },
-            { id: 'books', icon: 'fa-book-bookmark', label: 'Kho sách' },
-            { id: 'authors', icon: 'fa-pen-nib', label: 'Tác giả' },
-            { id: 'categories', icon: 'fa-folder-tree', label: 'Danh mục' },
-            { id: 'orders', icon: 'fa-bag-shopping', label: 'Đơn hàng' },
-            { id: 'coupons', icon: 'fa-ticket', label: 'Khuyến mãi' },
-            { id: 'users', icon: 'fa-users', label: 'Tài khoản' },
-            { id: 'ai', icon: 'fa-robot', label: 'Cơ chế AI' },
-            { id: 'logs', icon: 'fa-receipt', label: 'Nhật ký' }
+            { id: "overview", label: "Tổng quan", icon: "fa-chart-pie" },
+            { id: "books", label: "Kho sách", icon: "fa-book-bookmark" },
+            { id: "orders", label: "Đơn hàng", icon: "fa-truck-fast" },
+            { id: "authors", label: "Tác giả", icon: "fa-user-pen" },
+            { id: "categories", label: "Danh mục", icon: "fa-shapes" },
+            { id: "coupons", label: "Khuyến mãi", icon: "fa-tags" },
+            { id: "users", label: "Thành viên", icon: "fa-user-group" },
+            { id: "logs", label: "Nhật ký", icon: "fa-terminal" },
+            { id: "ai", label: "Trợ lý AI", icon: "fa-wand-magic-sparkles" }
           ].map(tab => (
             <button
               key={tab.id}
-              onClick={() => { setActiveTab(tab.id as any); setSearchQuery(''); }}
-              className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-bold tracking-wide transition-all ${
-                activeTab === tab.id ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/20' : 'text-slate-500 hover:text-white hover:bg-white/5'
-              }`}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex items-center gap-4 w-full px-5 py-4 rounded-2xl text-[11px] font-bold uppercase tracking-wider transition-all duration-300 group
+                ${activeTab === tab.id 
+                  ? "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-xl shadow-indigo-500/30 ring-1 ring-white/20" 
+                  : "text-slate-400 hover:text-white hover:bg-white/5 hover:translate-x-1"
+                }`}
             >
-              <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${activeTab === tab.id ? 'bg-white/10' : 'bg-transparent'}`}>
-                <i className={`fa-solid ${tab.icon} text-sm`}></i>
-              </div>
-              {tab.label}
+              <i className={`fa-solid ${tab.icon} w-5 text-center text-sm ${activeTab === tab.id ? 'text-white' : 'text-slate-500 group-hover:text-indigo-400'}`}></i>
+              <span>{tab.label}</span>
             </button>
           ))}
         </nav>
 
-        <div className="p-4 mt-auto border-t border-white/5">
-          <Link to="/" className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl text-micro font-bold uppercase tracking-premium text-indigo-400 hover:bg-white/5 transition-all group">
-            <i className="fa-solid fa-arrow-left-long group-hover:-translate-x-1 transition-transform"></i>
-            <span>Xem cửa hàng</span>
-          </Link>
+        {/* Footer Sidebar - Dark Style */}
+        <div className="p-6 bg-[#1e293b]/50 border-t border-white/5 mx-4 mb-4 rounded-3xl">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center border border-indigo-500/20 shadow-inner">
+              <i className="fa-solid fa-crown text-indigo-400"></i>
+            </div>
+            <div>
+              <span className="text-[10px] font-black text-white uppercase block tracking-wider">Super Admin</span>
+              <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2 mt-0.5">
+                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+                Vận hành tốt
+              </span>
+            </div>
+          </div>
         </div>
       </aside>
 
-      <main className="flex-1 p-8 lg:p-12 overflow-y-auto bg-slate-50 relative">
-        {/* Toast Notification for Seeding/Syncing */}
-        {seedStatus && (
-          <div className="fixed top-8 right-8 z-[1000] animate-slideIn">
-            <div className={`px-6 py-4 rounded-2xl shadow-2xl border flex items-center gap-4 transition-all duration-500 bg-white ${
-              seedStatus.type === 'success' ? 'border-emerald-100' : 
-              seedStatus.type === 'error' ? 'border-rose-100' : 'border-blue-100'
-            }`}>
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                seedStatus.type === 'success' ? 'bg-emerald-500 text-white' : 
-                seedStatus.type === 'error' ? 'bg-rose-500 text-white' : 'bg-blue-500 text-white'
-              }`}>
-                <i className={`fa-solid ${
-                  seedStatus.type === 'success' ? 'fa-check' : 
-                  seedStatus.type === 'error' ? 'fa-exclamation' : 'fa-spinner fa-spin'
-                }`}></i>
+      {/* Main Content Area */}
+      <main className="flex-1 ml-80 min-h-screen">
+        <header className="bg-white/90 backdrop-blur-md border-b border-slate-100 sticky top-0 z-40 h-24 flex items-center justify-between px-10">
+           <div>
+              <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">
+                {activeTab === 'overview' ? 'Báo cáo tổng quan' : 
+                 activeTab === 'books' ? 'Quản lý kho sách' :
+                 activeTab === 'orders' ? 'Đơn hàng & Vận chuyển' :
+                 activeTab === 'authors' ? 'Tác giả & Nhà văn' :
+                 activeTab === 'categories' ? 'Phân loại danh mục' :
+                 activeTab === 'coupons' ? 'Mã giảm giá & KM' :
+                 activeTab === 'users' ? 'Quản lý tài khoản' :
+                 activeTab === 'logs' ? 'Lịch sử hệ thống' : 'Cấu hình AI Assistant'}
+              </h2>
+              <p className="text-micro font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Digibook Management System v2.0</p>
+           </div>
+           
+           <div className="flex items-center gap-6">
+              <div className="flex flex-col items-end">
+                <span className="text-micro font-black text-slate-400 uppercase tracking-widest">{new Date().toLocaleDateString('vi-VN', { weekday: 'long' })}</span>
+                <span className="text-sm font-black text-slate-900">{new Date().toLocaleDateString('vi-VN')}</span>
               </div>
-              <div>
-                <p className="text-micro font-bold uppercase tracking-premium text-slate-400 mb-0.5">Thông báo hệ thống</p>
-                <p className="text-sm font-bold text-slate-900">{seedStatus.msg}</p>
+              <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 border border-slate-100 shadow-sm">
+                 <i className="fa-solid fa-calendar-check text-indigo-500"></i>
               </div>
-            </div>
-          </div>
-        )}
-
-        <header className="flex justify-between items-center gap-6 mb-12">
-          <div>
-            <h2 className="text-3xl font-extrabold text-slate-900">
-              {activeTab === 'overview' ? 'Báo cáo tổng quan' : 
-               activeTab === 'books' ? 'Quản lý kho hàng' : 
-               activeTab === 'logs' ? 'Nhật ký hệ thống' : 
-               activeTab === 'users' ? 'Quản lý tài khoản' :
-               activeTab === 'ai' ? 'Cấu hình Trí tuệ Nhân tạo' :
-               activeTab === 'coupons' ? 'Quản lý Khuyến mãi' : 'Quản lý Đơn hàng'}
-            </h2>
-          </div>
-          <div className="flex items-center gap-4">
-            {activeTab === 'coupons' && (
-              <button 
-                onClick={() => {
-                  setEditingCoupon(null);
-                  setCouponFormData({
-                    code: '',
-                    discountType: 'percentage',
-                    discountValue: 0,
-                    minOrderValue: 0,
-                    expiryDate: '',
-                    isActive: true,
-                    usedCount: 0,
-                    usageLimit: 100
-                  });
-                  setIsCouponModalOpen(true);
-                }}
-                className="flex items-center gap-3 px-6 py-3 bg-indigo-600 text-white rounded-2xl font-bold text-micro uppercase tracking-premium hover:bg-indigo-700 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-indigo-100"
-              >
-                <i className="fa-solid fa-plus"></i>
-                <span>Tạo mã mới</span>
-              </button>
-            )}
-            <div className="relative group">
-              <input 
-                type="text" placeholder="Tìm kiếm nhanh..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-80 px-4 py-3 pl-10 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 ring-indigo-50 font-bold shadow-sm transition-all"
-              />
-              <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-            </div>
-          </div>
+           </div>
         </header>
 
-        {activeTab === 'coupons' && (
-          <div className="space-y-6 animate-fadeIn">
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden min-h-[500px]">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-slate-50 border-b border-slate-100">
-                  <tr>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Mã khuyến mãi</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Giảm giá</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Đơn tối thiểu</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Ngày hết hạn</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Lượt dùng</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Trạng thái</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-right">Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
-                  {filteredCoupons.length > 0 ? filteredCoupons.map(coupon => (
-                    <tr key={coupon.id} className="hover:bg-slate-50 transition-all group">
-                      <td className="px-8 py-6">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
-                            <i className="fa-solid fa-ticket"></i>
-                          </div>
-                          <span className="text-sm font-extrabold text-slate-900 tracking-wider">
-                            {coupon.code}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-8 py-6 text-center">
-                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-micro font-bold uppercase tracking-premium">
-                          {coupon.discountType === 'percentage' 
-                            ? `Giảm ${coupon.discountValue}%` 
-                            : `Giảm ${coupon.discountValue.toLocaleString()}đ`}
-                        </span>
-                      </td>
-                      <td className="px-8 py-6 text-center text-[13px] font-bold text-slate-600">
-                        {coupon.minOrderValue.toLocaleString()}đ
-                      </td>
-                      <td className="px-8 py-6 text-center text-micro font-bold text-slate-500">
-                        {new Date(coupon.expiryDate).toLocaleDateString('vi-VN')}
-                      </td>
-                      <td className="px-8 py-6 text-center">
-                        <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
-                          {coupon.usedCount || 0}
-                        </span>
-                        <span className="text-micro text-slate-400 font-bold ml-1">
-                          / {coupon.usageLimit || 100}
-                        </span>
-                      </td>
-                      <td className="px-8 py-6 text-center">
-                        <span className={`px-3 py-1 rounded-lg text-micro font-bold uppercase tracking-premium ${
-                          coupon.isActive 
-                          ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-100' 
-                          : 'bg-slate-200 text-slate-500'
-                        }`}>
-                          {coupon.isActive ? 'Đang chạy' : 'Tạm dừng'}
-                        </span>
-                      </td>
-                      <td className="px-8 py-6 text-right">
-                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                          <button 
-                            onClick={() => {
-                              setEditingCoupon(coupon.code);
-                              setCouponFormData({
-                                code: coupon.code,
-                                discountType: coupon.discountType,
-                                discountValue: coupon.discountValue,
-                                minOrderValue: coupon.minOrderValue,
-                                expiryDate: coupon.expiryDate,
-                                isActive: coupon.isActive,
-                                usedCount: coupon.usedCount || 0,
-                                usageLimit: coupon.usageLimit || 100
-                              });
-                              setIsCouponModalOpen(true);
-                            }}
-                            className="w-10 h-10 bg-white shadow-sm border border-slate-100 text-indigo-500 rounded-xl hover:bg-indigo-500 hover:text-white transition-all flex items-center justify-center"
-                          >
-                            <i className="fa-solid fa-pen-to-square"></i>
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteCoupon(coupon.code)}
-                            className="w-10 h-10 bg-white shadow-sm border border-slate-100 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center"
-                          >
-                            <i className="fa-solid fa-trash"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )) : (
-                    <tr>
-                      <td colSpan={7} className="px-8 py-20 text-center">
-                        <div className="flex flex-col items-center gap-4 opacity-30">
-                          <i className="fa-solid fa-ticket-simple text-6xl"></i>
-                          <span className="text-lg font-bold">Chưa có mã khuyến mãi nào</span>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'ai' && (
-          <div className="space-y-8 animate-fadeIn">
-            {/* AI Summary Header */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-indigo-600 rounded-[2rem] p-8 text-white shadow-xl shadow-indigo-200">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
-                    <i className="fa-solid fa-microchip text-xl"></i>
-                  </div>
-                  <div>
-                    <p className="text-micro font-bold uppercase tracking-premium opacity-60">Model Hiện tại</p>
-                    <h3 className="text-xl font-extrabold">{AVAILABLE_AI_MODELS.find(m => m.id === aiConfig.activeModelId)?.name || 'Gemini 3 Flash'}</h3>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="opacity-60 font-medium">Trạng thái:</span>
-                    <span className="font-extrabold uppercase tracking-tight">Hoạt động</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="opacity-60 font-medium">Phiên bản:</span>
-                    <span className="font-extrabold uppercase tracking-tight">Latest</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm col-span-2">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center">
-                    <i className="fa-solid fa-circle-info"></i>
-                  </div>
-                  <h3 className="font-extrabold text-slate-900 uppercase tracking-tight">Lưu ý về hạn mức (Rate Limits)</h3>
-                </div>
-                <p className="text-sm text-slate-500 leading-relaxed font-medium">
-                  Hệ thống sử dụng Gemini API. Các model có hạn mức khác nhau về RPM (Requests/Min) và TPM (Tokens/Min). 
-                  Vui lòng chọn model phù hợp với lưu lượng truy cập của cửa hàng để tránh lỗi gián đoạn dịch vụ AI.
-                </p>
-              </div>
-            </div>
-
-            {/* Model Selection Table */}
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
-              <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center">
-                <h3 className="font-extrabold text-slate-900 text-lg uppercase tracking-tight">Danh sách Model khả dụng</h3>
-                <div className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-micro font-bold uppercase tracking-premium">
-                  {AVAILABLE_AI_MODELS.length} Model được hỗ trợ
-                </div>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead className="bg-slate-50 border-b border-slate-100">
-                    <tr>
-                      <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Model ID</th>
-                      <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Phân loại</th>
-                      <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">RPM</th>
-                      <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">TPM</th>
-                      <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">RPD</th>
-                      <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-right">Hành động</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50">
-                    {AVAILABLE_AI_MODELS.map(model => (
-                      <tr key={model.id} className={`hover:bg-slate-50 transition-all group ${aiConfig.activeModelId === model.id ? 'bg-indigo-50/30' : ''}`}>
-                        <td className="px-8 py-6">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${aiConfig.activeModelId === model.id ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
-                              <i className="fa-solid fa-microchip text-xs"></i>
-                            </div>
-                            <div>
-                              <p className="text-sm font-extrabold text-slate-900">{model.name}</p>
-                              <code className="text-micro font-bold text-slate-400">{model.id}</code>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-8 py-6">
-                          <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-micro font-bold uppercase tracking-premium">
-                            {model.category}
-                          </span>
-                        </td>
-                        <td className="px-8 py-6 text-center text-sm font-bold text-slate-600">{model.rpm}</td>
-                        <td className="px-8 py-6 text-center text-sm font-bold text-slate-600">{model.tpm}</td>
-                        <td className="px-8 py-6 text-center text-sm font-bold text-slate-600">{model.rpd}</td>
-                        <td className="px-8 py-6 text-right">
-                          {aiConfig.activeModelId === model.id ? (
-                            <div className="flex items-center justify-end gap-2 text-indigo-600 font-bold text-micro uppercase tracking-premium">
-                              <i className="fa-solid fa-circle-check"></i>
-                              <span>Đang sử dụng</span>
-                            </div>
-                          ) : (
-                            <button
-                              disabled={isUpdatingAI}
-                              onClick={() => handleUpdateAIModel(model.id)}
-                              className="px-4 py-2 bg-white border border-slate-200 text-slate-900 rounded-xl text-micro font-bold uppercase tracking-premium hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all disabled:opacity-50"
-                            >
-                              Sử dụng
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'users' && (
-          <div className="space-y-6 animate-fadeIn">
-            {/* User Filters Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-3">
-                  <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Vai trò:</span>
-                  <div className="flex gap-2 p-1 bg-slate-100 rounded-xl">
-                    {(['all', 'admin', 'user'] as const).map(role => (
-                      <button
-                        key={role}
-                        onClick={() => setUserRoleFilter(role)}
-                        className={`px-4 py-1.5 rounded-lg text-micro font-bold uppercase tracking-premium transition-all ${
-                          userRoleFilter === role 
-                          ? 'bg-slate-900 text-white shadow-lg' 
-                          : 'text-slate-500 hover:text-slate-900'
-                        }`}
-                      >
-                        {role === 'all' ? 'Tất cả' : role === 'admin' ? 'Quản trị' : 'Khách'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Trạng thái:</span>
-                  <div className="flex gap-2 p-1 bg-slate-100 rounded-xl">
-                    {(['all', 'active', 'banned'] as const).map(status => (
-                      <button
-                        key={status}
-                        onClick={() => setUserStatusFilter(status)}
-                        className={`px-4 py-1.5 rounded-lg text-micro font-bold uppercase tracking-premium transition-all ${
-                          userStatusFilter === status 
-                          ? (status === 'banned' ? 'bg-rose-500 text-white shadow-lg shadow-rose-100' : 'bg-slate-900 text-white shadow-lg shadow-slate-100')
-                          : 'text-slate-500 hover:text-slate-900'
-                        }`}
-                      >
-                        {status === 'all' ? 'Tất cả' : status === 'active' ? 'Hoạt động' : 'Đã khóa'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <i className="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                  <input 
-                    type="text"
-                    placeholder="Tìm theo tên, email, SĐT..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-4 py-2.5 bg-slate-50 border-none rounded-2xl text-[11px] font-bold w-64 focus:ring-4 ring-indigo-50 focus:bg-white transition-all outline-none"
-                  />
-                </div>
-                <button 
-                  onClick={refreshData}
-                  className="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl hover:text-indigo-600 hover:bg-indigo-50 transition-all border border-slate-100"
-                  title="Làm mới danh sách"
-                >
-                  <i className="fa-solid fa-rotate"></i>
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden min-h-[500px]">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-slate-50 border-b border-slate-100">
-                  <tr>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Người dùng</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Liên hệ</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Thông tin thêm</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Vai trò</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Trạng thái</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-right">Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
-                  {filteredUsers.length > 0 ? filteredUsers.map(user => (
-                    <tr key={user.id} className="hover:bg-slate-50/50 transition-all group">
-                      <td className="px-8 py-6">
-                        <div className="flex items-center gap-4">
-                          <img 
-                            src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=random&bold=true`} 
-                            className="w-12 h-12 rounded-2xl object-cover shadow-sm border-2 border-white ring-1 ring-slate-100" 
-                            alt={user.name} 
-                          />
-                          <div>
-                            <p className="text-sm font-extrabold text-slate-900">{user.name || 'Hội viên DigiBook'}</p>
-                            <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">{user.email}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-8 py-6">
-                        <div className="space-y-1.5">
-                          <p className="text-micro font-bold text-slate-700 flex items-center gap-2">
-                            <i className="fa-solid fa-phone text-indigo-400 text-[10px]"></i>
-                            {user.phone || 'Chưa có SĐT'}
-                          </p>
-                          <p className="text-micro font-medium text-slate-400 flex items-start gap-2 max-w-[180px]">
-                            <i className="fa-solid fa-location-dot text-slate-300 mt-0.5"></i>
-                            <span className="leading-relaxed">{user.address || 'Địa chỉ trống'}</span>
-                          </p>
-                        </div>
-                      </td>
-                      <td className="px-8 py-6">
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <span className={`px-2 py-0.5 rounded-lg text-micro font-bold uppercase tracking-premium ${
-                              user.gender === 'Nữ' ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-blue-600'
-                            }`}>
-                              {user.gender || 'N/A'}
-                            </span>
-                            <span className="text-micro font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-lg">
-                              {user.birthday || '--/--/----'}
-                            </span>
-                          </div>
-                          {user.bio ? (
-                            <p className="text-xs text-slate-400 italic font-medium line-clamp-1 max-w-[150px]" title={user.bio}>
-                              "{user.bio}"
-                            </p>
-                          ) : (
-                            <p className="text-xs text-slate-300 italic">Chưa có giới thiệu</p>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-8 py-6 text-center">
-                        <button 
-                          onClick={() => handleUpdateUserRole(user.id, user.role || 'user')}
-                          className={`px-4 py-1.5 rounded-xl text-micro font-bold uppercase tracking-premium transition-all shadow-sm ${
-                            user.role === 'admin' 
-                            ? 'bg-indigo-600 text-white shadow-indigo-100 hover:scale-105' 
-                            : 'bg-white border border-slate-100 text-slate-500 hover:bg-slate-50'
-                          }`}
-                        >
-                          {user.role === 'admin' ? 'Quản trị' : 'Khách'}
-                        </button>
-                      </td>
-                      <td className="px-8 py-6 text-center">
-                        <div className="flex flex-col items-center gap-1">
-                          <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg text-micro font-bold uppercase tracking-premium ${
-                            user.status === 'banned' 
-                            ? 'bg-rose-50 text-rose-600' 
-                            : 'bg-emerald-50 text-emerald-600'
-                          }`}>
-                            <div className={`w-1.5 h-1.5 rounded-full ${user.status === 'banned' ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500'}`}></div>
-                            {user.status === 'banned' ? 'Đã khóa' : 'Hoạt động'}
-                          </span>
-                          <span className="text-micro font-medium text-slate-300 uppercase tracking-premium">
-                            Cập nhật: {user.updatedAt?.toDate ? user.updatedAt.toDate().toLocaleDateString('vi-VN') : 'N/A'}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-8 py-6 text-right">
-                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                          <button 
-                            onClick={() => handleUpdateUserStatus(user.id, user.status || 'active')}
-                            title={user.status === 'banned' ? 'Mở khóa' : 'Khóa tài khoản'}
-                            className={`w-10 h-10 rounded-2xl border flex items-center justify-center transition-all shadow-sm ${
-                              user.status === 'banned' 
-                              ? 'bg-white border-emerald-100 text-emerald-500 hover:bg-emerald-500 hover:text-white hover:shadow-emerald-100' 
-                              : 'bg-white border-rose-100 text-rose-500 hover:bg-rose-500 hover:text-white hover:shadow-rose-100'
-                            }`}
-                          >
-                            <i className={`fa-solid ${user.status === 'banned' ? 'fa-unlock' : 'fa-user-slash'}`}></i>
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteUser(user)}
-                            title="Xóa vĩnh viễn"
-                            className="w-10 h-10 bg-white border border-slate-100 text-slate-400 rounded-2xl hover:bg-slate-900 hover:text-white transition-all flex items-center justify-center hover:shadow-lg"
-                          >
-                            <i className="fa-solid fa-trash-can"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )) : (
-                    <tr>
-                      <td colSpan={6} className="px-8 py-20 text-center">
-                        <div className="flex flex-col items-center gap-4 opacity-30">
-                          <i className="fa-solid fa-users-slash text-6xl text-slate-200"></i>
-                          <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Không tìm thấy người dùng nào</span>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'logs' && (
-          <div className="space-y-6 animate-fadeIn">
-            {/* Log Filters Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
-              <div className="flex items-center gap-4">
-                <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Trạng thái:</span>
-                <div className="flex gap-2 p-1 bg-slate-100 rounded-xl">
-                  {(['ALL', 'SUCCESS', 'ERROR'] as const).map(status => (
-                    <button
-                      key={status}
-                      onClick={() => setLogStatusFilter(status)}
-                      className={`px-4 py-1.5 rounded-lg text-micro font-bold uppercase tracking-premium transition-all ${
-                        logStatusFilter === status 
-                        ? (status === 'ERROR' ? 'bg-rose-500 text-white shadow-lg shadow-rose-100' : status === 'SUCCESS' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-100' : 'bg-slate-900 text-white shadow-lg shadow-slate-100')
-                        : 'text-slate-500 hover:text-slate-900'
-                      }`}
-                    >
-                      {status === 'ALL' ? 'Tất cả' : status}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Phân loại:</span>
-                <select 
-                  value={logActionFilter}
-                  onChange={(e) => setLogActionFilter(e.target.value)}
-                  className="bg-slate-100 px-4 py-2 rounded-xl text-micro font-bold uppercase tracking-premium outline-none border-none focus:ring-2 ring-indigo-100"
-                >
-                  <option value="ALL">Tất cả hành động</option>
-                  {uniqueActions.map(act => (
-                    <option key={act} value={act}>{act}</option>
-                  ))}
-                </select>
-              </div>
-
-              <button 
-                onClick={refreshData}
-                className="ml-auto w-10 h-10 bg-slate-50 text-slate-400 rounded-xl hover:text-indigo-600 hover:bg-indigo-50 transition-all"
-                title="Làm mới nhật ký"
-              >
-                <i className="fa-solid fa-rotate"></i>
-              </button>
-            </div>
-
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
-              <table className="w-full text-left">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium w-48">Thời gian</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium w-40">Hành động</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Chi tiết bản ghi</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium w-40">Tác nhân</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center w-32">Kết quả</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
-                  {paginatedLogs.length > 0 ? paginatedLogs.map(log => (
-                    <tr key={log.id} className="hover:bg-slate-50 transition-all group">
-                      <td className="px-8 py-5 text-micro font-bold text-slate-900 tracking-tight">
-                        {log.createdAt?.toDate().toLocaleString('vi-VN', { 
-                          day: '2-digit', month: '2-digit', year: 'numeric',
-                          hour: '2-digit', minute: '2-digit', second: '2-digit'
-                        })}
-                      </td>
-                      <td className="px-8 py-5">
-                        <span className="text-micro font-bold text-slate-900 uppercase tracking-tighter bg-slate-100 px-2 py-1 rounded-md">
-                          {log.action}
-                        </span>
-                      </td>
-                      <td className="px-8 py-5 text-[13px] text-slate-600 font-bold max-w-md truncate group-hover:whitespace-normal group-hover:overflow-visible group-hover:bg-slate-50 transition-all">
-                        {log.detail}
-                      </td>
-                      <td className="px-8 py-5 text-micro text-slate-400 font-extrabold italic">
-                        {log.user.split('@')[0]}
-                      </td>
-                      <td className="px-8 py-5 text-center">
-                        <span className={`px-3 py-1 rounded-lg text-micro font-bold uppercase tracking-premium ${
-                          log.status === 'SUCCESS' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
-                        }`}>
-                          {log.status}
-                        </span>
-                      </td>
-                    </tr>
-                  )) : (
-                    <tr>
-                      <td colSpan={5} className="px-8 py-20 text-center">
-                        <div className="opacity-20 mb-4">
-                          <i className="fa-solid fa-terminal text-5xl"></i>
-                        </div>
-                        <p className="text-xs font-bold text-slate-300 uppercase tracking-premium">Không tìm thấy bản ghi nào khớp với bộ lọc</p>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-
-              {/* Pagination Controls */}
-              {totalLogPages > 1 && (
-                <div className="flex items-center justify-between px-8 py-4 bg-slate-50 border-t border-slate-100">
-                  <div className="text-sm text-slate-500">
-                    Hiển thị {((currentLogPage - 1) * logsPerPage) + 1} - {Math.min(currentLogPage * logsPerPage, filteredLogs.length)} của {filteredLogs.length} bản ghi
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setCurrentLogPage(prev => Math.max(1, prev - 1))}
-                      disabled={currentLogPage === 1}
-                      className="px-3 py-1 text-sm bg-white border border-slate-200 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <i className="fa-solid fa-chevron-left mr-1"></i>Trước
-                    </button>
+        <div className="p-10">
+          {activeTab === "overview" && (
+            <div className="space-y-10 animate-fadeIn">
+              {/* Stats Grid - Enhanced Colors */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {[
+                  { label: "Doanh thu", value: formatPrice(stats.totalRevenue), icon: "fa-sack-dollar", bgColor: "bg-emerald-50", iconColor: "text-emerald-600", sub: `Trung bình ${formatPrice(stats.avgOrderValue)}/đơn` },
+                  { label: "Đơn hàng", value: stats.totalOrders, icon: "fa-cart-shopping", bgColor: "bg-indigo-50", iconColor: "text-indigo-600", sub: `${stats.todayOrders} đơn trong hôm nay` },
+                  { label: "Sách tồn", value: stats.totalBooks, icon: "fa-book-open-reader", bgColor: "bg-violet-50", iconColor: "text-violet-600", sub: `${stats.outOfStock} đầu sách đã hết` },
+                  { label: "Đang xử lý", value: stats.pendingOrders, icon: "fa-clock", bgColor: "bg-amber-50", iconColor: "text-amber-600", sub: `${stats.completedOrders} đơn đã hoàn thành` }
+                ].map((stat, i) => (
+                  <div key={i} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 transition-all group relative overflow-hidden">
+                    <div className="flex items-start justify-between mb-6 relative z-10">
+                      <div className={`w-16 h-16 ${stat.bgColor} ${stat.iconColor} rounded-3xl flex items-center justify-center text-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-lg`}>
+                        <i className={`fa-solid ${stat.icon}`}></i>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <span className="inline-flex items-center px-2 py-1 rounded-lg bg-slate-50 text-[10px] font-black text-slate-400 uppercase">Live</span>
+                      </div>
+                    </div>
+                    <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-1.5 relative z-10">{stat.label}</p>
+                    <h3 className="text-3xl font-black text-slate-900 tracking-tight relative z-10">{stat.value}</h3>
+                    <p className="text-micro font-bold text-slate-500 mt-4 flex items-center gap-2 relative z-10">
+                      <span className={`w-1.5 h-1.5 rounded-full ${stat.iconColor} animate-pulse`}></span>
+                      {stat.sub}
+                    </p>
                     
-                    <div className="flex gap-1">
-                      {Array.from({ length: Math.min(5, totalLogPages) }, (_, i) => {
-                        const pageNum = Math.max(1, Math.min(totalLogPages - 4, currentLogPage - 2)) + i;
-                        if (pageNum > totalLogPages) return null;
-                        return (
-                          <button
-                            key={pageNum}
-                            onClick={() => setCurrentLogPage(pageNum)}
-                            className={`px-3 py-1 text-sm rounded-md ${
-                              currentLogPage === pageNum 
-                                ? 'bg-indigo-600 text-white' 
-                                : 'bg-white border border-slate-200 hover:bg-slate-50'
-                            }`}
-                          >
-                            {pageNum}
-                          </button>
-                        );
-                      }).filter(Boolean)}
-                    </div>
-
-                    <button
-                      onClick={() => setCurrentLogPage(prev => Math.min(totalLogPages, prev + 1))}
-                      disabled={currentLogPage === totalLogPages}
-                      className="px-3 py-1 text-sm bg-white border border-slate-200 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Sau<i className="fa-solid fa-chevron-right ml-1"></i>
-                    </button>
-                  </div>
-                </div>
-              )}
-              
-              {/* Load More Button */}
-              {hasMoreLogs && (
-                <div className="px-8 py-4 bg-slate-50 border-t border-slate-100 text-center">
-                  <button
-                    onClick={loadMoreLogs}
-                    disabled={isLoadingMoreLogs}
-                    className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                  >
-                    {isLoadingMoreLogs ? (
-                      <>
-                        <i className="fa-solid fa-spinner fa-spin mr-2"></i>
-                        Đang tải...
-                      </>
-                    ) : (
-                      <>
-                        <i className="fa-solid fa-plus mr-2"></i>
-                        Tải thêm logs cũ hơn
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ... (Overview, Books và các tab khác được giữ nguyên cấu trúc) ... */}
-        {activeTab === 'overview' && (
-          <div className="space-y-8 fade-in">
-            {/* Main Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { 
-                  label: 'Tổng doanh thu', 
-                  value: formatPrice(stats.totalRevenue), 
-                  color: 'bg-gradient-to-br from-emerald-500 to-emerald-600', 
-                  icon: 'fa-chart-line',
-                  subtext: `Trung bình ${formatPrice(stats.avgOrderValue)}/đơn`
-                },
-                { 
-                  label: 'Đơn hàng hôm nay', 
-                  value: stats.todayOrders, 
-                  color: 'bg-gradient-to-br from-blue-500 to-blue-600', 
-                  icon: 'fa-calendar-day',
-                  subtext: `Tổng ${stats.totalOrders} đơn`
-                },
-                { 
-                  label: 'Đơn chờ xử lý', 
-                  value: stats.pendingOrders, 
-                  color: 'bg-gradient-to-br from-amber-500 to-amber-600', 
-                  icon: 'fa-clock',
-                  subtext: `${stats.completedOrders} đã hoàn thành`
-                },
-                { 
-                  label: 'Sản phẩm', 
-                  value: books.length, 
-                  color: 'bg-gradient-to-br from-indigo-500 to-indigo-600', 
-                  icon: 'fa-book',
-                  subtext: `${stats.totalBooks} quyển trong kho`
-                }
-              ].map((item, i) => (
-                <div key={i} className="bg-white p-6 rounded-[2rem] shadow-lg border border-slate-100 hover:shadow-xl transition-all group relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-slate-50 to-transparent rounded-full -mr-16 -mt-16 opacity-50"></div>
-                  <div className="relative">
-                    <div className={`w-14 h-14 ${item.color} rounded-2xl flex items-center justify-center text-white mb-4 shadow-xl group-hover:scale-110 transition-transform`}>
-                      <i className={`fa-solid ${item.icon} text-xl`}></i>
-                    </div>
-                    <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">{item.label}</p>
-                    <p className="text-3xl font-extrabold text-slate-900 mb-1">{item.value}</p>
-                    <p className="text-xs text-slate-500 font-semibold">{item.subtext}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Secondary Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-label font-bold text-slate-900 uppercase tracking-premium">Trạng thái kho</h3>
-                  <i className="fa-solid fa-warehouse text-slate-300"></i>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-600">Sắp hết hàng</span>
-                    <span className="px-3 py-1 bg-amber-50 text-amber-600 rounded-lg text-micro font-bold">{stats.lowStock}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-600">Hết hàng</span>
-                    <span className="px-3 py-1 bg-rose-50 text-rose-600 rounded-lg text-micro font-bold">{stats.outOfStock}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-600">Tổng số đầu sách</span>
-                    <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-micro font-bold">{books.length}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-label font-bold text-slate-900 uppercase tracking-premium">Nội dung</h3>
-                  <i className="fa-solid fa-database text-slate-300"></i>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-600">Tác giả</span>
-                    <span className="px-3 py-1 bg-purple-50 text-purple-600 rounded-lg text-micro font-bold">{stats.totalAuthors}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-600">Danh mục</span>
-                    <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-micro font-bold">{stats.totalCategories}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-600">Mã khuyến mãi</span>
-                    <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-micro font-bold">{stats.totalCoupons}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-6 rounded-[2rem] shadow-lg text-white">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-label font-bold uppercase tracking-premium">Thao tác nhanh</h3>
-                  <i className="fa-solid fa-bolt text-white/50"></i>
-                </div>
-                <div className="space-y-2">
-                  <button
-                    onClick={() => setActiveTab('books')}
-                    className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2.5 rounded-xl text-micro font-bold transition-all text-left flex items-center gap-2 uppercase tracking-premium"
-                  >
-                    <i className="fa-solid fa-book"></i>
-                    <span>Quản lý kho sách</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('orders')}
-                    className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2.5 rounded-xl text-micro font-bold transition-all text-left flex items-center gap-2 uppercase tracking-premium"
-                  >
-                    <i className="fa-solid fa-shopping-cart"></i>
-                    <span>Xử lý đơn hàng</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('coupons')}
-                    className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2.5 rounded-xl text-micro font-bold transition-all text-left flex items-center gap-2 uppercase tracking-premium"
-                  >
-                    <i className="fa-solid fa-ticket"></i>
-                    <span>Tạo khuyến mãi</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Revenue & Distribution Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-8 bg-white p-8 lg:p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
-                <div className="flex items-center justify-between mb-10">
-                  <div>
-                    <h3 className="text-xl font-extrabold text-slate-900">Doanh thu hệ thống</h3>
-                    <p className="text-micro text-slate-400 font-bold uppercase tracking-premium mt-1">Phân tích lưu lượng & doanh thu theo giờ</p>
-                  </div>
-                  <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-indigo-600 animate-pulse"></div>
-                      <span className="text-micro font-bold text-indigo-600 uppercase tracking-premium">Thời gian thực</span>
-                    </div>
-                    <select className="bg-slate-50 border-none rounded-xl px-4 py-2 text-micro font-bold uppercase tracking-premium outline-none focus:ring-2 ring-indigo-50">
-                      <option>Hôm nay</option>
-                      <option>Hôm qua</option>
-                    </select>
-                  </div>
-                </div>
-                
-                <div className="h-80 flex items-end justify-between gap-3 px-4 bg-slate-50/30 rounded-3xl border border-slate-50 pb-4 pt-10 relative">
-                  {/* Background Grid Lines (Optional but for visibility) */}
-                  <div className="absolute inset-x-0 top-1/4 h-px bg-slate-100/50 pointer-events-none"></div>
-                  <div className="absolute inset-x-0 top-2/4 h-px bg-slate-100/50 pointer-events-none"></div>
-                  <div className="absolute inset-x-0 top-3/4 h-px bg-slate-100/50 pointer-events-none"></div>
-
-                  {[15, 12, 8, 25, 45, 65, 80, 72, 90, 85, 60, 35].map((v, i) => (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-4 group h-full relative z-10">
-                      <div className="relative w-full flex justify-center items-end h-full">
-                         <div 
-                           style={{ height: `${v}%` }} 
-                           className="w-full max-w-[42px] bg-indigo-600 rounded-t-xl transition-all duration-1000 relative shadow-lg shadow-indigo-100 group-hover:bg-indigo-500 group-hover:scale-x-105 origin-bottom"
-                         >
-                           {/* Data Tooltip */}
-                           <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-micro font-bold px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all transform group-hover:-translate-y-2 shadow-2xl whitespace-nowrap z-30 flex flex-col items-center gap-0.5">
-                             <span className="text-indigo-400 text-micro uppercase">{((i+1)*2).toString().padStart(2, '0')}:00</span>
-                             <span>{(v * 450000).toLocaleString()}đ</span>
-                             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45"></div>
-                           </div>
-                         </div>
-                      </div>
-                      <span className="text-micro font-bold text-slate-400 group-hover:text-indigo-600 transition-colors">
-                        {((i+1)*2).toString().padStart(2, '0')}h
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="lg:col-span-4 space-y-8">
-                 <div className="bg-white p-8 lg:p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
-                    <h3 className="text-xl font-extrabold text-slate-900 mb-8">Danh mục hot</h3>
-                    <div className="space-y-8">
-                      {[
-                        { name: 'Kinh tế', percent: 42, color: 'bg-indigo-600', icon: 'fa-chart-line' },
-                        { name: 'Văn học', percent: 28, color: 'bg-emerald-500', icon: 'fa-hat-wizard' },
-                        { name: 'Kỹ năng', percent: 18, color: 'bg-amber-500', icon: 'fa-brain' },
-                        { name: 'Thiếu nhi', percent: 12, color: 'bg-rose-500', icon: 'fa-child' }
-                      ].map((cat, i) => (
-                        <div key={i} className="space-y-3">
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-3">
-                              <div className={`w-8 h-8 ${cat.color} rounded-lg flex items-center justify-center text-white text-micro`}>
-                                <i className={`fa-solid ${cat.icon}`}></i>
-                              </div>
-                              <span className="text-micro font-bold text-slate-700 uppercase tracking-premium">{cat.name}</span>
-                            </div>
-                            <span className="text-micro font-bold text-slate-900">{cat.percent}%</span>
-                          </div>
-                          <div className="h-2.5 w-full bg-slate-50 rounded-full overflow-hidden border border-slate-100">
-                            <div style={{ width: `${cat.percent}%` }} className={`h-full ${cat.color} rounded-full shadow-lg`}></div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                 </div>
-              </div>
-            </div>
-
-            {/* Recent Activity */}
-            <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h3 className="text-lg font-extrabold text-slate-900 uppercase tracking-tight">Đơn hàng gần đây</h3>
-                  <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">5 đơn hàng mới nhất</p>
-                </div>
-                <button
-                  onClick={() => setActiveTab('orders')}
-                  className="text-micro font-bold uppercase tracking-premium text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
-                >
-                  <span>Xem tất cả</span>
-                  <i className="fa-solid fa-arrow-right"></i>
-                </button>
-              </div>
-              <div className="space-y-3">
-                {orders.slice(0, 5).map(order => (
-                  <div key={order.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all group">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                        order.statusStep === 0 ? 'bg-amber-100 text-amber-600' :
-                        order.statusStep === 1 ? 'bg-blue-100 text-blue-600' :
-                        order.statusStep === 2 ? 'bg-indigo-100 text-indigo-600' :
-                        'bg-emerald-100 text-emerald-600'
-                      }`}>
-                        <i className="fa-solid fa-shopping-bag text-sm"></i>
-                      </div>
-                      <div>
-                        <p className="text-sm font-extrabold text-slate-900">{order.customer.name}</p>
-                        <p className="text-micro font-bold text-slate-500 uppercase tracking-premium">{order.customer.phone}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-extrabold text-slate-900">{formatPrice(order.payment.total)}</p>
-                      <p className="text-micro font-bold uppercase tracking-premium text-slate-500">{order.status}</p>
-                    </div>
+                    {/* Background Accent */}
+                    <div className={`absolute -right-8 -bottom-8 w-32 h-32 ${stat.bgColor} opacity-0 circle group-hover:opacity-20 transition-opacity duration-700 blur-3xl`}></div>
                   </div>
                 ))}
-                {orders.length === 0 && (
-                  <div className="text-center py-8 text-slate-400">
-                    <i className="fa-solid fa-inbox text-4xl mb-2"></i>
-                    <p className="text-micro font-bold uppercase tracking-premium">Chưa có đơn hàng nào</p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2 bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
+                    <i className="fa-solid fa-database text-[120px]"></i>
                   </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Cấu trúc các tab khác như books, orders vẫn được duy trì */}
-        {activeTab === 'books' && (
-          <div className="space-y-6 animate-fadeIn">
-            <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
-              <div className="flex items-center gap-4">
-                <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Lọc kho:</span>
-                <div className="flex gap-2 p-1 bg-slate-100 rounded-xl">
-                  {[
-                    { id: 'all', label: 'Tất cả' },
-                    { id: 'low', label: 'Sắp hết' },
-                    { id: 'out', label: 'Hết hàng' }
-                  ].map(filter => (
-                    <button
-                      key={filter.id}
-                      onClick={() => setFilterStock(filter.id as any)}
-                      className={`px-4 py-1.5 rounded-lg text-micro font-bold uppercase tracking-premium transition-all ${
-                        filterStock === filter.id 
-                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
-                        : 'text-slate-500 hover:text-slate-900'
-                      }`}
-                    >
-                      {filter.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <button 
-                  onClick={handleAutoSync}
-                  disabled={isSyncing}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all shadow-lg ${
-                    isSyncing 
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed' 
-                    : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 shadow-emerald-600/10'
-                  }`}
-                >
-                  <i className={`fa-solid ${isSyncing ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-down'}`}></i>
-                  <span>{isSyncing ? 'Đang đồng bộ...' : 'Auto Sync từ Internet'}</span>
-                </button>
-                <button 
-                  onClick={handleOpenAddBook}
-                  className="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
-                >
-                  <i className="fa-solid fa-plus mr-2"></i>Thêm sách mới
-                </button>
-              </div>
-            </div>
-
-            {/* Bulk Actions for Books */}
-            {filteredBooks.length > 0 && (
-              <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer group">
-                    <div 
-                      onClick={toggleSelectAllBooks}
-                      className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
-                        selectedBooks.length === filteredBooks.length && filteredBooks.length > 0
-                        ? 'bg-indigo-600 border-indigo-600 text-white' 
-                        : 'border-slate-300 group-hover:border-indigo-400'
-                      }`}
-                    >
-                      {selectedBooks.length === filteredBooks.length && filteredBooks.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
+                  <div className="flex items-center justify-between mb-8">
+                    <div>
+                      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Hệ thống dữ liệu</h3>
+                      <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Khởi tạo và đồng bộ dữ liệu Firestore</p>
                     </div>
-                    <span className="text-xs font-bold text-slate-600">Chọn tất cả ({filteredBooks.length})</span>
-                  </label>
-                  {selectedBooks.length > 0 && (
-                    <div className="h-4 w-px bg-slate-200"></div>
-                  )}
-                  {selectedBooks.length > 0 && (
-                    <span className="text-xs font-bold text-indigo-600">Đã chọn {selectedBooks.length} sản phẩm</span>
-                  )}
-                </div>
-                {selectedBooks.length > 0 && (
-                  <button 
-                    onClick={handleBulkDeleteBooks}
-                    disabled={isDeletingBulk}
-                    className="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl text-micro font-bold uppercase tracking-premium hover:bg-rose-100 transition-all flex items-center gap-2"
-                  >
-                    <i className={isDeletingBulk ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-trash-can"}></i>
-                    <span>Xóa hàng loạt</span>
-                  </button>
-                )}
-              </div>
-            )}
-
-            <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50/50 border-bottom border-slate-100">
-                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium w-12 text-center">
-                      <div 
-                        onClick={toggleSelectAllBooks}
-                        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
-                          selectedBooks.length === filteredBooks.length && filteredBooks.length > 0
-                          ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100' 
-                          : 'border-slate-300 bg-white shadow-inner'
-                        }`}
-                      >
-                        {selectedBooks.length === filteredBooks.length && filteredBooks.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
-                      </div>
-                    </th>
-                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium">Thông tin sách</th>
-                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium hidden md:table-cell">Giá bán</th>
-                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium hidden lg:table-cell">Tồn kho</th>
-                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium text-right">Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredBooks.map(book => (
-                    <tr key={book.id} className={`group hover:bg-slate-50/50 transition-all ${selectedBooks.includes(book.id) ? 'bg-indigo-50/30' : ''}`}>
-                      <td className="p-6 text-center">
-                        <div 
-                          onClick={() => toggleSelectBook(book.id)}
-                          className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
-                            selectedBooks.includes(book.id)
-                            ? 'bg-indigo-600 border-indigo-600 text-white'
-                            : 'border-slate-300 bg-white group-hover:border-indigo-400'
-                          }`}
-                        >
-                          {selectedBooks.includes(book.id) && <i className="fa-solid fa-check text-[10px]"></i>}
-                        </div>
-                      </td>
-                      <td className="p-6">
-                        <div className="flex items-center gap-4">
-                          <img src={book.cover || '/placeholder-book.jpg'} alt={book.title} className="w-12 h-16 object-cover rounded-lg shadow-sm" />
-                          <div>
-                            <h3 className="font-extrabold text-slate-900 text-sm mb-0.5 line-clamp-1">{book.title}</h3>
-                            <p className="text-micro font-bold text-slate-500 uppercase tracking-premium">{book.author}</p>
-                            <p className="text-micro text-slate-400 mt-1 md:hidden font-extrabold">{formatPrice(book.price)} • {book.stock_quantity > 0 ? `${book.stock_quantity} cuốn` : 'Hết hàng'}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-6 hidden md:table-cell">
-                        <span className="text-sm font-extrabold text-indigo-600 tracking-tight">{formatPrice(book.price)}</span>
-                      </td>
-                      <td className="p-6 hidden lg:table-cell">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-micro font-bold uppercase tracking-premium ${
-                          book.stock_quantity > 10 ? 'bg-emerald-50 text-emerald-600' :
-                          book.stock_quantity > 0 ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'
-                        }`}>
-                          <div className={`w-1 h-1 rounded-full mr-1.5 ${
-                             book.stock_quantity > 10 ? 'bg-emerald-600' :
-                             book.stock_quantity > 0 ? 'bg-amber-600' : 'bg-rose-600'
-                          }`}></div>
-                          {book.stock_quantity > 0 ? `${book.stock_quantity} quyển` : 'Hết hàng'}
-                        </span>
-                      </td>
-                      <td className="p-6">
-                        <div className="flex items-center justify-end gap-2">
-                          <button 
-                            onClick={() => handleEditBook(book)}
-                            className="w-9 h-9 flex items-center justify-center bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-all shadow-sm"
-                            title="Chỉnh sửa"
-                          >
-                            <i className="fa-solid fa-edit text-xs"></i>
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteBook(book)}
-                            className="w-9 h-9 flex items-center justify-center bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-all shadow-sm"
-                            title="Xóa"
-                          >
-                            <i className="fa-solid fa-trash-can text-xs"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {filteredBooks.length === 0 && (
-                <div className="p-12 text-center">
-                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i className="fa-solid fa-box-open text-slate-300 text-2xl"></i>
                   </div>
-                  <h3 className="font-bold text-slate-400 uppercase tracking-premium text-micro">Không có dữ liệu phù hợp</h3>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'authors' && (
-          <div className="space-y-6 animate-fadeIn">
-            <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
-              <div>
-                <h3 className="text-lg font-extrabold text-slate-900 uppercase tracking-tight">Quản lý tác giả</h3>
-                <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Tổng cộng {authors.length} tác giả</p>
-              </div>
-              <button 
-                onClick={handleOpenAddAuthor}
-                className="bg-indigo-600 text-white px-6 py-3 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
-              >
-                <i className="fa-solid fa-plus mr-2"></i>Thêm tác giả mới
-              </button>
-            </div>
-
-            {/* Bulk Actions for Authors */}
-            {authors.length > 0 && (
-              <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer group">
-                    <div 
-                      onClick={toggleSelectAllAuthors}
-                      className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
-                        selectedAuthors.length === authors.length && authors.length > 0
-                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100' 
-                        : 'border-slate-300 group-hover:border-indigo-400 shadow-inner'
-                      }`}
-                    >
-                      {selectedAuthors.length === authors.length && authors.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
+                  
+                  <div className="bg-slate-50 rounded-3xl p-8 border border-slate-100">
+                    <div className="flex items-center gap-6">
+                      <div className="w-20 h-20 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center text-3xl text-slate-300">
+                        <i className="fa-solid fa-server"></i>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-black text-slate-900 uppercase">Cloud Firestore Seed Tool</h4>
+                        <p className="text-xs text-slate-500 mt-1 leading-relaxed max-w-md">Thiết lập môi trường làm việc nhanh chóng bằng cách đẩy dữ liệu mẫu lên Cloud. Quá trình này sẽ khởi tạo danh mục và các cấu hình mặc định khác.</p>
+                      </div>
                     </div>
-                    <span className="text-micro font-bold text-slate-600 uppercase tracking-premium">Chọn tất cả ({authors.length})</span>
-                  </label>
-                  {selectedAuthors.length > 0 && (
-                    <div className="h-4 w-px bg-slate-200"></div>
-                  )}
-                  {selectedAuthors.length > 0 && (
-                    <span className="text-micro font-bold text-indigo-600 uppercase tracking-premium">Đã chọn {selectedAuthors.length} tác giả</span>
-                  )}
-                </div>
-                {selectedAuthors.length > 0 && (
-                  <button 
-                    onClick={handleBulkDeleteAuthors}
-                    disabled={isDeletingBulk}
-                    className="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl text-micro font-bold uppercase tracking-premium hover:bg-rose-100 transition-all flex items-center gap-2"
-                  >
-                    <i className={isDeletingBulk ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-trash-can"}></i>
-                    <span>Xóa hàng loạt</span>
-                  </button>
-                )}
-              </div>
-            )}
 
-            <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50/50 border-bottom border-slate-100">
-                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium w-12 text-center">
-                      <div 
-                        onClick={toggleSelectAllAuthors}
-                        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
-                          selectedAuthors.length === authors.length && authors.length > 0
-                          ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100' 
-                          : 'border-slate-300 bg-white shadow-inner'
-                        }`}
+                    <div className="mt-8 flex flex-wrap items-center gap-4">
+                      <button
+                        onClick={handleSeedData}
+                        disabled={isSeeding}
+                        className="px-8 py-3.5 bg-slate-900 text-white rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-600 disabled:bg-slate-300 transition-all shadow-lg shadow-slate-200 flex items-center gap-3 active:scale-95"
                       >
-                        {selectedAuthors.length === authors.length && authors.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
-                      </div>
-                    </th>
-                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium">Tác giả</th>
-                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium hidden md:table-cell">Tiểu sử</th>
-                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium text-right">Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {authors.map(author => (
-                    <tr key={author.id} className={`group hover:bg-slate-50/50 transition-all ${selectedAuthors.includes(author.id) ? 'bg-indigo-50/30' : ''}`}>
-                      <td className="p-6 text-center">
-                        <div 
-                          onClick={() => toggleSelectAuthor(author.id)}
-                          className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
-                            selectedAuthors.includes(author.id)
-                            ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100'
-                            : 'border-slate-300 bg-white group-hover:border-indigo-400 shadow-inner'
-                          }`}
-                        >
-                          {selectedAuthors.includes(author.id) && <i className="fa-solid fa-check text-[10px]"></i>}
-                        </div>
-                      </td>
-                      <td className="p-6">
-                        <div className="flex items-center gap-4">
-                          <img 
-                            src={author.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(author.name) + '&background=6366f1&color=fff'} 
-                            alt={author.name} 
-                            className="w-12 h-12 object-cover rounded-full shadow-sm"
-                            onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(author.name) + '&background=6366f1&color=fff'; }}
-                          />
-                          <div>
-                            <h4 className="font-bold text-slate-900 text-sm mb-0.5">{author.name}</h4>
-                            <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Tác giả DigiBook</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-6 hidden md:table-cell max-w-xs xl:max-w-md">
-                        <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed font-medium">{author.bio || 'Chưa có tiểu sử'}</p>
-                      </td>
-                      <td className="p-6">
-                        <div className="flex items-center justify-end gap-2">
-                          <button 
-                            onClick={() => handleEditAuthor(author)}
-                            className="w-9 h-9 flex items-center justify-center bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-all shadow-sm"
-                            title="Chỉnh sửa"
-                          >
-                            <i className="fa-solid fa-edit text-xs"></i>
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteAuthor(author)}
-                            className="w-9 h-9 flex items-center justify-center bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-all shadow-sm"
-                            title="Xóa"
-                          >
-                            <i className="fa-solid fa-trash-can text-xs"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {authors.length === 0 && (
-                <div className="p-12 text-center">
-                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i className="fa-solid fa-user-pen text-slate-300 text-2xl"></i>
-                  </div>
-                  <h3 className="font-bold text-slate-400 uppercase tracking-premium text-micro">Chưa có tác giả nào</h3>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'categories' && (
-          <div className="space-y-6 animate-fadeIn">
-            <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
-              <div>
-                <h3 className="text-lg font-extrabold text-slate-900 uppercase tracking-tight">Quản lý danh mục</h3>
-                <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Tổng cộng {categories.length} danh mục</p>
-              </div>
-              <button 
-                onClick={handleOpenAddCategory}
-                className="bg-indigo-600 text-white px-6 py-3 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
-              >
-                <i className="fa-solid fa-plus mr-2"></i>Thêm danh mục mới
-              </button>
-            </div>
-
-            {/* Bulk Actions for Categories */}
-            {categories.length > 0 && (
-              <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer group">
-                    <div 
-                      onClick={toggleSelectAllCategories}
-                      className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
-                        selectedCategories.length === categories.length && categories.length > 0
-                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100' 
-                        : 'border-slate-300 group-hover:border-indigo-400 shadow-inner'
-                      }`}
-                    >
-                      {selectedCategories.length === categories.length && categories.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
+                        {isSeeding ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-cloud-arrow-up"></i>}
+                        {isSeeding ? "Đang đẩy dữ liệu..." : "Bắt đầu Seed Dữ liệu"}
+                      </button>
+                      <button className="px-8 py-3.5 bg-white text-slate-900 border border-slate-200 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-slate-50 transition-all flex items-center gap-3">
+                        <i className="fa-solid fa-file-export"></i>
+                        Xuất báo cáo JSON
+                      </button>
                     </div>
-                    <span className="text-micro font-bold text-slate-600 uppercase tracking-premium">Chọn tất cả ({categories.length})</span>
-                  </label>
-                  {selectedCategories.length > 0 && (
-                    <div className="h-4 w-px bg-slate-200"></div>
-                  )}
-                  {selectedCategories.length > 0 && (
-                    <span className="text-micro font-bold text-indigo-600 uppercase tracking-premium">Đã chọn {selectedCategories.length} danh mục</span>
-                  )}
-                </div>
-                {selectedCategories.length > 0 && (
-                  <button 
-                    onClick={handleBulkDeleteCategories}
-                    disabled={isDeletingBulk}
-                    className="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl text-micro font-bold uppercase tracking-premium hover:bg-rose-100 transition-all flex items-center gap-2"
-                  >
-                    <i className={isDeletingBulk ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-trash-can"}></i>
-                    <span>Xóa hàng loạt</span>
-                  </button>
-                )}
-              </div>
-            )}
 
-            <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50/50 border-bottom border-slate-100">
-                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium w-12 text-center">
-                      <div 
-                        onClick={toggleSelectAllCategories}
-                        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
-                          selectedCategories.length === categories.length && categories.length > 0
-                          ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100' 
-                          : 'border-slate-300 bg-white shadow-inner'
-                        }`}
-                      >
-                        {selectedCategories.length === categories.length && categories.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
+                    {seedStatus && (
+                      <div className={`mt-6 p-4 rounded-2xl flex items-center gap-4 animate-scaleIn ${
+                        seedStatus.type === "success" ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : 
+                        seedStatus.type === "info" ? "bg-blue-50 text-blue-600 border border-blue-100" :
+                        "bg-rose-50 text-rose-600 border border-rose-100"
+                      }`}>
+                        <i className={`fa-solid ${seedStatus.type === "success" ? "fa-circle-check" : seedStatus.type === "info" ? "fa-circle-info" : "fa-triangle-exclamation"}`}></i>
+                        <span className="text-micro font-bold uppercase tracking-premium">{seedStatus.msg}</span>
                       </div>
-                    </th>
-                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium">Danh mục</th>
-                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium hidden md:table-cell">Mô tả</th>
-                    <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium text-right">Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {categories.map(category => (
-                    <tr key={(category as any).id || category.name} className={`group hover:bg-slate-50/50 transition-all ${selectedCategories.includes(category.name) ? 'bg-indigo-50/30' : ''}`}>
-                      <td className="p-6 text-center">
-                        <div 
-                          onClick={() => toggleSelectCategory(category.name)}
-                          className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
-                            selectedCategories.includes(category.name)
-                            ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100'
-                            : 'border-slate-300 bg-white group-hover:border-indigo-400 shadow-inner'
-                          }`}
-                        >
-                          {selectedCategories.includes(category.name) && <i className="fa-solid fa-check text-[10px]"></i>}
-                        </div>
-                      </td>
-                      <td className="p-6">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition-all">
-                            <i className={`fa-solid ${category.icon}`}></i>
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-slate-900 text-sm mb-0.5">{category.name}</h4>
-                            <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Danh mục sách</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-6 hidden md:table-cell max-w-xs lg:max-w-md">
-                        <p className="text-xs text-slate-500 line-clamp-1 leading-relaxed font-medium">{category.description || 'Chưa có mô tả'}</p>
-                      </td>
-                      <td className="p-6">
-                        <div className="flex items-center justify-end gap-2">
-                          <button 
-                            onClick={() => handleEditCategory(category)}
-                            className="w-9 h-9 flex items-center justify-center bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-all shadow-sm"
-                            title="Chỉnh sửa"
-                          >
-                            <i className="fa-solid fa-edit text-xs"></i>
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteCategory(category)}
-                            className="w-9 h-9 flex items-center justify-center bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-all shadow-sm"
-                            title="Xóa"
-                          >
-                            <i className="fa-solid fa-trash-can text-xs"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {categories.length === 0 && (
-                <div className="p-12 text-center">
-                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i className="fa-solid fa-tags text-slate-300 text-2xl"></i>
+                    )}
                   </div>
-                  <h3 className="font-bold text-slate-400 uppercase tracking-premium text-micro">Chưa có danh mục nào</h3>
                 </div>
-              )}
-            </div>
-          </div>
-        )}
 
-        {activeTab === 'orders' && (
-          <div className="space-y-6 animate-fadeIn">
-            <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
-              <table className="w-full text-left">
-                <thead className="bg-slate-50/50">
-                  <tr>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Mã đơn</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Khách hàng</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Tổng tiền</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Trạng thái</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Ngày đặt</th>
-                    <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {orders.length > 0 ? orders.map(order => (
-                    <tr key={order.id} className="hover:bg-slate-50/50 transition-all">
-                      <td className="px-8 py-5 text-sm font-bold text-slate-900">#{order.id.slice(-8)}</td>
-                      <td className="px-8 py-5 text-sm font-medium text-slate-600">{order.customer?.name || 'N/A'}</td>
-                      <td className="px-8 py-5 text-sm font-bold text-indigo-600">{formatPrice(order.payment.total)}</td>
-                      <td className="px-8 py-5">
-                        <select
-                          value={order.statusStep}
-                          onChange={(e) => {
-                            const newStep = Number(e.target.value);
-                            const newStatusLabel = orderStatusOptions.find(opt => opt.step === newStep)?.label || 'Đang xử lý';
-                            if (window.confirm(`Cập nhật trạng thái đơn hàng thành "${newStatusLabel}"?`)) {
-                              db.updateOrderStatus(order.id, newStatusLabel, newStep).then(() => {
-                                toast.success('Cập nhật trạng thái thành công');
-                                refreshData();
-                              }).catch(err => {
-                                ErrorHandler.handle(err, 'cập nhật trạng thái');
-                              });
-                            } else {
-                              e.target.value = String(order.statusStep);
-                            }
-                          }}
-                          className={`px-4 py-2 rounded-xl text-micro font-bold uppercase tracking-premium border-none outline-none cursor-pointer transition-all shadow-sm ${
-                            order.statusStep === 3 ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' :
-                            order.statusStep === 2 ? 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100' :
-                            order.statusStep === 1 ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' :
-                            'bg-amber-50 text-amber-600 hover:bg-amber-100'
-                          }`}
-                        >
-                          {orderStatusOptions.map(status => (
-                            <option key={status.step} value={status.step} className="font-bold uppercase tracking-premium bg-white">
-                              {status.label}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="px-8 py-5 text-sm text-slate-500 font-medium whitespace-nowrap">
-                        {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString('vi-VN') : order.date}
-                      </td>
-                      <td className="px-8 py-5 text-center">
-                        <button
-                          onClick={() => handleViewOrderDetails(order)}
-                          className="px-5 py-2.5 bg-indigo-50 text-indigo-600 rounded-xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-100 transition-all shadow-sm"
-                        >
-                          <i className="fa-solid fa-eye mr-2"></i>Chi tiết
-                        </button>
-                      </td>
-                    </tr>
-                  )) : (
-                    <tr>
-                      <td colSpan={6} className="px-8 py-20 text-center">
-                        <div className="opacity-20 mb-4">
-                          <i className="fa-solid fa-receipt text-5xl"></i>
-                        </div>
-                        <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Chưa có đơn hàng nào</p>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                <div className="space-y-6">
+                  <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-label font-bold text-slate-900 uppercase tracking-premium">Nội dung</h3>
+                      <i className="fa-solid fa-database text-slate-300"></i>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-600">Tác giả</span>
+                        <span className="px-3 py-1 bg-purple-50 text-purple-600 rounded-lg text-micro font-bold">{stats.totalAuthors}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-600">Danh mục</span>
+                        <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-micro font-bold">{stats.totalCategories}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-600">Mã khuyến mãi</span>
+                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-micro font-bold">{stats.totalCoupons}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-6 rounded-[2rem] shadow-lg text-white">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-label font-bold uppercase tracking-premium">Thao tác nhanh</h3>
+                      <i className="fa-solid fa-bolt text-white/50"></i>
+                    </div>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => setActiveTab("books")}
+                        className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2.5 rounded-xl text-micro font-bold transition-all text-left flex items-center gap-2 uppercase tracking-premium"
+                      >
+                        <i className="fa-solid fa-book"></i>
+                        <span>Quản lý kho sách</span>
+                      </button>
+                      <button
+                        onClick={() => setActiveTab("orders")}
+                        className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2.5 rounded-xl text-micro font-bold transition-all text-left flex items-center gap-2 uppercase tracking-premium"
+                      >
+                        <i className="fa-solid fa-shopping-cart"></i>
+                        <span>Xử lý đơn hàng</span>
+                      </button>
+                      <button
+                        onClick={() => setActiveTab("coupons")}
+                        className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2.5 rounded-xl text-micro font-bold transition-all text-left flex items-center gap-2 uppercase tracking-premium"
+                      >
+                        <i className="fa-solid fa-ticket"></i>
+                        <span>Tạo khuyến mãi</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {activeTab === "books" && (
+            <AdminBooks books={books} authors={authors} categories={categories} refreshData={refreshData} />
+          )}
+          {activeTab === "authors" && <AdminAuthors authors={authors} refreshData={refreshData} />}
+          {activeTab === "categories" && <AdminCategories categories={categories} refreshData={refreshData} />}
+          {activeTab === "coupons" && <AdminCoupons coupons={coupons} refreshData={refreshData} />}
+          {activeTab === "orders" && <AdminOrders orders={orders} refreshData={refreshData} />}
+          {activeTab === "users" && <AdminUsers users={users} refreshData={refreshData} />}
+          {activeTab === "ai" && <AdminAI aiConfig={{ activeModelId: aiConfig.activeModelId }} refreshData={refreshData} />}
+          {activeTab === "logs" && (
+            <AdminLogs 
+              logs={logs} 
+              hasMoreLogs={hasMoreLogs} 
+              onLoadMore={onLoadMoreLogs} 
+              isLoadingMoreLogs={isLoadingMoreLogs} 
+            />
+          )}
+        </div>
       </main>
-
-      {/* Order Details Modal */}
-      {isOrderModalOpen && selectedOrder && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[300] p-4 overflow-y-auto">
-          <div className="bg-white rounded-[2rem] w-full max-w-4xl max-h-[90vh] overflow-y-auto my-8">
-            <div className="p-8 border-b border-slate-100 sticky top-0 bg-white z-10">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-extrabold text-slate-900 uppercase tracking-tight">Chi tiết đơn hàng</h2>
-                  <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Mã đơn: #{selectedOrder.id.slice(-8)}</p>
-                </div>
-                <button
-                  onClick={() => setIsOrderModalOpen(false)}
-                  className="w-10 h-10 bg-slate-100/50 text-slate-400 rounded-xl hover:bg-slate-100 hover:text-slate-600 transition-all flex items-center justify-center"
-                >
-                  <i className="fa-solid fa-times"></i>
-                </button>
-              </div>
-            </div>
-            
-            <div className="p-8 space-y-6">
-              {/* Progress Indicator */}
-              <div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100">
-                <h3 className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-6">Tiến độ đơn hàng</h3>
-                <div className="flex items-center justify-between mb-8">
-                  {orderStatusOptions.map((status, index) => (
-                    <React.Fragment key={status.step}>
-                      <div className="flex flex-col items-center flex-1 relative">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm transition-all z-10 ${
-                          selectedOrder.statusStep >= status.step
-                            ? `bg-${status.color}-500 text-white shadow-lg shadow-${status.color}-100`
-                            : 'bg-white border-2 border-slate-100 text-slate-300'
-                        }`}>
-                          {selectedOrder.statusStep > status.step ? <i className="fa-solid fa-check"></i> : status.step + 1}
-                        </div>
-                        <p className={`text-micro font-bold mt-3 uppercase tracking-premium text-center ${
-                          selectedOrder.statusStep >= status.step ? 'text-slate-900' : 'text-slate-300'
-                        }`}>
-                          {status.label}
-                        </p>
-                      </div>
-                      {index < orderStatusOptions.length - 1 && (
-                        <div className={`absolute left-0 right-0 h-1 mx-2 rounded -translate-y-8 ${
-                          selectedOrder.statusStep > status.step ? `bg-${status.color}-500` : 'bg-slate-100'
-                        }`} style={{
-                          left: `${(index * 25) + 12.5}%`,
-                          right: `${100 - ((index + 1) * 25) + 12.5}%`,
-                          width: 'calc(25% - 1.5rem)',
-                          margin: '0 0.75rem'
-                        }}></div>
-                      )}
-                    </React.Fragment>
-                  ))}
-                </div>
-                
-                {/* Status Update Buttons */}
-                <div className="flex flex-wrap gap-2 pt-6 border-t border-slate-200/60">
-                  <span className="text-micro font-bold text-slate-400 uppercase tracking-premium w-full mb-2">Cập nhật nhanh:</span>
-                  {orderStatusOptions.map(status => (
-                    <button
-                      key={status.step}
-                      onClick={() => handleUpdateOrderStatus(status.step)}
-                      disabled={updatingOrderStatus || selectedOrder.statusStep === status.step}
-                      className={`px-4 py-2 rounded-xl text-micro font-bold uppercase tracking-premium transition-all ${
-                        selectedOrder.statusStep === status.step
-                          ? `bg-${status.color}-500 text-white shadow-lg shadow-${status.color}-100 pointer-events-none`
-                          : `bg-white text-slate-600 border border-slate-100 hover:bg-slate-50 disabled:opacity-50`
-                      }`}
-                    >
-                      {status.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Customer Info */}
-              <div className="bg-white border border-slate-100 rounded-3xl p-6">
-                <h3 className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-4">Thông tin khách hàng</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-1">Họ tên</p>
-                    <p className="font-bold text-slate-900">{selectedOrder.customer?.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-1">Số điện thoại</p>
-                    <p className="font-bold text-slate-900">{selectedOrder.customer?.phone}</p>
-                  </div>
-                  <div className="md:col-span-2 bg-slate-50/50 p-4 rounded-2xl">
-                    <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-1">Email liên hệ</p>
-                    <p className="font-bold text-slate-900">{selectedOrder.customer?.email}</p>
-                  </div>
-                  <div className="md:col-span-2">
-                    <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-1">Địa chỉ giao hàng</p>
-                    <p className="font-medium text-slate-700 leading-relaxed">{selectedOrder.customer?.address}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Order Items */}
-              <div className="bg-white border border-slate-100 rounded-3xl p-6">
-                <h3 className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-4">Danh sách sản phẩm ({selectedOrder.items?.length || 0})</h3>
-                <div className="space-y-4">
-                  {selectedOrder.items?.map((item, index) => (
-                    <div key={index} className="flex gap-4 items-center p-4 bg-slate-50/50 rounded-2xl border border-slate-100 group hover:bg-indigo-50/30 transition-all">
-                      <img src={item.cover} alt={item.title} className="w-12 h-16 object-cover rounded-xl shadow-sm group-hover:scale-105 transition-all" />
-                      <div className="flex-1">
-                        <p className="font-bold text-slate-900 mb-0.5">{item.title}</p>
-                        <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Số lượng: {item.quantity}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-indigo-600">{formatPrice(item.priceAtPurchase)}</p>
-                        <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Đơn giá</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Payment Summary */}
-              <div className="bg-white border border-slate-100 rounded-3xl p-6">
-                <h3 className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-4">Tóm tắt thanh toán</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 font-medium">Phương thức:</span>
-                    <span className="font-bold text-slate-900 uppercase tracking-tight">{selectedOrder.payment?.method || 'COD'}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 font-medium">Tạm tính:</span>
-                    <span className="font-bold text-slate-900">{formatPrice(selectedOrder.payment?.subtotal || 0)}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 font-medium">Phí vận chuyển:</span>
-                    <span className="font-bold text-slate-900">{formatPrice(selectedOrder.payment?.shipping || 0)}</span>
-                  </div>
-                  {selectedOrder.payment?.couponDiscount > 0 && (
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-slate-500 font-medium">Giảm giá voucher:</span>
-                      <span className="font-bold text-emerald-600">-{formatPrice(selectedOrder.payment.couponDiscount)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between items-center pt-4 border-t border-slate-100">
-                    <span className="text-lg font-extrabold text-slate-900 uppercase tracking-tight">Tổng cộng:</span>
-                    <span className="text-xl font-extrabold text-indigo-600">{formatPrice(selectedOrder.payment?.total || 0)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Close Button */}
-              <button
-                onClick={() => setIsOrderModalOpen(false)}
-                className="w-full bg-slate-900/5 text-slate-900 py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-slate-900/10 transition-all flex items-center justify-center gap-2"
-              >
-                <span>Đóng cửa sổ</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Category Modal */}
-      {isCategoryModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[300] p-4 animate-fadeIn">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl border border-slate-100">
-            <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-white text-slate-900">
-              <h2 className="text-xl font-extrabold uppercase tracking-tight">
-                {editingCategory ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới'}
-              </h2>
-              <button onClick={() => setIsCategoryModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-100 transition-all">
-                <i className="fa-solid fa-times"></i>
-              </button>
-            </div>
-            
-            <form onSubmit={handleSaveCategory} className="p-8 space-y-6 overflow-y-auto">
-              <div>
-                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">
-                  Tên danh mục *
-                  {editingCategory && <span className="text-[10px] text-amber-500 ml-2">(không thể thay đổi mã)</span>}
-                </label>
-                <input
-                  type="text"
-                  required
-                  disabled={!!editingCategory}
-                  value={categoryFormData.name || ''}
-                  onChange={(e) => setCategoryFormData({...categoryFormData, name: e.target.value})}
-                  className={`w-full px-5 py-3.5 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium ${
-                    editingCategory ? 'bg-slate-50 text-slate-400 cursor-not-allowed' : 'bg-white'
-                  }`}
-                  placeholder="Vd: Văn học, Kinh tế..."
-                />
-              </div>
-              
-              <div>
-                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-3">Biểu tượng hiển thị (Icon) *</label>
-                <div className="grid grid-cols-5 gap-3">
-                  {availableIcons.map(icon => (
-                    <button
-                      key={icon}
-                      type="button"
-                      onClick={() => setCategoryFormData({...categoryFormData, icon})}
-                      className={`p-4 rounded-2xl border-2 transition-all hover:scale-105 flex items-center justify-center ${
-                        categoryFormData.icon === icon
-                          ? 'border-indigo-600 bg-indigo-50 text-indigo-600 shadow-md shadow-indigo-100'
-                          : 'border-slate-100 text-slate-300 hover:border-indigo-200 hover:text-indigo-400'
-                      }`}
-                    >
-                      <i className={`fa-solid ${icon} text-2xl`}></i>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Mô tả ngắn</label>
-                <textarea
-                  value={categoryFormData.description || ''}
-                  onChange={(e) => setCategoryFormData({...categoryFormData, description: e.target.value})}
-                  rows={3}
-                  className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium resize-none shadow-inner"
-                  placeholder="Viết vài dòng mô tả về danh mục này..."
-                />
-              </div>
-              
-              <div className="flex gap-4 pt-6 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setIsCategoryModalOpen(false)}
-                  className="flex-1 bg-slate-50 text-slate-500 py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-slate-100 transition-all"
-                >
-                  Hủy thao tác
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-indigo-600 text-white py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
-                >
-                  {editingCategory ? 'Lưu thay đổi' : 'Tạo danh mục'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Author Modal */}
-      {isAuthorModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[300] p-4 animate-fadeIn">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl border border-slate-100">
-            <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-white text-slate-900">
-              <h2 className="text-xl font-extrabold uppercase tracking-tight">
-                {editingAuthor ? 'Chỉnh sửa tác giả' : 'Thêm tác giả mới'}
-              </h2>
-              <button onClick={() => setIsAuthorModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-100 transition-all">
-                <i className="fa-solid fa-times"></i>
-              </button>
-            </div>
-            
-            <form onSubmit={handleSaveAuthor} className="p-8 space-y-6 overflow-y-auto">
-              <div>
-                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Họ & Tên tác giả *</label>
-                <input
-                  type="text"
-                  required
-                  value={authorFormData.name || ''}
-                  onChange={(e) => setAuthorFormData({...authorFormData, name: e.target.value})}
-                  className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium shadow-inner"
-                  placeholder="Nhập tên đầy đủ của tác giả"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Tiểu sử tóm tắt</label>
-                <textarea
-                  value={authorFormData.bio || ''}
-                  onChange={(e) => setAuthorFormData({...authorFormData, bio: e.target.value})}
-                  rows={4}
-                  className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium resize-none shadow-inner"
-                  placeholder="Hành trình sáng tác, giải thưởng..."
-                />
-              </div>
-              
-              <div>
-                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Đường dẫn ảnh chân dung (URL)</label>
-                <input
-                  type="url"
-                  value={authorFormData.avatar || ''}
-                  onChange={(e) => setAuthorFormData({...authorFormData, avatar: e.target.value})}
-                  className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium shadow-inner"
-                  placeholder="https://link-anh.com/tac-gia.jpg"
-                />
-                {authorFormData.avatar && (
-                  <div className="mt-4 flex items-center gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                    <img 
-                      src={authorFormData.avatar} 
-                      alt="Preview" 
-                      className="w-16 h-16 object-cover rounded-full border-2 border-white shadow-md"
-                      onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=tac+gia&background=6366f1&color=fff'; }}
-                    />
-                    <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Xem trước ảnh chân dung</span>
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex gap-4 pt-6 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setIsAuthorModalOpen(false)}
-                  className="flex-1 bg-slate-50 text-slate-500 py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-slate-100 transition-all"
-                >
-                  Đóng lại
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-indigo-600 text-white py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
-                >
-                  {editingAuthor ? 'Cập nhật' : 'Lưu tác giả'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Coupon Modal */}
-      {isCouponModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[300] p-4">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-hidden border border-slate-100 flex flex-col">
-            <div className="p-8 border-b border-slate-100 flex justify-between items-center sm:sticky sm:top-0 bg-white/80 backdrop-blur-md z-10">
-              <h2 className="text-xl font-extrabold text-slate-900">
-                {editingCoupon ? 'Chỉnh sửa mã' : 'Tạo mã khuyến mãi mới'}
-              </h2>
-              <button 
-                onClick={() => setIsCouponModalOpen(false)}
-                className="w-10 h-10 rounded-full bg-slate-50 text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all flex items-center justify-center"
-              >
-                <i className="fa-solid fa-xmark"></i>
-              </button>
-            </div>
-            
-            <form onSubmit={handleSaveCoupon} className="p-8 space-y-6">
-              <div>
-                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Mã code ưu đãi *</label>
-                <input
-                  type="text"
-                  required
-                  disabled={!!editingCoupon}
-                  value={couponFormData.code || ''}
-                  onChange={(e) => setCouponFormData({...couponFormData, code: e.target.value.toUpperCase()})}
-                  className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:bg-white transition-all font-extrabold text-indigo-600 tracking-premium disabled:opacity-50 disabled:cursor-not-allowed uppercase"
-                  placeholder="VD: SUMMER2024"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Loại hình</label>
-                  <select
-                    value={couponFormData.discountType || 'percentage'}
-                    onChange={(e) => setCouponFormData({...couponFormData, discountType: e.target.value as 'percentage' | 'fixed'})}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-indigo-100 font-bold outline-none"
-                  >
-                    <option value="percentage">Phần trăm (%)</option>
-                    <option value="fixed">Số tiền cố định (đ)</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">
-                    {couponFormData.discountType === 'percentage' ? 'Giá trị (%)' : 'Giá trị (đ)'}
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    value={couponFormData.discountValue || 0}
-                    onChange={(e) => setCouponFormData({...couponFormData, discountValue: Number(e.target.value)})}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-indigo-100 font-bold text-indigo-600"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Đơn tối thiểu (đ)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={couponFormData.minOrderValue || 0}
-                    onChange={(e) => setCouponFormData({...couponFormData, minOrderValue: Number(e.target.value)})}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-indigo-100 font-bold"
-                  />
-                </div>
-                <div>
-                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Giới hạn sử dụng</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={couponFormData.usageLimit || 100}
-                    onChange={(e) => setCouponFormData({...couponFormData, usageLimit: Number(e.target.value)})}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-indigo-100 font-bold"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Thời hạn kết thúc</label>
-                <input
-                  type="date"
-                  required
-                  value={couponFormData.expiryDate || ''}
-                  onChange={(e) => setCouponFormData({...couponFormData, expiryDate: e.target.value})}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-indigo-100 font-bold"
-                />
-              </div>
-
-              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-[1.25rem]">
-                <input
-                  type="checkbox"
-                  id="isActive"
-                  checked={couponFormData.isActive ?? true}
-                  onChange={(e) => setCouponFormData({...couponFormData, isActive: e.target.checked})}
-                  className="w-5 h-5 rounded-lg border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                <label htmlFor="isActive" className="text-micro font-bold text-slate-600 uppercase tracking-premium cursor-pointer">Kích hoạt mã khuyến mãi ngay</label>
-              </div>
-
-              <div className="flex gap-4 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsCouponModalOpen(false)}
-                  className="flex-1 px-6 py-4 bg-slate-50 text-slate-500 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-slate-100 transition-all"
-                >
-                  Đóng
-                </button>
-                <button
-                  type="submit"
-                  className="flex-[2] px-6 py-4 bg-indigo-600 text-white rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all"
-                >
-                  {editingCoupon ? 'Cập nhật mã' : 'Xác nhận tạo mã'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Book Modal */}
-      {isBookModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[300] p-4 animate-fadeIn">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl border border-slate-100">
-            <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-white text-slate-900 sticky top-0 z-10">
-              <h2 className="text-xl font-extrabold uppercase tracking-tight">
-                {editingBook ? 'Chỉnh sửa thông tin sách' : 'Thêm sách mới vào kho'}
-              </h2>
-              <button 
-                onClick={() => setIsBookModalOpen(false)}
-                className="w-10 h-10 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-100 transition-all"
-              >
-                <i className="fa-solid fa-times"></i>
-              </button>
-            </div>
-            
-            <form onSubmit={handleSaveBook} className="p-8 space-y-6 overflow-y-auto">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Tiêu đề sách *</label>
-                  <input
-                    type="text"
-                    required
-                    value={bookFormData.title || ''}
-                    onChange={(e) => setBookFormData({...bookFormData, title: e.target.value})}
-                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium"
-                    placeholder="Vd: Đắc Nhân Tâm"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Tác giả *</label>
-                  <select
-                    required
-                    value={bookFormData.authorId || ''}
-                    onChange={(e) => setBookFormData({...bookFormData, authorId: e.target.value})}
-                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-bold outline-none cursor-pointer"
-                  >
-                    <option value="">Chọn tác giả từ danh sách</option>
-                    {authors.map(author => (
-                      <option key={author.id} value={author.id}>{author.name}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Thể loại / Danh mục *</label>
-                  <select
-                    required
-                    value={bookFormData.category || ''}
-                    onChange={(e) => setBookFormData({...bookFormData, category: e.target.value})}
-                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-bold outline-none cursor-pointer"
-                  >
-                    <option value="">Chọn một danh mục</option>
-                    {categories.map(category => (
-                      <option key={category.name} value={category.name}>{category.name}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Giá (VNĐ) *</label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    value={bookFormData.price || ''}
-                    onChange={(e) => setBookFormData({...bookFormData, price: Number(e.target.value)})}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="0"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Giá bán (VNĐ) *</label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    value={bookFormData.price || ''}
-                    onChange={(e) => setBookFormData({...bookFormData, price: Number(e.target.value)})}
-                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-bold text-indigo-600"
-                    placeholder="0"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Giá gốc nếu có (VNĐ)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={bookFormData.original_price || ''}
-                    onChange={(e) => setBookFormData({...bookFormData, original_price: Number(e.target.value) || undefined})}
-                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium text-slate-400"
-                    placeholder="Để trống nếu không giảm giá"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Số lượng tồn kho *</label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    value={bookFormData.stock_quantity || ''}
-                    onChange={(e) => setBookFormData({...bookFormData, stock_quantity: Number(e.target.value)})}
-                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-bold"
-                    placeholder="0"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Mã định danh ISBN</label>
-                  <input
-                    type="text"
-                    value={bookFormData.isbn || ''}
-                    onChange={(e) => setBookFormData({...bookFormData, isbn: e.target.value})}
-                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium"
-                    placeholder="ISBN-13 hoặc ISBN-10"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Số trang</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={bookFormData.pages || ''}
-                    onChange={(e) => setBookFormData({...bookFormData, pages: Number(e.target.value) || 0})}
-                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium"
-                    placeholder="0"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Nhà xuất bản</label>
-                  <input
-                    type="text"
-                    value={bookFormData.publisher || ''}
-                    onChange={(e) => setBookFormData({...bookFormData, publisher: e.target.value})}
-                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium"
-                    placeholder="Vd: NXB Trẻ"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Năm xuất bản</label>
-                  <input
-                    type="number"
-                    min="1000"
-                    max={new Date().getFullYear()}
-                    value={bookFormData.publishYear || ''}
-                    onChange={(e) => setBookFormData({...bookFormData, publishYear: Number(e.target.value) || new Date().getFullYear()})}
-                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium"
-                    placeholder={new Date().getFullYear().toString()}
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Ngôn ngữ chính</label>
-                  <select
-                    value={bookFormData.language || 'Tiếng Việt'}
-                    onChange={(e) => setBookFormData({...bookFormData, language: e.target.value})}
-                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-bold outline-none cursor-pointer"
-                  >
-                    <option value="Tiếng Việt">Tiếng Việt</option>
-                    <option value="English">English</option>
-                    <option value="Français">Français</option>
-                    <option value="Deutsch">Deutsch</option>
-                    <option value="Español">Español</option>
-                    <option value="日本語">日本語</option>
-                    <option value="中文">中文</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Nhãn dán (Badge)</label>
-                  <select
-                    value={bookFormData.badge || ''}
-                    onChange={(e) => setBookFormData({...bookFormData, badge: e.target.value})}
-                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-bold outline-none cursor-pointer"
-                  >
-                    <option value="">Mặc định</option>
-                    <option value="Bán chạy">Bán chạy</option>
-                    <option value="Kinh điển">Kinh điển</option>
-                    <option value="Mới">Sách mới</option>
-                    <option value="Giảm giá">Đang giảm giá</option>
-                  </select>
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Đường dẫn ảnh bìa (URL)</label>
-                <input
-                  type="url"
-                  value={bookFormData.cover || ''}
-                  onChange={(e) => setBookFormData({...bookFormData, cover: e.target.value})}
-                  className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium"
-                  placeholder="https://link-anh.com/bia-sach.jpg"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Mô tả chi tiết nội dung</label>
-                <textarea
-                  value={bookFormData.description || ''}
-                  onChange={(e) => setBookFormData({...bookFormData, description: e.target.value})}
-                  rows={4}
-                  className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium resize-none shadow-inner"
-                  placeholder="Viết mô tả hấp dẫn về cuốn sách..."
-                />
-              </div>
-              
-              <div className="flex gap-4 pt-6 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setIsBookModalOpen(false)}
-                  className="flex-1 bg-slate-50 text-slate-500 py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-slate-100 transition-all"
-                >
-                  Hủy thao tác
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-indigo-600 text-white py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
-                >
-                  {editingBook ? 'Cập nhật sách' : 'Xác nhận thêm sách'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

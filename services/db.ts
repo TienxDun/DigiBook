@@ -21,81 +21,21 @@ import {
   clearIndexedDbPersistence
 } from "firebase/firestore";
 import { db_fs, auth } from "./firebase";
-import { Book, CartItem, CategoryInfo, Author, UserProfile, Coupon, AIModelConfig } from '../types';
-
-const INITIAL_CATEGORIES: CategoryInfo[] = [
-  { name: "Tất cả sách", icon: "fa-book-open", description: "Tất cả bộ sưu tập tinh hoa." },
-  { name: "Văn học", icon: "fa-hat-wizard", description: "Thế giới của những điều tưởng tượng." },
-  { name: "Kỹ năng", icon: "fa-brain", description: "Tri thức thực tế và phát triển bản thân." },
-  { name: "Kinh tế", icon: "fa-chart-line", description: "Kinh doanh, đầu tư và tài chính." },
-  { name: "Lịch sử", icon: "fa-landmark", description: "Tìm về nguồn cội và những dấu mốc." },
-  { name: "Thiếu nhi", icon: "fa-child", description: "Những trang sách nuôi dưỡng tâm hồn trẻ thơ." }
-];
-
-export const AVAILABLE_AI_MODELS: AIModelConfig[] = [
-  { id: 'gemini-3-pro-preview', name: 'Gemini 3 Pro (Tốt nhất)', category: 'Frontier AI', rpm: '5', tpm: '1M', rpd: '50' },
-  { id: 'gemini-3-flash', name: 'Gemini 3 Flash', category: 'Text-out models', rpm: '5', tpm: '250K', rpd: '20' },
-  { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', category: 'Text-out models', rpm: '5', tpm: '250K', rpd: '20' },
-  { id: 'gemma-3-27b', name: 'Gemma 3 27B', category: 'Open Models (Large)', rpm: '30', tpm: '15K', rpd: '14.4K' },
-  { id: 'gemma-3-12b', name: 'Gemma 3 12B', category: 'Open Models (Medium)', rpm: '30', tpm: '15K', rpd: '14.4K' },
-  { id: 'gemma-3-4b', name: 'Gemma 3 4B', category: 'Open Models (Small)', rpm: '30', tpm: '15K', rpd: '14.4K' },
-  { id: 'gemma-3-2b', name: 'Gemma 3 2B', category: 'Open Models (Micro)', rpm: '30', tpm: '15K', rpd: '14.4K' },
-  { id: 'gemma-3-1b', name: 'Gemma 3 1B', category: 'Open Models (Micro)', rpm: '30', tpm: '15K', rpd: '14.4K' },
-  { id: 'gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash-Lite', category: 'Text-out models', rpm: '10', tpm: '250K', rpd: '20' },
-  { id: 'gemini-2.5-flash-tts', name: 'Gemini 2.5 Flash-TTS', category: 'Multi-modal', rpm: '3', tpm: '10K', rpd: '10' },
-  { id: 'gemini-2.5-flash-native-audio-dialog', name: 'Gemini 2.5 Flash Native Audio', category: 'Live API', rpm: 'Unlimited', tpm: '1M', rpd: 'Unlimited' },
-  { id: 'gemini-robotics-er-1.5-preview', name: 'Gemini Robotics ER 1.5', category: 'Research/Other', rpm: '10', tpm: '250K', rpd: '20' },
-  { id: 'gemini-embedding-1.0', name: 'Gemini Embedding 1.0', category: 'Utility', rpm: '100', tpm: '30K', rpd: '1K' },
-];
-
-export interface Review {
-  id?: string;
-  bookId: string;
-  userId: string;
-  userName: string;
-  rating: number;
-  content: string;
-  createdAt: any;
-}
-
-export interface OrderItem {
-  bookId: string;
-  title: string;
-  priceAtPurchase: number;
-  quantity: number;
-  cover: string;
-}
-
-export interface SystemLog {
-  id: string;
-  action: string;
-  detail: string;
-  status: 'SUCCESS' | 'ERROR';
-  user: string;
-  createdAt: any;
-}
-
-export interface Order {
-  id: string;
-  userId: string;
-  date: string;
-  status: string;
-  statusStep: number;
-  customer: {
-    name: string;
-    phone: string;
-    address: string;
-    email: string;
-  };
-  payment: {
-    method: string;
-    subtotal: number;
-    shipping: number;
-    couponDiscount: number;
-    total: number;
-  };
-  createdAt?: any;
-}
+import { 
+  Book, 
+  CartItem, 
+  CategoryInfo, 
+  Author, 
+  UserProfile, 
+  Coupon, 
+  AIModelConfig,
+  Review,
+  OrderItem,
+  SystemLog,
+  Order 
+} from '../types';
+import { INITIAL_CATEGORIES } from '../constants/categories';
+import { AVAILABLE_AI_MODELS } from '../constants/ai-models';
 
 class DataService {
   private connectionTested = false;
@@ -864,3 +804,7 @@ class DataService {
 }
 
 export const db = new DataService();
+
+export { AVAILABLE_AI_MODELS } from '../constants/ai-models';
+export type { Order, OrderItem, Review, SystemLog };
+

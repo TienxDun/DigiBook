@@ -7,58 +7,17 @@
 
 ---
 
-## 🚨 PHASE 1 - CRITICAL (1-2 tuần) - ƯU TIÊN CAO NHẤT
+## 🏗️ PHASE 1 - ĐANG TRIỂN KHAI (Ưu tiên Cao)
 
-### 1. Bảo mật Firebase Credentials
-**Mức độ:** 🔴 CRITICAL  
-**Vấn đề:** API keys và credentials đang được hardcoded trong source code
-
-**Vị trí:**
-- `services/firebase.ts` (lines 30-37)
-- `App.tsx` (line 10 - Firebase SDK URL)
-
-**Giải pháp:**
-```typescript
-// 1. Tạo file .env.local
-VITE_FIREBASE_API_KEY=AIzaSyD-wlKR1855xqamk5qdi7vhVCDO4ykcG78
-VITE_FIREBASE_AUTH_DOMAIN=digibook-2026.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=digibook-2026
-VITE_FIREBASE_STORAGE_BUCKET=digibook-2026.firebasestorage.app
-VITE_FIREBASE_MESSAGING_SENDER_ID=684984926015
-VITE_FIREBASE_APP_ID=1:684984926015:web:8ba46740804318d7eedd8a
-
-// 2. Cập nhật services/firebase.ts
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
-};
-
-// 3. Thêm vào .gitignore
-.env
-.env.local
-.env.*.local
-
-// 4. Tạo .env.example (để hướng dẫn setup)
-VITE_FIREBASE_API_KEY=your_api_key_here
-VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain_here
-...
-```
-
-**Thời gian ước tính:** 30 phút  
-**Rủi ro nếu không fix:** Quota abuse, unauthorized access, potential data breach
+### 1. Bảo mật Firebase Credentials (Đã hoàn thành)
+**Trạng thái:** ✅ Đã xử lý  
+**Mô tả:** Đã chuyển cấu hình sang biến môi trường (`.env`) và sử dụng `import.meta.env`.
 
 ---
 
 ### 2. Cải thiện Admin Authorization
-**Mức độ:** 🔴 CRITICAL  
-**Vấn đề:** Admin check dựa vào hardcoded email string
-
-**Vị trí:**
-- `App.tsx` (line 102): `isAdmin: firebaseUser.email === 'admin@gmail.com'`
+**Mức độ:** 🟠 HIGH (Đang xử lý)
+**Vấn đề:** Hiện tại vẫn còn check hardcoded email trong `App.tsx` (line 137). cần chuyển đổi hoàn toàn sang `profile.role === 'admin'`.
 
 **Giải pháp:**
 ```typescript
@@ -95,201 +54,29 @@ const isAdmin = adminEmails.includes(firebaseUser.email);
 
 ---
 
-### 3. Thêm Error Handling System
-**Mức độ:** 🟠 HIGH  
-**Vấn đề:** Error handling chưa toàn diện, nhiều nơi chỉ console.error
-
-**Vị trí:**
-- `AdminDashboard.tsx` - nhiều try/catch blocks với alert()
-- `services/db.ts` - error handling cơ bản
-
-**Giải pháp:**
-```typescript
-// 1. Tạo services/errorHandler.ts
-class ErrorHandler {
-  static handle(error: Error, context: string) {
-    console.error(`[${context}]`, error);
-    
-    // Log to external service (Sentry, LogRocket, etc.)
-    if (import.meta.env.PROD) {
-      this.logToService(error, context);
-    }
-    
-    // User-friendly message
-    const message = this.getUserMessage(error);
-    return { success: false, error: message };
-  }
-  
-  static getUserMessage(error: Error): string {
-    if (error.message.includes('permission-denied')) {
-      return 'Bạn không có quyền thực hiện hành động này';
-    }
-    if (error.message.includes('network')) {
-      return 'Lỗi kết nối mạng. Vui lòng thử lại';
-    }
-    return 'Có lỗi xảy ra. Vui lòng thử lại sau';
-  }
-}
-
-// 2. Sử dụng trong code
-try {
-  await db.saveBook(book);
-} catch (error) {
-  const result = ErrorHandler.handle(error as Error, 'SaveBook');
-  alert(result.error); // Hoặc dùng toast notification
-}
-```
-
-**Thời gian ước tính:** 4-5 giờ  
-**Lợi ích:** Better debugging, improved UX, error tracking
+### 3. Hệ thống Error Handling (Đã hoàn thành)
+**Mức độ:** ✅ COMPLETED
+**Giải pháp đã chạy:** Đã tạo `services/errorHandler.ts` và tích hợp vào toàn bộ các component Admin mới.
 
 ---
 
 ### 4. Setup Error Monitoring Service
-**Mức độ:** 🟠 HIGH  
+**Mức độ:** 🟠 HIGH
 **Công cụ đề xuất:** Sentry (free tier 5K events/month)
 
-**Các bước:**
-```bash
-# 1. Install Sentry
-npm install @sentry/react
-
-# 2. Initialize in main.tsx
-import * as Sentry from "@sentry/react";
-
-Sentry.init({
-  dsn: import.meta.env.VITE_SENTRY_DSN,
-  environment: import.meta.env.MODE,
-  integrations: [
-    new Sentry.BrowserTracing(),
-    new Sentry.Replay()
-  ],
-  tracesSampleRate: 1.0,
-  replaysSessionSampleRate: 0.1,
-  replaysOnErrorSampleRate: 1.0
-});
-
-# 3. Wrap App với ErrorBoundary
-<Sentry.ErrorBoundary fallback={<ErrorFallback />}>
-  <App />
-</Sentry.ErrorBoundary>
-```
-
-**Thời gian ước tính:** 2 giờ  
-**Lợi ích:** Real-time error tracking, user session replay, performance monitoring
-
 ---
 
-## ⚡ PHASE 2 - IMPORTANT (2-3 tuần) - CẢI THIỆN HIỆU NĂNG
+## ⚡ PHASE 2 - CẢI THIỆN HIỆU NĂNG
 
 ### 5. Code Splitting & Lazy Loading
-**Mức độ:** 🟡 MEDIUM  
+**Mức độ:** 🟡 MEDIUM
 **Vấn đề:** Tất cả pages được import trực tiếp, bundle size lớn
 
-**Vị trí:**
-- `App.tsx` (lines 17-25) - tất cả pages imported synchronously
-
-**Giải pháp:**
-```typescript
-// 1. Cập nhật App.tsx
-import { lazy, Suspense } from 'react';
-
-// Lazy load pages
-const HomePage = lazy(() => import('./pages/HomePage'));
-const BookDetails = lazy(() => import('./pages/BookDetails'));
-const CategoryPage = lazy(() => import('./pages/CategoryPage'));
-const AuthorPage = lazy(() => import('./pages/AuthorPage'));
-const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
-const MyOrdersPage = lazy(() => import('./pages/MyOrdersPage'));
-const OrderDetailPage = lazy(() => import('./pages/OrderDetailPage'));
-const OrderSuccess = lazy(() => import('./pages/OrderSuccess'));
-const WishlistPage = lazy(() => import('./pages/WishlistPage'));
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
-
-// 2. Wrap routes with Suspense
-<Suspense fallback={<LoadingSpinner />}>
-  <Routes>
-    <Route path="/" element={<HomePage />} />
-    {/* ... other routes */}
-  </Routes>
-</Suspense>
-
-// 3. Tạo component LoadingSpinner
-const LoadingSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-  </div>
-);
-```
-
-**Thời gian ước tính:** 1 giờ  
-**Lợi ích:** Giảm initial bundle size 40-60%, faster first load
-
 ---
 
-### 6. Refactor AdminDashboard Component
-**Mức độ:** 🟡 MEDIUM  
-**Vấn đề:** AdminDashboard.tsx quá lớn (1393 lines), quá nhiều state (38+ useState)
-
-**Cấu trúc hiện tại:**
-- 1 file, 1393 lines
-- 38+ useState declarations
-- Logic mix lẫn UI
-
-**Giải pháp:**
-```
-pages/
-  admin/
-    AdminDashboard.tsx (main container - ~200 lines)
-    tabs/
-      OverviewTab.tsx
-      BooksTab.tsx
-      AuthorsTab.tsx
-      CategoriesTab.tsx
-      OrdersTab.tsx
-      LogsTab.tsx
-    modals/
-      BookModal.tsx
-      AuthorModal.tsx
-      CategoryModal.tsx
-      OrderDetailModal.tsx
-    hooks/
-      useAdminData.ts (custom hook quản lý state)
-      useOrderStatus.ts
-      useLogFilters.ts
-```
-
-**useAdminData.ts example:**
-```typescript
-export const useAdminData = () => {
-  const [state, dispatch] = useReducer(adminReducer, initialState);
-  
-  const refreshData = useCallback(async () => {
-    dispatch({ type: 'LOADING_START' });
-    try {
-      const [books, categories, authors, orders] = await Promise.all([
-        db.getBooks(),
-        db.getCategories(),
-        db.getAuthors(),
-        db.getOrdersByUserId('admin')
-      ]);
-      dispatch({ 
-        type: 'DATA_LOADED', 
-        payload: { books, categories, authors, orders } 
-      });
-    } catch (error) {
-      dispatch({ type: 'ERROR', payload: error });
-    }
-  }, []);
-  
-  return { state, refreshData };
-};
-```
-
-**Thời gian ước tính:** 1 tuần  
-**Lợi ích:** Maintainable code, easier testing, better performance
-
----
+### 6. Refactor AdminDashboard Component (Đã hoàn thành)
+**Mức độ:** ✅ COMPLETED
+**Trạng thái:** Tệp `AdminDashboard.tsx` đã được tách thành 8 component nhỏ trong thư mục `src/components/admin/`.
 
 ### 7. State Management Upgrade
 **Mức độ:** 🟡 MEDIUM  
@@ -764,7 +551,7 @@ async getBooks(): Promise<Book[]> {
 ## 📋 Checklist Tổng Hợp
 
 ### Security
-- [ ] Move Firebase credentials to .env
+- [x] Move Firebase credentials to .env
 - [ ] Implement proper admin role system
 - [ ] Add Firestore security rules
 - [ ] Setup HTTPS (Railway auto-provides)
@@ -780,7 +567,7 @@ async getBooks(): Promise<Book[]> {
 - [ ] Service Worker caching
 
 ### Code Quality
-- [ ] Refactor AdminDashboard (1393 lines → modules)
+- [x] Refactor AdminDashboard (1393 lines → modules)
 - [ ] Replace 38+ useState với useReducer/Zustand
 - [ ] Remove magic numbers (extract constants)
 - [ ] Add TypeScript strict mode
@@ -891,6 +678,29 @@ Week 5-8 (ENHANCEMENTS)
 - Bạn muốn bắt đầu với item nào trước?
 - Có timeline cụ thể cho việc deploy production không?
 - Budget cho dev time là bao nhiêu? (tự làm hay thuê?)
+
+---
+
+## ✅ CẬP NHẬT TIẾN ĐỘ (16/01/2026)
+
+### 1. Tối ưu hóa AdminDashboard 🚀 (HOÀN THÀNH)
+**Mô tả:** Đã tiến hành tái cấu trúc toàn diện trang quản trị monolithic từ ~2000 dòng code xuống còn ~200 dòng.
+**Các thay đổi:**
+- Tách file monolithic `AdminDashboard.tsx` thành các component nhỏ, tái sử dụng được trong `src/components/admin/`.
+- [x] `AdminBooks`: Quản lý kho sách.
+- [x] `AdminOrders`: Quản lý đơn hàng.
+- [x] `AdminAuthors`: Quản lý tác giả.
+- [x] `AdminCategories`: Quản lý danh mục.
+- [x] `AdminCoupons`: Quản lý mã giảm giá.
+- [x] `AdminUsers`: Quản lý tài khoản người dùng & phân quyền.
+- [x] `AdminAI`: Cấu hình model và tham số AI.
+- [x] `AdminLogs`: Hệ thống nhật ký hoạt động.
+- Di chuyển các hằng số dùng chung (ví dụ: `AVAILABLE_ICONS`) vào `src/constants/categories.ts`.
+- Tối ưu hóa State Management: Các component tự quản lý state modal và xử lý dữ liệu riêng, đồng bộ với Parent qua callback `refreshData`.
+
+**Kết quả:**
+- Code sạch hơn, dễ bảo trì, dễ mở rộng thêm tính năng mới cho từng tab mà không ảnh hưởng toàn cục.
+- Giảm thiểu rủi ro xung đột code (merge conflicts) khi có nhiều dev làm việc cùng lúc.
 
 ---
 
