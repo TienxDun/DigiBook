@@ -3,7 +3,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Book } from '../types';
 import { useAuth } from '../AuthContext';
-import { db, Review, AVAILABLE_AI_MODELS } from '../services/db';
+import { db, Review } from '../services/db';
+import { AVAILABLE_AI_MODELS } from '../constants/ai-models';
 import BookCard from '../components/BookCard';
 
 const formatPrice = (price: number) => {

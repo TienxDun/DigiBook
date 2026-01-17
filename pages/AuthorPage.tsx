@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { db, AVAILABLE_AI_MODELS } from '../services/db';
+import { db } from '../services/db';
+import { AVAILABLE_AI_MODELS } from '../constants/ai-models';
 import BookCard from '../components/BookCard';
 import { Book, Author } from '../types';
 import { BookCardSkeleton, Skeleton } from '../components/Skeleton';

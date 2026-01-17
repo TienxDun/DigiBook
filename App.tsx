@@ -1,7 +1,6 @@
 
-import React, { useState, useCallback, useMemo, useEffect, createContext, useContext, lazy, Suspense, useOptimistic, useTransition } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, createContext, useContext, lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { 
   auth, 
   googleProvider,
@@ -107,32 +106,8 @@ const LayoutWrapper: React.FC<{
 };
 
 const App: React.FC = () => {
-  const [isPending, startTransition] = useTransition();
   const [cart, setCart] = useState<CartItem[]>(() => JSON.parse(localStorage.getItem('digibook_cart') || '[]'));
   const [wishlist, setWishlist] = useState<Book[]>(() => JSON.parse(localStorage.getItem('digibook_wishlist') || '[]'));
-  
-  const [optimisticCart, updateOptimisticCart] = useOptimistic(
-    cart,
-    (state, { action, book, id, delta }: any) => {
-      if (action === 'add' && book) {
-        const existing = state.find((i: any) => i.id === book.id);
-        if (existing) return state.map((i: any) => i.id === book.id ? { ...i, quantity: i.quantity + 1 } : i);
-        return [...state, { ...book, quantity: 1 }];
-      }
-      if (action === 'remove' && id) return state.filter((i: any) => i.id !== id);
-      if (action === 'update' && id && delta) return state.map((i: any) => i.id === id ? { ...i, quantity: Math.max(1, i.quantity + delta) } : i);
-      return state;
-    }
-  );
-
-  const [optimisticWishlist, updateOptimisticWishlist] = useOptimistic(
-    wishlist,
-    (state, book: Book) => {
-      const exists = state.find((b: any) => b.id === book.id);
-      return exists ? state.filter((b: any) => b.id !== book.id) : [...state, book];
-    }
-  );
-
   const [user, setUser] = useState<User | null>(null);
   const [allBooks, setAllBooks] = useState<Book[]>([]);
   const [categories, setCategories] = useState<CategoryInfo[]>([]);
@@ -330,33 +305,20 @@ const App: React.FC = () => {
   };
 
   const toggleWishlist = useCallback((book: Book) => {
-    startTransition(async () => {
-      updateOptimisticWishlist(book);
-      setWishlist(prev => {
-        const exists = prev.find(b => b.id === book.id);
-        const next = exists ? prev.filter(b => b.id !== book.id) : [...prev, book];
-        localStorage.setItem('digibook_wishlist', JSON.stringify(next));
-        return next;
-      });
-      // Simulate network delay or actual Firestore call here if needed
-      // await db.syncWishlist(...);
+    setWishlist(prev => {
+      const exists = prev.find(b => b.id === book.id);
+      return exists ? prev.filter(b => b.id !== book.id) : [...prev, book];
     });
-  }, [updateOptimisticWishlist]);
+  }, []);
 
   const addToCart = useCallback((book: Book) => {
-    startTransition(() => {
-      updateOptimisticCart({ action: 'add', book });
-      setCart(prev => {
-        const existing = prev.find(item => item.id === book.id);
-        const next = existing 
-          ? prev.map(item => item.id === book.id ? { ...item, quantity: item.quantity + 1 } : item)
-          : [...prev, { ...book, quantity: 1 }];
-        localStorage.setItem('digibook_cart', JSON.stringify(next));
-        return next;
-      });
-      setIsCartOpen(true);
+    setCart(prev => {
+      const existing = prev.find(item => item.id === book.id);
+      if (existing) return prev.map(item => item.id === book.id ? { ...item, quantity: item.quantity + 1 } : item);
+      return [...prev, { ...book, quantity: 1 }];
     });
-  }, [updateOptimisticCart]);
+    setIsCartOpen(true);
+  }, []);
 
   if (loading) return (
     <div className="h-screen flex flex-col items-center justify-center bg-white">
@@ -368,12 +330,12 @@ const App: React.FC = () => {
   return (
     <AuthContext.Provider value={{ 
       user, loginWithGoogle, loginWithEmail, registerWithEmail, changePassword, sendPasswordReset, logout: handleLogout, 
-      showLoginModal, setShowLoginModal, wishlist: optimisticWishlist, toggleWishlist, loading 
+      showLoginModal, setShowLoginModal, wishlist, toggleWishlist, loading 
     }}>
       <Router>
         <LayoutWrapper 
-          cartCount={optimisticCart.reduce((s, i) => s + i.quantity, 0)}
-          cartItems={optimisticCart}
+          cartCount={cart.reduce((s, i) => s + i.quantity, 0)}
+          cartItems={cart}
           categories={categories}
           onOpenCart={() => setIsCartOpen(true)}
           onSearch={setSearchQuery}
@@ -381,26 +343,8 @@ const App: React.FC = () => {
           onRefreshData={fetchInitialData}
           isCartOpen={isCartOpen}
           onCloseCart={() => setIsCartOpen(false)}
-          onRemoveCart={(id) => {
-            startTransition(() => {
-              updateOptimisticCart({ action: 'remove', id });
-              setCart(c => {
-                const next = c.filter(i => i.id !== id);
-                localStorage.setItem('digibook_cart', JSON.stringify(next));
-                return next;
-              });
-            });
-          }}
-          onUpdateCartQty={(id, delta) => {
-            startTransition(() => {
-              updateOptimisticCart({ action: 'update', id, delta });
-              setCart(c => {
-                const next = c.map(i => i.id === id ? {...i, quantity: Math.max(1, i.quantity + delta)} : i);
-                localStorage.setItem('digibook_cart', JSON.stringify(next));
-                return next;
-              });
-            });
-          }}
+          onRemoveCart={(id) => setCart(c => c.filter(i => i.id !== id))}
+          onUpdateCartQty={(id, delta) => setCart(c => c.map(i => i.id === id ? {...i, quantity: Math.max(1, i.quantity + delta)} : i))}
         >
           {showLoginModal && (
             <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md transition-all">
@@ -585,13 +529,20 @@ const App: React.FC = () => {
                 </div>
               </div>
             }>
-              <AnimatedRoutes 
-                allBooks={allBooks} 
-                categories={categories} 
-                addToCart={addToCart} 
-                cart={optimisticCart} 
-                setCart={setCart} 
-              />
+              <Routes>
+                <Route path="/" element={<HomePage allBooks={allBooks} categories={categories} onAddToCart={addToCart} />} />
+                <Route path="/book/:id" element={<BookDetails onAddToCart={addToCart} />} />
+                <Route path="/search/:query" element={<SearchResults onAddToCart={addToCart} />} />
+                <Route path="/category/:categoryName" element={<CategoryPage onAddToCart={addToCart} />} />
+                <Route path="/author/:authorName" element={<AuthorPage onAddToCart={addToCart} />} />
+                <Route path="/wishlist" element={<WishlistPage onAddToCart={addToCart} />} />
+                <Route path="/checkout" element={<CheckoutPage cart={cart} onClearCart={() => setCart([])} />} />
+                <Route path="/order-success" element={<OrderSuccess />} />
+                <Route path="/my-orders" element={<MyOrdersPage />} />
+                <Route path="/my-orders/:orderId" element={<OrderDetailPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              </Routes>
             </Suspense>
           </MainContent>
         </LayoutWrapper>
@@ -599,42 +550,6 @@ const App: React.FC = () => {
       <Toaster position="top-center" reverseOrder={false} />
     </AuthContext.Provider>
   );
-};
-
-const PageWrapper = ({ children }: { children: React.ReactNode }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 10 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -10 }}
-    transition={{ duration: 0.3, ease: "easeInOut" }}
-  >
-    {children}
-  </motion.div>
-);
-
-const AnimatedRoutes = ({ allBooks, categories, addToCart, cart, setCart }: any) => {
-  const location = useLocation();
-  
-  return (
-    <AnimatePresence mode="wait">
-      <motion.div key={location.pathname}>
-        <Routes location={location}>
-        <Route path="/" element={<PageWrapper><HomePage allBooks={allBooks} categories={categories} onAddToCart={addToCart} /></PageWrapper>} />
-        <Route path="/book/:id" element={<PageWrapper><BookDetails onAddToCart={addToCart} /></PageWrapper>} />
-        <Route path="/search/:query" element={<PageWrapper><SearchResults onAddToCart={addToCart} /></PageWrapper>} />
-        <Route path="/category/:categoryName" element={<PageWrapper><CategoryPage onAddToCart={addToCart} /></PageWrapper>} />
-        <Route path="/author/:authorName" element={<PageWrapper><AuthorPage onAddToCart={addToCart} /></PageWrapper>} />
-        <Route path="/wishlist" element={<PageWrapper><WishlistPage onAddToCart={addToCart} /></PageWrapper>} />
-        <Route path="/checkout" element={<PageWrapper><CheckoutPage cart={cart} onClearCart={() => setCart([])} /></PageWrapper>} />
-        <Route path="/order-success" element={<PageWrapper><OrderSuccess /></PageWrapper>} />
-        <Route path="/my-orders" element={<PageWrapper><MyOrdersPage /></PageWrapper>} />
-        <Route path="/my-orders/:orderId" element={<PageWrapper><OrderDetailPage /></PageWrapper>} />
-        <Route path="/profile" element={<PageWrapper><ProfilePage /></PageWrapper>} />
-        <Route path="/admin" element={<PageWrapper><AdminRoute><AdminDashboard /></AdminRoute></PageWrapper>} />
-      </Routes>
-    </motion.div>
-  </AnimatePresence>
-);
 };
 
 export default App;

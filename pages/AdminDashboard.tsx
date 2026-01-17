@@ -30,7 +30,7 @@ const AdminDashboard: React.FC = () => {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [logs, setLogs] = useState<SystemLog[]>([]);
-  const [aiConfig, setAIConfig] = useState<AISettings>({ activeModelId: "gemini-2.5-flash-lite" });
+  const [aiConfig, setAIConfig] = useState<AISettings>({ activeModelId: "gemini-1.5-flash" });
 
   const toggleTheme = () => {
     const newTheme = adminTheme === "midnight" ? "light" : "midnight";
