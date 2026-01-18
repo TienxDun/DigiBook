@@ -32,7 +32,6 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart }) => {
   const isWishlisted = useMemo(() => wishlist.some(b => b.id === book.id), [wishlist, book.id]);
 
   useEffect(() => {
-    // FIX: Await the promise returned by db.getBookById
     const fetchStock = async () => {
       const dbBook = await db.getBookById(book.id);
       if (dbBook) setStockQuantity(dbBook.stock_quantity);
@@ -52,46 +51,45 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.98 }}
       transition={{ duration: 0.3 }}
-      className="@container w-full"
+      className="w-full"
     >
       <div 
-        className={`relative group flex flex-col @[400px]:flex-row h-[320px] @[400px]:h-[200px] bg-white rounded-2xl p-2.5 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-full ring-1 ring-transparent hover:ring-indigo-100 ${stockQuantity <= 0 ? 'grayscale opacity-60' : ''}`}
+        className={`relative group flex flex-col h-full bg-white rounded-2xl p-3 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 w-full ring-1 ring-transparent hover:ring-indigo-100/50 ${stockQuantity <= 0 ? 'grayscale opacity-60' : ''}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Media Container */}
-        <div className="relative w-full @[400px]:w-[140px] h-[160px] @[400px]:h-full rounded-xl overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 mb-2 @[400px]:mb-0 border border-slate-50 transition-all duration-500 group-hover:shadow-inner flex-shrink-0">
-          <div className="absolute inset-0">
-          {/* Status Badges - Glassmorphism */}
+        {/* Media Container - Fixed Aspect Ratio 3:4 */}
+        <div className="relative aspect-[3/4.2] w-full rounded-xl overflow-hidden bg-slate-50 mb-4 border border-slate-50 flex-shrink-0">
+          {/* Status Badges */}
           <div className="absolute top-2 left-2 z-20 flex flex-col gap-1.5 items-start">
             {stockQuantity <= 0 && (
-              <span className="px-2 py-0.5 bg-black/70 backdrop-blur-md text-white text-micro font-bold uppercase tracking-premium rounded-full border border-white/10 shadow-lg">Hết hàng</span>
+              <span className="px-2 py-0.5 bg-black/70 backdrop-blur-md text-white text-[8px] font-bold uppercase tracking-widest rounded-full border border-white/10 shadow-lg">Hết hàng</span>
             )}
             {book.badge && (
-              <span className="px-2 py-0.5 bg-rose-500/90 backdrop-blur-md text-white text-micro font-bold uppercase tracking-premium rounded-full border border-white/20 shadow-lg shadow-rose-500/20">{book.badge}</span>
+              <span className="px-2 py-0.5 bg-rose-500/90 backdrop-blur-md text-white text-[8px] font-bold uppercase tracking-widest rounded-full border border-white/20 shadow-lg shadow-rose-500/20">{book.badge}</span>
             )}
             {!book.badge && book.rating >= 4.8 && (
-              <span className="px-2 py-0.5 bg-amber-500/90 backdrop-blur-md text-white text-micro font-bold uppercase tracking-premium rounded-full border border-white/20 shadow-lg shadow-amber-500/20">Hot</span>
+              <span className="px-2 py-0.5 bg-amber-500/90 backdrop-blur-md text-white text-[8px] font-bold uppercase tracking-widest rounded-full border border-white/20 shadow-lg shadow-amber-500/20">Hot</span>
             )}
           </div>
 
-          {/* Wishlist Button - Interactive */}
+          {/* Wishlist Button */}
           <button 
             onClick={handleToggleWishlist}
             className={`absolute top-2 right-2 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 transform ${isHovered ? 'scale-100 opacity-100' : 'scale-90 opacity-0'} ${
               isWishlisted 
-                ? 'bg-rose-500 text-white shadow-xl shadow-rose-500/30 ring-2 ring-rose-200' 
-                : 'bg-white/90 backdrop-blur-md text-slate-400 hover:text-rose-500 shadow-md hover:scale-110 active:scale-90'
+                ? 'bg-rose-500 text-white shadow-lg' 
+                : 'bg-white/90 backdrop-blur-md text-slate-400 hover:text-rose-500 shadow-md hover:scale-110'
             }`}
           >
-            <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-[12px]`}></i>
+            <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-[10px]`}></i>
           </button>
 
           {/* Book Image */}
-          <Link to={`/book/${book.id}`} className="relative block w-full h-full group/img overflow-hidden">
+          <Link to={`/book/${book.id}`} className="block w-full h-full overflow-hidden">
             {!imgLoaded && (
-              <div className="absolute inset-0 bg-slate-200 animate-pulse flex items-center justify-center">
-                <i className="fa-solid fa-book-open text-slate-300 text-xl animate-bounce"></i>
+              <div className="absolute inset-0 bg-slate-100 animate-pulse flex items-center justify-center">
+                <i className="fa-solid fa-book-open text-slate-200 text-xl"></i>
               </div>
             )}
             <img 
@@ -99,66 +97,63 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart }) => {
               alt={book.title} 
               onLoad={() => setImgLoaded(true)}
               loading="lazy"
-              className={`w-full h-full object-cover transition-all duration-700 ease-in-out ${isHovered ? 'scale-110' : 'scale-100'} ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-full h-full object-cover transition-transform duration-700 ease-out ${isHovered ? 'scale-110' : 'scale-100'} ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
             />
-            
-            {/* Elegant Radial Gradient Overlay */}
-            <div className={`absolute inset-0 bg-gradient-to-t from-indigo-950/20 via-transparent to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity duration-500`} />
+            <div className={`absolute inset-0 bg-gradient-to-t from-indigo-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
           </Link>
         </div>
-      </div>
 
-      {/* Info Container */}
-      <div className="flex flex-col flex-grow px-1.5 @[400px]:pl-4">
-        <div className="flex justify-between items-center mb-2">
-          <Link to={`/category/${book.category}`} className="text-micro font-bold text-indigo-500 bg-indigo-50/50 hover:bg-indigo-100 px-2 py-0.5 rounded-full uppercase tracking-premium transition-colors">
-            {book.category}
+        {/* Info Container */}
+        <div className="flex flex-col flex-grow">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-[9px] font-bold text-indigo-500 bg-indigo-50/50 px-2 py-0.5 rounded-full uppercase tracking-widest">
+              {book.category}
+            </span>
+            <div className="flex items-center gap-1">
+              <i className="fa-solid fa-star text-[9px] text-amber-500"></i>
+              <span className="text-[9px] font-bold text-slate-600">{book.rating}</span>
+            </div>
+          </div>
+
+          <Link to={`/book/${book.id}`} className="block mb-1 group/title">
+            <h3 className="font-bold text-slate-800 text-xs leading-tight line-clamp-2 min-h-[2.5rem] group-hover/title:text-indigo-600 transition-colors duration-300">
+              {book.title}
+            </h3>
           </Link>
-          <div className="flex items-center gap-1 bg-amber-50/50 px-1.5 py-0.5 rounded-full border border-amber-100/50">
-            <i className="fa-solid fa-star text-micro text-amber-500"></i>
-            <span className="text-micro font-bold text-amber-700">{book.rating}</span>
-          </div>
-        </div>
+          <p className="text-slate-400 text-[10px] font-medium mb-2 truncate uppercase tracking-tight">{book.author}</p>
+          
+          <div className="mt-auto pt-3 border-t border-slate-50 flex items-center justify-between">
+            <div className="flex flex-col">
+              {book.original_price && (
+                <span className="text-[10px] text-slate-300 line-through font-bold">
+                  {formatPrice(book.original_price)}
+                </span>
+              )}
+              <span className="text-sm font-extrabold text-slate-900">
+                {formatPrice(book.price)}
+              </span>
+            </div>
 
-        <Link to={`/book/${book.id}`} className="block mb-1">
-          <h3 className="font-bold text-slate-800 text-sm leading-tight line-clamp-2 h-9 group-hover:text-indigo-600 transition-colors duration-300 font-display tracking-tight">
-            {book.title}
-          </h3>
-        </Link>
-        <Link to={`/author/${book.author}`} className="block">
-          <p className="text-slate-400 text-micro font-medium mb-1 truncate hover:text-indigo-600 transition-colors uppercase tracking-premium">{book.author}</p>
-        </Link>
-        
-        <div className="mt-auto pt-2.5 border-t border-slate-50 flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-micro text-slate-300 line-through decoration-rose-300/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-bold tracking-tighter">
-              {formatPrice(book.price * 1.2)}
-            </span>
-            <span className="text-base font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-indigo-900 tracking-tight leading-none">
-              {formatPrice(book.price)}
-            </span>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onAddToCart(book);
+              }}
+              disabled={stockQuantity <= 0}
+              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                stockQuantity <= 0 
+                  ? 'bg-slate-50 text-slate-200 cursor-not-allowed' 
+                  : 'bg-slate-900 text-white hover:bg-indigo-600 shadow-md active:scale-90'
+              }`}
+            >
+              <i className="fa-solid fa-plus text-[10px]"></i>
+            </button>
           </div>
-
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onAddToCart(book);
-            }}
-            disabled={stockQuantity <= 0}
-            className={`group/btn w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 ${
-              stockQuantity <= 0 
-                ? 'bg-slate-100 text-slate-300 cursor-not-allowed' 
-                : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10 hover:shadow-indigo-600/30 hover:-translate-y-1 active:scale-95'
-            }`}
-          >
-            <i className="fa-solid fa-plus text-xs"></i>
-          </button>
         </div>
       </div>
-    </div>
-  </motion.div>
-);
+    </motion.div>
+  );
 };
 
 export default BookCard;
