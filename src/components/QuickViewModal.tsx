@@ -9,7 +9,7 @@ interface QuickViewModalProps {
   onAddToCart: (book: Book, quantity: number, startPos?: { x: number, y: number }) => void;
 }
 
-const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, onAddToCart }) => {
+export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, onAddToCart }) => {
   const [quantity, setQuantity] = useState(1);
 
   if (!book) return null;
@@ -124,5 +124,3 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, onAddToC
     </AnimatePresence>
   );
 };
-
-export default QuickViewModal;

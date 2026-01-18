@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useState, useEffect, useCallback } from 'react';
-import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { Toaster, toast } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './AuthContext';
 import { db } from './services/db';
@@ -8,7 +8,7 @@ import LoginModal from './components/LoginModal';
 import PageTransition from './components/PageTransition';
 import ScrollToTop from './components/ScrollToTop';
 import BackToTop from './components/BackToTop';
-import QuickViewModal from './components/QuickViewModal';
+import { QuickViewModal } from './components/QuickViewModal';
 import { Book, CartItem, CategoryInfo } from './types';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -130,6 +130,7 @@ const AppContent: React.FC<{
               <Route path="/my-orders/:orderId" element={<PageTransition><OrderDetailPage /></PageTransition>} />
               <Route path="/profile" element={<PageTransition><ProfilePage /></PageTransition>} />
               <Route path="/admin" element={<AdminRoute><PageTransition><AdminDashboard /></PageTransition></AdminRoute>} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </AnimatePresence>
         </Suspense>
