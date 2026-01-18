@@ -20,16 +20,18 @@ interface User {
 interface AdminUsersProps {
   users: User[];
   refreshData: () => void;
+  theme?: 'light' | 'midnight';
 }
 
-const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData }) => {
+const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'light' }) => {
+  const isMidnight = theme === 'midnight';
   const [userRoleFilter, setUserRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
   const [userStatusFilter, setUserStatusFilter] = useState<'all' | 'active' | 'banned'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 8;
 
   const handleUpdateUserRole = async (userId: string, currentRole: 'admin' | 'user') => {
     const newRole = currentRole === 'admin' ? 'user' : 'admin';
@@ -87,19 +89,23 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData }) => {
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* User Filters Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm shadow-slate-200/40 transition-all hover:border-slate-300">
+      <div className={`${
+        isMidnight 
+        ? 'bg-[#1e293b]/50 backdrop-blur-xl border-white/5 shadow-2xl hover:border-indigo-500/30' 
+        : 'bg-white border-slate-200/60 shadow-sm shadow-slate-200/40 hover:border-slate-300'
+        } flex flex-wrap items-center justify-between gap-6 p-6 rounded-[2rem] border transition-all`}>
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
-            <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Vai trò:</span>
-            <div className="flex gap-2 p-1 bg-slate-100 rounded-xl">
+            <span className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Vai trò:</span>
+            <div className={`flex gap-2 p-1 rounded-xl ${isMidnight ? 'bg-white/5' : 'bg-slate-100'}`}>
               {(['all', 'admin', 'user'] as const).map(role => (
                 <button
                   key={role}
-                  onClick={() => setUserRoleFilter(role)}
+                  onClick={() => { setUserRoleFilter(role); setCurrentPage(1); }}
                   className={`px-4 py-1.5 rounded-lg text-micro font-bold uppercase tracking-premium transition-all ${
                     userRoleFilter === role 
-                    ? 'bg-slate-900 text-white shadow-lg' 
-                    : 'text-slate-500 hover:text-slate-900'
+                    ? 'bg-indigo-600 text-white shadow-lg' 
+                    : `${isMidnight ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`
                   }`}
                 >
                   {role === 'all' ? 'Tất cả' : role === 'admin' ? 'Quản trị' : 'Khách'}
@@ -109,16 +115,16 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData }) => {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Trạng thái:</span>
-            <div className="flex gap-2 p-1 bg-slate-100 rounded-xl">
+            <span className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Trạng thái:</span>
+            <div className={`flex gap-2 p-1 rounded-xl ${isMidnight ? 'bg-white/5' : 'bg-slate-100'}`}>
               {(['all', 'active', 'banned'] as const).map(status => (
                 <button
                   key={status}
-                  onClick={() => setUserStatusFilter(status)}
+                  onClick={() => { setUserStatusFilter(status); setCurrentPage(1); }}
                   className={`px-4 py-1.5 rounded-lg text-micro font-bold uppercase tracking-premium transition-all ${
                     userStatusFilter === status 
-                    ? (status === 'banned' ? 'bg-rose-500 text-white shadow-lg shadow-rose-100' : 'bg-slate-900 text-white shadow-lg shadow-slate-100')
-                    : 'text-slate-500 hover:text-slate-900'
+                    ? (status === 'banned' ? 'bg-rose-500 text-white shadow-lg shadow-rose-100' : 'bg-emerald-600 text-white shadow-lg shadow-emerald-100')
+                    : `${isMidnight ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`
                   }`}
                 >
                   {status === 'all' ? 'Tất cả' : status === 'active' ? 'Hoạt động' : 'Đã khóa'}
@@ -129,19 +135,27 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData }) => {
         </div>
 
         <div className="flex items-center gap-4 w-full sm:w-auto">
-          <div className="relative flex-1 sm:w-64">
-            <i className="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <div className="relative flex-1 sm:w-64 group">
+            <i className={`fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isMidnight ? 'text-slate-600 group-focus-within:text-indigo-400' : 'text-slate-400 group-focus-within:text-indigo-600'} text-xs`}></i>
             <input 
               type="text"
               placeholder="Tìm theo tên, email, SĐT..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2.5 bg-slate-50 border-none rounded-2xl text-[11px] font-bold w-full focus:ring-4 ring-indigo-50 focus:bg-white transition-all outline-none"
+              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+              className={`pl-10 pr-4 py-2.5 rounded-2xl text-[11px] font-bold w-full outline-none transition-all ${
+                isMidnight 
+                ? 'bg-white/5 border-white/5 text-white focus:border-indigo-500 focus:bg-white/10' 
+                : 'bg-slate-50 border-none focus:ring-4 ring-indigo-50 focus:bg-white'
+              }`}
             />
           </div>
           <button 
             onClick={refreshData}
-            className="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl hover:text-indigo-600 hover:bg-indigo-50 transition-all border border-slate-100"
+            className={`w-10 h-10 rounded-xl transition-all border ${
+              isMidnight 
+              ? 'bg-white/5 text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 border-white/5' 
+              : 'bg-slate-50 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 border-slate-100'
+            }`}
             title="Làm mới danh sách"
           >
             <i className="fa-solid fa-rotate"></i>
@@ -149,42 +163,50 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData }) => {
         </div>
       </div>
 
-      <div className="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-sm shadow-slate-200/20 overflow-hidden min-h-[500px]">
+      {/* Users Table */}
+      <div className={`${
+        isMidnight 
+        ? 'bg-[#1e293b]/50 backdrop-blur-xl border-white/5 shadow-2xl' 
+        : 'bg-white border-slate-200/60 shadow-sm shadow-slate-200/20'
+        } rounded-[2rem] border overflow-hidden min-h-[500px]`}>
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse min-w-[1100px]">
-          <thead className="bg-slate-50 border-b border-slate-100">
-            <tr>
-              <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Người dùng</th>
-              <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Liên hệ</th>
-              <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium">Thông tin thêm</th>
-              <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Vai trò</th>
-              <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Trạng thái</th>
-              <th className="px-8 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-right">Thao tác</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-50">
+            <thead>
+              <tr className={`${isMidnight ? 'bg-white/5 border-white/5' : 'bg-slate-50 border-slate-100'} border-b`}>
+                <th className={`px-8 py-5 text-micro font-extrabold uppercase tracking-widest ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Người dùng</th>
+                <th className={`px-8 py-5 text-micro font-extrabold uppercase tracking-widest ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Liên hệ</th>
+                <th className={`px-8 py-5 text-micro font-extrabold uppercase tracking-widest ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Thông tin thêm</th>
+                <th className={`px-8 py-5 text-micro font-extrabold uppercase tracking-widest text-center ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Vai trò</th>
+                <th className={`px-8 py-5 text-micro font-extrabold uppercase tracking-widest text-center ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Trạng thái</th>
+                <th className={`px-8 py-5 text-micro font-extrabold uppercase tracking-widest text-right ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Thao tác</th>
+              </tr>
+            </thead>
+          <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-slate-50'}`}>
             {paginatedUsers.length > 0 ? paginatedUsers.map(user => (
-              <tr key={user.id} className="hover:bg-slate-50/50 transition-all group">
+              <tr key={user.id} className={`group transition-all ${isMidnight ? 'hover:bg-white/5' : 'hover:bg-slate-50/50'}`}>
                 <td className="px-8 py-6">
                   <div className="flex items-center gap-4">
-                    <img 
-                      src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=random&bold=true`} 
-                      className="w-12 h-12 rounded-2xl object-cover shadow-sm border-2 border-white ring-1 ring-slate-200" 
-                      alt={user.name} 
-                    />
+                    <div className="relative">
+                      <img 
+                        src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=random&bold=true`} 
+                        alt={user.name} 
+                        className={`w-12 h-12 rounded-2xl object-cover shadow-sm group-hover:scale-110 transition-transform ${isMidnight ? 'border-white/10' : 'border-white'} border-2 ring-1 ${isMidnight ? 'ring-white/5' : 'ring-slate-200'}`}
+                      />
+                      <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 ${isMidnight ? 'border-[#1e1e2d]' : 'border-white'} ${user.status === 'active' ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
+                    </div>
                     <div>
-                      <p className="text-sm font-extrabold text-slate-900">{user.name || 'Hội viên DigiBook'}</p>
-                      <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">{user.email}</p>
+                      <h4 className={`font-bold text-sm mb-0.5 ${isMidnight ? 'text-white' : 'text-slate-900'}`}>{user.name || 'Hội viên DigiBook'}</h4>
+                      <p className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>{user.email}</p>
                     </div>
                   </div>
                 </td>
                 <td className="px-8 py-6">
                   <div className="space-y-1.5">
-                    <p className="text-micro font-bold text-slate-700 flex items-center gap-2">
+                    <p className={`text-micro font-bold flex items-center gap-2 ${isMidnight ? 'text-slate-300' : 'text-slate-700'}`}>
                       <i className="fa-solid fa-phone text-indigo-400 text-[10px]"></i>
                       {user.phone || 'Chưa có SĐT'}
                     </p>
-                    <p className="text-micro font-medium text-slate-400 flex items-start gap-2 max-w-[180px]">
+                    <p className={`text-micro font-medium flex items-start gap-2 max-w-[180px] ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>
                       <i className="fa-solid fa-location-dot text-slate-300 mt-0.5"></i>
                       <span className="leading-relaxed">{user.address || 'Địa chỉ trống'}</span>
                     </p>
@@ -194,96 +216,107 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData }) => {
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <span className={`px-2 py-0.5 rounded-lg text-micro font-bold uppercase tracking-premium ${
-                        user.gender === 'Nữ' ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-blue-600'
+                        user.gender === 'Nữ' 
+                        ? (isMidnight ? 'bg-rose-500/10 text-rose-400' : 'bg-rose-50 text-rose-600')
+                        : (isMidnight ? 'bg-blue-500/10 text-blue-400' : 'bg-blue-50 text-blue-600')
                       }`}>
                         {user.gender || 'N/A'}
                       </span>
-                      <span className="text-micro font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-lg">
+                      <span className={`text-micro font-bold px-2 py-0.5 rounded-lg ${
+                        isMidnight ? 'bg-white/5 text-slate-500' : 'bg-slate-100 text-slate-500'
+                      }`}>
                         {user.birthday || '--/--/----'}
                       </span>
                     </div>
                     {user.bio ? (
-                      <p className="text-xs text-slate-400 italic font-medium line-clamp-1 max-w-[150px]" title={user.bio}>
+                      <p className={`text-xs italic font-medium line-clamp-1 max-w-[150px] ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`} title={user.bio}>
                         "{user.bio}"
                       </p>
                     ) : (
-                      <p className="text-xs text-slate-300 italic">Chưa có giới thiệu</p>
+                      <p className={`text-xs italic ${isMidnight ? 'text-slate-700' : 'text-slate-300'}`}>Chưa có giới thiệu</p>
                     )}
                   </div>
                 </td>
                 <td className="px-8 py-6 text-center">
                   <button 
                     onClick={() => handleUpdateUserRole(user.id, user.role || 'user')}
-                    className={`px-4 py-1.5 rounded-xl text-micro font-bold uppercase tracking-premium transition-all shadow-sm ${
+                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-micro font-extrabold uppercase tracking-widest transition-all ${
                       user.role === 'admin' 
-                      ? 'bg-indigo-600 text-white shadow-indigo-100 hover:scale-105' 
-                      : 'bg-white border border-slate-100 text-slate-500 hover:bg-slate-50'
+                      ? (isMidnight ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-amber-50 text-amber-600')
+                      : (isMidnight ? 'bg-slate-500/10 text-slate-400 border border-slate-500/20 hover:text-white' : 'bg-slate-100 text-slate-500')
                     }`}
                   >
+                    <i className={user.role === 'admin' ? "fa-solid fa-shield-halved text-[10px]" : "fa-solid fa-user text-[10px]"}></i>
                     {user.role === 'admin' ? 'Quản trị' : 'Khách'}
                   </button>
                 </td>
                 <td className="px-8 py-6 text-center">
                   <div className="flex flex-col items-center gap-1">
-                    <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg text-micro font-bold uppercase tracking-premium ${
-                      user.status === 'banned' 
-                      ? 'bg-rose-50 text-rose-600' 
-                      : 'bg-emerald-50 text-emerald-600'
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-micro font-extrabold uppercase tracking-widest shadow-sm ${
+                      (user.status || 'active') === 'active'
+                      ? (isMidnight ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-emerald-50 text-emerald-600')
+                      : (isMidnight ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-rose-50 text-rose-600')
                     }`}>
-                      <div className={`w-1.5 h-1.5 rounded-full ${user.status === 'banned' ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500'}`}></div>
-                      {user.status === 'banned' ? 'Đã khóa' : 'Hoạt động'}
+                      <span className={`w-1.5 h-1.5 rounded-full ${ (user.status || 'active') === 'active' ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`}></span>
+                      {(user.status || 'active') === 'active' ? 'Hoạt động' : 'Đã khóa'}
                     </span>
-                    <span className="text-micro font-medium text-slate-300 uppercase tracking-premium">
-                      Cập nhật: {user.updatedAt?.toDate ? user.updatedAt.toDate().toLocaleDateString('vi-VN') : 'N/A'}
+                    <span className={`text-[9px] font-bold uppercase tracking-wider ${isMidnight ? 'text-slate-600' : 'text-slate-300'}`}>
+                      {user.updatedAt?.toDate ? user.updatedAt.toDate().toLocaleDateString('vi-VN') : ''}
                     </span>
                   </div>
                 </td>
                 <td className="px-8 py-6 text-right">
-                  <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                    <button 
+                  <div className="flex justify-end gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all transform sm:translate-x-2 sm:group-hover:translate-x-0">
+                     <button 
                       onClick={() => handleUpdateUserStatus(user.id, user.status || 'active')}
-                      title={user.status === 'banned' ? 'Mở khóa' : 'Khóa tài khoản'}
-                      className={`w-10 h-10 rounded-2xl border flex items-center justify-center transition-all shadow-sm ${
-                        user.status === 'banned' 
-                        ? 'bg-white border-emerald-100 text-emerald-500 hover:bg-emerald-500 hover:text-white hover:shadow-emerald-100' 
-                        : 'bg-white border-rose-100 text-rose-500 hover:bg-rose-500 hover:text-white hover:shadow-rose-100'
+                      className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all shadow-sm ${
+                        (user.status || 'active') === 'active'
+                        ? (isMidnight ? 'bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white' : 'bg-rose-50 text-rose-600 hover:bg-rose-100')
+                        : (isMidnight ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100')
                       }`}
+                      title={(user.status || 'active') === 'active' ? 'Khóa tài khoản' : 'Mở khóa'}
                     >
-                      <i className={`fa-solid ${user.status === 'banned' ? 'fa-unlock' : 'fa-user-slash'}`}></i>
+                      <i className={`fa-solid ${(user.status || 'active') === 'active' ? 'fa-user-lock' : 'fa-user-check'} text-xs`}></i>
                     </button>
-
                     <button 
                       onClick={() => handleDeleteUser(user.id)}
-                      title="Xóa tài khoản vĩnh viễn"
-                      className="w-10 h-10 rounded-2xl bg-white border border-slate-100 text-slate-400 hover:bg-rose-600 hover:text-white hover:border-rose-600 hover:shadow-lg hover:shadow-rose-100 transition-all shadow-sm flex items-center justify-center"
+                      className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all shadow-sm ${
+                        isMidnight ? 'bg-white/5 text-slate-500 hover:bg-rose-600 hover:text-white' : 'bg-slate-100 text-slate-400 hover:bg-rose-500 hover:text-white'
+                      }`}
+                      title="Xóa vĩnh viễn"
                     >
-                      <i className="fa-solid fa-trash-can"></i>
+                      <i className="fa-solid fa-trash-can text-xs"></i>
                     </button>
                   </div>
                 </td>
               </tr>
             )) : (
               <tr>
-                <td colSpan={6} className="px-8 py-20 text-center text-slate-400">
-                  <i className="fa-solid fa-users-slash text-4xl mb-4 opacity-20"></i>
-                  <p className="text-micro font-bold uppercase tracking-premium">Không tìm thấy người dùng phù hợp</p>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                <td colSpan={6} className="px-8 py-24 text-center">
+                    <div className="flex flex-col items-center gap-4">
+                      <div className={`w-20 h-20 rounded-full flex items-center justify-center ${isMidnight ? 'bg-white/5 text-slate-700' : 'bg-slate-50 text-slate-200'}`}>
+                        <i className="fa-solid fa-users-slash text-3xl opacity-20"></i>
+                      </div>
+                      <p className={`text-sm font-bold ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Không tìm thấy người dùng nào phù hợp</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="p-6 border-t border-slate-100 bg-slate-50/30">
-            <Pagination 
+        {/* Pagination Integration */}
+        {filteredUsers.length > itemsPerPage && (
+          <div className={`px-8 py-6 border-t ${isMidnight ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/30'}`}>
+            <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={(page) => {
                 setCurrentPage(page);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
+              theme={theme}
             />
           </div>
         )}

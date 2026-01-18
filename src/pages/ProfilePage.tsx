@@ -254,7 +254,7 @@ const ProfilePage: React.FC = () => {
                                         <div className="space-y-2">
                                             <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Xác nhận mật khẩu</label>
                                             <div className="relative group">
-                                                <i className="fa-solid fa-shield-check absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
+                                                <i className="fa-solid fa-shield-halved absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
                                                 <input 
                                                     type="password" 
                                                     required

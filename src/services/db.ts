@@ -206,8 +206,11 @@ class DataService {
   }
 
   async saveBook(book: Book): Promise<void> {
+    const cleanBook = Object.fromEntries(
+      Object.entries(book).filter(([_, v]) => v !== undefined)
+    );
     await this.wrap(
-      setDoc(doc(db_fs, 'books', book.id), { ...book, updatedAt: serverTimestamp() }, { merge: true }),
+      setDoc(doc(db_fs, 'books', book.id), { ...cleanBook, updatedAt: serverTimestamp() }, { merge: true }),
       undefined,
       'SAVE_BOOK',
       book.title
@@ -620,13 +623,13 @@ class DataService {
           else if (info.language === 'zh') mappedLang = '中文';
           
           // Tự động gán badge
-          let badge = undefined;
+          let badge = '';
           if (finalRating >= 4.8) badge = 'Bán chạy';
           else if (info.pageCount > 500) badge = 'Kinh điển';
 
           return {
             id: finalIsbn,
-            title: info.title,
+            title: info.title || 'Không có tiêu đề',
             author: info.authors?.join(', ') || 'Nhiều tác giả',
             authorBio: info.description?.substring(0, 300) || 'Thông tin tác giả đang được cập nhật.',
             price: Math.floor(Math.random() * (350000 - 85000) + 85000), // Random price VND
@@ -682,7 +685,7 @@ class DataService {
 
       return {
         id: isbn,
-        title: info.title,
+        title: info.title || 'Không có tiêu đề',
         author: info.authors?.join(', ') || 'Nhiều tác giả',
         authorBio: info.description?.substring(0, 300) || 'Thông tin tác giả đang được cập nhật.',
         price: 0, // Admin sẽ tự nhập
@@ -695,7 +698,8 @@ class DataService {
         pages: info.pageCount || 0,
         publisher: info.publisher || 'Đang cập nhật',
         publishYear: parseInt(info.publishedDate?.split('-')[0]) || new Date().getFullYear(),
-        language: info.language === 'vi' ? 'Tiếng Việt' : (info.language === 'en' ? 'English' : (info.language === 'ja' ? '日本語' : (info.language === 'fr' ? 'Français' : 'Tiếng Việt')))
+        language: info.language === 'vi' ? 'Tiếng Việt' : (info.language === 'en' ? 'English' : (info.language === 'ja' ? '日本語' : (info.language === 'fr' ? 'Français' : 'Tiếng Việt'))),
+        badge: ''
       } as Book;
     } catch (error) {
       console.error("Error fetching book by ISBN:", error);
@@ -740,8 +744,13 @@ class DataService {
           // Gán authorId vào sách
           book.authorId = authorId;
           
+          // Loại bỏ các trường undefined để tránh lỗi Firestore
+          const cleanBook = Object.fromEntries(
+            Object.entries(book).filter(([_, v]) => v !== undefined)
+          );
+          
           const bookDocRef = doc(db_fs, 'books', book.id);
-          batch.set(bookDocRef, { ...book, updatedAt: serverTimestamp() }, { merge: true });
+          batch.set(bookDocRef, { ...cleanBook, updatedAt: serverTimestamp() }, { merge: true });
         }
         
         await batch.commit();

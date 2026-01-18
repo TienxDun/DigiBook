@@ -206,7 +206,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
               <div className="mt-8 pt-8 border-t border-slate-50 grid grid-cols-2 gap-4">
                  <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs">
-                       <i className="fa-solid fa-shield-check"></i>
+                       <i className="fa-solid fa-shield-halved"></i>
                     </div>
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Chính hãng 100%</span>
                  </div>

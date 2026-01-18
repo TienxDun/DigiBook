@@ -161,7 +161,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                 </div>
                 <div className="text-right">
                    <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mb-1 flex items-center justify-end gap-1">
-                      <i className="fa-solid fa-shield-check"></i> Bảo mật thanh toán
+                      <i className="fa-solid fa-shield-halved"></i> Bảo mật thanh toán
                    </p>
                 </div>
               </div>

@@ -225,7 +225,7 @@ const AdminDashboard: React.FC = () => {
 
         <nav className="flex-1 overflow-y-auto p-6 space-y-2.5 mt-2 custom-scrollbar relative z-10">
           {[
-            { id: "overview", label: "Tổng quan", icon: "fa-grid-2" },
+            { id: "overview", label: "Tổng quan", icon: "fa-chart-simple" },
             { id: "books", label: "Kho sách", icon: "fa-book" },
             { id: "orders", label: "Giao dịch", icon: "fa-receipt" },
             { id: "authors", label: "Tác giả", icon: "fa-pen-nib" },
@@ -301,6 +301,20 @@ const AdminDashboard: React.FC = () => {
            </div>
            
            <div className="flex items-center gap-3 lg:gap-6">
+              {/* Seed Data Button */}
+              <button 
+                onClick={handleSeedData}
+                disabled={isSeeding}
+                className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center transition-all active:scale-95 shadow-lg ${
+                  adminTheme === 'midnight' 
+                    ? 'bg-white/5 text-amber-500 border border-white/10 hover:bg-white/10 shadow-[0_0_15px_rgba(245,158,11,0.1)]' 
+                    : 'bg-white text-amber-600 border border-slate-200 shadow-slate-200/50 hover:bg-slate-50'
+                } ${isSeeding ? 'opacity-50' : ''}`}
+                title="Khởi tạo dữ liệu hệ thống"
+              >
+                <i className={`fa-solid ${isSeeding ? 'fa-circle-notch animate-spin' : 'fa-database'}`}></i>
+              </button>
+
               {/* Theme Toggle Button */}
               <button 
                 onClick={toggleTheme}
@@ -322,6 +336,26 @@ const AdminDashboard: React.FC = () => {
               </div>
            </div>
         </header>
+
+        {seedStatus && (
+          <div className="px-6 lg:px-10 py-4 animate-slideDown">
+            <div className={`p-4 rounded-2xl border flex items-center justify-between shadow-xl ${
+              seedStatus.type === 'success' 
+              ? (adminTheme === 'midnight' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-green-50 border-green-200 text-green-700')
+              : seedStatus.type === 'error'
+              ? (adminTheme === 'midnight' ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' : 'bg-rose-50 border-rose-200 text-rose-700')
+              : (adminTheme === 'midnight' ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' : 'bg-blue-50 border-blue-200 text-blue-700')
+            }`}>
+               <div className="flex items-center gap-3">
+                  <i className={`fa-solid ${seedStatus.type === 'success' ? 'fa-circle-check' : seedStatus.type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-info'}`}></i>
+                  <span className="text-xs font-black uppercase tracking-widest">{seedStatus.msg}</span>
+               </div>
+               <button onClick={() => setSeedStatus(null)} className="opacity-50 hover:opacity-100 transition-opacity">
+                  <i className="fa-solid fa-xmark"></i>
+               </button>
+            </div>
+          </div>
+        )}
 
         <div className="p-4 lg:p-10 flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
           {activeTab === "overview" && (
@@ -563,16 +597,17 @@ const AdminDashboard: React.FC = () => {
           )}
 
           {activeTab === "books" && (
-            <AdminBooks books={books} authors={authors} categories={categories} refreshData={refreshData} />
+            <AdminBooks theme={adminTheme} books={books} authors={authors} categories={categories} refreshData={refreshData} />
           )}
-          {activeTab === "authors" && <AdminAuthors authors={authors} refreshData={refreshData} />}
-          {activeTab === "categories" && <AdminCategories categories={categories} refreshData={refreshData} />}
-          {activeTab === "coupons" && <AdminCoupons coupons={coupons} refreshData={refreshData} />}
-          {activeTab === "orders" && <AdminOrders orders={orders} refreshData={refreshData} />}
-          {activeTab === "users" && <AdminUsers users={users} refreshData={refreshData} />}
-          {activeTab === "ai" && <AdminAI aiConfig={{ activeModelId: aiConfig.activeModelId }} refreshData={refreshData} />}
+          {activeTab === "authors" && <AdminAuthors theme={adminTheme} authors={authors} refreshData={refreshData} />}
+          {activeTab === "categories" && <AdminCategories theme={adminTheme} categories={categories} refreshData={refreshData} />}
+          {activeTab === "coupons" && <AdminCoupons theme={adminTheme} coupons={coupons} refreshData={refreshData} />}
+          {activeTab === "orders" && <AdminOrders theme={adminTheme} orders={orders} refreshData={refreshData} />}
+          {activeTab === "users" && <AdminUsers theme={adminTheme} users={users} refreshData={refreshData} />}
+          {activeTab === "ai" && <AdminAI theme={adminTheme} aiConfig={{ activeModelId: aiConfig.activeModelId }} refreshData={refreshData} />}
           {activeTab === "logs" && (
             <AdminLogs 
+              theme={adminTheme}
               logs={logs} 
               hasMoreLogs={hasMoreLogs} 
               onLoadMore={onLoadMoreLogs} 

@@ -134,7 +134,7 @@ const LoginModal: React.FC = () => {
               {authMode === 'register' && (
                 <div className="space-y-1">
                   <div className="relative group">
-                    <i className="fa-solid fa-shield-check absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-slate-900 transition-colors text-sm"></i>
+                    <i className="fa-solid fa-shield-halved absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-slate-900 transition-colors text-sm"></i>
                     <input 
                       type="password" 
                       required

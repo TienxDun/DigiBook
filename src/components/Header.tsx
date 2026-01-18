@@ -160,7 +160,7 @@ const Header: React.FC<HeaderProps> = ({
                 onClick={() => setShowCategoryMenu(!showCategoryMenu)}
                 className={`flex items-center gap-2 text-micro font-bold uppercase tracking-premium transition-all py-1 ${showCategoryMenu ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-900'}`}
               >
-                <i className="fa-solid fa-grid-2 text-[12px]"></i>
+                <i className="fa-solid fa-shapes text-[12px]"></i>
                 Danh mục
                 <i className={`fa-solid fa-chevron-down text-[8px] transition-transform duration-300 ${showCategoryMenu ? 'rotate-180' : ''}`}></i>
               </button>
