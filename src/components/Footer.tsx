@@ -40,9 +40,9 @@ const Footer: React.FC = () => {
             <h4 className="text-xs font-bold uppercase tracking-premium text-white mb-8">Khám phá</h4>
             <ul className="space-y-4 text-label font-bold text-slate-400">
               <li><Link to="/" className="hover:text-indigo-400 transition-colors">Trang chủ</Link></li>
+              <li><Link to="/authors" className="hover:text-indigo-400 transition-colors">Các tác giả</Link></li>
               <li><Link to="/category/Tất cả sách" className="hover:text-indigo-400 transition-colors">Sách mới về</Link></li>
               <li><Link to="/category/Văn học" className="hover:text-indigo-400 transition-colors">Văn học tiểu thuyết</Link></li>
-              <li><Link to="/category/Kinh tế" className="hover:text-indigo-400 transition-colors">Kinh doanh & Đầu tư</Link></li>
             </ul>
           </div>
 

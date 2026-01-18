@@ -117,6 +117,7 @@ const Header: React.FC<HeaderProps> = ({
   const navLinks = [
     { name: 'Trang chủ', path: '/' },
     { name: 'Tất cả sách', path: '/category/Tất cả sách' },
+    { name: 'Các tác giả', path: '/authors' },
   ];
 
   if (location.pathname.startsWith('/admin')) return null;

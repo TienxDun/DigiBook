@@ -18,6 +18,7 @@ const BookDetails = lazy(() => import('./pages/BookDetails'));
 const SearchResults = lazy(() => import('./pages/SearchResults'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage'));
 const AuthorPage = lazy(() => import('./pages/AuthorPage'));
+const AuthorsPage = lazy(() => import('./pages/AuthorsPage'));
 const WishlistPage = lazy(() => import('./pages/WishlistPage'));
 const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
 const OrderSuccess = lazy(() => import('./pages/OrderSuccess'));
@@ -147,6 +148,7 @@ const AppContent: React.FC<{
               <Route path="/book/:id" element={<PageTransition><BookDetails onAddToCart={handleAddToCart} onQuickView={handleQuickView} /></PageTransition>} />
               <Route path="/search/:query" element={<PageTransition><SearchResults onAddToCart={handleAddToCart} onQuickView={handleQuickView} /></PageTransition>} />
               <Route path="/category/:categoryName" element={<PageTransition><CategoryPage onAddToCart={handleAddToCart} onQuickView={handleQuickView} /></PageTransition>} />
+              <Route path="/authors" element={<PageTransition><AuthorsPage /></PageTransition>} />
               <Route path="/author/:authorName" element={<PageTransition><AuthorPage onAddToCart={handleAddToCart} onQuickView={handleQuickView} /></PageTransition>} />
               <Route path="/wishlist" element={<PageTransition><WishlistPage onAddToCart={handleAddToCart} onQuickView={handleQuickView} /></PageTransition>} />
               <Route path="/checkout" element={<PageTransition><CheckoutPage cart={selectedItems} onClearCart={() => setCart(prev => prev.filter(item => !selectedCartItemIds.includes(item.id)))} /></PageTransition>} />

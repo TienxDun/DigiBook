@@ -6,11 +6,117 @@ import { AVAILABLE_AI_MODELS } from '../constants/ai-models';
 import BookCard from '../components/BookCard';
 import { Book, Author } from '../types';
 import { BookCardSkeleton, Skeleton } from '../components/Skeleton';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../AuthContext';
 
 interface AuthorPageProps {
   onAddToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => void;
   onQuickView?: (book: Book) => void;
 }
+
+const AuthorBookCard: React.FC<{ 
+  book: Book, 
+  onAddToCart: any, 
+  onQuickView: any,
+  index: number 
+}> = ({ book, onAddToCart, onQuickView, index }) => {
+  const { wishlist, toggleWishlist } = useAuth();
+  const isWishlisted = wishlist.some(b => b.id === book.id);
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.1 }}
+      className="group relative bg-white rounded-3xl p-4 border border-slate-200/60 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 hover:border-indigo-200 transition-all duration-500"
+    >
+      <div className="flex gap-5">
+        {/* Book Cover */}
+        <div className="relative w-28 h-40 flex-shrink-0 rounded-2xl overflow-hidden shadow-lg group-hover:scale-105 transition-transform duration-500">
+          <img src={book.cover} alt={book.title} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          
+          {book.badge && (
+            <div className="absolute top-2 left-2 px-2 py-0.5 bg-indigo-600 text-[9px] font-bold text-white uppercase rounded-md shadow-lg">
+              {book.badge}
+            </div>
+          )}
+        </div>
+
+        {/* Book Info */}
+        <div className="flex-1 flex flex-col justify-between py-1">
+          <div>
+            <div className="flex justify-between items-start gap-2 mb-1">
+              <h3 className="font-extrabold text-slate-800 text-sm lg:text-base leading-tight line-clamp-2 hover:text-indigo-600 cursor-pointer transition-colors"
+                  onClick={() => window.location.href = `/book/${book.id}`}>
+                {book.title}
+              </h3>
+              <button 
+                onClick={() => toggleWishlist(book)}
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isWishlisted ? 'text-rose-500 bg-rose-50' : 'text-slate-300 hover:text-rose-500 hover:bg-rose-50'}`}
+              >
+                <i className={`fa-${isWishlisted ? 'solid' : 'regular'} fa-heart text-xs`}></i>
+              </button>
+            </div>
+            
+            <p className="text-xs text-slate-500 line-clamp-2 mb-3 leading-relaxed">
+              {book.description}
+            </p>
+
+            <div className="flex flex-wrap gap-3 mb-2">
+              <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 rounded-lg border border-slate-100">
+                <i className="fa-solid fa-layer-group text-[10px] text-slate-400"></i>
+                <span className="text-[10px] font-bold text-slate-600">{book.pages} trang</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 rounded-lg border border-slate-100">
+                <i className="fa-solid fa-calendar text-[10px] text-slate-400"></i>
+                <span className="text-[10px] font-bold text-slate-600">{book.publishYear}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-3 border-t border-slate-50">
+            <div className="flex flex-col">
+              {book.originalPrice && (
+                <span className="text-[10px] text-slate-400 line-through leading-none mb-1">
+                  {formatPrice(book.originalPrice)}
+                </span>
+              )}
+              <span className="text-base font-black text-rose-600 leading-none">
+                {formatPrice(book.price)}
+              </span>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => onQuickView?.(book)}
+                className="w-9 h-9 border border-slate-200 text-slate-400 rounded-xl flex items-center justify-center hover:bg-slate-50 hover:text-indigo-600 transition-all"
+              >
+                <i className="fa-solid fa-expand text-xs"></i>
+              </button>
+              <button
+                onClick={(e) => onAddToCart(book, 1, { x: e.clientX, y: e.clientY })}
+                disabled={book.stockQuantity <= 0}
+                className="px-4 h-9 bg-slate-900 text-white rounded-xl text-micro font-bold uppercase tracking-premium flex items-center justify-center gap-2 hover:bg-indigo-600 disabled:bg-slate-200 transition-all shadow-lg shadow-slate-200"
+              >
+                {book.stockQuantity > 0 ? (
+                  <>
+                    <i className="fa-solid fa-cart-plus text-[10px]"></i>
+                    Thêm
+                  </>
+                ) : 'Hết hàng'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
 const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => {
   const { authorName } = useParams<{ authorName: string }>();
@@ -20,7 +126,16 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [loadingAI, setLoadingAI] = useState(false);
   const [activeModelName, setActiveModelName] = useState('Gemini');
+  const [sortBy, setSortBy] = useState<'newest' | 'price-asc' | 'price-desc' | 'rating'>('newest');
   
+  const sortedBooks = [...authorBooks].sort((a, b) => {
+    if (sortBy === 'newest') return b.publishYear - a.publishYear;
+    if (sortBy === 'price-asc') return a.price - b.price;
+    if (sortBy === 'price-desc') return b.price - a.price;
+    if (sortBy === 'rating') return b.rating - a.rating;
+    return 0;
+  });
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -71,8 +186,24 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
           </div>
           <div className="grid lg:grid-cols-12 gap-8">
             <div className="lg:col-span-8">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                {[...Array(8)].map((_, i) => <BookCardSkeleton key={i} />)}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="bg-white rounded-3xl p-4 border border-slate-100 flex gap-5">
+                    <Skeleton className="w-28 h-40 rounded-2xl flex-shrink-0" />
+                    <div className="flex-1 space-y-3 py-1">
+                       <Skeleton className="h-5 w-3/4" />
+                       <Skeleton className="h-10 w-full" />
+                       <div className="flex gap-2">
+                         <Skeleton className="h-6 w-20 rounded-lg" />
+                         <Skeleton className="h-6 w-16 rounded-lg" />
+                       </div>
+                       <div className="pt-3 border-t border-slate-50 flex justify-between items-center">
+                         <Skeleton className="h-6 w-24" />
+                         <Skeleton className="h-9 w-20 rounded-xl" />
+                       </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
             <div className="lg:col-span-4">
@@ -91,11 +222,20 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
     : "Văn học";
 
   return (
-    <div className="bg-slate-50 min-h-screen">
+    <div className="bg-slate-50 min-h-screen pb-20">
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-[500px] bg-indigo-600 -z-10 opacity-[0.03] pointer-events-none"></div>
 
-      <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-20 lg:pt-24 pb-32">
+      <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-20 lg:pt-28">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 mb-8 text-micro font-bold uppercase tracking-premium text-slate-400">
+          <Link to="/" className="hover:text-indigo-600 transition-colors">Trang chủ</Link>
+          <i className="fa-solid fa-chevron-right text-[8px] opacity-50"></i>
+          <Link to="/authors" className="hover:text-indigo-600 transition-colors">Tác giả</Link>
+          <i className="fa-solid fa-chevron-right text-[8px] opacity-50"></i>
+          <span className="text-slate-900">{authorName}</span>
+        </nav>
+
         {/* Header Block */}
         <div className="bg-indigo-950 rounded-[2.5rem] p-6 lg:p-10 mb-8 relative overflow-hidden shadow-2xl shadow-indigo-200">
            <div className="absolute top-0 right-0 w-1/3 h-full bg-indigo-500/10 blur-[100px]" aria-hidden="true"></div>
@@ -157,8 +297,16 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
               </div>
 
               <div className="prose prose-slate max-w-none">
-                <p className="text-base text-slate-600 leading-[1.7] font-medium">
-                  {authorInfo?.bio || `${authorName} là một trong những cây bút có sức ảnh hưởng sâu rộng trong nền văn học hiện đại. Với khả năng quan sát tinh tế và ngôn từ sắc sảo, các tác phẩm của tác giả không chỉ là những câu chuyện kể mà còn là những bản chiêm nghiệm sâu sắc về cuộc sống, con người và những giá trị nhân bản vĩnh cửu.`}
+                <p className="text-base text-slate-600 leading-[1.8] font-medium space-y-4">
+                  {authorInfo?.bio?.split('\n').map((para, i) => (
+                    <span key={i} className="block mb-4">
+                      {para}
+                    </span>
+                  )) || (
+                    <span className="italic opacity-80">
+                      {authorName} là một trong những cây bút có sức ảnh hưởng sâu rộng trong nền văn học hiện đại. Với khả năng quan sát tinh tế và ngôn từ sắc sảo, các tác phẩm của tác giả không chỉ là những câu chuyện kể mà còn là những bản chiêm nghiệm sâu sắc về cuộc sống, con người và những giá trị nhân bản vĩnh cửu.
+                    </span>
+                  )}
                 </p>
               </div>
 
@@ -175,7 +323,7 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
 
             {/* Works List */}
             <div>
-              <div className="flex items-center justify-between mb-8 px-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 px-4 gap-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-indigo-100">
                     <i className="fa-solid fa-book-bookmark text-sm"></i>
@@ -185,12 +333,31 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
                     <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Hiện có {authorBooks.length} cuốn trên giá sách DigiBook</p>
                   </div>
                 </div>
+
+                <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200/60 shadow-sm">
+                   <select 
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as any)}
+                    className="text-micro font-bold uppercase tracking-premium bg-transparent outline-none px-3 py-1.5 text-slate-600 cursor-pointer"
+                   >
+                     <option value="newest">Mới nhất</option>
+                     <option value="rating">Đánh giá cao</option>
+                     <option value="price-asc">Giá thấp đến cao</option>
+                     <option value="price-desc">Giá cao đến thấp</option>
+                   </select>
+                </div>
               </div>
 
-              {authorBooks.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-5 lg:gap-6 px-2 lg:px-0">
-                  {authorBooks.map(book => (
-                    <BookCard key={book.id} book={book} onAddToCart={onAddToCart} onQuickView={onQuickView} />
+              {sortedBooks.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-2 lg:px-0">
+                  {sortedBooks.map((book, index) => (
+                    <AuthorBookCard 
+                      key={book.id} 
+                      book={book} 
+                      onAddToCart={onAddToCart} 
+                      onQuickView={onQuickView}
+                      index={index}
+                    />
                   ))}
                 </div>
               ) : (
@@ -226,16 +393,22 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
                         {aiInsight}
                       </p>
                     </div>
-                    <div className="mt-6 pt-6 border-t border-white/5">
-                       <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-3">Các điểm nhấn sáng tạo:</p>
-                       <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                             <div className="w-1 h-1 rounded-full bg-emerald-500"></div>
-                             <span className="text-micro font-bold text-slate-300">Tư duy độc bản & đột phá</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                             <div className="w-1 h-1 rounded-full bg-emerald-500"></div>
-                             <span className="text-micro font-bold text-slate-300">Kết nối cảm xúc mạnh mẽ</span>
+                    <div className="mt-6 pt-6 border-t border-white/5 space-y-4">
+                       <div>
+                          <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-3">Điểm nhấn sáng tạo:</p>
+                          <div className="grid grid-cols-1 gap-2">
+                             <div className="flex items-center gap-3 p-2 rounded-xl bg-white/5 border border-white/5">
+                                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                                   <i className="fa-solid fa-bolt text-emerald-400 text-xs"></i>
+                                </div>
+                                <span className="text-xs font-bold text-slate-300">Tư duy độc bản & đột phá</span>
+                             </div>
+                             <div className="flex items-center gap-3 p-2 rounded-xl bg-white/5 border border-white/5">
+                                <div className="w-8 h-8 rounded-lg bg-rose-500/20 flex items-center justify-center">
+                                   <i className="fa-solid fa-heart-pulse text-rose-400 text-xs"></i>
+                                </div>
+                                <span className="text-xs font-bold text-slate-300">Kết nối cảm xúc mạnh mẽ</span>
+                             </div>
                           </div>
                        </div>
                     </div>
