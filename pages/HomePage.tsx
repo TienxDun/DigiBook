@@ -16,30 +16,6 @@ interface HomePageProps {
 
 const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }) => {
   const { user, wishlist } = useAuth();
-  const [aiRecs, setAiRecs] = useState<string>('');
-  const [isAiLoading, setIsAiLoading] = useState(false);
-
-  useEffect(() => {
-    const fetchAiRecs = async () => {
-      if (!allBooks.length || aiRecs) return;
-      
-      setIsAiLoading(true);
-      try {
-        const prompt = user 
-          ? `Người dùng ${user.name} thích các sách: ${wishlist.map(b => b.title).join(', ')}. Hãy gợi ý 3 chủ đề sách họ nên đọc tiếp theo bằng tiếng Việt, ngắn gọn trong 1 câu.`
-          : `Gợi ý 3 chủ đề sách đang là xu hướng năm 2026 cho độc giả mới tại DigiBook, bằng tiếng Việt, ngắn gọn trong 1 câu.`;
-        
-        const response = await db.getAIInsights(allBooks[0], prompt);
-        setAiRecs(response);
-      } catch (err) {
-        console.error("AI Recs error:", err);
-      } finally {
-        setIsAiLoading(false);
-      }
-    };
-
-    fetchAiRecs();
-  }, [user, wishlist, allBooks, aiRecs]);
 
   return (
     <div className="space-y-0">
@@ -225,57 +201,7 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }
               />
             </div>
 
-            {/* AI Personalization (Bento Small) */}
-            <div className="md:col-span-2 bg-indigo-50 rounded-[2.5rem] p-8 relative overflow-hidden group">
-              <div className="relative z-10 flex flex-col h-full">
-                <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white mb-4 shadow-lg shadow-indigo-100 italic font-display text-xl">AI</div>
-                <h4 className="text-xl font-display font-extrabold text-slate-900 mb-2">Gợi ý dành riêng cho {user ? user.name.split(' ')[0] : 'bạn'}</h4>
-                
-                <div className="flex-grow flex items-center">
-                  <AnimatePresence mode="wait">
-                    {isAiLoading ? (
-                      <motion.div 
-                        key="loading"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="flex items-center gap-3 py-4"
-                      >
-                        <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                        <p className="text-[11px] font-bold text-indigo-400 uppercase tracking-premium">Đang phân tích sở thích...</p>
-                      </motion.div>
-                    ) : aiRecs ? (
-                      <motion.div
-                        key="recs"
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="py-2"
-                      >
-                        <div className="relative p-4 bg-white/80 backdrop-blur-md rounded-2xl border border-indigo-100 shadow-sm">
-                          <i className="fa-solid fa-quote-left absolute -top-2 -left-2 text-indigo-200 text-xl"></i>
-                          <p className="text-sm font-medium text-slate-700 leading-relaxed italic line-clamp-2">"{aiRecs}"</p>
-                        </div>
-                      </motion.div>
-                    ) : (
-                      <p className="text-slate-500 text-xs font-medium max-w-[240px]">Dựa trên sở thích đọc sách của bạn để tìm ra cuốn sách tiếp theo.</p>
-                    )}
-                  </AnimatePresence>
-                </div>
 
-                <div className="mt-4 flex items-center justify-between">
-                  <div className="flex -space-x-2">
-                    {allBooks.slice(0, 3).map((b, i) => (
-                      <img key={i} src={b.cover} className="w-8 h-12 object-cover rounded shadow-md border border-white" />
-                    ))}
-                    <div className="w-8 h-12 bg-white rounded flex items-center justify-center text-[10px] font-bold text-indigo-600 shadow-md border border-white">+{allBooks.length > 5 ? '5' : '2'}</div>
-                  </div>
-                  <Link to="/wishlist" className="text-micro font-bold text-indigo-600 uppercase tracking-premium hover:underline">
-                    Xem Wishlist <i className="fa-solid fa-arrow-right ml-1"></i>
-                  </Link>
-                </div>
-              </div>
-              <div className="absolute right-0 bottom-0 w-32 h-32 bg-indigo-200/20 blur-3xl rounded-full"></div>
-            </div>
 
             {/* Category Spotlight (Bento Small) */}
             <div className="md:col-span-1 bg-amber-50 rounded-[2.5rem] p-8 relative overflow-hidden group cursor-pointer">

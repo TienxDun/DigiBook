@@ -2,10 +2,7 @@
 
 You are an expert AI developer working on **DigiBook**, a modern bookstore application built with **React 19**, **Vite**, **Firebase (Firestore/Auth)**, and **Tailwind CSS**.
 
-## 🌐 Communication & Workflow
 
-- **Language**: Always respond to the user in **Vietnamese**.
-- **Execution**: For any task, first create a structured **TODO list** and execute it step-by-step. Use the `manage_todo_list` tool to track progress.
 
 ## 🏗️ Architecture & Service Boundaries
 
@@ -42,3 +39,7 @@ You are an expert AI developer working on **DigiBook**, a modern bookstore appli
 - **Hardcoded Emails**: Do NOT hardcode admin emails. Use `user.role === 'admin'` check instead.
 - **Firestore Persistence**: If you encounter `BloomFilterError`, clear IndexedDB persistence using `db.clearPersistence()` (exposed via `firebase.ts`).
 - **Null Checks**: Always check `db_fs` and `auth` availability from `services/firebase.ts` before use, as initialization might fail due to missing environment variables.
+## 🌐 Communication & Workflow
+
+- **Language**: Always respond to the user in **Vietnamese**.
+- **Execution**: For any task, first create a structured **TODO list** and execute it step-by-step. Use the `manage_todo_list` tool to track progress.
