@@ -7,6 +7,7 @@ import BookCard from '../components/BookCard';
 import Pagination from '../components/Pagination';
 import { Book, CategoryInfo } from '../types';
 import { BookCardSkeleton } from '../components/Skeleton';
+import SEO from '../components/SEO';
 
 interface CategoryPageProps {
   onAddToCart: (book: Book) => void;
@@ -88,6 +89,11 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-20 fade-in" ref={topRef}>
+      <SEO 
+        title={categoryName}
+        description={`Khám phá danh mục ${categoryName} tại DigiBook. ${currentCategory.description}`}
+        url={`/category/${categoryName}`}
+      />
       {isPromotionPage ? (
         <section className="bg-indigo-600 pt-28 pb-16 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-1/2 h-full bg-white/5 skew-x-12 translate-x-20"></div>

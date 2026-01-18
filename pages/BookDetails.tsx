@@ -6,6 +6,7 @@ import { useAuth } from '../AuthContext';
 import { db, Review } from '../services/db';
 import { AVAILABLE_AI_MODELS } from '../constants/ai-models';
 import BookCard from '../components/BookCard';
+import SEO from '../components/SEO';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -108,8 +109,44 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book, quantity?: number) => vo
     setLoadingAI(false);
   };
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Book",
+    "name": book.title,
+    "image": book.cover,
+    "description": book.description,
+    "isbn": book.isbn,
+    "author": {
+      "@type": "Person",
+      "name": book.author
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": book.price,
+      "priceCurrency": "VND",
+      "availability": "https://schema.org/InStock",
+      "url": `https://tienxdun.github.io/DigiBook/#/book/${book.id}`
+    },
+    "aggregateRating": reviews.length > 0 ? {
+      "@type": "AggregateRating",
+      "ratingValue": (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1),
+      "reviewCount": reviews.length
+    } : undefined
+  };
+
   return (
     <div className="bg-slate-50 min-h-screen">
+      <SEO 
+        title={book.title}
+        description={book.description.substring(0, 160) + '...'}
+        image={book.cover}
+        url={`/book/${book.id}`}
+        type="book"
+        author={book.author}
+      />
+      <script type="application/ld+json">
+        {JSON.stringify(jsonLd)}
+      </script>
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-[500px] bg-indigo-600 -z-10 opacity-[0.03] pointer-events-none"></div>
 

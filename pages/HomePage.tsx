@@ -7,6 +7,7 @@ import { db } from '../services/db';
 import { useAuth } from '../AuthContext';
 import BookCard from '../components/BookCard';
 import { BookCardSkeleton } from '../components/Skeleton';
+import SEO from '../components/SEO';
 
 interface HomePageProps {
   onAddToCart: (book: Book) => void;
@@ -19,6 +20,11 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }
 
   return (
     <div className="space-y-0 fade-in">
+      <SEO 
+        title="Trang chủ" 
+        description="Chào mừng bạn đến với DigiBook - Nhà sách trực tuyến hiện đại nhất Việt Nam. Khám phá kho sách khổng lồ và công nghệ AI phân tích sách."
+        url="/"
+      />
       {/* Hero Section */}
       <section className="relative min-h-[50vh] lg:min-h-[60vh] flex items-center overflow-hidden bg-white mt-[-80px] lg:mt-[-80px]">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-slate-50 -skew-x-12 translate-x-32 hidden lg:block"></div>
