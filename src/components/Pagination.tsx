@@ -50,7 +50,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-slate-400 hover:bg-white hover:text-indigo-600 hover:shadow-md hover:ring-1 hover:ring-slate-200 transition-all disabled:opacity-20 disabled:cursor-not-allowed group"
           aria-label="Previous page"
         >
-          <i className="fa-solid fa-chevron-left text-[10px] group-hover:-translate-x-0.5 transition-transform"></i>
+          <i className="fa-solid fa-chevron-left text-xs group-hover:-translate-x-0.5 transition-transform"></i>
         </button>
 
         <div className="flex items-center gap-1">
@@ -81,7 +81,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-slate-400 hover:bg-white hover:text-indigo-600 hover:shadow-md hover:ring-1 hover:ring-slate-200 transition-all disabled:opacity-20 disabled:cursor-not-allowed group"
           aria-label="Next page"
         >
-          <i className="fa-solid fa-chevron-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
+          <i className="fa-solid fa-chevron-right text-xs group-hover:translate-x-0.5 transition-transform"></i>
         </button>
       </div>
       
@@ -90,3 +90,4 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
 };
 
 export default Pagination;
+

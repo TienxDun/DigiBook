@@ -219,7 +219,7 @@ const App: React.FC = () => {
     toast.success(
       <div className="flex flex-col gap-1">
         <p>Đã thêm vào giỏ hàng!</p>
-        <p className="text-[11px] font-normal text-slate-500 line-clamp-1">{book.title}</p>
+        <p className="text-xs font-normal text-slate-500 line-clamp-1">{book.title}</p>
       </div>
     );
     
@@ -262,7 +262,7 @@ const App: React.FC = () => {
             color: '#0f172a',
             padding: '16px 24px',
             borderRadius: '24px',
-            fontSize: '14px',
+            fontSize: '15px',
             fontWeight: '600',
             boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
             border: '1px solid #f1f5f9',
@@ -286,3 +286,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+

@@ -134,7 +134,7 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
                   : `${isMidnight ? 'border-slate-700 group-hover:border-indigo-500/50' : 'border-slate-300 group-hover:border-indigo-400'}`
                 }`}
               >
-                {selectedAuthors.length === authors.length && authors.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
+                {selectedAuthors.length === authors.length && authors.length > 0 && <i className="fa-solid fa-check text-xs"></i>}
               </div>
               <span className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-400' : 'text-slate-600'}`}>Chọn tất cả ({authors.length})</span>
             </label>
@@ -178,7 +178,7 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
                     : `${isMidnight ? 'border-slate-700 bg-slate-900 shadow-inner' : 'border-slate-300 bg-white shadow-inner'}`
                   }`}
                 >
-                  {selectedAuthors.length === authors.length && authors.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
+                  {selectedAuthors.length === authors.length && authors.length > 0 && <i className="fa-solid fa-check text-xs"></i>}
                 </div>
               </th>
               <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium">Thông tin tác giả</th>
@@ -202,7 +202,7 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
                       : `${isMidnight ? 'border-slate-700 bg-slate-900' : 'border-slate-300 bg-white group-hover:border-indigo-400 shadow-inner'}`
                     }`}
                   >
-                    {selectedAuthors.includes(author.id) && <i className="fa-solid fa-check text-[10px]"></i>}
+                    {selectedAuthors.includes(author.id) && <i className="fa-solid fa-check text-xs"></i>}
                   </div>
                 </td>
                 <td className="p-6">
@@ -372,3 +372,4 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
 };
 
 export default AdminAuthors;
+

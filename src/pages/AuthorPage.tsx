@@ -41,7 +41,7 @@ const AuthorBookCard: React.FC<{
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
           
           {book.badge && (
-            <div className="absolute top-2 left-2 px-2 py-0.5 bg-indigo-600 text-[9px] font-bold text-white uppercase rounded-md shadow-lg">
+            <div className="absolute top-2 left-2 px-2 py-0.5 bg-indigo-600 text-xs font-bold text-white uppercase rounded-md shadow-lg">
               {book.badge}
             </div>
           )}
@@ -69,12 +69,12 @@ const AuthorBookCard: React.FC<{
 
             <div className="flex flex-wrap gap-3 mb-2">
               <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 rounded-lg border border-slate-100">
-                <i className="fa-solid fa-layer-group text-[10px] text-slate-400"></i>
-                <span className="text-[10px] font-bold text-slate-600">{book.pages} trang</span>
+                <i className="fa-solid fa-layer-group text-xs text-slate-400"></i>
+                <span className="text-xs font-bold text-slate-600">{book.pages} trang</span>
               </div>
               <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 rounded-lg border border-slate-100">
-                <i className="fa-solid fa-calendar text-[10px] text-slate-400"></i>
-                <span className="text-[10px] font-bold text-slate-600">{book.publishYear}</span>
+                <i className="fa-solid fa-calendar text-xs text-slate-400"></i>
+                <span className="text-xs font-bold text-slate-600">{book.publishYear}</span>
               </div>
             </div>
           </div>
@@ -82,7 +82,7 @@ const AuthorBookCard: React.FC<{
           <div className="flex items-center justify-between pt-3 border-t border-slate-50">
             <div className="flex flex-col">
               {book.originalPrice && (
-                <span className="text-[10px] text-slate-400 line-through leading-none mb-1">
+                <span className="text-xs text-slate-400 line-through leading-none mb-1">
                   {formatPrice(book.originalPrice)}
                 </span>
               )}
@@ -105,7 +105,7 @@ const AuthorBookCard: React.FC<{
               >
                 {book.stockQuantity > 0 ? (
                   <>
-                    <i className="fa-solid fa-cart-plus text-[10px]"></i>
+                    <i className="fa-solid fa-cart-plus text-xs"></i>
                     Thêm
                   </>
                 ) : 'Hết hàng'}
@@ -230,9 +230,9 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 mb-8 text-micro font-bold uppercase tracking-premium text-slate-400">
           <Link to="/" className="hover:text-indigo-600 transition-colors">Trang chủ</Link>
-          <i className="fa-solid fa-chevron-right text-[8px] opacity-50"></i>
+          <i className="fa-solid fa-chevron-right text-xs opacity-50"></i>
           <Link to="/authors" className="hover:text-indigo-600 transition-colors">Tác giả</Link>
-          <i className="fa-solid fa-chevron-right text-[8px] opacity-50"></i>
+          <i className="fa-solid fa-chevron-right text-xs opacity-50"></i>
           <span className="text-slate-900">{authorName}</span>
         </nav>
 
@@ -456,3 +456,4 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
 };
 
 export default AuthorPage;
+

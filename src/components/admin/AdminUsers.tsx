@@ -142,7 +142,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
               placeholder="Tìm theo tên, email, SĐT..."
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-              className={`pl-10 pr-4 py-2.5 rounded-2xl text-[11px] font-bold w-full outline-none transition-all ${
+              className={`pl-10 pr-4 py-2.5 rounded-2xl text-xs font-bold w-full outline-none transition-all ${
                 isMidnight 
                 ? 'bg-white/5 border-white/5 text-white focus:border-indigo-500 focus:bg-white/10' 
                 : 'bg-slate-50 border-none focus:ring-4 ring-indigo-50 focus:bg-white'
@@ -203,7 +203,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
                 <td className="px-8 py-6">
                   <div className="space-y-1.5">
                     <p className={`text-micro font-bold flex items-center gap-2 ${isMidnight ? 'text-slate-300' : 'text-slate-700'}`}>
-                      <i className="fa-solid fa-phone text-indigo-400 text-[10px]"></i>
+                      <i className="fa-solid fa-phone text-indigo-400 text-xs"></i>
                       {user.phone || 'Chưa có SĐT'}
                     </p>
                     <p className={`text-micro font-medium flex items-start gap-2 max-w-[180px] ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>
@@ -246,7 +246,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
                       : (isMidnight ? 'bg-slate-500/10 text-slate-400 border border-slate-500/20 hover:text-white' : 'bg-slate-100 text-slate-500')
                     }`}
                   >
-                    <i className={user.role === 'admin' ? "fa-solid fa-shield-halved text-[10px]" : "fa-solid fa-user text-[10px]"}></i>
+                    <i className={user.role === 'admin' ? "fa-solid fa-shield-halved text-xs" : "fa-solid fa-user text-xs"}></i>
                     {user.role === 'admin' ? 'Quản trị' : 'Khách'}
                   </button>
                 </td>
@@ -260,7 +260,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
                       <span className={`w-1.5 h-1.5 rounded-full ${ (user.status || 'active') === 'active' ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`}></span>
                       {(user.status || 'active') === 'active' ? 'Hoạt động' : 'Đã khóa'}
                     </span>
-                    <span className={`text-[9px] font-bold uppercase tracking-wider ${isMidnight ? 'text-slate-600' : 'text-slate-300'}`}>
+                    <span className={`text-xs font-bold uppercase tracking-wider ${isMidnight ? 'text-slate-600' : 'text-slate-300'}`}>
                       {user.updatedAt?.toDate ? user.updatedAt.toDate().toLocaleDateString('vi-VN') : ''}
                     </span>
                   </div>
@@ -326,3 +326,4 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
 };
 
 export default AdminUsers;
+

@@ -115,7 +115,7 @@ const MyOrdersPage: React.FC = () => {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
           >
-            <nav className="flex items-center gap-2 mb-3 text-[9px] font-bold uppercase tracking-[0.2em] text-slate-400">
+            <nav className="flex items-center gap-2 mb-3 text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
               <Link to="/" className="hover:text-indigo-600 transition-all">TRANG CHỦ</Link>
               <span className="opacity-20">/</span>
               <span className="text-indigo-600">ĐƠN HÀNG</span>
@@ -130,7 +130,7 @@ const MyOrdersPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-2xl shadow-sm border border-slate-100 w-full md:w-72"
           >
-            <i className="fa-solid fa-magnifying-glass text-[10px] text-slate-400"></i>
+            <i className="fa-solid fa-magnifying-glass text-xs text-slate-400"></i>
             <input 
               type="text" 
               placeholder="Tìm theo mã đơn..."
@@ -147,13 +147,13 @@ const MyOrdersPage: React.FC = () => {
             <button
               key={status.id}
               onClick={() => setActiveTab(status.id)}
-              className={`px-5 py-3 rounded-xl text-[10px] font-extrabold uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-2.5 ${
+              className={`px-5 py-3 rounded-xl text-xs font-extrabold uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-2.5 ${
                 activeTab === status.id 
                   ? 'bg-slate-900 text-white shadow-lg shadow-slate-200' 
                   : 'bg-white text-slate-400 border border-slate-100 hover:border-slate-200 hover:text-slate-600'
               }`}
             >
-              <i className={`fa-solid ${status.icon} text-[10px]`}></i>
+              <i className={`fa-solid ${status.icon} text-xs`}></i>
               {status.label}
             </button>
           ))}
@@ -198,7 +198,7 @@ const MyOrdersPage: React.FC = () => {
                       <div>
                         <div className="flex items-center gap-3 mb-1.5">
                           <h3 className="text-base font-bold text-slate-900 tracking-tight">#{order.id.slice(-8).toUpperCase()}</h3>
-                          <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest ${
+                          <span className={`px-2 py-0.5 rounded-md text-xs font-black uppercase tracking-widest ${
                             order.statusStep === -1 ? 'bg-rose-50 text-rose-600' :
                             order.statusStep >= 3 ? 'bg-emerald-50 text-emerald-600' :
                             'bg-indigo-50 text-indigo-600'
@@ -206,7 +206,7 @@ const MyOrdersPage: React.FC = () => {
                             {order.status}
                           </span>
                         </div>
-                        <div className="flex items-center gap-4 text-[10px] font-medium text-slate-400 uppercase tracking-wide">
+                        <div className="flex items-center gap-4 text-xs font-medium text-slate-400 uppercase tracking-wide">
                            <span className="flex items-center gap-1.5">
                              <i className="fa-regular fa-calendar"></i>
                              {new Date(order.date).toLocaleDateString('vi-VN')}
@@ -222,16 +222,16 @@ const MyOrdersPage: React.FC = () => {
 
                     <div className="flex items-center justify-between lg:justify-end gap-10 w-full lg:w-auto pt-5 lg:pt-0 border-t lg:border-t-0 border-slate-50">
                       <div className="flex flex-col lg:items-end">
-                         <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest mb-1">Tổng cộng</p>
+                         <p className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-1">Tổng cộng</p>
                          <p className="text-lg font-black text-slate-900 tracking-tight">{formatPrice(order.payment.total)}</p>
                       </div>
                       
                       <button 
                         onClick={() => navigate(`/my-orders/${order.id}`)}
-                        className="px-6 py-3.5 bg-slate-50 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all shadow-sm active:scale-95 flex items-center gap-2.5"
+                        className="px-6 py-3.5 bg-slate-50 text-slate-900 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all shadow-sm active:scale-95 flex items-center gap-2.5"
                       >
                          <span>Chi tiết</span>
-                         <i className="fa-solid fa-chevron-right text-[8px]"></i>
+                         <i className="fa-solid fa-chevron-right text-xs"></i>
                       </button>
                     </div>
                   </div>
@@ -252,7 +252,7 @@ const MyOrdersPage: React.FC = () => {
                 </p>
                 <Link 
                   to="/" 
-                  className="inline-flex items-center gap-3 px-10 py-5 bg-indigo-600 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] active:scale-95 transition-all shadow-2xl shadow-indigo-200 hover:bg-indigo-700"
+                  className="inline-flex items-center gap-3 px-10 py-5 bg-indigo-600 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs active:scale-95 transition-all shadow-2xl shadow-indigo-200 hover:bg-indigo-700"
                 >
                   <i className="fa-solid fa-shopping-bag"></i>
                   Khám phá cửa hàng
@@ -267,3 +267,4 @@ const MyOrdersPage: React.FC = () => {
 };
 
 export default MyOrdersPage;
+

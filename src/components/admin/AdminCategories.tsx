@@ -145,7 +145,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
                   : `${isMidnight ? 'border-slate-700' : 'border-slate-300'} group-hover:border-indigo-400`
                 }`}
               >
-                {selectedCategories.length === categories.length && categories.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
+                {selectedCategories.length === categories.length && categories.length > 0 && <i className="fa-solid fa-check text-xs"></i>}
               </div>
               <span className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-400' : 'text-slate-600'}`}>Chọn tất cả ({categories.length})</span>
             </label>
@@ -190,7 +190,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
                     : `${isMidnight ? 'border-slate-700 bg-slate-800/50' : 'border-slate-300 bg-white shadow-inner'}`
                   }`}
                 >
-                  {selectedCategories.length === categories.length && categories.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
+                  {selectedCategories.length === categories.length && categories.length > 0 && <i className="fa-solid fa-check text-xs"></i>}
                 </div>
               </th>
               <th className={`p-6 text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-400' : 'text-slate-400'}`}>Danh mục</th>
@@ -214,7 +214,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
                       : `${isMidnight ? 'border-slate-700 bg-slate-800/50' : 'border-slate-300 bg-white shadow-inner'} group-hover:border-indigo-400`
                     }`}
                   >
-                    {selectedCategories.includes(category.name) && <i className="fa-solid fa-check text-[10px]"></i>}
+                    {selectedCategories.includes(category.name) && <i className="fa-solid fa-check text-xs"></i>}
                   </div>
                 </td>
                 <td className="p-6">
@@ -305,7 +305,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
                   <h2 className={`text-lg font-black uppercase tracking-tight ${isMidnight ? 'text-slate-100' : 'text-slate-900'}`}>
                     {editingCategory ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới'}
                   </h2>
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Phân loại kho tri thức DigiBook</p>
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-0.5">Phân loại kho tri thức DigiBook</p>
                 </div>
                 <button 
                   onClick={() => setIsCategoryModalOpen(false)} 
@@ -322,9 +322,9 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
                   <div className="max-w-2xl mx-auto space-y-6">
                     <div className="grid grid-cols-12 gap-5">
                       <div className="col-span-12">
-                        <label className={`text-[9px] font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>
+                        <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>
                           Tên hiển thị danh mục *
-                          {editingCategory && <span className="text-[8px] text-amber-500 ml-2 normal-case">(không thể thay đổi ID)</span>}
+                          {editingCategory && <span className="text-xs text-amber-500 ml-2 normal-case">(không thể thay đổi ID)</span>}
                         </label>
                         <input
                           type="text"
@@ -342,7 +342,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
                       </div>
                       
                       <div className="col-span-12">
-                        <label className={`text-[9px] font-black uppercase tracking-[0.2em] mb-4 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Biểu tượng đại diện (Icon) *</label>
+                        <label className={`text-xs font-black uppercase tracking-[0.2em] mb-4 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Biểu tượng đại diện (Icon) *</label>
                         <div className="grid grid-cols-6 sm:grid-cols-9 gap-3">
                           {AVAILABLE_ICONS.map(icon => (
                             <button
@@ -362,7 +362,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
                       </div>
                       
                       <div className="col-span-12">
-                        <label className={`text-[9px] font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Kế hoạch mô tả danh mục</label>
+                        <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Kế hoạch mô tả danh mục</label>
                         <textarea
                           value={categoryFormData.description || ''}
                           onChange={(e) => setCategoryFormData({...categoryFormData, description: e.target.value})}
@@ -383,7 +383,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
                 <div className={`px-8 py-5 flex items-center justify-between border-t ${isMidnight ? 'bg-white/5 border-white/10' : 'bg-slate-50/80 border-slate-100'}`}>
                   <div className="flex items-center gap-3">
                     <div className={`w-2.5 h-2.5 rounded-full animate-pulse ${isMidnight ? 'bg-emerald-500' : 'bg-emerald-400'}`}></div>
-                    <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${isMidnight ? 'text-slate-400' : 'text-slate-500'}`}>
+                    <span className={`text-xs font-black uppercase tracking-[0.2em] ${isMidnight ? 'text-slate-400' : 'text-slate-500'}`}>
                       Trình quản lý thực thể
                     </span>
                   </div>
@@ -392,7 +392,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
                     <button
                       type="button"
                       onClick={() => setIsCategoryModalOpen(false)}
-                      className={`px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${
+                      className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${
                         isMidnight 
                         ? 'bg-white/5 text-slate-400 hover:bg-white/10' 
                         : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 shadow-sm'
@@ -403,7 +403,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="px-8 py-3 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-black transition-all shadow-xl hover:shadow-none hover:translate-y-1 active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                      className="px-8 py-3 bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all shadow-xl hover:shadow-none hover:translate-y-1 active:scale-95 disabled:opacity-50 flex items-center gap-2"
                     >
                       {isSubmitting ? (
                         <i className="fas fa-spinner fa-spin"></i>
@@ -424,3 +424,4 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
 };
 
 export default AdminCategories;
+

@@ -240,9 +240,9 @@ const BookDetails: React.FC<{
           >
             <nav className="flex items-center gap-2 mb-6 text-xs font-bold uppercase tracking-premium text-slate-400">
               <Link to="/" className="hover:text-indigo-600 transition-all flex items-center gap-1">
-                <i className="fa-solid fa-house text-[10px]"></i> Trang chủ
+                <i className="fa-solid fa-house text-xs"></i> Trang chủ
               </Link>
-              <i className="fa-solid fa-chevron-right text-[8px] opacity-30"></i>
+              <i className="fa-solid fa-chevron-right text-xs opacity-30"></i>
               <Link to={`/category/${book.category}`} className="hover:text-indigo-600 transition-all">
                 {book.category}
               </Link>
@@ -295,12 +295,12 @@ const BookDetails: React.FC<{
                    {/* Badge Overlays */}
                    <div className="absolute top-6 left-6 flex flex-col gap-2">
                       {book.badge && (
-                        <span className="px-4 py-1.5 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg border border-white/20">
+                        <span className="px-4 py-1.5 bg-indigo-600 text-white text-xs font-black uppercase tracking-widest rounded-full shadow-lg border border-white/20">
                           {book.badge}
                         </span>
                       )}
                       {book.stockQuantity <= 5 && book.stockQuantity > 0 && (
-                        <span className="px-4 py-1.5 bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg border border-white/20">
+                        <span className="px-4 py-1.5 bg-amber-500 text-white text-xs font-black uppercase tracking-widest rounded-full shadow-lg border border-white/20">
                           Sắp hết hàng
                         </span>
                       )}
@@ -325,8 +325,8 @@ const BookDetails: React.FC<{
                         <div className={`w-9 h-9 mx-auto rounded-xl bg-slate-50 flex items-center justify-center mb-2 group-hover/prop:bg-white transition-colors border border-transparent group-hover/prop:border-slate-100`}>
                            <i className={`fa-solid ${p.i} text-slate-400 group-hover/prop:text-indigo-500 text-xs transition-colors`}></i>
                         </div>
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-tight mb-1">{p.l}</p>
-                        <p className="text-[12px] font-bold text-slate-800 leading-tight">{p.v}</p>
+                        <p className="text-xs font-black text-slate-400 uppercase tracking-tight mb-1">{p.l}</p>
+                        <p className="text-xs font-bold text-slate-800 leading-tight">{p.v}</p>
                      </div>
                    ))}
                 </div>
@@ -368,7 +368,7 @@ const BookDetails: React.FC<{
                   transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                   style={{ overflow: 'hidden' }}
                 >
-                  <div className="text-slate-600 text-[13px] lg:text-[14px] leading-relaxed font-medium whitespace-pre-line tracking-normal text-justify pr-1">
+                  <div className="text-slate-600 text-xs lg:text-[14px] leading-relaxed font-medium whitespace-pre-line tracking-normal text-justify pr-1">
                     <span className="text-4xl font-serif text-indigo-600/20 float-left mr-2 -mt-2 leading-none">“</span>
                     {book.description}
                   </div>
@@ -379,13 +379,13 @@ const BookDetails: React.FC<{
                 
                 <button 
                   onClick={() => setShowFullDescription(!showFullDescription)}
-                  className="mt-6 w-full py-4 rounded-2xl bg-slate-50 border border-slate-200/60 text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-500 group relative z-20 shadow-sm hover:shadow-indigo-200"
+                  className="mt-6 w-full py-4 rounded-2xl bg-slate-50 border border-slate-200/60 text-xs font-black text-indigo-600 uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-500 group relative z-20 shadow-sm hover:shadow-indigo-200"
                 >
                   <span className="relative">
                     {showFullDescription ? 'Thu gọn nội dung' : 'Khám phá toàn bộ chi tiết'} 
                   </span>
                   <div className={`w-5 h-5 rounded-full flex items-center justify-center bg-white shadow-sm group-hover:bg-white/20 transition-colors`}>
-                    <i className={`fa-solid fa-chevron-${showFullDescription ? 'up' : 'down'} text-[8px] transition-transform ${showFullDescription ? '' : 'animate-bounce'}`}></i>
+                    <i className={`fa-solid fa-chevron-${showFullDescription ? 'up' : 'down'} text-xs transition-transform ${showFullDescription ? '' : 'animate-bounce'}`}></i>
                   </div>
                 </button>
                 
@@ -398,7 +398,7 @@ const BookDetails: React.FC<{
                    >
                       <div className="flex items-center gap-2">
                          <i className="fa-solid fa-quote-right text-slate-100 text-2xl"></i>
-                         <p className="text-[10px] font-bold text-slate-400 italic">Bản quyền nội dung thuộc về DigiBook</p>
+                         <p className="text-xs font-bold text-slate-400 italic">Bản quyền nội dung thuộc về DigiBook</p>
                       </div>
                    </motion.div>
                 )}
@@ -445,8 +445,8 @@ const BookDetails: React.FC<{
                       {/* Category Badge */}
                       <div className="flex items-center justify-center w-full px-4 mb-8">
                          <div className="flex items-center gap-2 bg-white px-4 py-1.5 rounded-full shadow-sm border border-slate-100 max-w-full group/badge transition-all hover:border-indigo-100">
-                            <i className="fa-solid fa-award text-[10px] text-indigo-500/50 group-hover/badge:text-indigo-500 transition-colors"></i>
-                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest truncate">
+                            <i className="fa-solid fa-award text-xs text-indigo-500/50 group-hover/badge:text-indigo-500 transition-colors"></i>
+                            <p className="text-xs font-black text-slate-400 uppercase tracking-widest truncate">
                                <span className="opacity-70">Chuyên gia</span> 
                                <span className="mx-1 text-slate-300">|</span>
                                <span className="text-indigo-600">{book.category}</span>
@@ -456,14 +456,14 @@ const BookDetails: React.FC<{
                       
                       <div className="relative max-w-[320px] w-full px-4">
                          <i className="fa-solid fa-quote-left absolute -top-4 -left-0 text-indigo-400/20 text-3xl"></i>
-                         <p className="text-[13px] text-slate-500 font-bold leading-relaxed line-clamp-4 italic mb-10 relative z-10 text-center">
+                         <p className="text-xs text-slate-500 font-bold leading-relaxed line-clamp-4 italic mb-10 relative z-10 text-center">
                             {book.authorBio || authorInfo?.bio || "Tác giả có nhiều đóng góp quan trọng trong lĩnh vực literary arts với những tác phẩm mang đậm phong cách cá nhân và giá trị nhân văn sâu sắc."}
                          </p>
                       </div>
 
                       <Link 
                         to={`/author/${book.author}`}
-                        className="mt-auto w-fit px-8 py-4 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] border border-slate-200 shadow-sm hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all flex items-center gap-3 group whitespace-nowrap"
+                        className="mt-auto w-fit px-8 py-4 bg-white text-slate-900 rounded-2xl text-xs font-black uppercase tracking-[0.15em] border border-slate-200 shadow-sm hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all flex items-center gap-3 group whitespace-nowrap"
                       >
                          <span>Xem hồ sơ tác giả</span>
                          <i className="fa-solid fa-arrow-right-long group-hover:translate-x-1.5 transition-transform"></i>
@@ -493,26 +493,26 @@ const BookDetails: React.FC<{
                        {book.originalPrice && (
                          <div className="flex flex-col mb-0.5">
                             <span className="text-sm font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-lg line-through leading-none mb-1 opacity-70 italic whitespace-nowrap">{formatPrice(book.originalPrice)}</span>
-                            <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest leading-none">- {Math.round(((book.originalPrice - book.price) / book.originalPrice) * 100)}% Giảm giá</span>
+                            <span className="text-xs font-black text-rose-600 uppercase tracking-widest leading-none">- {Math.round(((book.originalPrice - book.price) / book.originalPrice) * 100)}% Giảm giá</span>
                          </div>
                        )}
                     </div>
-                    <div className="flex items-center gap-2 text-emerald-600 font-bold text-[11px] uppercase tracking-widest bg-emerald-50 w-fit px-3 py-1.5 rounded-xl border border-emerald-100">
-                       <i className="fa-solid fa-truck-fast text-[10px]"></i>
+                    <div className="flex items-center gap-2 text-emerald-600 font-bold text-xs uppercase tracking-widest bg-emerald-50 w-fit px-3 py-1.5 rounded-xl border border-emerald-100">
+                       <i className="fa-solid fa-truck-fast text-xs"></i>
                        MIỄN PHÍ GIAO HÀNG
                     </div>
                  </div>
 
                  <div className="flex flex-col gap-4">
                     <div className="flex items-center gap-1 p-1 bg-slate-100/50 border border-slate-200/50 rounded-2xl w-fit">
-                       <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 h-10 rounded-xl hover:bg-white hover:shadow-sm transition-all flex items-center justify-center text-slate-500"><i className="fa-solid fa-minus text-[10px]"></i></button>
+                       <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 h-10 rounded-xl hover:bg-white hover:shadow-sm transition-all flex items-center justify-center text-slate-500"><i className="fa-solid fa-minus text-xs"></i></button>
                        <span className="w-10 text-center font-black text-slate-900 text-sm">{quantity}</span>
-                       <button onClick={() => setQuantity(quantity + 1)} className="w-10 h-10 rounded-xl hover:bg-white hover:shadow-sm transition-all flex items-center justify-center text-slate-500"><i className="fa-solid fa-plus text-[10px]"></i></button>
+                       <button onClick={() => setQuantity(quantity + 1)} className="w-10 h-10 rounded-xl hover:bg-white hover:shadow-sm transition-all flex items-center justify-center text-slate-500"><i className="fa-solid fa-plus text-xs"></i></button>
                     </div>
                     {book.stockQuantity > 0 ? (
-                       <p className="text-[11px] font-black text-slate-400 uppercase tracking-tight pl-1">Tình trạng: <span className="text-emerald-600">Còn {book.stockQuantity} cuốn</span></p>
+                       <p className="text-xs font-black text-slate-400 uppercase tracking-tight pl-1">Tình trạng: <span className="text-emerald-600">Còn {book.stockQuantity} cuốn</span></p>
                     ) : (
-                       <p className="text-[11px] font-black text-rose-500 uppercase tracking-tight pl-1">Tình trạng: Hết hàng</p>
+                       <p className="text-xs font-black text-rose-500 uppercase tracking-tight pl-1">Tình trạng: Hết hàng</p>
                     )}
                  </div>
               </div>
@@ -555,8 +555,8 @@ const BookDetails: React.FC<{
                        <i className={`fa-solid ${m.i} text-base`}></i>
                     </div>
                     <div className="w-full">
-                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">{m.l}</p>
-                       <p className="text-[13px] font-bold text-slate-800 line-clamp-2 leading-snug px-1 min-h-[40px] flex items-center justify-center">{m.v}</p>
+                       <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">{m.l}</p>
+                       <p className="text-xs font-bold text-slate-800 line-clamp-2 leading-snug px-1 min-h-[40px] flex items-center justify-center">{m.v}</p>
                     </div>
                  </motion.div>
                ))}
@@ -576,7 +576,7 @@ const BookDetails: React.FC<{
                            <h4 className="text-sm font-black text-white uppercase tracking-widest leading-none mb-1.5">AI Analysis</h4>
                            <div className="flex items-center gap-2">
                              <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping"></div>
-                             <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest">{activeModelName} active</span>
+                             <span className="text-xs font-bold text-indigo-300 uppercase tracking-widest">{activeModelName} active</span>
                            </div>
                         </div>
                      </div>
@@ -589,13 +589,13 @@ const BookDetails: React.FC<{
                             className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 h-full overflow-y-auto custom-scrollbar"
                           >
                              <i className="fa-solid fa-quote-left text-2xl text-indigo-500/30 mb-4 block"></i>
-                             <p className="text-[13px] text-indigo-50 font-medium leading-relaxed italic pr-2">
+                             <p className="text-xs text-indigo-50 font-medium leading-relaxed italic pr-2">
                                {aiInsight}
                              </p>
                           </motion.div>
                         ) : (
                           <div className="text-center py-4 bg-white/5 rounded-3xl border border-white/5 border-dashed">
-                             <p className="text-indigo-200/50 text-[11px] font-bold uppercase tracking-widest leading-relaxed mb-8 px-6">
+                             <p className="text-indigo-200/50 text-xs font-bold uppercase tracking-widest leading-relaxed mb-8 px-6">
                                Sử dụng trí tuệ nhân tạo để phân tích sâu sắc về nội dung và giá trị văn học.
                              </p>
                              <button 
@@ -633,9 +633,9 @@ const BookDetails: React.FC<{
                         <span className="text-3xl font-black text-amber-600 leading-none">{book.rating}</span>
                         <div className="flex flex-col">
                            <div className="flex gap-0.5 mb-0.5">
-                              {[1,2,3,4,5].map(s => <i key={s} className={`fa-solid fa-star text-[9px] ${s <= Math.floor(book.rating) ? 'text-amber-500' : 'text-amber-200'}`}></i>)}
+                              {[1,2,3,4,5].map(s => <i key={s} className={`fa-solid fa-star text-xs ${s <= Math.floor(book.rating) ? 'text-amber-500' : 'text-amber-200'}`}></i>)}
                            </div>
-                           <p className="text-[9px] font-black text-amber-600/60 uppercase tracking-tighter leading-none">Điểm trung bình</p>
+                           <p className="text-xs font-black text-amber-600/60 uppercase tracking-tighter leading-none">Điểm trung bình</p>
                         </div>
                      </div>
                    </div>
@@ -656,23 +656,23 @@ const BookDetails: React.FC<{
                                 <div className="flex-grow pt-0.5">
                                   <div className="flex justify-between items-start mb-2">
                                     <div className="flex flex-col">
-                                       <span className="text-[13px] font-black text-slate-900 uppercase tracking-tight">{r.userName}</span>
+                                       <span className="text-xs font-black text-slate-900 uppercase tracking-tight">{r.userName}</span>
                                        <div className="flex items-center gap-2 mt-0.5">
-                                          <span className={`text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 ${r.isPurchased ? 'text-emerald-600/70' : 'text-slate-400/70'}`}>
-                                             <i className={`fa-solid ${r.isPurchased ? 'fa-circle-check' : 'fa-circle-info'} text-[8px]`}></i>
+                                          <span className={`text-xs font-bold uppercase tracking-widest flex items-center gap-1 ${r.isPurchased ? 'text-emerald-600/70' : 'text-slate-400/70'}`}>
+                                             <i className={`fa-solid ${r.isPurchased ? 'fa-circle-check' : 'fa-circle-info'} text-xs`}></i>
                                              {r.isPurchased ? 'Đã mua hàng' : 'Chưa mua hàng'}
                                           </span>
-                                          <span className="text-[10px] text-slate-300">•</span>
-                                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">
+                                          <span className="text-xs text-slate-300">•</span>
+                                          <span className="text-xs font-bold text-slate-400 uppercase tracking-tight">
                                              {r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString('vi-VN') : 'Vừa xong'}
                                           </span>
                                        </div>
                                     </div>
                                     <div className="flex gap-0.5 bg-white px-2 py-1 rounded-lg border border-slate-100 shadow-sm">
-                                      {[...Array(5)].map((_, i) => <i key={i} className={`fa-solid fa-star text-[8px] ${i < r.rating ? 'text-amber-400' : 'text-slate-100'}`}></i>)}
+                                      {[...Array(5)].map((_, i) => <i key={i} className={`fa-solid fa-star text-xs ${i < r.rating ? 'text-amber-400' : 'text-slate-100'}`}></i>)}
                                     </div>
                                   </div>
-                                  <p className="text-[13px] text-slate-600 font-medium leading-relaxed italic pr-2 break-words">"{r.content}"</p>
+                                  <p className="text-xs text-slate-600 font-medium leading-relaxed italic pr-2 break-words">"{r.content}"</p>
                                 </div>
                               </div>
                             </motion.div>
@@ -682,7 +682,7 @@ const BookDetails: React.FC<{
                             <div className="w-20 h-20 bg-white rounded-[2.5rem] flex items-center justify-center text-slate-200 mb-6 shadow-inner">
                                <i className="fa-solid fa-message-sparkles text-3xl"></i>
                             </div>
-                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest text-center px-8">Chưa có đánh giá nào cho tác phẩm này. Hãy chia sẻ cảm nhận của bạn!</p>
+                            <p className="text-xs font-black text-slate-400 uppercase tracking-widest text-center px-8">Chưa có đánh giá nào cho tác phẩm này. Hãy chia sẻ cảm nhận của bạn!</p>
                           </div>
                         )}
                       </div>
@@ -690,7 +690,7 @@ const BookDetails: React.FC<{
                       {/* Add Review Action Control */}
                       <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-200/60">
                          <div className="flex items-center justify-between mb-4 px-2">
-                            <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Viết nhận xét của bạn</p>
+                            <p className="text-xs font-black text-slate-900 uppercase tracking-widest">Viết nhận xét của bạn</p>
                             <div className="flex gap-2">
                                {[1,2,3,4,5].map(s => (
                                  <button key={s} onClick={() => setNewRating(s)} className={`text-sm transition-all hover:scale-125 ${s <= newRating ? 'text-amber-400 drop-shadow-sm' : 'text-slate-200'}`}>
@@ -709,7 +709,7 @@ const BookDetails: React.FC<{
                             />
                             <button 
                               onClick={handleAddReview} 
-                              className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg active:scale-95"
+                              className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg active:scale-95"
                             >
                                Gửi
                             </button>
@@ -731,10 +731,10 @@ const BookDetails: React.FC<{
                 <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-2">Gợi ý dành riêng cho bạn</h2>
                 <div className="flex items-center gap-3">
                    <div className="w-1.5 h-1.5 bg-indigo-600 rounded-full"></div>
-                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Văn học thuộc chuyên mục {book.category}</p>
+                   <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Văn học thuộc chuyên mục {book.category}</p>
                 </div>
               </div>
-              <Link to={`/category/${book.category}`} className="w-fit px-8 py-4 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-slate-200 shadow-sm hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all flex items-center gap-3 group">
+              <Link to={`/category/${book.category}`} className="w-fit px-8 py-4 bg-white text-slate-900 rounded-2xl text-xs font-black uppercase tracking-widest border border-slate-200 shadow-sm hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all flex items-center gap-3 group">
                 Khám phá tất cả
                 <i className="fa-solid fa-arrow-right-long transition-transform group-hover:translate-x-2"></i>
               </Link>
@@ -796,7 +796,7 @@ const BookDetails: React.FC<{
                 <div className="flex items-center gap-2 mb-0.5">
                    <p className="text-slate-900 font-extrabold text-sm lg:text-base leading-tight truncate">{book.title}</p>
                    {book.originalPrice && (
-                     <span className="hidden lg:inline-flex px-1.5 py-0.5 bg-rose-500 text-white text-[9px] font-black rounded-md">
+                     <span className="hidden lg:inline-flex px-1.5 py-0.5 bg-rose-500 text-white text-xs font-black rounded-md">
                         -{Math.round((1 - book.price / book.originalPrice) * 100)}%
                      </span>
                    )}
@@ -814,14 +814,14 @@ const BookDetails: React.FC<{
                       onClick={() => setQuantity(Math.max(1, quantity - 1))} 
                       className="w-10 h-10 rounded-xl hover:bg-white hover:text-indigo-600 transition-all text-slate-400 active:scale-90"
                     >
-                      <i className="fa-solid fa-minus text-[10px]"></i>
+                      <i className="fa-solid fa-minus text-xs"></i>
                     </button>
                     <span className="w-8 text-center font-black text-slate-900 text-sm">{quantity}</span>
                     <button 
                       onClick={() => setQuantity(quantity + 1)} 
                       className="w-10 h-10 rounded-xl hover:bg-white hover:text-indigo-600 transition-all text-slate-400 active:scale-90"
                     >
-                      <i className="fa-solid fa-plus text-[10px]"></i>
+                      <i className="fa-solid fa-plus text-xs"></i>
                     </button>
                  </div>
 

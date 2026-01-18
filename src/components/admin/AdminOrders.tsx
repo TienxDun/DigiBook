@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { db, Order, OrderItem } from '../../services/db';
 import { ErrorHandler } from '../../services/errorHandler';
 import Pagination from '../Pagination';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface AdminOrdersProps {
   orders: Order[];
@@ -27,6 +28,18 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
   const [selectedOrder, setSelectedOrder] = useState<(Order & { items: OrderItem[] }) | null>(null);
   const [updatingOrderStatus, setUpdatingOrderStatus] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Lock scroll when modal is open
+  React.useEffect(() => {
+    if (isOrderModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOrderModalOpen]);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -169,7 +182,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                       ))}
                     </select>
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                      <i className={`fa-solid fa-chevron-down text-[8px] ${isMidnight ? 'text-white/20' : 'text-slate-400'}`}></i>
+                      <i className={`fa-solid fa-chevron-down text-xs ${isMidnight ? 'text-white/20' : 'text-slate-400'}`}></i>
                     </div>
                   </div>
                 </td>
@@ -222,183 +235,245 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
       </div>
 
       {/* Order Details Modal */}
-      {isOrderModalOpen && selectedOrder && (
-        <div className="fixed inset-0 z-[999] p-4 flex items-center justify-center">
-          <div className={`absolute inset-0 backdrop-blur-md ${isMidnight ? 'bg-black/60' : 'bg-slate-900/40'}`} onClick={() => setIsOrderModalOpen(false)}></div>
-          <div className={`rounded-[2.5rem] w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl relative z-10 animate-scaleIn border ${
-            isMidnight ? 'bg-[#1e1e2d] border-white/10' : 'bg-white border-white'
-          }`}>
-            <div className={`p-8 border-b flex justify-between items-center ${
-              isMidnight ? 'border-white/5 bg-white/5' : 'border-slate-100 bg-slate-50/50'
-            }`}>
-              <div>
-                <h3 className={`text-xl font-extrabold uppercase tracking-tight ${isMidnight ? 'text-white' : 'text-slate-900'}`}>Chi tiết đơn hàng #{selectedOrder.id.slice(-8)}</h3>
-                <p className={`text-micro font-bold uppercase tracking-premium mt-1 ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>
-                  Ngày đặt: {selectedOrder.createdAt?.toDate ? selectedOrder.createdAt.toDate().toLocaleString('vi-VN') : selectedOrder.date}
-                </p>
+      <AnimatePresence>
+        {isOrderModalOpen && selectedOrder && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6"
+          >
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 30 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+              onClick={() => setIsOrderModalOpen(false)}
+            />
+
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className={`${
+                isMidnight 
+                  ? 'bg-[#1e293b] border-white/10 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.7)]' 
+                  : 'bg-white border-slate-200 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.1)]'
+              } w-full max-w-[1000px] max-h-[85vh] overflow-hidden flex flex-col border relative z-10 rounded-[2.5rem]`}
+            >
+              {/* Header */}
+              <div className={`px-8 py-5 flex items-center justify-between border-b ${isMidnight ? 'border-white/5' : 'border-slate-100'}`}>
+                <div>
+                  <h2 className={`text-lg font-black uppercase tracking-tight ${isMidnight ? 'text-slate-100' : 'text-slate-900'}`}>
+                    Thông tin đơn hàng #{selectedOrder.id.slice(-8)}
+                  </h2>
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-0.5">
+                    Khởi tạo lúc: {selectedOrder.createdAt?.toDate ? selectedOrder.createdAt.toDate().toLocaleString('vi-VN') : selectedOrder.date}
+                  </p>
+                </div>
+                <button 
+                  onClick={() => setIsOrderModalOpen(false)} 
+                  className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
+                    isMidnight ? 'text-slate-500 hover:bg-white/5' : 'text-slate-400 hover:bg-slate-50'
+                  }`}
+                >
+                  <i className="fa-solid fa-xmark"></i>
+                </button>
               </div>
-              <button 
-                onClick={() => setIsOrderModalOpen(false)} 
-                className={`w-12 h-12 flex items-center justify-center rounded-2xl transition-all shadow-sm ${
-                  isMidnight ? 'bg-white/5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10' : 'bg-white text-slate-400 hover:text-rose-500'
-                }`}
-              >
-                <i className="fa-solid fa-times text-xl"></i>
-              </button>
-            </div>
-            
-            <div className="p-8 overflow-y-auto max-h-[calc(90vh-180px)] custom-scrollbar">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                {/* Customer Info */}
-                <div className={`p-6 rounded-3xl border ${
-                  isMidnight ? 'bg-indigo-500/5 border-indigo-500/10' : 'bg-indigo-50/50 border-indigo-100/50'
-                }`}>
-                  <h4 className={`text-micro font-extrabold uppercase tracking-widest mb-4 flex items-center gap-2 ${isMidnight ? 'text-indigo-400' : 'text-indigo-600'}`}>
-                    <i className="fa-solid fa-user"></i> Thông tin khách hàng
-                  </h4>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-500'}`}>Họ tên:</span>
-                      <span className={`text-sm font-extrabold ${isMidnight ? 'text-slate-200' : 'text-slate-900'}`}>{selectedOrder.customer.name}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-500'}`}>Số điện thoại:</span>
-                      <span className={`text-sm font-extrabold ${isMidnight ? 'text-slate-200' : 'text-slate-900'}`}>{selectedOrder.customer.phone}</span>
-                    </div>
-                    <div className="flex items-start justify-between gap-4">
-                      <span className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-500'} whitespace-nowrap`}>Địa chỉ:</span>
-                      <span className={`text-sm font-extrabold text-right leading-relaxed ${isMidnight ? 'text-slate-200' : 'text-slate-900'}`}>{selectedOrder.customer.address}</span>
-                    </div>
-                    {selectedOrder.customer.note && (
-                      <div className={`pt-3 border-t ${isMidnight ? 'border-indigo-500/10' : 'border-indigo-100'}`}>
-                        <span className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-500'}`}>Ghi chú:</span>
-                        <p className={`text-xs font-bold mt-1 ${isMidnight ? 'text-indigo-400' : 'text-indigo-600'}`}>"{selectedOrder.customer.note}"</p>
+              
+              <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                <div className="max-w-4xl mx-auto space-y-8">
+                  <div className="grid grid-cols-12 gap-6">
+                    {/* Customer Info Card */}
+                    <div className="col-span-12 md:col-span-6">
+                      <div className={`p-6 rounded-[2rem] border h-full ${
+                        isMidnight ? 'bg-white/5 border-white/5' : 'bg-slate-50 border-slate-100'
+                      }`}>
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs ${isMidnight ? 'bg-indigo-500/10 text-indigo-400' : 'bg-indigo-100 text-indigo-600'}`}>
+                            <i className="fa-solid fa-user"></i>
+                          </div>
+                          <h4 className={`text-xs font-black uppercase tracking-widest ${isMidnight ? 'text-slate-300' : 'text-slate-900'}`}>Người mua hàng</h4>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between group">
+                            <span className="text-xs font-black uppercase tracking-widest text-slate-500">Họ và tên</span>
+                            <span className={`text-sm font-black ${isMidnight ? 'text-white' : 'text-slate-900'}`}>{selectedOrder.customer.name}</span>
+                          </div>
+                          <div className="flex items-center justify-between group">
+                            <span className="text-xs font-black uppercase tracking-widest text-slate-500">Số điện thoại</span>
+                            <span className={`text-sm font-black ${isMidnight ? 'text-indigo-400' : 'text-indigo-600'}`}>{selectedOrder.customer.phone}</span>
+                          </div>
+                          <div className="flex flex-col gap-1.5 pt-2 border-t border-dashed border-slate-200">
+                            <span className="text-xs font-black uppercase tracking-widest text-slate-500">Địa chỉ nhận hàng</span>
+                            <span className={`text-xs font-bold leading-relaxed ${isMidnight ? 'text-slate-400' : 'text-slate-700'}`}>{selectedOrder.customer.address}</span>
+                          </div>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </div>
+                    </div>
 
-                {/* Payment Info */}
-                <div className={`p-6 rounded-3xl border ${
-                  isMidnight ? 'bg-emerald-500/5 border-emerald-500/10' : 'bg-emerald-50/50 border-emerald-100/50'
-                }`}>
-                  <h4 className={`text-micro font-extrabold uppercase tracking-widest mb-4 flex items-center gap-2 ${isMidnight ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                    <i className="fa-solid fa-credit-card"></i> Thanh toán
-                  </h4>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-500'}`}>Phương thức:</span>
-                      <span className={`text-sm font-extrabold ${isMidnight ? 'text-slate-200' : 'text-slate-900'}`}>{selectedOrder.payment.method}</span>
+                    {/* Payment Info Card */}
+                    <div className="col-span-12 md:col-span-6">
+                      <div className={`p-6 rounded-[2rem] border h-full ${
+                        isMidnight ? 'bg-white/5 border-white/5' : 'bg-slate-50 border-slate-100'
+                      }`}>
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs ${isMidnight ? 'bg-emerald-500/10 text-emerald-400' : 'bg-emerald-100 text-emerald-600'}`}>
+                            <i className="fa-solid fa-credit-card"></i>
+                          </div>
+                          <h4 className={`text-xs font-black uppercase tracking-widest ${isMidnight ? 'text-slate-300' : 'text-slate-900'}`}>Thanh toán</h4>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-black uppercase tracking-widest text-slate-500">Phụ phí & Giảm giá</span>
+                            <div className="flex gap-2">
+                              {selectedOrder.payment.couponDiscount > 0 && (
+                                <span className="px-2 py-0.5 bg-rose-500/10 text-rose-500 rounded text-xs font-black uppercase tracking-widest">
+                                  Voucher
+                                </span>
+                              )}
+                              <span className={`px-2 py-0.5 ${isMidnight ? 'bg-white/5 text-slate-400' : 'bg-white text-slate-600 border border-slate-100'} rounded text-xs font-black uppercase tracking-widest`}>
+                                {selectedOrder.payment.method}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-black uppercase tracking-widest text-slate-500">Tạm tính</span>
+                            <span className={`text-xs font-bold ${isMidnight ? 'text-slate-300' : 'text-slate-700'}`}>{formatPrice(selectedOrder.payment.subtotal)}</span>
+                          </div>
+                          {selectedOrder.payment.couponDiscount > 0 && (
+                            <div className="flex items-center justify-between text-rose-500">
+                              <span className="text-xs font-black uppercase tracking-widest">Giảm giá mã quà tặng</span>
+                              <span className="text-xs font-black">-{formatPrice(selectedOrder.payment.couponDiscount)}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-black uppercase tracking-widest text-slate-500">Phí vận chuyển</span>
+                            <span className={`text-xs font-bold ${isMidnight ? 'text-slate-300' : 'text-slate-700'}`}>+{formatPrice(selectedOrder.payment.shipping)}</span>
+                          </div>
+                          <div className={`pt-3 mt-1 border-t flex items-center justify-between ${isMidnight ? 'border-white/10' : 'border-slate-200'}`}>
+                            <span className={`text-xs font-black uppercase tracking-[0.2em] ${isMidnight ? 'text-white' : 'text-slate-900'}`}>Tổng hóa đơn</span>
+                            <span className={`text-xl font-black ${isMidnight ? 'text-indigo-400' : 'text-indigo-600'}`}>{formatPrice(selectedOrder.payment.total)}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-500'}`}>Tạm tính:</span>
-                      <span className={`text-sm font-extrabold ${isMidnight ? 'text-slate-200' : 'text-slate-900'}`}>{formatPrice(selectedOrder.payment.subtotal)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-rose-500">
-                      <span className="text-micro font-bold uppercase tracking-premium">Giảm giá:</span>
-                      <span className="text-sm font-extrabold">-{formatPrice(selectedOrder.payment.couponDiscount)}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-500'}`}>Phí vận chuyển:</span>
-                      <span className={`text-sm font-extrabold ${isMidnight ? 'text-slate-200' : 'text-slate-900'}`}>{formatPrice(selectedOrder.payment.shipping)}</span>
-                    </div>
-                    <div className={`pt-3 border-t flex justify-between items-center ${isMidnight ? 'border-emerald-500/10' : 'border-emerald-100'}`}>
-                      <span className={`text-sm font-extrabold ${isMidnight ? 'text-white' : 'text-slate-900'}`}>Tổng cộng:</span>
-                      <span className={`text-xl font-black ${isMidnight ? 'text-emerald-400' : 'text-emerald-600'}`}>{formatPrice(selectedOrder.payment.total)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
-              {/* Order Items Table */}
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className={`text-micro font-extrabold uppercase tracking-widest ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>
-                    Sản phẩm ({selectedOrder.items.length})
-                  </h4>
-                  <span className={`text-micro font-extrabold uppercase tracking-widest px-3 py-1 rounded-full ${
-                    isMidnight ? 'bg-indigo-500/10 text-indigo-400' : 'bg-indigo-50 text-indigo-600'
-                  }`}>
-                    {selectedOrder.items.reduce((acc, item) => acc + item.quantity, 0)} cuốn
-                  </span>
-                </div>
-                <div className={`border rounded-3xl overflow-hidden ${isMidnight ? 'border-white/5' : 'border-slate-100'}`}>
-                  <div className="max-h-[350px] overflow-y-auto custom-scrollbar">
-                    <table className="w-full border-collapse">
-                      <thead className={`sticky top-0 z-10 shadow-sm ${isMidnight ? 'bg-[#2a2a3d]' : 'bg-slate-50'}`}>
-                        <tr>
-                          <th className={`px-6 py-4 text-micro font-extrabold uppercase tracking-widest ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Sản phẩm</th>
-                          <th className={`px-6 py-4 text-micro font-extrabold uppercase tracking-widest text-center ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Số lượng</th>
-                          <th className={`px-6 py-4 text-micro font-extrabold uppercase tracking-widest text-right ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Đơn giá</th>
-                          <th className={`px-6 py-4 text-micro font-extrabold uppercase tracking-widest text-right ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Thành tiền</th>
-                        </tr>
-                      </thead>
-                      <tbody className={`divide-y ${isMidnight ? 'divide-white/5 bg-white/[0.02]' : 'divide-slate-100 bg-white'}`}>
-                        {selectedOrder.items.map((item, index) => (
-                          <tr key={index} className={`transition-all ${isMidnight ? 'hover:bg-white/5' : 'hover:bg-slate-50/50'}`}>
-                            <td className="px-6 py-4">
-                              <div className="flex items-center gap-4">
-                                {item.cover ? (
-                                  <img src={item.cover} alt={item.title} className="w-10 h-14 object-cover rounded shadow-sm border border-white/10" />
-                                ) : (
-                                  <div className={`w-10 h-14 rounded flex items-center justify-center ${isMidnight ? 'bg-white/5 text-slate-700' : 'bg-slate-100 text-slate-300'}`}>
-                                    <i className="fa-solid fa-book"></i>
+                    {/* Order Items List */}
+                    <div className="col-span-12">
+                      <div className="flex items-center justify-between mb-4 px-2">
+                        <div className="flex items-center gap-2">
+                          <h4 className={`text-xs font-black uppercase tracking-widest ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Danh mục sản phẩm</h4>
+                          <span className={`px-2 py-0.5 rounded-lg text-xs font-black uppercase tracking-widest ${isMidnight ? 'bg-indigo-500/20 text-indigo-400' : 'bg-indigo-50 text-indigo-600'}`}>
+                            {selectedOrder.items.reduce((acc, item) => acc + item.quantity, 0)} sản phẩm
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className={`rounded-3xl border overflow-hidden ${isMidnight ? 'bg-white/[0.02] border-white/5' : 'bg-white border-slate-100 shadow-sm'}`}>
+                        <table className="w-full text-left border-collapse">
+                          <thead>
+                            <tr className={`${isMidnight ? 'bg-white/5' : 'bg-slate-50'} border-b ${isMidnight ? 'border-white/5' : 'border-slate-100'}`}>
+                              <th className="px-6 py-4 text-xs font-black uppercase tracking-[0.2em] text-slate-500">Sản phẩm</th>
+                              <th className="px-6 py-4 text-xs font-black uppercase tracking-[0.2em] text-slate-500 text-center">SL</th>
+                              <th className="px-6 py-4 text-xs font-black uppercase tracking-[0.2em] text-slate-500 text-right">Đơn giá</th>
+                              <th className="px-6 py-4 text-xs font-black uppercase tracking-[0.2em] text-slate-500 text-right">Thành tiền</th>
+                            </tr>
+                          </thead>
+                          <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-slate-100'}`}>
+                            {selectedOrder.items.map((item, index) => (
+                              <tr key={index} className={`group transition-all ${isMidnight ? 'hover:bg-white/5' : 'hover:bg-slate-50/50'}`}>
+                                <td className="px-6 py-4">
+                                  <div className="flex items-center gap-4">
+                                    <div className="w-12 h-16 rounded-xl overflow-hidden shadow-sm flex-shrink-0 group-hover:scale-105 transition-transform border border-slate-100">
+                                      {item.cover ? (
+                                        <img src={item.cover} alt={item.title} className="w-full h-full object-cover" />
+                                      ) : (
+                                        <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300">
+                                          <i className="fa-solid fa-book"></i>
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="min-w-0">
+                                      <p className={`text-xs font-black truncate max-w-[200px] mb-0.5 ${isMidnight ? 'text-slate-100' : 'text-slate-900'}`}>{item.title}</p>
+                                      <p className="text-xs font-black uppercase tracking-widest text-slate-400">#{item.bookId.slice(-6)}</p>
+                                    </div>
                                   </div>
-                                )}
-                                <div>
-                                  <p className={`text-sm font-extrabold line-clamp-1 ${isMidnight ? 'text-slate-200' : 'text-slate-900'}`}>{item.title}</p>
-                                  <p className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>ID: {item.bookId.slice(-6)}</p>
-                                </div>
-                              </div>
-                            </td>
-                            <td className={`px-6 py-4 text-center text-sm font-extrabold ${isMidnight ? 'text-slate-300' : 'text-slate-700'}`}>x{item.quantity}</td>
-                            <td className={`px-6 py-4 text-right text-sm font-bold ${isMidnight ? 'text-slate-500' : 'text-slate-500'}`}>{formatPrice(item.priceAtPurchase)}</td>
-                            <td className={`px-6 py-4 text-right text-sm font-extrabold ${isMidnight ? 'text-indigo-400' : 'text-indigo-600'}`}>{formatPrice(item.priceAtPurchase * item.quantity)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                  <span className={`text-xs font-black ${isMidnight ? 'text-slate-400' : 'text-slate-600'}`}>x{item.quantity}</span>
+                                </td>
+                                <td className="px-6 py-4 text-right">
+                                  <span className={`text-xs font-bold ${isMidnight ? 'text-slate-500' : 'text-slate-500'}`}>{formatPrice(item.priceAtPurchase)}</span>
+                                </td>
+                                <td className="px-6 py-4 text-right">
+                                  <span className={`text-xs font-black ${isMidnight ? 'text-indigo-400' : 'text-indigo-600'}`}>{formatPrice(item.priceAtPurchase * item.quantity)}</span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="p-8 border-t border-slate-100 bg-slate-50/50 flex flex-wrap items-center justify-between gap-6">
-              <div className="flex items-center gap-4">
-                <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Trạng thái đơn hàng:</span>
-                <div className="flex gap-2">
-                  {orderStatusOptions.map(status => (
-                    <button
-                      key={status.step}
-                      disabled={updatingOrderStatus}
-                      onClick={() => handleUpdateOrderStatus(selectedOrder.id, status.step)}
-                      className={`px-4 py-2 rounded-xl text-micro font-bold uppercase tracking-premium transition-all ${
-                        selectedOrder.statusStep === status.step
-                        ? (status.color === 'emerald' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100 ring-4 ring-emerald-50' :
-                           status.color === 'indigo' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 ring-4 ring-indigo-50' :
-                           status.color === 'blue' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100 ring-4 ring-blue-50' :
-                           'bg-amber-600 text-white shadow-lg shadow-amber-100 ring-4 ring-amber-50')
-                        : 'bg-white text-slate-400 hover:text-slate-600'
-                      }`}
-                    >
-                      {status.label}
-                    </button>
-                  ))}
+              {/* Footer / Actions */}
+              <div className={`px-8 py-5 flex items-center justify-between border-t ${isMidnight ? 'bg-white/5 border-white/10' : 'bg-slate-50/80 border-slate-100'}`}>
+                <div className="flex items-center gap-4 overflow-x-auto no-scrollbar py-1">
+                  <span className={`text-xs font-black uppercase tracking-[0.2em] whitespace-nowrap ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Duyệt trạng thái:</span>
+                  <div className="flex gap-2">
+                    {orderStatusOptions.map(status => (
+                      <button
+                        key={status.step}
+                        disabled={updatingOrderStatus}
+                        onClick={() => handleUpdateOrderStatus(selectedOrder.id, status.step)}
+                        className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                          selectedOrder.statusStep === status.step
+                          ? (status.color === 'emerald' ? 'bg-emerald-600 text-white shadow-[0_8px_20px_-4px_rgba(16,185,129,0.4)]' :
+                             status.color === 'indigo' ? 'bg-indigo-600 text-white shadow-[0_8px_20px_-4px_rgba(79,70,229,0.4)]' :
+                             status.color === 'blue' ? 'bg-blue-600 text-white shadow-[0_8px_20px_-4px_rgba(37,99,235,0.4)]' :
+                             'bg-amber-600 text-white shadow-[0_8px_20px_-4px_rgba(217,119,6,0.4)]')
+                          : (isMidnight ? 'bg-white/5 text-slate-500 hover:text-white' : 'bg-white text-slate-400 hover:text-slate-600 border border-slate-100 hover:shadow-sm')
+                        }`}
+                      >
+                        {status.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="flex gap-3 shrink-0 ml-4">
+                  <button
+                    onClick={() => window.print()}
+                    className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${
+                      isMidnight 
+                      ? 'bg-white/5 text-slate-400 hover:bg-white/10' 
+                      : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 shadow-sm'
+                    }`}
+                  >
+                    <i className="fa-solid fa-print"></i>
+                    <span>In phiếu</span>
+                  </button>
+                  <button
+                    onClick={() => setIsOrderModalOpen(false)}
+                    className="px-8 py-3 bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all shadow-xl hover:shadow-none hover:translate-y-1 active:scale-95"
+                  >
+                    Hoàn tất
+                  </button>
                 </div>
               </div>
-              <button
-                onClick={() => window.print()}
-                className="px-6 py-3 bg-slate-900 text-white rounded-2xl font-bold text-micro uppercase tracking-premium hover:bg-slate-800 transition-all shadow-lg flex items-center gap-2"
-              >
-                <i className="fa-solid fa-print"></i>
-                <span>In hóa đơn</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
 export default AdminOrders;
+

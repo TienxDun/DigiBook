@@ -84,7 +84,7 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
                   <td className="px-8 py-6">
                     <div className="flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isMidnight ? 'bg-white/5 text-slate-500 border border-white/5' : 'bg-slate-100 text-slate-400'}`}>
-                        <i className="fa-solid fa-user text-[10px]"></i>
+                        <i className="fa-solid fa-user text-xs"></i>
                       </div>
                       <span className={`text-micro font-extrabold uppercase tracking-premium ${isMidnight ? 'text-indigo-400' : 'text-slate-700'}`}>{log.user}</span>
                     </div>
@@ -132,3 +132,4 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
 };
 
 export default AdminLogs;
+

@@ -3,6 +3,7 @@ import { db } from '../../services/db';
 import { toast } from 'react-hot-toast';
 import { ErrorHandler } from '../../services/errorHandler';
 import { AIModelConfig } from '../../types';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface AIConfig {
   activeModelId: string;
@@ -18,6 +19,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
   const isMidnight = theme === 'midnight';
   const [activeTab, setActiveTab] = useState<'models' | 'test'>('models');
   const [isUpdatingAI, setIsUpdatingAI] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [testPrompt, setTestPrompt] = useState('Hãy viết một lời chào ngắn tới quản trị viên của DigiBook.');
   const [testResult, setTestResult] = useState('');
   const [isTesting, setIsTesting] = useState(false);
@@ -34,6 +36,18 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
     tpm: '',
     rpd: ''
   });
+
+  // Lock scroll when modal is open
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showModal]);
 
   useEffect(() => {
     loadModels();
@@ -108,6 +122,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
       toast.error('Vui lòng điền đầy đủ ID và Tên model');
       return;
     }
+    setIsSubmitting(true);
     try {
       if (isEditing) {
         await db.updateAIModelInfo(formData);
@@ -120,6 +135,8 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
       loadModels();
     } catch (error) {
       ErrorHandler.handle(error, 'lưu model AI');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -268,7 +285,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
               : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100'
             }`}
           >
-            <i className="fa-solid fa-plus text-[10px]"></i>
+            <i className="fa-solid fa-plus text-xs"></i>
             Thêm Model mới
           </button>
         </div>
@@ -302,7 +319,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                         <div onClick={() => handleUpdateModel(model.id)} className="cursor-pointer">
                           <p className={`font-extrabold text-sm ${activeModelId === model.id ? (isMidnight ? 'text-indigo-400' : 'text-indigo-700') : (isMidnight ? 'text-slate-200' : 'text-slate-700')}`}>
                             {model.name}
-                            {activeModelId === model.id && <i className="fa-solid fa-circle-check ml-2 text-[10px]"></i>}
+                            {activeModelId === model.id && <i className="fa-solid fa-circle-check ml-2 text-xs"></i>}
                           </p>
                           <code className={`text-micro font-bold uppercase tracking-premium mt-0.5 ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>{model.id}</code>
                         </div>
@@ -325,8 +342,8 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                         </div>
                         
                         <div className="grid grid-cols-1 gap-0.5 pointer-events-none">
-                            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter tabular-nums text-right">RPM: {model.rpm}</span>
-                            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter tabular-nums text-right">TPM: {model.tpm}</span>
+                            <span className="text-xs font-bold text-slate-500 uppercase tracking-tighter tabular-nums text-right">RPM: {model.rpm}</span>
+                            <span className="text-xs font-bold text-slate-500 uppercase tracking-tighter tabular-nums text-right">TPM: {model.tpm}</span>
                         </div>
                       </div>
                     </div>
@@ -351,7 +368,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                 </div>
                 <div className="flex items-center gap-2">
                     <span className={`w-2 h-2 rounded-full animate-pulse bg-emerald-500`}></span>
-                    <span className="text-[10px] font-extrabold text-emerald-500 uppercase tracking-widest">Connected</span>
+                    <span className="text-xs font-extrabold text-emerald-500 uppercase tracking-widest">Connected</span>
                 </div>
               </div>
 
@@ -406,152 +423,183 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
       </div>
 
       {/* CRUD Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-          <div className={`w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden border transition-all animate-scaleIn ${
-            isMidnight ? 'bg-[#1e293b] border-white/10 shadow-indigo-500/30' : 'bg-white border-white'
-          }`}>
-            <div className={`px-8 py-8 border-b flex justify-between items-center ${
-              isMidnight ? 'bg-white/5 border-white/5' : 'bg-slate-50/50 border-slate-50'
-            }`}>
-              <div>
-                <h3 className={`font-extrabold text-xl uppercase tracking-tight ${isMidnight ? 'text-white' : 'text-slate-900'}`}>
-                  {isEditing ? 'Sửa thông tin Model' : 'Thêm Model mới'}
-                </h3>
-                <p className={`text-micro font-bold uppercase tracking-premium mt-1 ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Cấu hình tham số kỹ thuật AI</p>
-              </div>
-              <button onClick={() => setShowModal(false)} className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
-                isMidnight ? 'hover:bg-white/10 text-slate-400' : 'hover:bg-white text-slate-400 shadow-sm'
+      <AnimatePresence>
+        {showModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6"
+          >
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 30 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+              onClick={() => setShowModal(false)}
+            />
+
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className={`${
+                isMidnight 
+                  ? 'bg-[#1e293b] border-white/10 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.7)]' 
+                  : 'bg-white border-slate-200 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.1)]'
+              } w-full max-w-[600px] max-h-[85vh] overflow-hidden flex flex-col border relative z-10 rounded-[2rem]`}
+            >
+              <div className={`px-8 py-5 border-b flex justify-between items-center ${
+                isMidnight ? 'bg-white/5 border-white/5' : 'bg-slate-50/50 border-slate-100'
               }`}>
-                <i className="fa-solid fa-xmark text-lg"></i>
-              </button>
-            </div>
-            
-            <form onSubmit={handleSaveModel} className="p-8 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                    <label className={`text-micro font-bold uppercase tracking-premium ml-1 ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Model ID (API ID)</label>
-                    <input
-                    type="text"
-                    required
-                    disabled={isEditing}
-                    value={formData.id}
-                    onChange={(e) => setFormData({ ...formData, id: e.target.value })}
-                    className={`w-full px-5 py-4 rounded-2xl font-bold text-sm transition-all outline-none border ${
-                        isMidnight 
-                        ? 'bg-slate-800/50 border-white/5 text-white focus:border-indigo-500/50' 
-                        : 'bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50'
-                    }`}
-                    placeholder="e.g. gemini-1.5-pro"
-                    />
+                <div>
+                  <h3 className={`font-black text-lg uppercase tracking-tight ${isMidnight ? 'text-white' : 'text-slate-900'}`}>
+                    {isEditing ? 'Cấu hình Model' : 'Khởi tạo Model'}
+                  </h3>
+                  <p className={`text-xs font-black uppercase tracking-widest mt-0.5 ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Hệ thống AI DigiBook</p>
                 </div>
-
-                <div className="space-y-2">
-                    <label className={`text-micro font-bold uppercase tracking-premium ml-1 ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Tên hiển thị</label>
-                    <input
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className={`w-full px-5 py-4 rounded-2xl font-bold text-sm transition-all outline-none border ${
-                        isMidnight 
-                        ? 'bg-slate-800/50 border-white/5 text-white focus:border-indigo-500/50' 
-                        : 'bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50'
-                    }`}
-                    placeholder="e.g. Gemini Pro v1.5"
-                    />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className={`text-micro font-bold uppercase tracking-premium ml-1 ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Phân loại / Nhà cung cấp</label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className={`w-full px-5 py-4 rounded-2xl font-bold text-sm transition-all outline-none border appearance-none ${
-                    isMidnight 
-                    ? 'bg-slate-800/50 border-white/5 text-white focus:border-indigo-500/50' 
-                    : 'bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50'
-                  }`}
-                >
-                  <option value="Google Gemini">Google Gemini</option>
-                  <option value="Groq Cloud">Groq Cloud</option>
-                  <option value="OpenRouter">OpenRouter</option>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <label className={`text-micro font-bold uppercase tracking-premium ml-1 ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>RPM</label>
-                  <input
-                    type="text"
-                    value={formData.rpm}
-                    onChange={(e) => setFormData({ ...formData, rpm: e.target.value })}
-                    className={`w-full px-4 py-4 rounded-xl font-bold text-xs transition-all outline-none border text-center ${
-                      isMidnight 
-                      ? 'bg-slate-800/50 border-white/5 text-white focus:border-indigo-500/50' 
-                      : 'bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50'
-                    }`}
-                    placeholder="15"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className={`text-micro font-bold uppercase tracking-premium ml-1 ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>TPM</label>
-                  <input
-                    type="text"
-                    value={formData.tpm}
-                    onChange={(e) => setFormData({ ...formData, tpm: e.target.value })}
-                    className={`w-full px-4 py-4 rounded-xl font-bold text-xs transition-all outline-none border text-center ${
-                      isMidnight 
-                      ? 'bg-slate-800/50 border-white/5 text-white focus:border-indigo-500/50' 
-                      : 'bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50'
-                    }`}
-                    placeholder="1M"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className={`text-micro font-bold uppercase tracking-premium ml-1 ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>RPD</label>
-                  <input
-                    type="text"
-                    value={formData.rpd}
-                    onChange={(e) => setFormData({ ...formData, rpd: e.target.value })}
-                    className={`w-full px-4 py-4 rounded-xl font-bold text-xs transition-all outline-none border text-center ${
-                      isMidnight 
-                      ? 'bg-slate-800/50 border-white/5 text-white focus:border-indigo-500/50' 
-                      : 'bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50'
-                    }`}
-                    placeholder="1.5K"
-                  />
-                </div>
-              </div>
-
-              <div className="pt-6 flex gap-4">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className={`flex-1 py-4 rounded-2xl font-bold text-sm tracking-tight transition-all active:scale-95 ${
-                    isMidnight ? 'bg-white/5 text-slate-400 hover:bg-white/10' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  HUỶ BỎ
-                </button>
-                <button
-                  type="submit"
-                  className={`flex-[2] py-4 rounded-2xl font-bold text-sm tracking-tight transition-all active:scale-95 shadow-lg ${
-                    isMidnight 
-                    ? 'bg-indigo-500 text-white shadow-indigo-500/20 hover:bg-indigo-400' 
-                    : 'bg-indigo-600 text-white shadow-indigo-100 hover:bg-indigo-700'
-                  }`}
-                >
-                  {isEditing ? 'CẬP NHẬT MODEL' : 'XÁC NHẬN THÊM'}
+                <button onClick={() => setShowModal(false)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                  isMidnight ? 'hover:bg-white/10 text-slate-400' : 'hover:bg-slate-100 text-slate-400'
+                }`}>
+                  <i className="fa-solid fa-xmark"></i>
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
+              
+              <form onSubmit={handleSaveModel} className="flex-1 flex flex-col overflow-hidden">
+                <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar">
+                  <div className="grid grid-cols-12 gap-5">
+                    <div className="col-span-12">
+                      <label className={`text-xs font-black uppercase tracking-[0.2em] mb-2.5 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Model ID (API Identifier) *</label>
+                      <input
+                        type="text"
+                        required
+                        disabled={isEditing}
+                        value={formData.id}
+                        onChange={(e) => setFormData({ ...formData, id: e.target.value })}
+                        className={`w-full h-[54px] px-6 rounded-xl border transition-all font-black text-sm outline-none ${
+                          isMidnight 
+                          ? 'bg-white/5 border-white/5 text-indigo-400 focus:border-indigo-500' 
+                          : 'bg-slate-50 border-slate-100 focus:bg-white focus:border-indigo-500 shadow-sm'
+                        } ${isEditing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        placeholder="e.g. gemini-1.5-pro"
+                      />
+                    </div>
+
+                    <div className="col-span-12">
+                      <label className={`text-xs font-black uppercase tracking-[0.2em] mb-2.5 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Tên hiển thị nội bộ *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className={`w-full h-[54px] px-6 rounded-xl border transition-all font-black text-sm outline-none ${
+                          isMidnight 
+                          ? 'bg-white/5 border-white/5 text-white focus:border-indigo-500' 
+                          : 'bg-slate-50 border-slate-100 focus:bg-white focus:border-indigo-500 shadow-sm'
+                        }`}
+                        placeholder="e.g. Gemini Pro High Performance"
+                      />
+                    </div>
+
+                    <div className="col-span-12">
+                      <label className={`text-xs font-black uppercase tracking-[0.2em] mb-2.5 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Nhà cung cấp / Nền tảng</label>
+                      <div className="relative">
+                        <select
+                          value={formData.category}
+                          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                          className={`w-full h-[54px] px-5 rounded-xl border transition-all font-black text-xs outline-none appearance-none cursor-pointer ${
+                            isMidnight 
+                            ? 'bg-white/5 border-white/5 text-white focus:border-indigo-500' 
+                            : 'bg-slate-50 border-slate-100 focus:bg-white focus:border-indigo-500 shadow-sm'
+                          }`}
+                        >
+                          <option value="Google Gemini">Google Gemini</option>
+                          <option value="Groq Cloud">Groq Cloud</option>
+                          <option value="OpenRouter">OpenRouter</option>
+                        </select>
+                        <i className="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                      </div>
+                    </div>
+
+                    <div className="col-span-4">
+                      <label className={`text-xs font-black uppercase tracking-[0.2em] mb-2.5 block text-center ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>RPM</label>
+                      <input
+                        type="text"
+                        value={formData.rpm}
+                        onChange={(e) => setFormData({ ...formData, rpm: e.target.value })}
+                        className={`w-full h-[50px] px-4 rounded-xl border transition-all font-black text-xs text-center outline-none ${
+                          isMidnight 
+                          ? 'bg-white/5 border-white/5 text-white focus:border-indigo-500' 
+                          : 'bg-slate-50 border-slate-100 focus:bg-white focus:border-indigo-500 shadow-sm'
+                        }`}
+                        placeholder="15"
+                      />
+                    </div>
+                    <div className="col-span-4">
+                      <label className={`text-xs font-black uppercase tracking-[0.2em] mb-2.5 block text-center ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>TPM</label>
+                      <input
+                        type="text"
+                        value={formData.tpm}
+                        onChange={(e) => setFormData({ ...formData, tpm: e.target.value })}
+                        className={`w-full h-[50px] px-4 rounded-xl border transition-all font-black text-xs text-center outline-none ${
+                          isMidnight 
+                          ? 'bg-white/5 border-white/5 text-white focus:border-indigo-500' 
+                          : 'bg-slate-50 border-slate-100 focus:bg-white focus:border-indigo-500 shadow-sm'
+                        }`}
+                        placeholder="1M"
+                      />
+                    </div>
+                    <div className="col-span-4">
+                      <label className={`text-xs font-black uppercase tracking-[0.2em] mb-2.5 block text-center ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>RPD</label>
+                      <input
+                        type="text"
+                        value={formData.rpd}
+                        onChange={(e) => setFormData({ ...formData, rpd: e.target.value })}
+                        className={`w-full h-[50px] px-4 rounded-xl border transition-all font-black text-xs text-center outline-none ${
+                          isMidnight 
+                          ? 'bg-white/5 border-white/5 text-white focus:border-indigo-500' 
+                          : 'bg-slate-50 border-slate-100 focus:bg-white focus:border-indigo-500 shadow-sm'
+                        }`}
+                        placeholder="1.5K"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className={`px-8 py-5 flex gap-3 border-t ${isMidnight ? 'bg-white/5 border-white/10' : 'bg-slate-50/80 border-slate-100'}`}>
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className={`flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${
+                      isMidnight ? 'bg-white/5 text-slate-400 hover:bg-white/10' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 shadow-sm'
+                    }`}
+                  >
+                    Hủy thao tác
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex-[2] py-3 bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all shadow-xl hover:shadow-none hover:translate-y-0.5 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <i className="fa-solid fa-circle-notch fa-spin mr-2"></i>
+                        Đang xử lý...
+                      </>
+                    ) : (
+                      isEditing ? 'Cập nhật model' : 'Xác nhận tạo mới'
+                    )}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
 export default AdminAI;
+

@@ -135,10 +135,10 @@ const Header: React.FC<HeaderProps> = ({
         <div className="absolute top-0 left-0 h-1 bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 z-[60] transition-all duration-300 ease-out" style={{ width: `${scrollProgress}%` }} />
       )}
 
-      <div className="max-w-[1400px] mx-auto h-full flex items-center justify-between gap-6">
+      <div className="max-w-[1400px] mx-auto h-full flex items-center justify-between gap-4">
         
         {/* Left: Logo & Navigation */}
-        <div className="flex items-center gap-10">
+        <div className="flex items-center gap-6">
           <Link 
             to="/" 
             className="flex items-center gap-3 group" 
@@ -147,23 +147,23 @@ const Header: React.FC<HeaderProps> = ({
               onRefreshData?.(); 
             }}
           >
-            <div className={`transition-all duration-700 bg-slate-900 group-hover:bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-indigo-200/20 ${scrolled ? 'w-10 h-10 rotate-0' : 'w-12 h-12 -rotate-3 group-hover:rotate-0'}`}>
-              <i className={`fa-solid fa-book-bookmark ${scrolled ? 'text-sm' : 'text-xl'}`}></i>
+            <div className={`transition-all duration-700 bg-slate-900 group-hover:bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-indigo-200/20 ${scrolled ? 'w-10 h-10 rotate-0' : 'w-11 h-11 -rotate-3 group-hover:rotate-0'}`}>
+              <i className={`fa-solid fa-book-bookmark ${scrolled ? 'text-xs' : 'text-lg'}`}></i>
             </div>
-            <span className={`font-extrabold tracking-tighter text-slate-900 hidden sm:block transition-all duration-500 ${scrolled ? 'text-xl' : 'text-2xl'}`}>
+            <span className={`font-extrabold tracking-tighter text-slate-900 hidden sm:block transition-all duration-500 ${scrolled ? 'text-lg' : 'text-xl'}`}>
               Digi<span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">Book</span>
             </span>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-6">
             <div className="relative" ref={categoryMenuRef}>
               <button 
                 onClick={() => setShowCategoryMenu(!showCategoryMenu)}
                 className={`flex items-center gap-2 text-micro font-bold uppercase tracking-premium transition-all py-1 ${showCategoryMenu ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-900'}`}
               >
-                <i className="fa-solid fa-shapes text-[12px]"></i>
+                <i className="fa-solid fa-shapes text-xs"></i>
                 Danh mục
-                <i className={`fa-solid fa-chevron-down text-[8px] transition-transform duration-300 ${showCategoryMenu ? 'rotate-180' : ''}`}></i>
+                <i className={`fa-solid fa-chevron-down text-xs transition-transform duration-300 ${showCategoryMenu ? 'rotate-180' : ''}`}></i>
               </button>
 
               {showCategoryMenu && (
@@ -245,7 +245,7 @@ const Header: React.FC<HeaderProps> = ({
             {/* Shortcut key indicator */}
             {!isSearchFocused && !searchValue && (
               <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-40 group-hover:opacity-60 transition-opacity hidden sm:flex">
-                <kbd className="px-1.5 py-0.5 rounded border border-slate-300 bg-white text-[10px] font-bold text-slate-500">/</kbd>
+                <kbd className="px-1.5 py-0.5 rounded border border-slate-300 bg-white text-xs font-bold text-slate-500">/</kbd>
               </div>
             )}
           </div>
@@ -444,3 +444,4 @@ const Header: React.FC<HeaderProps> = ({
 };
 
 export default Header;
+

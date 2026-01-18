@@ -85,7 +85,7 @@ class DataService {
     
     console.log(
       `%c ${status} %c ${time} | %c${user}%c | %c${action}%c ${detail}`,
-      `${badgeColor} border-radius: 4px; font-size: 10px; font-weight: bold; padding: 2px 4px;`,
+      `${badgeColor} border-radius: 4px; font-size: 14px; font-weight: bold; padding: 2px 4px;`,
       'color: #94a3b8; font-family: monospace;',
       'color: #6366f1; font-weight: 800;',
       'color: #e2e8f0;',

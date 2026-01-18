@@ -98,7 +98,7 @@ const AuthorsPage: React.FC = () => {
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 mb-8 text-micro font-bold uppercase tracking-premium text-slate-400">
           <Link to="/" className="hover:text-indigo-600 transition-colors">Trang chủ</Link>
-          <i className="fa-solid fa-chevron-right text-[8px] opacity-50"></i>
+          <i className="fa-solid fa-chevron-right text-xs opacity-50"></i>
           <span className="text-slate-900">Tác giả</span>
         </nav>
 
@@ -187,7 +187,7 @@ const AuthorsPage: React.FC = () => {
                       />
                     </div>
                     <h3 className="text-lg font-black text-slate-900 mb-1">{author.name}</h3>
-                    <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-premium mb-4">{authorStats[author.name.toLowerCase()] || 0} Tác phẩm</p>
+                    <p className="text-xs font-bold text-indigo-500 uppercase tracking-premium mb-4">{authorStats[author.name.toLowerCase()] || 0} Tác phẩm</p>
                     <p className="text-xs text-slate-400 line-clamp-2 text-center leading-relaxed">
                       {author.bio || "Tác giả ưu tú với nhiều tác phẩm có giá trị cao đang được yêu thích tại DigiBook."}
                     </p>
@@ -224,9 +224,9 @@ const AuthorsPage: React.FC = () => {
                                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                               />
                             </div>
-                            <div className="absolute -bottom-2 -right-2 bg-indigo-600 text-white w-10 h-10 rounded-2xl flex flex-col items-center justify-center border-4 border-white shadow-lg">
-                               <span className="text-[10px] font-black">{bookCount}</span>
-                               <span className="text-[6px] font-bold uppercase">Sách</span>
+                            <div className="absolute -bottom-2 -right-2 bg-indigo-600 text-white w-12 h-12 rounded-2xl flex flex-col items-center justify-center border-4 border-white shadow-lg">
+                               <span className="text-xs font-black">{bookCount}</span>
+                               <span className="text-micro font-bold uppercase">Sách</span>
                             </div>
                           </div>
                           <h3 className="text-base font-black text-slate-800 group-hover:text-indigo-600 transition-colors truncate w-full text-center">{author.name}</h3>
@@ -297,3 +297,4 @@ const AuthorsPage: React.FC = () => {
 };
 
 export default AuthorsPage;
+

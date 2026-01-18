@@ -104,8 +104,8 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart, onQuickView })
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 lg:mb-16 gap-6">
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-rose-50 rounded-lg mb-4 border border-rose-100/50">
-              <i className="fa-solid fa-heart text-rose-500 text-[10px]"></i>
-              <p className="text-[11px] font-bold text-rose-500 uppercase tracking-premium">My Favorites</p>
+              <i className="fa-solid fa-heart text-rose-500 text-xs"></i>
+              <p className="text-xs font-bold text-rose-500 uppercase tracking-premium">My Favorites</p>
             </div>
             <h1 className="text-3xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
               Bộ sưu tập <span className="text-rose-500">yêu thích</span>.
@@ -187,7 +187,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart, onQuickView })
                 
                 {(!book.isAvailable || book.stockQuantity <= 0) && (
                   <div className="absolute inset-x-3 top-3 z-10">
-                    <div className="bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-black px-3 py-1.5 rounded-xl border border-white/10 shadow-xl uppercase tracking-widest flex items-center gap-2">
+                    <div className="bg-slate-900/80 backdrop-blur-md text-white text-xs font-black px-3 py-1.5 rounded-xl border border-white/10 shadow-xl uppercase tracking-widest flex items-center gap-2">
                       <i className={`fa-solid ${!book.isAvailable ? 'fa-ban' : 'fa-box-open'} text-rose-400`}></i>
                       {!book.isAvailable ? 'Ngừng kinh doanh' : 'Hết hàng'}
                     </div>
@@ -229,3 +229,4 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart, onQuickView })
 };
 
 export default WishlistPage;
+

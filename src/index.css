@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 overflow-x-hidden;
+    @apply bg-slate-50 text-slate-900 overflow-x-hidden text-base;
     font-family: 'Lexend', sans-serif;
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;

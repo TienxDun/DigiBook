@@ -145,7 +145,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
         <div className="sticky top-[80px] z-30 mb-10 p-2.5 bg-white/80 backdrop-blur-lg rounded-[2rem] border border-white/50 shadow-xl shadow-slate-200/50 flex items-center gap-3 overflow-hidden group transition-all duration-300">
           <div className="flex-shrink-0 flex items-center gap-2 px-5 py-3 border-r border-slate-200 mr-2">
             <i className="fa-solid fa-layer-group text-indigo-500"></i>
-            <span className="text-[10px] font-black text-slate-800 uppercase tracking-widest hidden sm:block">Chân dung tri thức</span>
+            <span className="text-xs font-black text-slate-800 uppercase tracking-widest hidden sm:block">Chân dung tri thức</span>
           </div>
           
           <div className="flex-1 flex overflow-x-auto pb-1 gap-3 no-scrollbar scroll-smooth py-1">
@@ -169,7 +169,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
                 <Link
                   key={i}
                   to={`/category/${cat.name}`}
-                  className={`flex-shrink-0 px-6 py-3.5 rounded-2xl font-bold text-[10px] uppercase tracking-premium flex items-center gap-3 transition-all duration-500 border border-slate-100 relative group/cat ${
+                  className={`flex-shrink-0 px-6 py-3.5 rounded-2xl font-bold text-xs uppercase tracking-premium flex items-center gap-3 transition-all duration-500 border border-slate-100 relative group/cat ${
                     isActive ? `${color.active} z-10 -translate-y-1` : `${color.inactive} hover:-translate-y-0.5 shadow-sm`
                   }`}
                 >
@@ -226,8 +226,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
           </div>
           <div className="flex items-center gap-2 bg-slate-100/50 p-1.5 rounded-2xl border border-slate-200 w-full md:w-auto overflow-x-auto no-scrollbar shadow-inner">
             <div className="flex items-center gap-2 px-3 py-1.5 border-r border-slate-200 mr-1 hidden lg:flex">
-              <i className="fa-solid fa-sort-amount-down text-[10px] text-slate-400"></i>
-              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Sắp xếp</span>
+              <i className="fa-solid fa-sort-amount-down text-xs text-slate-400"></i>
+              <span className="text-xs font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Sắp xếp</span>
             </div>
             
             <div className="flex items-center gap-1.5">
@@ -240,7 +240,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
                 <button
                   key={option.id}
                   onClick={() => setSortBy(option.id)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${
                     sortBy === option.id 
                     ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
                     : 'bg-white text-slate-500 hover:text-indigo-600 hover:bg-slate-50 border border-slate-100 shadow-sm'
@@ -314,3 +314,4 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
 };
 
 export default CategoryPage;
+

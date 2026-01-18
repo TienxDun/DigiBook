@@ -238,7 +238,7 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                     {paymentMethod === 'cod' && <div className="w-2.5 h-2.5 bg-indigo-600 rounded-full"></div>}
                   </div>
                   <div>
-                    <p className="font-extrabold text-slate-900 text-[13px]">Thanh toán khi nhận hàng</p>
+                    <p className="font-extrabold text-slate-900 text-xs">Thanh toán khi nhận hàng</p>
                     <p className="text-micro text-slate-400 font-bold uppercase tracking-premium">Tiền mặt (COD)</p>
                   </div>
                   <i className="fa-solid fa-money-bill-wave ml-auto text-slate-300 text-lg"></i>
@@ -256,7 +256,7 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                     {paymentMethod === 'online' && <div className="w-2.5 h-2.5 bg-indigo-600 rounded-full"></div>}
                   </div>
                   <div>
-                    <p className="font-extrabold text-slate-900 text-[13px]">Thanh toán trực tuyến</p>
+                    <p className="font-extrabold text-slate-900 text-xs">Thanh toán trực tuyến</p>
                     <p className="text-micro text-slate-400 font-bold uppercase tracking-premium">Thẻ / Chuyển khoản</p>
                   </div>
                   <i className="fa-solid fa-building-columns ml-auto text-slate-300 text-lg"></i>
@@ -291,7 +291,7 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
                     placeholder="Mã giảm giá" 
-                    className="w-full py-2.5 pl-3.5 pr-20 bg-slate-50 border border-transparent rounded-lg outline-none focus:bg-white focus:border-indigo-100 text-[11px] font-bold"
+                    className="w-full py-2.5 pl-3.5 pr-20 bg-slate-50 border border-transparent rounded-lg outline-none focus:bg-white focus:border-indigo-100 text-xs font-bold"
                   />
                   <button 
                     onClick={handleApplyCoupon}
@@ -374,3 +374,4 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
 };
 
 export default CheckoutPage;
+

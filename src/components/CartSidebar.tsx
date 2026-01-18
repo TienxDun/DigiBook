@@ -59,7 +59,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
           <div>
             <h2 className="text-xl font-extrabold text-slate-900 uppercase tracking-tight">Giỏ hàng của bạn</h2>
             {items.length > 0 && (
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">
                 Đã chọn {selectedIds.length}/{items.length} sản phẩm
               </p>
             )}
@@ -78,13 +78,13 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                   isAllSelected ? 'bg-indigo-600 border-indigo-600' : 'border-slate-300 bg-white group-hover:border-indigo-400'
                 }`}
               >
-                {isAllSelected && <i className="fa-solid fa-check text-[10px] text-white"></i>}
+                {isAllSelected && <i className="fa-solid fa-check text-xs text-white"></i>}
               </div>
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Chọn tất cả</span>
+              <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Chọn tất cả</span>
             </label>
             <button 
               onClick={() => items.forEach(item => onRemove(item.id))}
-              className="text-[9px] font-black text-rose-500 uppercase tracking-widest hover:underline"
+              className="text-xs font-black text-rose-500 uppercase tracking-widest hover:underline"
             >
               Xóa tất cả
             </button>
@@ -116,7 +116,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                       selectedIds.includes(item.id) ? 'bg-indigo-600 border-indigo-600 shadow-sm' : 'border-slate-200 bg-white hover:border-indigo-400'
                     }`}
                   >
-                    {selectedIds.includes(item.id) && <i className="fa-solid fa-check text-[10px] text-white"></i>}
+                    {selectedIds.includes(item.id) && <i className="fa-solid fa-check text-xs text-white"></i>}
                   </div>
                 </div>
                 
@@ -127,17 +127,17 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                 
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start mb-1">
-                    <h4 className="font-extrabold text-slate-900 line-clamp-2 text-[13px] leading-snug uppercase tracking-tight pr-2">{item.title}</h4>
+                    <h4 className="font-extrabold text-slate-900 line-clamp-2 text-xs leading-snug uppercase tracking-tight pr-2">{item.title}</h4>
                     <button onClick={() => onRemove(item.id)} className="w-8 h-8 rounded-lg hover:bg-rose-50 text-slate-300 hover:text-rose-500 transition-all flex items-center justify-center flex-shrink-0">
-                      <i className="fa-solid fa-trash-can text-[10px]"></i>
+                      <i className="fa-solid fa-trash-can text-xs"></i>
                     </button>
                   </div>
-                  <p className="text-slate-400 text-[10px] mb-3 font-bold uppercase tracking-widest">{item.author}</p>
+                  <p className="text-slate-400 text-xs mb-3 font-bold uppercase tracking-widest">{item.author}</p>
                   <div className="flex items-center justify-between mt-auto">
                     <div className="flex items-center border border-slate-200/60 rounded-xl bg-white p-1 gap-2 shadow-sm">
-                      <button onClick={() => onUpdateQty(item.id, -1)} className="w-7 h-7 rounded-lg hover:bg-white flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-all"><i className="fa-solid fa-minus text-[10px]"></i></button>
+                      <button onClick={() => onUpdateQty(item.id, -1)} className="w-7 h-7 rounded-lg hover:bg-white flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-all"><i className="fa-solid fa-minus text-xs"></i></button>
                       <span className="text-xs font-black text-slate-900 min-w-[20px] text-center">{item.quantity}</span>
-                      <button onClick={() => onUpdateQty(item.id, 1)} className="w-7 h-7 rounded-lg hover:bg-white flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-all"><i className="fa-solid fa-plus text-[10px]"></i></button>
+                      <button onClick={() => onUpdateQty(item.id, 1)} className="w-7 h-7 rounded-lg hover:bg-white flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-all"><i className="fa-solid fa-plus text-xs"></i></button>
                     </div>
                     <span className="font-black text-rose-600 text-sm tracking-tight">{formatPrice(item.price * item.quantity)}</span>
                   </div>
@@ -150,17 +150,17 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
         {items.length > 0 && (
           <div className="p-8 border-t border-slate-200/60 bg-white">
             <div className="space-y-4 mb-8">
-              <div className="flex justify-between items-center text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
+              <div className="flex justify-between items-center text-slate-400 text-xs font-black uppercase tracking-[0.2em]">
                 <span>Tạm tính ({selectedItems.length} món)</span>
                 <span className="text-slate-600">{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between items-end border-t border-slate-200 pt-5">
                 <div className="flex flex-col">
-                  <span className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Tổng cộng</span>
+                  <span className="text-slate-400 text-xs font-black uppercase tracking-[0.2em] mb-1">Tổng cộng</span>
                   <span className="text-3xl font-black text-rose-600 tracking-tighter leading-none">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="text-right">
-                   <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mb-1 flex items-center justify-end gap-1">
+                   <p className="text-xs font-bold text-emerald-500 uppercase tracking-widest mb-1 flex items-center justify-end gap-1">
                       <i className="fa-solid fa-shield-halved"></i> Bảo mật thanh toán
                    </p>
                 </div>
@@ -170,7 +170,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
             <button 
               onClick={handleCheckoutClick}
               disabled={selectedItems.length === 0}
-              className={`w-full py-5 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 ${
+              className={`w-full py-5 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 ${
                 selectedItems.length > 0 
                   ? 'bg-slate-900 text-white hover:bg-indigo-600 shadow-indigo-100' 
                   : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
@@ -179,7 +179,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
               {selectedItems.length === 0 ? 'Vui lòng chọn sản phẩm' : `Thanh toán (${selectedItems.length})`}
               <i className="fa-solid fa-arrow-right-long mr-1"></i>
             </button>
-            <p className="text-[10px] text-slate-400 font-bold text-center mt-6 uppercase tracking-widest opacity-60">
+            <p className="text-xs text-slate-400 font-bold text-center mt-6 uppercase tracking-widest opacity-60">
                Giao hàng dự kiến: 2-3 ngày làm việc
             </p>
           </div>
@@ -190,3 +190,4 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
 };
 
 export default CartSidebar;
+

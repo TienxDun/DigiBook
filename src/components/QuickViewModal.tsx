@@ -76,12 +76,12 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
               <div className="mt-8 flex gap-4 text-slate-400">
                 <div className="flex flex-col items-center">
                    <span className="text-sm font-bold text-slate-900">{book.pages}</span>
-                   <span className="text-[9px] uppercase font-bold tracking-widest">Trang</span>
+                   <span className="text-xs uppercase font-bold tracking-widest">Trang</span>
                 </div>
                 <div className="w-px h-8 bg-slate-200"></div>
                 <div className="flex flex-col items-center">
                    <span className="text-sm font-bold text-slate-900">{book.rating}</span>
-                   <span className="text-[9px] uppercase font-bold tracking-widest">Đánh giá</span>
+                   <span className="text-xs uppercase font-bold tracking-widest">Đánh giá</span>
                 </div>
               </div>
             </div>
@@ -89,24 +89,24 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
             {/* Right: Info Section */}
             <div className="w-full md:w-7/12 p-8 md:p-12 overflow-y-auto custom-scrollbar bg-white">
               <div className="flex flex-wrap gap-2 mb-6">
-                <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-indigo-100">
+                <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-black uppercase tracking-widest rounded-lg border border-indigo-100">
                   {book.category}
                 </span>
                 {book.badge && (
-                  <span className="px-3 py-1 bg-rose-50 text-rose-500 text-[10px] font-black uppercase tracking-widest rounded-lg border border-rose-100">
+                  <span className="px-3 py-1 bg-rose-50 text-rose-500 text-xs font-black uppercase tracking-widest rounded-lg border border-rose-100">
                     {book.badge}
                   </span>
                 )}
                 {!isAvailable ? (
-                  <span className="px-3 py-1 bg-rose-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg border border-rose-700 shadow-sm">
+                  <span className="px-3 py-1 bg-rose-600 text-white text-xs font-black uppercase tracking-widest rounded-lg border border-rose-700 shadow-sm">
                     Ngừng kinh doanh
                   </span>
                 ) : book.stockQuantity > 0 ? (
-                  <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-emerald-100">
+                  <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-xs font-black uppercase tracking-widest rounded-lg border border-emerald-100">
                     Sẵn hàng
                   </span>
                 ) : (
-                  <span className="px-3 py-1 bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-lg">
+                  <span className="px-3 py-1 bg-slate-100 text-slate-500 text-xs font-black uppercase tracking-widest rounded-lg">
                     Hết hàng
                   </span>
                 )}
@@ -127,7 +127,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
               {/* Price and Quantity Selection */}
               <div className="bg-slate-50 rounded-3xl p-6 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Giá bán chính thức</p>
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Giá bán chính thức</p>
                   <div className="flex items-baseline gap-2">
                     <span className="text-4xl font-black text-rose-600 tracking-tighter">
                       {book.price.toLocaleString()}đ
@@ -141,20 +141,20 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest sm:hidden">Số lượng:</span>
+                  <span className="text-xs font-black text-slate-400 uppercase tracking-widest sm:hidden">Số lượng:</span>
                   <div className="flex items-center bg-white rounded-2xl p-1.5 shadow-sm border border-slate-100">
                     <button 
                       onClick={() => setQuantity(q => Math.max(1, q - 1))}
                       className="w-10 h-10 rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center text-slate-600 active:scale-90"
                     >
-                      <i className="fa-solid fa-minus text-[10px]"></i>
+                      <i className="fa-solid fa-minus text-xs"></i>
                     </button>
                     <span className="w-12 text-center font-black text-slate-900 text-lg">{quantity}</span>
                     <button 
                       onClick={() => setQuantity(q => q + 1)}
                       className="w-10 h-10 rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center text-slate-600 active:scale-90"
                     >
-                      <i className="fa-solid fa-plus text-[10px]"></i>
+                      <i className="fa-solid fa-plus text-xs"></i>
                     </button>
                   </div>
                 </div>
@@ -169,7 +169,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                       onAddToCart(book, quantity, { x: e.clientX, y: e.clientY });
                       onClose();
                     }}
-                    className={`flex-[4] py-4.5 rounded-2xl text-[12px] font-black uppercase tracking-wider flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-lg ${
+                    className={`flex-[4] py-4.5 rounded-2xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-lg ${
                       book.stockQuantity > 0 && isAvailable
                       ? 'bg-slate-900 text-white hover:bg-indigo-600 shadow-slate-200'
                       : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
@@ -195,7 +195,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                 <Link 
                   to={`/book/${book.id}`}
                   onClick={onClose}
-                  className="w-full py-4 bg-indigo-50 text-indigo-600 rounded-2xl text-[11px] font-black uppercase tracking-premium hover:bg-indigo-100 transition-all flex items-center justify-center gap-3 active:scale-[0.98] border border-indigo-100/50"
+                  className="w-full py-4 bg-indigo-50 text-indigo-600 rounded-2xl text-xs font-black uppercase tracking-premium hover:bg-indigo-100 transition-all flex items-center justify-center gap-3 active:scale-[0.98] border border-indigo-100/50"
                 >
                   <i className="fa-solid fa-arrow-right-to-bracket text-sm"></i>
                   Xem chi tiết cuốn sách này
@@ -208,13 +208,13 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                     <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs">
                        <i className="fa-solid fa-shield-halved"></i>
                     </div>
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Chính hãng 100%</span>
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Chính hãng 100%</span>
                  </div>
                  <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xs">
                        <i className="fa-solid fa-rotate"></i>
                     </div>
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Đổi trả 30 ngày</span>
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Đổi trả 30 ngày</span>
                  </div>
               </div>
             </div>
@@ -224,3 +224,4 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
     </AnimatePresence>
   );
 };
+

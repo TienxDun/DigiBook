@@ -215,7 +215,7 @@ const AdminDashboard: React.FC = () => {
             </Link>
             <div>
               <h1 className="text-base font-black tracking-tighter uppercase text-white leading-none">DigiBook</h1>
-              <p className="text-[9px] font-black text-indigo-400/80 uppercase tracking-[0.3em] mt-1.5 shadow-indigo-500/10">Architecture</p>
+              <p className="text-xs font-black text-indigo-400/80 uppercase tracking-[0.3em] mt-1.5 shadow-indigo-500/10">Architecture</p>
             </div>
           </div>
           <button onClick={() => setIsMobileMenuOpen(false)} className="lg:hidden text-slate-500 hover:text-white p-2 transition-colors">
@@ -241,7 +241,7 @@ const AdminDashboard: React.FC = () => {
                 setActiveTab(tab.id as any);
                 setIsMobileMenuOpen(false);
               }}
-              className={`flex items-center gap-4 w-full px-5 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 group relative
+              className={`flex items-center gap-4 w-full px-5 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all duration-300 group relative
                 ${activeTab === tab.id 
                   ? "bg-indigo-600 text-white shadow-2xl shadow-indigo-600/20" 
                   : "text-slate-500 hover:text-slate-200 hover:bg-white/[0.03] hover:translate-x-1"
@@ -263,10 +263,10 @@ const AdminDashboard: React.FC = () => {
               <i className="fa-solid fa-crown text-indigo-400 group-hover:scale-110 transition-transform"></i>
             </div>
             <div className="min-w-0">
-              <span className="text-[10px] font-black uppercase block tracking-widest text-white truncate">Administrator</span>
+              <span className="text-xs font-black uppercase block tracking-widest text-white truncate">Administrator</span>
               <div className="flex items-center gap-2 mt-1.5">
                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]"></div>
-                 <span className="text-[8px] font-black text-emerald-500/80 uppercase tracking-widest">Hệ thống ổn định</span>
+                 <span className="text-xs font-black text-emerald-500/80 uppercase tracking-widest">Há»‡ thá»‘ng á»•n Ä‘á»‹nh</span>
               </div>
             </div>
           </div>
@@ -289,14 +289,14 @@ const AdminDashboard: React.FC = () => {
                 <h2 className={`text-xl lg:text-2xl font-black uppercase tracking-tight ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>
                   {activeTab === 'overview' ? 'Báo cáo tổng quan' : 
                    activeTab === 'books' ? 'Quản lý kho sách' :
-                   activeTab === 'orders' ? 'Đơn hàng & Vận chuyển' :
+                   activeTab === 'orders' ? 'Đơn hàng & Giao nhận' :
                    activeTab === 'authors' ? 'Tác giả & Nhà văn' :
                    activeTab === 'categories' ? 'Phân loại danh mục' :
                    activeTab === 'coupons' ? 'Mã giảm giá & KM' :
                    activeTab === 'users' ? 'Quản lý tài khoản' :
                    activeTab === 'logs' ? 'Lịch sử hệ thống' : 'Cấu hình AI Assistant'}
                 </h2>
-                <p className="text-[8px] lg:text-micro font-bold text-indigo-400/60 uppercase tracking-[0.2em] mt-1 hidden sm:block">Digibook Management System v2.0</p>
+                <p className="text-xs lg:text-micro font-bold text-indigo-400/60 uppercase tracking-[0.2em] mt-1 hidden sm:block">Digibook Management System v2.0</p>
               </div>
            </div>
            
@@ -377,10 +377,10 @@ const AdminDashboard: React.FC = () => {
                         <div className={`w-2 h-2 rounded-full ${stat.iconColor} animate-pulse shadow-[0_0_10px_currentColor]`}></div>
                       </div>
                     </div>
-                    <p className="text-[10px] lg:text-micro font-black text-slate-500 uppercase tracking-premium mb-2 relative z-10">{stat.label}</p>
+                    <p className="text-xs lg:text-micro font-black text-slate-500 uppercase tracking-premium mb-2 relative z-10">{stat.label}</p>
                     <h3 className={`text-2xl lg:text-3xl font-black tracking-tighter relative z-10 ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>{stat.value}</h3>
                     <div className={`h-1 w-12 rounded-full mt-4 mb-2 transition-all duration-500 group-hover:w-20 ${stat.bgColor.replace('/10', '/30')}`}></div>
-                    <p className="text-[9px] lg:text-[10px] font-bold text-slate-500 uppercase tracking-wide flex items-center gap-2 relative z-10">
+                    <p className="text-xs lg:text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-2 relative z-10">
                       {stat.sub}
                     </p>
                     {/* Background Light Effect */}
@@ -395,12 +395,12 @@ const AdminDashboard: React.FC = () => {
                   <div className="flex items-center justify-between mb-8">
                     <div>
                       <h3 className={`text-lg lg:text-xl font-black uppercase tracking-tight ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>Biểu đồ doanh thu</h3>
-                      <p className="text-[10px] lg:text-micro font-bold text-indigo-400/60 uppercase tracking-premium mt-1">Phân tích hiệu suất bán hàng 7 ngày qua</p>
+                      <p className="text-xs lg:text-micro font-bold text-indigo-400/60 uppercase tracking-premium mt-1">Phân tích hiệu suất bán hàng 7 ngày qua</p>
                     </div>
                     <div className="flex items-center gap-4">
                        <span className={`flex items-center gap-2 text-micro font-bold uppercase ${stats.revenueByDay[stats.revenueByDay.length-1].total >= stats.revenueByDay[stats.revenueByDay.length-2].total ? 'text-emerald-400' : 'text-rose-400'}`}>
                           <i className={`fa-solid ${stats.revenueByDay[stats.revenueByDay.length-1].total >= stats.revenueByDay[stats.revenueByDay.length-2].total ? 'fa-caret-up' : 'fa-caret-down'}`}></i> 
-                          {Math.abs(stats.revenueByDay[stats.revenueByDay.length-1].total - stats.revenueByDay[stats.revenueByDay.length-2].total) > 0 ? 'Có biến động' : 'Ổn định'}
+                          {Math.abs(stats.revenueByDay[stats.revenueByDay.length-1].total - stats.revenueByDay[stats.revenueByDay.length-2].total) > 0 ? 'Có biến động' : 'ổn định'}
                        </span>
                     </div>
                   </div>
@@ -420,8 +420,8 @@ const AdminDashboard: React.FC = () => {
                              style={{ height: `${(day.total / stats.maxRevenue) * 100}%`, minHeight: '6px' }}
                            >
                               {/* Tooltip */}
-                              <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2 rounded-xl text-[10px] font-black opacity-0 group-hover:opacity-100 transition-all transform group-hover:-translate-y-2 whitespace-nowrap shadow-2xl z-20 flex flex-col items-center">
-                                 <span className="text-slate-400 font-bold uppercase text-[8px] mb-1">{day.date}</span>
+                              <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-black opacity-0 group-hover:opacity-100 transition-all transform group-hover:-translate-y-2 whitespace-nowrap shadow-2xl z-20 flex flex-col items-center">
+                                 <span className="text-slate-400 font-bold uppercase text-xs mb-1">{day.date}</span>
                                  {formatPrice(day.total)}
                               </div>
 
@@ -429,7 +429,7 @@ const AdminDashboard: React.FC = () => {
                               <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rounded-full shadow-[0_0_10px_white] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                            </div>
                         </div>
-                        <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${adminTheme === 'midnight' ? 'text-slate-500 group-hover:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-600'}`}>
+                        <span className={`text-xs font-black uppercase tracking-widest transition-colors ${adminTheme === 'midnight' ? 'text-slate-500 group-hover:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-600'}`}>
                           {day.date.split('/')[0]}
                         </span>
                       </div>
@@ -461,7 +461,7 @@ const AdminDashboard: React.FC = () => {
                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs ${adminTheme === 'midnight' ? `bg-${item.color}-500/20 text-${item.color}-400` : `bg-${item.color}-50 text-${item.color}-600`}`}>
                                 <i className={`fa-solid ${item.icon}`}></i>
                              </div>
-                             <span className="text-[10px] font-black text-slate-500 uppercase tracking-tight">{item.label}</span>
+                             <span className="text-xs font-black text-slate-500 uppercase tracking-tight">{item.label}</span>
                           </div>
                           <span className={`text-sm font-black transition-transform group-hover:scale-110 ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>
                             {item.value}
@@ -481,23 +481,23 @@ const AdminDashboard: React.FC = () => {
                       <div className="grid grid-cols-1 gap-3">
                         <button
                           onClick={() => setActiveTab("books")}
-                          className="w-full bg-white/5 hover:bg-indigo-600 backdrop-blur-md px-5 py-4 rounded-2xl text-[10px] font-black transition-all text-left flex items-center justify-between uppercase tracking-premium border border-white/5 shadow-inner group/btn"
+                          className="w-full bg-white/5 hover:bg-indigo-600 backdrop-blur-md px-5 py-4 rounded-2xl text-xs font-black transition-all text-left flex items-center justify-between uppercase tracking-premium border border-white/5 shadow-inner group/btn"
                         >
                           <div className="flex items-center gap-3">
                             <i className="fa-solid fa-book-medical"></i>
                             <span>Thêm sách mới</span>
                           </div>
-                          <i className="fa-solid fa-chevron-right text-[8px] opacity-0 group-hover/btn:opacity-100 transition-all"></i>
+                          <i className="fa-solid fa-chevron-right text-xs opacity-0 group-hover/btn:opacity-100 transition-all"></i>
                         </button>
                         <button
                           onClick={() => setActiveTab("orders")}
-                          className="w-full bg-white/5 hover:bg-violet-600 backdrop-blur-md px-5 py-4 rounded-2xl text-[10px] font-black transition-all text-left flex items-center justify-between uppercase tracking-premium border border-white/5 shadow-inner group/btn"
+                          className="w-full bg-white/5 hover:bg-violet-600 backdrop-blur-md px-5 py-4 rounded-2xl text-xs font-black transition-all text-left flex items-center justify-between uppercase tracking-premium border border-white/5 shadow-inner group/btn"
                         >
                           <div className="flex items-center gap-3">
                             <i className="fa-solid fa-boxes-packing"></i>
                             <span>Xử lý đơn hàng</span>
                           </div>
-                          <i className="fa-solid fa-chevron-right text-[8px] opacity-0 group-hover/btn:opacity-100 transition-all"></i>
+                          <i className="fa-solid fa-chevron-right text-xs opacity-0 group-hover/btn:opacity-100 transition-all"></i>
                         </button>
                       </div>
                     </div>
@@ -514,7 +514,7 @@ const AdminDashboard: React.FC = () => {
                        <h3 className={`text-lg font-black uppercase tracking-tight ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>Đơn hàng mới nhất</h3>
                        <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Hoạt động mua hàng gần đây nhất</p>
                      </div>
-                     <button onClick={() => setActiveTab('orders')} className="text-[10px] font-black uppercase tracking-premium text-indigo-400 hover:text-indigo-300 transition-colors">Xem tất cả</button>
+                     <button onClick={() => setActiveTab('orders')} className="text-xs font-black uppercase tracking-premium text-indigo-400 hover:text-indigo-300 transition-colors">Xem tất cả</button>
                    </div>
                    
                    <div className="space-y-4">
@@ -529,12 +529,12 @@ const AdminDashboard: React.FC = () => {
                            </div>
                            <div>
                              <h4 className={`text-xs font-black uppercase tracking-tight ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>#{order.id.slice(-6)}</h4>
-                             <p className="text-[10px] font-bold text-slate-500 uppercase">{order.customer?.name || 'Ẩn danh'}</p>
+                             <p className="text-xs font-bold text-slate-500 uppercase">{order.customer?.name || 'Ẩn danh'}</p>
                            </div>
                          </div>
                          <div className="text-right">
                            <p className={`text-xs font-black ${adminTheme === 'midnight' ? 'text-indigo-400' : 'text-indigo-600'}`}>{formatPrice(order.payment?.total || 0)}</p>
-                           <p className="text-[9px] font-bold text-slate-500 uppercase mt-1">
+                           <p className="text-xs font-bold text-slate-500 uppercase mt-1">
                              {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : 'Hôm nay'}
                            </p>
                          </div>
@@ -555,7 +555,7 @@ const AdminDashboard: React.FC = () => {
                        <h3 className={`text-lg font-black uppercase tracking-tight ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>Sản phẩm bán chạy</h3>
                        <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Thống kê theo số lượng đã bán</p>
                      </div>
-                     <button onClick={() => setActiveTab('books')} className="text-[10px] font-black uppercase tracking-premium text-indigo-400 hover:text-indigo-300 transition-colors">Quản lý kho</button>
+                     <button onClick={() => setActiveTab('books')} className="text-xs font-black uppercase tracking-premium text-indigo-400 hover:text-indigo-300 transition-colors">Quản lý kho</button>
                    </div>
 
                    <div className="space-y-4">
@@ -564,13 +564,13 @@ const AdminDashboard: React.FC = () => {
                          <div className="flex items-center gap-4">
                            <div className="relative">
                              <img src={book.cover} alt={book.title} className="w-12 h-16 object-cover rounded-xl shadow-lg border border-white/10" />
-                             <div className="absolute -top-2 -left-2 w-6 h-6 bg-indigo-600 rounded-lg flex items-center justify-center text-[10px] font-black text-white shadow-lg">
+                             <div className="absolute -top-2 -left-2 w-6 h-6 bg-indigo-600 rounded-lg flex items-center justify-center text-xs font-black text-white shadow-lg">
                                {idx + 1}
                              </div>
                            </div>
                            <div className="max-w-[180px]">
                              <h4 className={`text-xs font-black uppercase tracking-tight line-clamp-1 ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>{book.title}</h4>
-                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">{book.category}</p>
+                             <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">{book.category}</p>
                            </div>
                          </div>
                          <div className="text-right">
@@ -578,7 +578,7 @@ const AdminDashboard: React.FC = () => {
                               <span className={`px-2 py-1 rounded-lg text-micro font-black uppercase border ${adminTheme === 'midnight' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'bg-indigo-50 text-indigo-600 border-indigo-100'}`}>
                                 Đã bán: {book.salesCount}
                               </span>
-                              <p className={`text-[10px] font-bold uppercase mt-2 ${book.stockQuantity < 10 ? 'text-rose-400' : 'text-slate-500'}`}>
+                              <p className={`text-xs font-bold uppercase mt-2 ${book.stockQuantity < 10 ? 'text-rose-400' : 'text-slate-500'}`}>
                                 Tồn: {book.stockQuantity}
                               </p>
                            </div>
@@ -621,3 +621,6 @@ const AdminDashboard: React.FC = () => {
 };
 
 export default AdminDashboard;
+
+
+
