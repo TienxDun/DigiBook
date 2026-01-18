@@ -22,6 +22,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
   const [selectedBooks, setSelectedBooks] = useState<string[]>([]);
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isFetchingISBN, setIsFetchingISBN] = useState(false);
   const [seedStatus, setSeedStatus] = useState<{msg: string, type: 'success' | 'error' | 'info'} | null>(null);
 
   // Pagination State
@@ -86,6 +87,41 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     } finally {
       setIsSyncing(false);
       setTimeout(() => setSeedStatus(null), 5000);
+    }
+  };
+
+  const handleFetchBookByISBN = async () => {
+    if (!bookFormData.isbn || bookFormData.isbn.trim().length < 10) {
+      toast.error("Vui lòng nhập mã ISBN hợp lệ (10 hoặc 13 số)");
+      return;
+    }
+
+    setIsFetchingISBN(true);
+    try {
+      const fetchedBook = await db.fetchBookByISBN(bookFormData.isbn);
+      if (fetchedBook) {
+        setBookFormData(prev => ({
+          ...prev,
+          title: fetchedBook.title,
+          author: fetchedBook.author,
+          authorBio: fetchedBook.authorBio,
+          cover: fetchedBook.cover,
+          category: fetchedBook.category,
+          description: fetchedBook.description,
+          pages: fetchedBook.pages,
+          publisher: fetchedBook.publisher,
+          publishYear: fetchedBook.publishYear,
+          language: fetchedBook.language,
+          rating: fetchedBook.rating
+        }));
+        toast.success("Đã tìm thấy thông tin sách từ Internet!");
+      } else {
+        toast.error("Không tìm thấy thông tin cho mã ISBN này.");
+      }
+    } catch (error) {
+      toast.error("Lỗi khi tìm kiếm dữ liệu.");
+    } finally {
+      setIsFetchingISBN(false);
     }
   };
 
@@ -165,9 +201,9 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
       const selectedAuthor = authors.find(a => a.id === bookFormData.authorId);
       const finalBook = {
         ...bookFormData,
-        id: editingBook ? editingBook.id : Date.now().toString(),
-        author: selectedAuthor?.name || 'Vô danh',
-        rating: editingBook?.rating || 5.0
+        id: editingBook ? editingBook.id : (bookFormData.id || Date.now().toString()),
+        author: selectedAuthor?.name || bookFormData.author || 'Vô danh',
+        rating: bookFormData.rating || (editingBook?.rating || 5.0)
       } as Book;
       await db.saveBook(finalBook);
       toast.success(editingBook ? 'Cập nhật sách thành công' : 'Thêm sách mới thành công');
@@ -487,13 +523,29 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                 
                 <div>
                   <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Mã định danh ISBN</label>
-                  <input
-                    type="text"
-                    value={bookFormData.isbn || ''}
-                    onChange={(e) => setBookFormData({...bookFormData, isbn: e.target.value})}
-                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium"
-                    placeholder="ISBN-13 hoặc ISBN-10"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={bookFormData.isbn || ''}
+                      onChange={(e) => setBookFormData({...bookFormData, isbn: e.target.value})}
+                      className="flex-1 px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium"
+                      placeholder="ISBN-13 hoặc ISBN-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleFetchBookByISBN}
+                      disabled={isFetchingISBN}
+                      className="px-4 py-3 bg-indigo-50 text-indigo-600 rounded-2xl hover:bg-indigo-100 transition-colors flex items-center gap-2 whitespace-nowrap disabled:opacity-50"
+                      title="Tự động lấy dữ liệu từ Google Books"
+                    >
+                      {isFetchingISBN ? (
+                        <i className="fas fa-spinner fa-spin"></i>
+                      ) : (
+                        <i className="fas fa-magic"></i>
+                      )}
+                      <span className="text-xs font-bold uppercase">Auto</span>
+                    </button>
+                  </div>
                 </div>
                 
                 <div>

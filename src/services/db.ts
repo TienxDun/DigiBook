@@ -608,7 +608,22 @@ class DataService {
 
           // Thử lấy thêm poster từ OpenLibrary nếu có ISBN
           const finalIsbn = isbn;
+          const finalRating = Number(info.averageRating || (4 + Math.random()).toFixed(1));
           
+          // Mapping ngôn ngữ
+          let mappedLang = 'Tiếng Việt';
+          if (info.language === 'en') mappedLang = 'English';
+          else if (info.language === 'ja') mappedLang = '日本語';
+          else if (info.language === 'fr') mappedLang = 'Français';
+          else if (info.language === 'de') mappedLang = 'Deutsch';
+          else if (info.language === 'es') mappedLang = 'Español';
+          else if (info.language === 'zh') mappedLang = '中文';
+          
+          // Tự động gán badge
+          let badge = undefined;
+          if (finalRating >= 4.8) badge = 'Bán chạy';
+          else if (info.pageCount > 500) badge = 'Kinh điển';
+
           return {
             id: finalIsbn,
             title: info.title,
@@ -617,7 +632,7 @@ class DataService {
             price: Math.floor(Math.random() * (350000 - 85000) + 85000), // Random price VND
             originalPrice: Math.floor(Math.random() * (450000 - 400000) + 400000),
             stockQuantity: Math.floor(Math.random() * 50) + 5,
-            rating: info.averageRating || (4 + Math.random()).toFixed(1),
+            rating: finalRating,
             cover: coverUrl,
             category: appCat,
             description: info.description || 'Chưa có mô tả chi tiết cho cuốn sách này.',
@@ -625,7 +640,8 @@ class DataService {
             pages: info.pageCount || 200,
             publisher: info.publisher || 'Đang cập nhật',
             publishYear: parseInt(info.publishedDate?.split('-')[0]) || 2023,
-            language: 'Tiếng Việt'
+            language: mappedLang,
+            badge: badge
           } as Book;
         })
         .filter((b: any) => b !== null);
@@ -634,6 +650,56 @@ class DataService {
     } catch (error) {
       console.error("Error fetching from Google Books:", error);
       return [];
+    }
+  }
+
+  async fetchBookByISBN(isbn: string): Promise<Book | null> {
+    try {
+      if (!isbn || isbn.length < 10) return null;
+      
+      const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${encodeURIComponent(isbn)}`;
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (!data.items || data.items.length === 0) return null;
+
+      const info = data.items[0].volumeInfo;
+      
+      // Mapping category
+      const gbCats = info.categories || [];
+      let appCat = "Văn học";
+      if (gbCats.some((c: string) => c.toLowerCase().includes('business') || c.toLowerCase().includes('economics'))) appCat = 'Kinh tế';
+      else if (gbCats.some((c: string) => c.toLowerCase().includes('history'))) appCat = 'Lịch sử';
+      else if (gbCats.some((c: string) => c.toLowerCase().includes('child') || c.toLowerCase().includes('juvenile'))) appCat = 'Thiếu nhi';
+      else if (gbCats.some((c: string) => c.toLowerCase().includes('self-help') || c.toLowerCase().includes('skill'))) appCat = 'Kỹ năng';
+
+      let coverUrl = info.imageLinks?.thumbnail?.replace('http:', 'https:') || "";
+      if (coverUrl.includes('zoom=1')) coverUrl = coverUrl.replace('zoom=1', 'zoom=2');
+      
+      if (!coverUrl) {
+        coverUrl = `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`;
+      }
+
+      return {
+        id: isbn,
+        title: info.title,
+        author: info.authors?.join(', ') || 'Nhiều tác giả',
+        authorBio: info.description?.substring(0, 300) || 'Thông tin tác giả đang được cập nhật.',
+        price: 0, // Admin sẽ tự nhập
+        stockQuantity: 10,
+        rating: Number(info.averageRating || 5),
+        cover: coverUrl,
+        category: appCat,
+        description: info.description || 'Chưa có mô tả.',
+        isbn: isbn,
+        pages: info.pageCount || 0,
+        publisher: info.publisher || 'Đang cập nhật',
+        publishYear: parseInt(info.publishedDate?.split('-')[0]) || new Date().getFullYear(),
+        language: info.language === 'vi' ? 'Tiếng Việt' : (info.language === 'en' ? 'English' : (info.language === 'ja' ? '日本語' : (info.language === 'fr' ? 'Français' : 'Tiếng Việt')))
+      } as Book;
+    } catch (error) {
+      console.error("Error fetching book by ISBN:", error);
+      return null;
     }
   }
 

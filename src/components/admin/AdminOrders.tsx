@@ -253,42 +253,49 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData }) => {
 
               {/* Order Items Table */}
               <div>
-                <h4 className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-4">Sản phẩm đã đặt</h4>
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-micro font-bold text-slate-400 uppercase tracking-premium">Sản phẩm đã đặt ({selectedOrder.items.length})</h4>
+                  <span className="text-micro font-bold text-indigo-600 uppercase tracking-premium bg-indigo-50 px-3 py-1 rounded-full">
+                    {selectedOrder.items.reduce((acc, item) => acc + item.quantity, 0)} cuốn
+                  </span>
+                </div>
                 <div className="border border-slate-100 rounded-3xl overflow-hidden">
-                  <table className="w-full">
-                    <thead className="bg-slate-50 text-left">
-                      <tr>
-                        <th className="px-6 py-4 text-micro font-bold text-slate-400 uppercase tracking-premium">Sản phẩm</th>
-                        <th className="px-6 py-4 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Số lượng</th>
-                        <th className="px-6 py-4 text-micro font-bold text-slate-400 uppercase tracking-premium text-right">Đơn giá</th>
-                        <th className="px-6 py-4 text-micro font-bold text-slate-400 uppercase tracking-premium text-right">Thành tiền</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {selectedOrder.items.map((item, index) => (
-                        <tr key={index}>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                              {item.cover ? (
-                                <img src={item.cover} alt={item.title} className="w-10 h-14 object-cover rounded shadow-sm" />
-                              ) : (
-                                <div className="w-10 h-14 bg-slate-100 rounded flex items-center justify-center text-slate-300">
-                                  <i className="fa-solid fa-book"></i>
-                                </div>
-                              )}
-                              <div>
-                                <p className="text-sm font-extrabold text-slate-900 line-clamp-1">{item.title}</p>
-                                <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">ID: {item.bookId.slice(-6)}</p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-center text-sm font-extrabold text-slate-700">x{item.quantity}</td>
-                          <td className="px-6 py-4 text-right text-sm font-bold text-slate-500">{formatPrice(item.priceAtPurchase)}</td>
-                          <td className="px-6 py-4 text-right text-sm font-extrabold text-indigo-600">{formatPrice(item.priceAtPurchase * item.quantity)}</td>
+                  <div className="max-h-[350px] overflow-y-auto custom-scrollbar">
+                    <table className="w-full border-collapse">
+                      <thead className="bg-slate-50 text-left sticky top-0 z-10 shadow-sm">
+                        <tr>
+                          <th className="px-6 py-4 text-micro font-bold text-slate-400 uppercase tracking-premium">Sản phẩm</th>
+                          <th className="px-6 py-4 text-micro font-bold text-slate-400 uppercase tracking-premium text-center">Số lượng</th>
+                          <th className="px-6 py-4 text-micro font-bold text-slate-400 uppercase tracking-premium text-right">Đơn giá</th>
+                          <th className="px-6 py-4 text-micro font-bold text-slate-400 uppercase tracking-premium text-right">Thành tiền</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 bg-white">
+                        {selectedOrder.items.map((item, index) => (
+                          <tr key={index} className="hover:bg-slate-50/50 transition-all">
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                {item.cover ? (
+                                  <img src={item.cover} alt={item.title} className="w-10 h-14 object-cover rounded shadow-sm" />
+                                ) : (
+                                  <div className="w-10 h-14 bg-slate-100 rounded flex items-center justify-center text-slate-300">
+                                    <i className="fa-solid fa-book"></i>
+                                  </div>
+                                )}
+                                <div>
+                                  <p className="text-sm font-extrabold text-slate-900 line-clamp-1">{item.title}</p>
+                                  <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">ID: {item.bookId.slice(-6)}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-center text-sm font-extrabold text-slate-700">x{item.quantity}</td>
+                            <td className="px-6 py-4 text-right text-sm font-bold text-slate-500">{formatPrice(item.priceAtPurchase)}</td>
+                            <td className="px-6 py-4 text-right text-sm font-extrabold text-indigo-600">{formatPrice(item.priceAtPurchase * item.quantity)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
