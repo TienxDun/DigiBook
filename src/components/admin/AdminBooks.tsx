@@ -195,7 +195,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
         </div>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm shadow-slate-200/40 transition-all hover:border-slate-300">
         <div className="flex items-center gap-4">
           <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Lọc kho:</span>
           <div className="flex gap-2 p-1 bg-slate-100 rounded-xl">
@@ -242,7 +242,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
 
       {/* Bulk Actions */}
       {filteredBooks.length > 0 && (
-        <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+        <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200/60 shadow-sm shadow-slate-200/30">
           <div className="flex items-center gap-4">
             <label className="flex items-center gap-2 cursor-pointer group">
               <div 
@@ -277,7 +277,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
         </div>
       )}
 
-      <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-sm shadow-slate-200/20 overflow-hidden">
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse min-w-[1200px]">
           <thead>

@@ -158,6 +158,16 @@ class DataService {
     );
   }
 
+  async getBooksByIds(ids: string[]): Promise<Book[]> {
+    if (!ids.length) return [];
+    // Firestore limited to 10 in 'in' queries usually, let's just fetch all and filter or do batching if it grows
+    // For now, since wishlist is small, we can fetch all or use multiple getDocs.
+    // Better way: get all books and Filter (since book collection is small in typical demo)
+    // Or fetch individually in parallel for larger sets.
+    const books = await this.getBooks();
+    return books.filter(b => ids.includes(b.id));
+  }
+
   async getRelatedBooks(category: string, currentBookId: string, author?: string, limitCount: number = 4): Promise<Book[]> {
     return this.wrap(
       (async () => {
@@ -540,6 +550,11 @@ class DataService {
       'UPDATE_USER_PROFILE',
       profile.id
     );
+  }
+
+  async updateWishlist(userId: string, bookIds: string[]): Promise<void> {
+    await this.updateUserProfile({ id: userId, wishlistIds: bookIds });
+    this.logActivity('UPDATE_WISHLIST', `User: ${userId} | Items: ${bookIds.length}`, 'SUCCESS');
   }
 
   // --- AUTO-GENERATOR FUNCTIONS ---

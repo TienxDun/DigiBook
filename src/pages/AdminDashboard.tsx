@@ -244,7 +244,7 @@ const AdminDashboard: React.FC = () => {
 
       {/* Main Content Area */}
       <main className={`flex-1 min-w-0 lg:ml-80 min-h-screen flex flex-col transition-all duration-500 ${adminTheme === 'midnight' ? 'bg-[#020617]' : 'bg-slate-50'}`}>
-        <header className={`backdrop-blur-xl border-b sticky top-0 z-40 h-24 flex items-center justify-between px-6 lg:px-10 transition-colors ${adminTheme === 'midnight' ? 'bg-[#0f172a]/80 border-white/5' : 'bg-white/80 border-slate-100'}`}>
+        <header className={`backdrop-blur-xl border-b sticky top-0 z-40 h-24 flex items-center justify-between px-6 lg:px-10 transition-colors ${adminTheme === 'midnight' ? 'bg-[#0f172a]/80 border-white/5' : 'bg-white/80 border-slate-200/60'}`}>
            <div className="flex items-center gap-4">
               <button 
                 onClick={() => setIsMobileMenuOpen(true)}
@@ -286,7 +286,7 @@ const AdminDashboard: React.FC = () => {
                 <span className="text-micro font-black text-slate-500 uppercase tracking-widest">{new Date().toLocaleDateString('vi-VN', { weekday: 'long' })}</span>
                 <span className={`text-sm font-black ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>{new Date().toLocaleDateString('vi-VN')}</span>
               </div>
-              <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center border shadow-inner ${adminTheme === 'midnight' ? 'bg-white/5 text-slate-400 border-white/5' : 'bg-slate-50 text-slate-500 border-slate-100'}`}>
+              <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center border shadow-inner ${adminTheme === 'midnight' ? 'bg-white/5 text-slate-400 border-white/5' : 'bg-white text-slate-500 border-slate-200'}`}>
                  <i className="fa-solid fa-calendar-check text-indigo-400"></i>
               </div>
            </div>
@@ -303,7 +303,7 @@ const AdminDashboard: React.FC = () => {
                   { label: "Sách tồn", value: stats.totalBooks, icon: "fa-book-open-reader", bgColor: "bg-violet-500/10", iconColor: "text-violet-400", sub: `${stats.outOfStock} đầu sách đã hết` },
                   { label: "Đang xử lý", value: stats.pendingOrders, icon: "fa-clock", bgColor: "bg-amber-500/10", iconColor: "text-amber-400", sub: `${stats.completedOrders} đơn đã hoàn thành` }
                 ].map((stat, i) => (
-                  <div key={i} className={`p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] border shadow-2xl transition-all group relative overflow-hidden ${adminTheme === 'midnight' ? 'bg-[#0f172a]/50 border-white/5 hover:bg-[#0f172a]/80' : 'bg-white border-slate-100 hover:shadow-indigo-500/10'}`}>
+                  <div key={i} className={`p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] border shadow-2xl transition-all group relative overflow-hidden ${adminTheme === 'midnight' ? 'bg-[#0f172a]/50 border-white/5 hover:bg-[#0f172a]/80' : 'bg-white border-slate-200/60 hover:shadow-indigo-500/10 hover:border-indigo-200/50'}`}>
                     <div className="flex items-start justify-between mb-6 relative z-10">
                       <div className={`w-16 h-16 ${stat.bgColor} ${stat.iconColor} rounded-3xl flex items-center justify-center text-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.2)]`}>
                         <i className={`fa-solid ${stat.icon}`}></i>
@@ -325,7 +325,7 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-                <div className={`lg:col-span-2 p-6 lg:p-8 rounded-[2rem] lg:rounded-[3rem] border shadow-2xl relative overflow-hidden transition-all ${adminTheme === 'midnight' ? 'bg-[#0f172a]/50 border-white/5' : 'bg-white border-slate-100'}`}>
+                <div className={`lg:col-span-2 p-6 lg:p-8 rounded-[2rem] lg:rounded-[3rem] border shadow-2xl relative overflow-hidden transition-all ${adminTheme === 'midnight' ? 'bg-[#0f172a]/50 border-white/5' : 'bg-white border-slate-200/60 shadow-slate-200/50'}`}>
                   <div className="flex items-center justify-between mb-8">
                     <div>
                       <h3 className={`text-lg lg:text-xl font-black uppercase tracking-tight ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>Biểu đồ doanh thu</h3>
@@ -370,7 +370,7 @@ const AdminDashboard: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
-                  <div className={`p-6 lg:p-7 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl border transition-all ${adminTheme === 'midnight' ? 'bg-[#0f172a]/50 border-white/5' : 'bg-white border-slate-100'}`}>
+                  <div className={`p-6 lg:p-7 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl border transition-all ${adminTheme === 'midnight' ? 'bg-[#0f172a]/50 border-white/5' : 'bg-white border-slate-200/60 shadow-slate-200/50'}`}>
                     <div className="flex items-center justify-between mb-6">
                       <h3 className={`text-xs lg:text-label font-bold uppercase tracking-premium ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>Nội dung</h3>
                       <i className="fa-solid fa-database text-indigo-400/40"></i>

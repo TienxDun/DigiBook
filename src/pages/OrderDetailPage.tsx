@@ -185,7 +185,7 @@ const OrderDetailPage: React.FC = () => {
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Đơn giá: {formatPrice(item.priceAtPurchase)}</p>
                          </div>
                          <div className="flex flex-col items-end">
-                            <span className="text-lg font-black text-slate-900">{formatPrice(item.priceAtPurchase * item.quantity)}</span>
+                            <span className="text-lg font-black text-rose-600 tracking-tight">{formatPrice(item.priceAtPurchase * item.quantity)}</span>
                             <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-lg mt-1 italic">SL: x{item.quantity}</span>
                          </div>
                       </div>

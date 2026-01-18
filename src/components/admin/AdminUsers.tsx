@@ -87,7 +87,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData }) => {
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* User Filters Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm shadow-slate-200/40 transition-all hover:border-slate-300">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
             <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Vai trò:</span>
@@ -149,7 +149,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData }) => {
         </div>
       </div>
 
-      <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden min-h-[500px]">
+      <div className="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-sm shadow-slate-200/20 overflow-hidden min-h-[500px]">
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse min-w-[1100px]">
           <thead className="bg-slate-50 border-b border-slate-100">
@@ -169,7 +169,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData }) => {
                   <div className="flex items-center gap-4">
                     <img 
                       src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=random&bold=true`} 
-                      className="w-12 h-12 rounded-2xl object-cover shadow-sm border-2 border-white ring-1 ring-slate-100" 
+                      className="w-12 h-12 rounded-2xl object-cover shadow-sm border-2 border-white ring-1 ring-slate-200" 
                       alt={user.name} 
                     />
                     <div>

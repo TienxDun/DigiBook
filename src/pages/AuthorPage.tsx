@@ -145,7 +145,7 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
           <div className="lg:col-span-8 space-y-10">
             
             {/* Biography Block */}
-            <div className="bg-white p-6 lg:p-10 rounded-[2.5rem] border border-slate-100 shadow-sm">
+            <div className="bg-white p-6 lg:p-10 rounded-[2.5rem] border border-slate-200/60 shadow-xl shadow-slate-200/40">
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center">
                   <i className="fa-solid fa-feather-pointed text-sm"></i>
@@ -166,7 +166,7 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
               <div className="mt-8 flex flex-wrap gap-2">
                 <span className="text-micro font-bold text-slate-400 uppercase tracking-premium mr-2">Tags:</span>
                 {Array.from(new Set(authorBooks.map(b => b.category))).map(cat => (
-                  <Link key={cat} to={`/category/${cat}`} className="px-4 py-1.5 bg-slate-50 text-slate-600 rounded-full text-micro font-bold uppercase tracking-premium hover:bg-indigo-50 hover:text-indigo-600 transition-all border border-slate-100">
+                  <Link key={cat} to={`/category/${cat}`} className="px-4 py-1.5 bg-slate-50 text-slate-600 rounded-full text-micro font-bold uppercase tracking-premium hover:bg-white hover:text-indigo-600 transition-all border border-slate-200 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-500/10">
                     {cat}
                   </Link>
                 ))}

@@ -54,8 +54,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
         onClick={onClose}
       />
       
-      <aside className={`fixed top-0 right-0 h-full w-full max-w-md bg-white/80 backdrop-blur-3xl shadow-2xl z-[70] transition-transform duration-500 ease-out transform ${isOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col border-l border-white/20`}>
-        <div className="p-6 border-b border-white/10 flex items-center justify-between">
+      <aside className={`fixed top-0 right-0 h-full w-full max-w-md bg-white/80 backdrop-blur-3xl shadow-2xl z-[70] transition-transform duration-500 ease-out transform ${isOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col border-l border-slate-200/60 shadow-[-12px_0_32px_-12px_rgba(0,0,0,0.15)]`}>
+        <div className="p-6 border-b border-slate-200/60 flex items-center justify-between">
           <div>
             <h2 className="text-xl font-extrabold text-slate-900 uppercase tracking-tight">Giỏ hàng của bạn</h2>
             {items.length > 0 && (
@@ -70,7 +70,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
         </div>
 
         {items.length > 0 && (
-          <div className="px-6 py-3 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between">
+          <div className="px-6 py-3 bg-slate-50/50 border-b border-slate-200/60 flex items-center justify-between">
             <label className="flex items-center gap-3 cursor-pointer group">
               <div 
                 onClick={() => onToggleAll(!isAllSelected)}
@@ -134,12 +134,12 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                   </div>
                   <p className="text-slate-400 text-[10px] mb-3 font-bold uppercase tracking-widest">{item.author}</p>
                   <div className="flex items-center justify-between mt-auto">
-                    <div className="flex items-center border border-slate-100 rounded-xl bg-slate-50 p-1 gap-2">
+                    <div className="flex items-center border border-slate-200/60 rounded-xl bg-white p-1 gap-2 shadow-sm">
                       <button onClick={() => onUpdateQty(item.id, -1)} className="w-7 h-7 rounded-lg hover:bg-white flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-all"><i className="fa-solid fa-minus text-[10px]"></i></button>
                       <span className="text-xs font-black text-slate-900 min-w-[20px] text-center">{item.quantity}</span>
                       <button onClick={() => onUpdateQty(item.id, 1)} className="w-7 h-7 rounded-lg hover:bg-white flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-all"><i className="fa-solid fa-plus text-[10px]"></i></button>
                     </div>
-                    <span className="font-black text-slate-900 text-sm">{formatPrice(item.price * item.quantity)}</span>
+                    <span className="font-black text-rose-600 text-sm tracking-tight">{formatPrice(item.price * item.quantity)}</span>
                   </div>
                 </div>
               </div>
@@ -148,7 +148,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
         </div>
 
         {items.length > 0 && (
-          <div className="p-8 border-t border-slate-100 bg-slate-50/50">
+          <div className="p-8 border-t border-slate-200/60 bg-white">
             <div className="space-y-4 mb-8">
               <div className="flex justify-between items-center text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
                 <span>Tạm tính ({selectedItems.length} món)</span>
@@ -157,7 +157,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
               <div className="flex justify-between items-end border-t border-slate-200 pt-5">
                 <div className="flex flex-col">
                   <span className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Tổng cộng</span>
-                  <span className="text-2xl font-black text-slate-900 tracking-tighter leading-none">{formatPrice(subtotal)}</span>
+                  <span className="text-3xl font-black text-rose-600 tracking-tighter leading-none">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="text-right">
                    <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mb-1 flex items-center justify-end gap-1">

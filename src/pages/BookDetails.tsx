@@ -23,13 +23,13 @@ const SocialShare: React.FC<{ title: string }> = ({ title }) => {
 
   return (
     <div className="flex items-center gap-2 mt-4">
-      <button onClick={copyLink} className="w-9 h-9 rounded-xl bg-white flex items-center justify-center text-slate-500 hover:bg-indigo-600 hover:text-white transition-all text-xs shadow-sm border border-slate-100" title="Sao chép liên kết">
+      <button onClick={copyLink} className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-500 hover:bg-slate-900 hover:text-white transition-all text-xs shadow-sm border border-slate-200" title="Sao chép liên kết">
         <i className="fa-solid fa-link"></i>
       </button>
-      <button className="w-9 h-9 rounded-xl bg-white flex items-center justify-center text-slate-500 hover:bg-[#1877F2] hover:text-white transition-all text-xs shadow-sm border border-slate-100">
+      <button className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-500 hover:bg-[#1877F2] hover:text-white transition-all text-xs shadow-sm border border-slate-200">
         <i className="fa-brands fa-facebook-f"></i>
       </button>
-      <button className="w-9 h-9 rounded-xl bg-white flex items-center justify-center text-slate-500 hover:bg-[#1DA1F2] hover:text-white transition-all text-xs shadow-sm border border-slate-100">
+      <button className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-500 hover:bg-[#1DA1F2] hover:text-white transition-all text-xs shadow-sm border border-slate-200">
         <i className="fa-brands fa-twitter"></i>
       </button>
     </div>
@@ -146,11 +146,11 @@ const BookDetails: React.FC<{
 
   if (error || !book) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 px-4">
-      <div className="bg-white p-12 rounded-[3rem] shadow-xl shadow-slate-200/50 text-center max-w-lg border border-slate-100 relative overflow-hidden">
+      <div className="bg-white p-12 rounded-[3rem] shadow-2xl shadow-slate-200/50 text-center max-w-lg border border-slate-200/60 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-rose-50 rounded-full blur-3xl -mr-16 -mt-16"></div>
         <div className="relative z-10">
-          <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-8 transform -rotate-6">
-            <i className="fa-solid fa-book-skull text-4xl"></i>
+          <div className="w-24 h-24 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-8 transform -rotate-6 shadow-lg shadow-rose-100/50 border border-rose-100">
+            <i className="fa-solid fa-book-skull text-5xl"></i>
           </div>
           <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Sách không tồn tại</h2>
           <p className="text-slate-500 font-medium leading-relaxed mb-10">
@@ -159,13 +159,13 @@ const BookDetails: React.FC<{
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button 
               onClick={() => navigate(-1)}
-              className="px-8 py-4 bg-slate-100 text-slate-600 rounded-xl font-bold uppercase tracking-premium text-xs hover:bg-slate-200 transition-all active:scale-95"
+              className="px-8 py-4 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold uppercase tracking-premium text-xs hover:bg-slate-50 transition-all active:scale-95"
             >
               Quay lại
             </button>
             <Link 
               to="/category/Tất cả sách"
-              className="px-8 py-4 bg-indigo-600 text-white rounded-xl font-bold uppercase tracking-premium text-xs hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all active:scale-95"
+              className="px-8 py-4 bg-slate-900 text-white rounded-xl font-bold uppercase tracking-premium text-xs hover:bg-indigo-600 shadow-lg shadow-indigo-100 transition-all active:scale-95"
             >
               Khám phá sách khác
             </Link>
@@ -278,7 +278,7 @@ const BookDetails: React.FC<{
              <motion.div 
                initial={{ opacity: 0, scale: 0.95 }}
                animate={{ opacity: 1, scale: 1 }}
-               className="bg-white p-4 lg:p-6 rounded-[3rem] shadow-2xl shadow-slate-200/50 border border-white relative overflow-hidden group"
+               className="bg-white p-4 lg:p-6 rounded-[3rem] shadow-2xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden group"
              >
                 {/* Visual Accent */}
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent"></div>
@@ -338,7 +338,7 @@ const BookDetails: React.FC<{
                initial={{ opacity: 0, y: 20 }}
                whileInView={{ opacity: 1, y: 0 }}
                viewport={{ once: true }}
-               className="bg-white p-8 lg:p-10 rounded-[3rem] shadow-sm border border-slate-100 flex flex-col relative overflow-hidden"
+               className="bg-white p-8 lg:p-10 rounded-[3rem] shadow-sm border border-slate-200/60 flex flex-col relative overflow-hidden"
              >
                 {/* Decorative Background Pattern */}
                 <div className="absolute top-0 right-0 w-32 h-32 opacity-[0.03] pointer-events-none -mr-8 -mt-8">
@@ -379,7 +379,7 @@ const BookDetails: React.FC<{
                 
                 <button 
                   onClick={() => setShowFullDescription(!showFullDescription)}
-                  className="mt-6 w-full py-4 rounded-2xl bg-slate-50 border border-slate-100 text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-500 group relative z-20 shadow-sm hover:shadow-indigo-200"
+                  className="mt-6 w-full py-4 rounded-2xl bg-slate-50 border border-slate-200/60 text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-500 group relative z-20 shadow-sm hover:shadow-indigo-200"
                 >
                   <span className="relative">
                     {showFullDescription ? 'Thu gọn nội dung' : 'Khám phá toàn bộ chi tiết'} 
@@ -405,7 +405,7 @@ const BookDetails: React.FC<{
              </motion.div>
 
              {/* Author Segment - Relocated for Better Flow */}
-             <div className="bg-white p-8 lg:p-10 rounded-[3rem] shadow-sm border border-slate-100 relative overflow-hidden flex flex-col">
+             <div className="bg-white p-8 lg:p-10 rounded-[3rem] shadow-sm border border-slate-200/60 relative overflow-hidden flex flex-col">
                 {/* Decorative Backgrounds */}
                 <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-100/10 rounded-full blur-[100px] -ml-32 -mt-32"></div>
                 <div className="absolute bottom-0 right-0 w-48 h-48 bg-rose-50/20 rounded-full blur-[80px] -mr-24 -mb-24"></div>
@@ -481,7 +481,7 @@ const BookDetails: React.FC<{
                initial={{ opacity: 0, y: 20 }}
                animate={{ opacity: 1, y: 0 }}
                transition={{ delay: 0.1 }}
-               className="bg-white p-8 lg:p-10 rounded-[3rem] shadow-sm border border-slate-100 relative overflow-hidden"
+               className="bg-white p-8 lg:p-10 rounded-[3rem] shadow-sm border border-slate-200/60 relative overflow-hidden"
             >
               {/* Decorative Glow */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -mr-16 -mt-16 opacity-50"></div>
@@ -489,7 +489,7 @@ const BookDetails: React.FC<{
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
                  <div className="flex-1">
                     <div className="flex flex-wrap items-end gap-3 mb-3">
-                       <span className="text-4xl font-black text-slate-900 tracking-tighter leading-none">{formatPrice(book.price)}</span>
+                       <span className="text-5xl font-black text-rose-600 tracking-tighter leading-none">{formatPrice(book.price)}</span>
                        {book.originalPrice && (
                          <div className="flex flex-col mb-0.5">
                             <span className="text-sm font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-lg line-through leading-none mb-1 opacity-70 italic whitespace-nowrap">{formatPrice(book.originalPrice)}</span>
@@ -549,7 +549,7 @@ const BookDetails: React.FC<{
                  <motion.div 
                    key={i}
                    whileHover={{ y: -5, shadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }}
-                   className="bg-white p-5 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col items-center text-center transition-all overflow-hidden"
+                   className="bg-white p-5 rounded-[2.5rem] shadow-sm border border-slate-200/60 flex flex-col items-center text-center transition-all overflow-hidden"
                  >
                     <div className={`w-12 h-12 ${m.color} rounded-2xl flex items-center justify-center mb-4 shadow-sm shrink-0`}>
                        <i className={`fa-solid ${m.i} text-base`}></i>
@@ -647,10 +647,10 @@ const BookDetails: React.FC<{
                               initial={{ opacity: 0, scale: 0.98 }}
                               whileInView={{ opacity: 1, scale: 1 }}
                               key={r.id} 
-                              className="group bg-slate-50/50 p-5 rounded-[2rem] border border-slate-100/50 hover:bg-white hover:shadow-xl hover:shadow-slate-100 transition-all duration-500 overflow-hidden"
+                              className="group bg-slate-50/50 p-5 rounded-[2rem] border border-slate-200/50 hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-500 overflow-hidden"
                             >
                               <div className="flex gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-white text-indigo-600 shadow-sm flex items-center justify-center font-black text-sm flex-shrink-0 border border-slate-100 group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all duration-500">
+                                <div className="w-12 h-12 rounded-2xl bg-white text-indigo-600 shadow-sm flex items-center justify-center font-black text-sm flex-shrink-0 border border-slate-200/60 group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all duration-500">
                                   {r.userName.charAt(0)}
                                 </div>
                                 <div className="flex-grow pt-0.5">
@@ -688,7 +688,7 @@ const BookDetails: React.FC<{
                       </div>
 
                       {/* Add Review Action Control */}
-                      <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
+                      <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-200/60">
                          <div className="flex items-center justify-between mb-4 px-2">
                             <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Viết nhận xét của bạn</p>
                             <div className="flex gap-2">
@@ -705,7 +705,7 @@ const BookDetails: React.FC<{
                               value={newComment} 
                               onChange={e => setNewComment(e.target.value)}
                               placeholder="Trải nghiệm của bạn với cuốn sách này..." 
-                              className="flex-grow px-6 py-4 bg-white rounded-2xl outline-none focus:ring-2 ring-indigo-50 font-bold text-xs text-slate-700 transition-all border border-slate-100 shadow-inner"
+                              className="flex-grow px-6 py-4 bg-white rounded-2xl outline-none focus:ring-4 ring-indigo-500/10 font-bold text-xs text-slate-700 transition-all border border-slate-200 focus:border-indigo-500 shadow-inner"
                             />
                             <button 
                               onClick={handleAddReview} 
@@ -802,7 +802,7 @@ const BookDetails: React.FC<{
                    )}
                 </div>
                 <div className="flex items-center gap-3">
-                   <p className="text-indigo-600 font-black text-lg">{formatPrice(book.price)}</p>
+                   <p className="text-rose-600 font-black text-xl tracking-tight">{formatPrice(book.price)}</p>
                    {book.originalPrice && <p className="text-slate-400 text-xs font-bold line-through opacity-40">{formatPrice(book.originalPrice)}</p>}
                 </div>
               </div>

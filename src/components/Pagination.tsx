@@ -43,11 +43,11 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
 
   return (
     <div className="flex flex-col items-center gap-5 mt-16 px-4">
-      <div className="flex items-center justify-center gap-1.5 p-1.5 bg-slate-50/80 backdrop-blur-md rounded-2xl border border-slate-100 shadow-sm transition-all duration-300">
+      <div className="flex items-center justify-center gap-1.5 p-1.5 bg-slate-50/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-sm shadow-slate-200/30 transition-all duration-300">
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-slate-400 hover:bg-white hover:text-indigo-600 hover:shadow-md transition-all disabled:opacity-20 disabled:cursor-not-allowed group"
+          className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-slate-400 hover:bg-white hover:text-indigo-600 hover:shadow-md hover:ring-1 hover:ring-slate-200 transition-all disabled:opacity-20 disabled:cursor-not-allowed group"
           aria-label="Previous page"
         >
           <i className="fa-solid fa-chevron-left text-[10px] group-hover:-translate-x-0.5 transition-transform"></i>
@@ -62,7 +62,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
                 className={`w-9 h-9 md:w-10 md:h-10 rounded-xl font-black text-xs transition-all flex items-center justify-center ${
                   currentPage === page
                     ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 scale-105 z-10'
-                    : 'text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm'
+                    : 'text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm hover:ring-1 hover:ring-slate-200'
                 }`}
               >
                 {page}
@@ -78,7 +78,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-slate-400 hover:bg-white hover:text-indigo-600 hover:shadow-md transition-all disabled:opacity-20 disabled:cursor-not-allowed group"
+          className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-slate-400 hover:bg-white hover:text-indigo-600 hover:shadow-md hover:ring-1 hover:ring-slate-200 transition-all disabled:opacity-20 disabled:cursor-not-allowed group"
           aria-label="Next page"
         >
           <i className="fa-solid fa-chevron-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>

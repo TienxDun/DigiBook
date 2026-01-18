@@ -76,7 +76,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData }) => {
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Search & Filter Bar */}
-      <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex flex-wrap items-center justify-between gap-6">
+      <div className="bg-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm shadow-slate-200/40 transition-all hover:border-slate-300 flex flex-wrap items-center justify-between gap-6">
         <div>
           <h3 className="text-lg font-extrabold text-slate-900 uppercase tracking-tight">Danh sách đơn hàng</h3>
           <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Quản lý và cập nhật trạng thái đơn hàng</p>
@@ -93,7 +93,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData }) => {
         </div>
       </div>
 
-      <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-[2rem] border border-slate-200/60 shadow-sm shadow-slate-200/20 overflow-hidden">
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left min-w-[1100px]">
           <thead className="bg-slate-50/50">

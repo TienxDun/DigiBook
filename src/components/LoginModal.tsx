@@ -32,7 +32,7 @@ const LoginModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md transition-all">
-      <div className="relative bg-white w-full max-w-[380px] rounded-[2rem] p-1 shadow-[0_20px_50px_rgba(0,0,0,0.1)] animate-fadeIn overflow-hidden">
+      <div className="relative bg-white w-full max-w-[380px] rounded-[2rem] p-1 shadow-[0_24px_50px_-12px_rgba(0,0,0,0.15)] border border-white/20 animate-fadeIn overflow-hidden">
         <div className="relative bg-white rounded-[1.9rem] p-8">
           <button 
             onClick={() => {
@@ -76,7 +76,7 @@ const LoginModal: React.FC = () => {
                       value={displayName} 
                       onChange={e => setDisplayName(e.target.value)} 
                       placeholder="Họ và tên" 
-                      className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:bg-white focus:border-slate-900 font-bold transition-all text-slate-900 text-sm placeholder:text-slate-300" 
+                      className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-500/10 font-bold transition-all text-slate-900 text-sm placeholder:text-slate-300 shadow-sm shadow-slate-200/50" 
                     />
                   </div>
                 </div>
@@ -91,7 +91,7 @@ const LoginModal: React.FC = () => {
                     value={email} 
                     onChange={e => setEmail(e.target.value)} 
                     placeholder="Địa chỉ Email" 
-                    className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:bg-white focus:border-slate-900 font-bold transition-all text-slate-900 text-sm placeholder:text-slate-300" 
+                    className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-500/10 font-bold transition-all text-slate-900 text-sm placeholder:text-slate-300 shadow-sm shadow-slate-200/50" 
                   />
                 </div>
               </div>
@@ -105,7 +105,7 @@ const LoginModal: React.FC = () => {
                     value={password} 
                     onChange={e => setPassword(e.target.value)} 
                     placeholder="Mật khẩu" 
-                    className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:bg-white focus:border-slate-900 font-bold transition-all text-slate-900 text-sm placeholder:text-slate-300" 
+                    className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-500/10 font-bold transition-all text-slate-900 text-sm placeholder:text-slate-300 shadow-sm shadow-slate-200/50" 
                   />
                 </div>
                 {authMode === 'login' && (
@@ -141,7 +141,7 @@ const LoginModal: React.FC = () => {
                       value={confirmPassword} 
                       onChange={e => setConfirmPassword(e.target.value)} 
                       placeholder="Xác nhận mật khẩu" 
-                      className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:bg-white focus:border-slate-900 font-bold transition-all text-slate-900 text-sm placeholder:text-slate-300" 
+                      className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-500/10 font-bold transition-all text-slate-900 text-sm placeholder:text-slate-300 shadow-sm shadow-slate-200/50" 
                     />
                   </div>
                 </div>
@@ -164,7 +164,7 @@ const LoginModal: React.FC = () => {
             <button 
               type="button"
               onClick={loginWithGoogle} 
-              className="w-full py-4 bg-white border-2 border-slate-100 rounded-2xl font-bold flex items-center justify-center gap-4 hover:bg-slate-50 hover:border-slate-300 transition-all text-slate-700 active:scale-[0.98] relative overflow-hidden group shadow-lg shadow-slate-100/50"
+              className="w-full py-4 bg-white border border-slate-200 rounded-2xl font-bold flex items-center justify-center gap-4 hover:bg-slate-50 hover:border-slate-300 hover:shadow-xl transition-all text-slate-700 active:scale-[0.98] relative overflow-hidden group shadow-lg shadow-slate-100/30"
             >
               <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" className="w-5" alt="Google Logo" />
               <span className="text-micro font-bold uppercase tracking-premium">Tiếp tục bằng Google</span>

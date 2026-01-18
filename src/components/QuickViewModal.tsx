@@ -46,7 +46,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
             initial={{ opacity: 0, scale: 0.9, y: 40 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 40 }}
-            className="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh]"
+            className="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] border border-white/20 overflow-hidden flex flex-col md:flex-row max-h-[90vh]"
           >
             {/* Close Button */}
             <button 
@@ -67,7 +67,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                 <img 
                   src={book.cover} 
                   alt={book.title}
-                  className="w-full max-w-[260px] h-auto object-cover rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.3)] border border-white/20"
+                  className="w-full max-w-[260px] h-auto object-cover rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.3)] border border-slate-200/50"
                 />
                 <div className="absolute inset-0 bg-indigo-600/10 blur-3xl rounded-full -z-10 group-hover/img:bg-indigo-600/20 transition-all duration-700 scale-150"></div>
               </motion.div>
@@ -129,7 +129,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Giá bán chính thức</p>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-black text-slate-900 tracking-tighter">
+                    <span className="text-4xl font-black text-rose-600 tracking-tighter">
                       {book.price.toLocaleString()}đ
                     </span>
                     {book.originalPrice && (

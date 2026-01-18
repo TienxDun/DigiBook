@@ -66,7 +66,7 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData }) => 
 
   return (
     <div className="space-y-6 animate-fadeIn">
-      <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm shadow-slate-200/40 transition-all hover:border-slate-300">
         <div>
           <h3 className="text-lg font-extrabold text-slate-900 uppercase tracking-tight">Mã khuyến mãi (Coupons)</h3>
           <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Quản lý các chương trình ưu đãi của cửa hàng</p>
@@ -79,7 +79,7 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData }) => 
         </button>
       </div>
 
-      <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-[2rem] border border-slate-200/60 shadow-sm shadow-slate-200/20 overflow-hidden">
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left min-w-[800px]">
           <thead className="bg-slate-50/50">

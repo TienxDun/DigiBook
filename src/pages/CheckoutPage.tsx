@@ -159,7 +159,7 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
       <div className="max-w-7xl mx-auto px-4 pb-20">
         <div className="grid lg:grid-cols-12 gap-8 items-start">
           <div className="lg:col-span-8 space-y-8">
-            <section className="bg-white rounded-3xl p-6 lg:p-8 border border-slate-100 shadow-sm">
+            <section className="bg-white rounded-3xl p-6 lg:p-8 border border-slate-200/60 shadow-sm shadow-slate-200/20 transition-all hover:border-slate-300">
               <div className="flex items-center gap-3.5 mb-8">
                 <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
                   <i className="fa-solid fa-truck-fast text-lg"></i>
@@ -178,7 +178,7 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                     value={formData.name} 
                     onChange={handleInputChange} 
                     placeholder="Nhập tên người nhận..." 
-                    className="w-full p-3.5 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-indigo-100 focus:ring-4 ring-indigo-50 transition-all font-bold text-slate-900 text-sm" 
+                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold text-slate-900 text-sm shadow-inner" 
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -188,7 +188,7 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                     value={formData.phone} 
                     onChange={handleInputChange} 
                     placeholder="09xx xxx xxx" 
-                    className="w-full p-3.5 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-indigo-100 focus:ring-4 ring-indigo-50 transition-all font-bold text-slate-900 text-sm" 
+                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold text-slate-900 text-sm shadow-inner" 
                   />
                 </div>
                 <div className="md:col-span-2 space-y-1.5">
@@ -198,7 +198,7 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                     value={formData.address} 
                     onChange={handleInputChange} 
                     placeholder="Số nhà, tên đường, phường/xã..." 
-                    className="w-full p-3.5 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-indigo-100 focus:ring-4 ring-indigo-50 transition-all font-bold text-slate-900 text-sm" 
+                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold text-slate-900 text-sm shadow-inner" 
                   />
                 </div>
                 <div className="md:col-span-2 space-y-1.5">
@@ -208,13 +208,13 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                     value={formData.note} 
                     onChange={handleInputChange} 
                     placeholder="Ví dụ: Giao giờ hành chính, gọi trước khi đến..." 
-                    className="w-full p-3.5 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-indigo-100 focus:ring-4 ring-indigo-50 transition-all font-bold text-slate-900 text-sm h-24 resize-none" 
+                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold text-slate-900 text-sm h-24 resize-none shadow-inner" 
                   />
                 </div>
               </div>
             </section>
 
-            <section className="bg-white rounded-3xl p-6 lg:p-8 border border-slate-100 shadow-sm">
+            <section className="bg-white rounded-3xl p-6 lg:p-8 border border-slate-200/60 shadow-sm shadow-slate-200/20 transition-all hover:border-slate-300">
               <div className="flex items-center gap-3.5 mb-8">
                 <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
                   <i className="fa-solid fa-credit-card text-lg"></i>
@@ -278,7 +278,7 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                     <div className="flex-1 min-w-0">
                       <h4 className="font-extrabold text-slate-900 text-label truncate group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{item.title}</h4>
                       <p className="text-micro text-slate-400 font-bold mb-0.5">SL: {item.quantity}</p>
-                      <p className="font-extrabold text-slate-900 text-label">{formatPrice(item.price * item.quantity)}</p>
+                      <p className="font-black text-rose-600 text-label tracking-tight">{formatPrice(item.price * item.quantity)}</p>
                     </div>
                   </div>
                 ))}
@@ -326,9 +326,9 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                     <span>-{formatPrice(discount)}</span>
                   </div>
                 )}
-                <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
-                  <span className="text-sm font-extrabold text-slate-900 uppercase tracking-premium">Tổng tiền</span>
-                  <span className="text-xl font-extrabold text-indigo-600 tracking-tight">{formatPrice(total)}</span>
+                <div className="pt-4 border-t border-slate-200 flex justify-between items-center">
+                  <span className="text-sm font-black text-slate-900 uppercase tracking-premium">Tổng thanh toán</span>
+                  <span className="text-2xl font-black text-rose-600 tracking-tighter">{formatPrice(total)}</span>
                 </div>
               </div>
 

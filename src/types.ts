@@ -49,6 +49,7 @@ export interface UserProfile {
   birthday?: string;
   role?: 'user' | 'admin';
   status?: 'active' | 'banned';
+  wishlistIds?: string[];
   createdAt?: any;
   updatedAt?: any;
 }

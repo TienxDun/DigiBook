@@ -166,14 +166,14 @@ const Header: React.FC<HeaderProps> = ({
               </button>
 
               {showCategoryMenu && (
-                <div className="absolute top-full left-0 mt-4 w-[480px] bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 z-[100] animate-fadeIn">
+                <div className="absolute top-full left-0 mt-4 w-[480px] bg-white rounded-3xl shadow-2xl border border-slate-200/60 p-6 z-[100] animate-fadeIn">
                   <div className="grid grid-cols-2 gap-4">
                     {categories.length > 0 ? categories.map((cat) => (
                       <Link 
                         key={cat.name}
                         to={`/category/${cat.name}`}
                         onClick={() => setShowCategoryMenu(false)}
-                        className="group flex items-center gap-4 p-3 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100"
+                        className="group flex items-center gap-4 p-3 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-200"
                       >
                         <div className="w-10 h-10 bg-slate-50 group-hover:bg-white rounded-xl flex items-center justify-center text-slate-400 group-hover:text-indigo-600 transition-all shadow-sm group-hover:shadow-md">
                           <i className={`fa-solid ${cat.icon} text-lg`}></i>
@@ -250,23 +250,23 @@ const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Search Suggestions */}
-          {isSearchFocused && searchSuggestions.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-[110] animate-fadeIn">
-              <div className="p-2">
+              {isSearchFocused && searchSuggestions.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-3xl shadow-2xl border border-slate-200/60 overflow-hidden z-[110] animate-fadeIn">
+              <div className="p-3">
                 {searchSuggestions.map(book => (
                   <Link 
                     key={book.id}
                     to={`/book/${book.id}`}
                     onClick={() => setIsSearchFocused(false)}
-                    className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-xl transition-all group"
+                    className="flex items-center gap-4 p-2.5 hover:bg-slate-50 rounded-2xl transition-all group border border-transparent hover:border-slate-200/50"
                   >
-                    <img src={book.cover} alt="" className="w-10 h-14 rounded shadow-sm object-cover" />
+                    <img src={book.cover} alt="" className="w-12 h-16 rounded-xl shadow-md object-cover border border-slate-100" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-label font-bold text-slate-900 truncate group-hover:text-indigo-600 transition-colors">{book.title}</p>
+                      <p className="text-label font-extrabold text-slate-900 truncate group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{book.title}</p>
                       <p className="text-micro font-bold text-slate-400">{book.author}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-label font-extrabold text-indigo-600">{book.price.toLocaleString()}đ</p>
+                      <p className="text-label font-black text-rose-600 tracking-tight">{book.price.toLocaleString()}đ</p>
                     </div>
                   </Link>
                 ))}
@@ -277,7 +277,7 @@ const Header: React.FC<HeaderProps> = ({
                   navigate(`/search/${encodeURIComponent(searchValue.trim())}`);
                   setIsSearchFocused(false);
                 }}
-                className="w-full py-3 bg-slate-50 text-micro font-bold uppercase tracking-premium text-slate-500 hover:text-indigo-600 transition-colors border-t border-slate-100"
+                className="w-full py-4 bg-slate-50 text-micro font-extrabold uppercase tracking-premium text-slate-500 hover:text-indigo-600 transition-colors border-t border-slate-200/60"
               >
                 Xem tất cả kết quả cho "{searchValue}"
               </button>
@@ -323,7 +323,7 @@ const Header: React.FC<HeaderProps> = ({
 
               {/* Quick Cart Preview Dropdown */}
               {showCartPreview && cartItems.length > 0 && (
-                <div className="absolute top-full right-0 mt-4 w-80 bg-white rounded-3xl shadow-2xl border border-slate-100 p-5 z-[100] animate-fadeIn">
+                <div className="absolute top-full right-0 mt-4 w-80 bg-white rounded-3xl shadow-2xl border border-slate-200/60 p-5 z-[100] animate-fadeIn">
                   <div className="flex items-center justify-between mb-4">
                     <p className="text-label font-extrabold text-slate-900 uppercase tracking-tight">Giỏ hàng nhanh</p>
                     <span className="text-micro font-bold text-slate-400">{cartCount} sản phẩm</span>
@@ -345,7 +345,7 @@ const Header: React.FC<HeaderProps> = ({
                   <div className="mt-4 pt-4 border-t border-slate-50">
                     <div className="flex items-center justify-between mb-4">
                       <p className="text-micro font-bold text-slate-500 uppercase tracking-premium">Tổng cộng:</p>
-                      <p className="text-label font-extrabold text-indigo-600">{cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toLocaleString()}đ</p>
+                      <p className="text-label font-extrabold text-rose-600">{cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toLocaleString()}đ</p>
                     </div>
                     <button 
                       onClick={() => { onOpenCart(); setShowCartPreview(false); }}
@@ -385,7 +385,7 @@ const Header: React.FC<HeaderProps> = ({
 
               {showUserMenu && (
                 <div 
-                  className="absolute top-full right-0 mt-4 w-64 bg-white rounded-3xl shadow-2xl border border-slate-100 py-3 z-[100] animate-fadeIn"
+                  className="absolute top-full right-0 mt-4 w-64 bg-white rounded-3xl shadow-2xl border border-slate-200/60 py-3 z-[100] animate-fadeIn"
                   onMouseLeave={() => setShowUserMenu(false)}
                 >
                   <div className="px-5 py-3 border-b border-slate-50 mb-2">

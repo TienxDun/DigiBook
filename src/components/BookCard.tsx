@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Book } from '../types';
 import { useAuth } from '../AuthContext';
@@ -26,6 +26,7 @@ const getOptimizedImageUrl = (url: string) => {
 
 const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) => {
   const { wishlist, toggleWishlist } = useAuth();
+  const navigate = useNavigate();
   const [imgLoaded, setImgLoaded] = useState(false);
   const [stockQuantity, setStockQuantity] = useState<number>(book.stockQuantity);
   const [isHovered, setIsHovered] = useState(false);
@@ -66,7 +67,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
       className="w-full h-full"
     >
       <div 
-        className={`relative group flex flex-col h-[340px] bg-white rounded-[2rem] p-3 border border-slate-100 shadow-sm transition-all duration-500 w-full ${(!isAvailable || stockQuantity <= 0) ? 'grayscale opacity-60' : 'hover:shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-100/50'}`}
+        className={`relative group flex flex-col h-[340px] bg-white rounded-[2rem] p-3 border border-slate-200/60 shadow-sm transition-all duration-500 w-full ${(!isAvailable || stockQuantity <= 0) ? 'grayscale opacity-60' : 'hover:shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-300/50 hover:ring-4 hover:ring-indigo-500/5'}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -190,13 +191,16 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
         </div>
 
         {/* Info Container */}
-        <div className="flex flex-col flex-grow min-h-0 justify-between">
+        <div 
+          onClick={() => navigate(`/book/${book.id}`)}
+          className="flex flex-col flex-grow min-h-0 justify-between cursor-pointer group/info"
+        >
           <div>
-            <Link to={`/book/${book.id}`} className="block group/title mb-1">
-              <h3 className="font-bold text-slate-800 text-[13px] leading-snug line-clamp-2 group-hover/title:text-indigo-600 transition-colors">
+            <div className="block mb-1">
+              <h3 className="font-bold text-slate-800 text-[13px] leading-snug line-clamp-2 group-hover/info:text-indigo-600 transition-colors">
                 {book.title}
               </h3>
-            </Link>
+            </div>
             <p className="text-slate-500 text-xs font-medium truncate">{book.author}</p>
           </div>
           
@@ -207,7 +211,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
                   {formatPrice(book.originalPrice)}
                 </span>
               )}
-              <span className="text-[14px] font-bold text-slate-900 leading-tight">
+              <span className="text-[16px] font-black text-rose-600 leading-tight">
                 {formatPrice(book.price)}
               </span>
             </div>

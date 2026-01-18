@@ -39,6 +39,7 @@ export interface AuthContextType {
   setShowLoginModal: (show: boolean) => void;
   wishlist: Book[];
   toggleWishlist: (book: Book) => void;
+  clearWishlist: () => void;
   loading: boolean;
   authError: string;
   setAuthError: (err: string) => void;
@@ -74,6 +75,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       
       setUser(userData);
+
+      // Đồng bộ wishlist từ Firestore nếu có
+      if (profile?.wishlistIds && profile.wishlistIds.length > 0) {
+        const remoteBooks = await db.getBooksByIds(profile.wishlistIds);
+        setWishlist(remoteBooks);
+      } else {
+        const localWishlist = JSON.parse(localStorage.getItem('digibook_wishlist') || '[]');
+        if (localWishlist.length > 0) {
+          // Nếu Firestore trống nhưng local có dữ liệu, đẩy lên Firestore (lần đầu dùng)
+          await db.updateWishlist(firebaseUser.uid, localWishlist.map((b: any) => b.id));
+        }
+      }
 
       if (!profile || forceName || (firebaseUser.displayName && !profile.name)) {
         await db.updateUserProfile({
@@ -201,14 +214,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       db.logActivity('AUTH_LOGOUT', `User: ${prevEmail}`, 'SUCCESS');
     }
     setUser(null);
+    // Khi logout, quay lại dùng wishlist từ localStorage
+    setWishlist(JSON.parse(localStorage.getItem('digibook_wishlist') || '[]'));
   };
 
-  const toggleWishlist = useCallback((book: Book) => {
+  const toggleWishlist = useCallback(async (book: Book) => {
     setWishlist(prev => {
       const exists = prev.find(b => b.id === book.id);
-      return exists ? prev.filter(b => b.id !== book.id) : [...prev, book];
+      const updated = exists ? prev.filter(b => b.id !== book.id) : [...prev, book];
+      
+      // Sync to cloud if user is logged in
+      if (user) {
+        db.updateWishlist(user.id, updated.map(b => b.id))
+          .catch(err => console.error("Wishlist sync error:", err));
+      }
+      
+      return updated;
     });
-  }, []);
+  }, [user]);
+
+  const clearWishlist = useCallback(async () => {
+    setWishlist([]);
+    if (user) {
+      try {
+        await db.updateWishlist(user.id, []);
+      } catch (error) {
+        console.error("Failed to clear wishlist on Firestore:", error);
+      }
+    }
+  }, [user]);
 
   return (
     <AuthContext.Provider value={{ 
@@ -223,6 +257,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setShowLoginModal,
       wishlist,
       toggleWishlist,
+      clearWishlist,
       loading,
       authError,
       setAuthError

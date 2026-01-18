@@ -18,7 +18,7 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
 
   return (
     <div className="space-y-6 animate-fadeIn">
-      <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm shadow-slate-200/40 transition-all hover:border-slate-300">
         <div>
           <h3 className="text-lg font-extrabold text-slate-900 uppercase tracking-tight">Nhật ký hoạt động</h3>
           <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Lưu vết mọi thay đổi trong hệ thống</p>
@@ -40,7 +40,7 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
         </div>
       </div>
 
-      <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden min-h-[500px]">
+      <div className="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-sm shadow-slate-200/20 overflow-hidden min-h-[500px]">
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse min-w-[1100px]">
             <thead className="bg-slate-50 border-b border-slate-100">

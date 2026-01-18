@@ -1,20 +1,25 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Book } from '../types';
 import BookCard from '../components/BookCard';
 import { useAuth } from '../AuthContext';
 import { db } from '../services/db';
+import { toast } from 'react-hot-toast';
 
 interface WishlistPageProps {
   onAddToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => void;
   onQuickView?: (book: Book) => void;
 }
 
+type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'rating';
+
 const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart, onQuickView }) => {
-  const { wishlist } = useAuth();
+  const { wishlist, clearWishlist } = useAuth();
   const [syncedWishlist, setSyncedWishlist] = useState<(Book & { isAvailable: boolean })[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('newest');
 
   useEffect(() => {
     const syncWishlist = async () => {
@@ -44,6 +49,52 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart, onQuickView })
     }
   }, [wishlist]);
 
+  const filteredAndSortedWishlist = useMemo(() => {
+    let result = [...syncedWishlist];
+
+    // Filter
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(b => 
+        b.title.toLowerCase().includes(q) || 
+        b.author.toLowerCase().includes(q)
+      );
+    }
+
+    // Sort
+    switch (sortBy) {
+      case 'price-asc':
+        result.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-desc':
+        result.sort((a, b) => b.price - a.price);
+        break;
+      case 'rating':
+        result.sort((a, b) => b.rating - a.rating);
+        break;
+      default: // newest - keep original order (assuming appends at end)
+        // result.reverse(); // If we want newest first and they were added to end
+        break;
+    }
+
+    return result;
+  }, [syncedWishlist, searchQuery, sortBy]);
+
+  const handleAddAllToCart = () => {
+    const availableBooks = syncedWishlist.filter(b => b.isAvailable && b.stockQuantity > 0);
+    if (availableBooks.length === 0) return;
+    
+    availableBooks.forEach(book => onAddToCart(book));
+    toast.success(`Đã thêm ${availableBooks.length} sản phẩm vào giỏ hàng!`);
+  };
+
+  const handleClearWishlist = () => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa tất cả sản phẩm khỏi danh sách yêu thích?')) {
+      clearWishlist();
+      toast.success('Đã làm trống danh sách yêu thích');
+    }
+  };
+
   return (
     <div className="bg-slate-50/30 min-h-screen">
       {/* Background Decor */}
@@ -64,9 +115,18 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart, onQuickView })
             </p>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+             {wishlist.length > 0 && (
+               <button 
+                 onClick={handleClearWishlist}
+                 className="group flex items-center gap-2 px-4 py-3 bg-white border border-rose-100 text-rose-500 rounded-xl font-bold text-xs uppercase tracking-premium shadow-sm hover:bg-rose-50 transition-all active:scale-95"
+               >
+                  <i className="fa-solid fa-trash-can"></i>
+                  Xóa tất cả
+               </button>
+             )}
              <button 
-               onClick={() => syncedWishlist.filter(b => b.isAvailable && b.stockQuantity > 0).forEach(book => onAddToCart(book))}
+               onClick={handleAddAllToCart}
                className="group flex items-center gap-3 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-xs uppercase tracking-premium shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                disabled={syncedWishlist.filter(b => b.isAvailable && b.stockQuantity > 0).length === 0}
              >
@@ -80,15 +140,44 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart, onQuickView })
           </div>
         </div>
 
+        {wishlist.length > 0 && (
+          <div className="flex flex-col md:flex-row gap-4 mb-8 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm sm:items-center justify-between">
+            <div className="relative flex-1 max-w-md">
+              <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+              <input 
+                type="text"
+                placeholder="Tìm trong danh sách..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400 font-medium"
+              />
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest hidden sm:inline">Sắp xếp:</span>
+              <select 
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                className="bg-slate-50 border-none rounded-xl text-sm font-bold text-slate-700 py-2.5 pl-4 pr-10 focus:ring-2 focus:ring-indigo-500/20 cursor-pointer"
+              >
+                <option value="newest">Mới thêm</option>
+                <option value="price-asc">Giá thấp đến cao</option>
+                <option value="price-desc">Giá cao đến thấp</option>
+                <option value="rating">Đánh giá tốt nhất</option>
+              </select>
+            </div>
+          </div>
+        )}
+
         {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="animate-pulse bg-white rounded-3xl h-80 border border-slate-100 shadow-sm"></div>
             ))}
           </div>
-        ) : syncedWishlist.length > 0 ? (
+        ) : filteredAndSortedWishlist.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
-            {syncedWishlist.map(book => (
+            {filteredAndSortedWishlist.map(book => (
               <div key={book.id} className="relative group">
                 <BookCard 
                   book={book} 
@@ -110,6 +199,12 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart, onQuickView })
                 )}
               </div>
             ))}
+          </div>
+        ) : wishlist.length > 0 && searchQuery ? (
+          <div className="py-20 text-center bg-white rounded-[2.5rem] border border-slate-100">
+            <i className="fa-solid fa-cloud-moon text-4xl text-slate-200 mb-4"></i>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Không tìm thấy kết quả</h3>
+            <p className="text-slate-500 text-sm">Thử tìm kiếm với từ khóa khác nhé!</p>
           </div>
         ) : (
           <div className="py-24 lg:py-32 text-center bg-white rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group">

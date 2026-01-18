@@ -226,8 +226,8 @@ const MyOrdersPage: React.FC = () => {
 
                     <div className="flex flex-wrap items-center gap-8 w-full lg:w-auto pt-6 lg:pt-0 border-t lg:border-t-0 border-slate-50">
                       <div className="flex flex-col">
-                         <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1.5 leading-none">Tổng giá trị</p>
-                         <p className="text-xl font-black text-slate-900 leading-none">{formatPrice(order.payment.total)}</p>
+                         <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1.5 leading-none">Tổng thanh toán</p>
+                         <p className="text-xl font-black text-rose-600 leading-none tracking-tight">{formatPrice(order.payment.total)}</p>
                       </div>
                       
                       <button 

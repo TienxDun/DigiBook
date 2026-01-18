@@ -168,7 +168,7 @@ const ProfilePage: React.FC = () => {
                     <div className="grid lg:grid-cols-3 gap-8">
                         {/* Sidebar */}
                         <div className="space-y-6">
-                            <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-white">
+                            <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-200/60 shadow-slate-200/20 transition-all hover:border-slate-300">
                                 <h1 className="sr-only">Hồ sơ cá nhân</h1>
                                 <h2 className="text-lg font-extrabold text-slate-900 mb-6 flex items-center gap-3 uppercase tracking-tight">
                                     <i className="fa-solid fa-address-card text-indigo-600"></i>
@@ -178,7 +178,7 @@ const ProfilePage: React.FC = () => {
                                     value={formData.bio}
                                     onChange={e => setFormData({...formData, bio: e.target.value})}
                                     placeholder="Viết vài dòng giới thiệu về bản thân..."
-                                    className="w-full h-32 p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 ring-indigo-100 font-medium text-sm transition-all resize-none text-slate-600"
+                                    className="w-full h-32 p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 font-medium text-sm transition-all resize-none text-slate-600 shadow-inner"
                                 />
                             </div>
                             
@@ -231,7 +231,7 @@ const ProfilePage: React.FC = () => {
                                                     value={passwords.current}
                                                     onChange={e => setPasswords({...passwords, current: e.target.value})}
                                                     placeholder="Nhập mật khẩu hiện tại"
-                                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-600 transition-all font-bold"
+                                                    className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold shadow-sm"
                                                 />
                                             </div>
                                         </div>
@@ -246,7 +246,7 @@ const ProfilePage: React.FC = () => {
                                                     value={passwords.new}
                                                     onChange={e => setPasswords({...passwords, new: e.target.value})}
                                                     placeholder="Ít nhất 6 ký tự"
-                                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-600 transition-all font-bold"
+                                                    className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold shadow-sm"
                                                 />
                                             </div>
                                         </div>
@@ -261,7 +261,7 @@ const ProfilePage: React.FC = () => {
                                                     value={passwords.confirm}
                                                     onChange={e => setPasswords({...passwords, confirm: e.target.value})}
                                                     placeholder="Nhập lại mật khẩu mới"
-                                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-600 transition-all font-bold"
+                                                    className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold shadow-sm"
                                                 />
                                             </div>
                                         </div>
@@ -280,7 +280,7 @@ const ProfilePage: React.FC = () => {
 
                         {/* Form */}
                         <div className="lg:col-span-2">
-                            <div className="bg-white rounded-[3rem] p-8 lg:p-12 shadow-sm border border-white relative overflow-hidden">
+                            <div className="bg-white rounded-[3rem] p-8 lg:p-12 shadow-sm border border-slate-200/60 shadow-slate-200/20 transition-all hover:border-slate-300 relative overflow-hidden">
                                 <form onSubmit={handleSave} className="space-y-8">
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
@@ -291,7 +291,7 @@ const ProfilePage: React.FC = () => {
                                                     type="text" 
                                                     value={formData.name}
                                                     onChange={e => setFormData({...formData, name: e.target.value})}
-                                                    className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border-2 border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-50 font-bold transition-all text-slate-900" 
+                                                    className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 font-bold transition-all text-slate-900 shadow-inner" 
                                                 />
                                             </div>
                                         </div>
@@ -304,7 +304,7 @@ const ProfilePage: React.FC = () => {
                                                     value={formData.phone}
                                                     onChange={e => setFormData({...formData, phone: e.target.value})}
                                                     placeholder="09xx xxx xxx"
-                                                    className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border-2 border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-50 font-bold transition-all text-slate-900" 
+                                                    className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 font-bold transition-all text-slate-900 shadow-inner" 
                                                 />
                                             </div>
                                         </div>
@@ -319,7 +319,7 @@ const ProfilePage: React.FC = () => {
                                                 value={formData.address}
                                                 onChange={e => setFormData({...formData, address: e.target.value})}
                                                 placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"
-                                                className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border-2 border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-50 font-bold transition-all text-slate-900" 
+                                                className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 font-bold transition-all text-slate-900 shadow-inner" 
                                             />
                                         </div>
                                     </div>
@@ -352,7 +352,7 @@ const ProfilePage: React.FC = () => {
                                                     type="date" 
                                                     value={formData.birthday}
                                                     onChange={e => setFormData({...formData, birthday: e.target.value})}
-                                                    className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border-2 border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-50 font-bold transition-all text-slate-900" 
+                                                        className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 font-bold transition-all text-slate-900 shadow-inner" 
                                                 />
                                             </div>
                                         </div>

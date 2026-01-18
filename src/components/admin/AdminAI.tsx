@@ -173,7 +173,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData }) => {
           </div>
         </div>
 
-        <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm col-span-2">
+        <div className="bg-white rounded-[2rem] p-8 border border-slate-200/60 shadow-xl shadow-slate-200/40 col-span-2">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center">
@@ -205,8 +205,8 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData }) => {
       </div>
 
       {/* AI API Sandbox / Test */}
-      <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
-        <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center">
+      <div className="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-xl shadow-slate-200/40 overflow-hidden">
+        <div className="px-8 py-6 border-b border-slate-100/50 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
               <i className="fa-solid fa-vial"></i>
@@ -271,8 +271,8 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData }) => {
       </div>
 
       {/* Model Selection Table */}
-      <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
-        <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center">
+      <div className="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-xl shadow-slate-200/40 overflow-hidden">
+        <div className="px-8 py-6 border-b border-slate-100/50 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <h3 className="font-extrabold text-slate-900 text-lg uppercase tracking-tight">Danh sách Model khả dụng</h3>
             <div className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-micro font-bold uppercase tracking-premium">
