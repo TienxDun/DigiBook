@@ -187,7 +187,7 @@ const AdminDashboard: React.FC = () => {
             </Link>
             <div>
               <h1 className="text-sm font-black tracking-tight uppercase text-white">DigiBook</h1>
-              <p className="text-[9px] font-bold text-indigo-400 uppercase tracking-[0.2em] mt-0.5">Admin Dashboard</p>
+              <p className="text-micro font-bold text-indigo-400 uppercase tracking-[0.2em] mt-0.5">Admin Dashboard</p>
             </div>
           </div>
           <button onClick={() => setIsMobileMenuOpen(false)} className="lg:hidden text-slate-400 hover:text-white p-2">
@@ -213,7 +213,7 @@ const AdminDashboard: React.FC = () => {
                 setActiveTab(tab.id as any);
                 setIsMobileMenuOpen(false);
               }}
-              className={`flex items-center gap-4 w-full px-5 py-4 rounded-2xl text-[11px] font-bold uppercase tracking-wider transition-all duration-300 group
+              className={`flex items-center gap-4 w-full px-5 py-4 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all duration-300 group
                 ${activeTab === tab.id 
                   ? "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-xl shadow-indigo-500/30 ring-1 ring-white/20" 
                   : "text-slate-400 hover:text-white hover:bg-white/5 hover:translate-x-1"
@@ -232,8 +232,8 @@ const AdminDashboard: React.FC = () => {
               <i className="fa-solid fa-crown text-indigo-400"></i>
             </div>
             <div>
-              <span className="text-[10px] font-black uppercase block tracking-wider text-white">Super Admin</span>
-              <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2 mt-0.5">
+              <span className="text-xs font-black uppercase block tracking-wider text-white">Super Admin</span>
+              <span className="text-micro font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2 mt-0.5">
                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
                 Vận hành tốt
               </span>

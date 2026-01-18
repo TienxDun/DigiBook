@@ -13,13 +13,20 @@ export const Skeleton: React.FC<SkeletonProps> = ({ className }) => {
 
 export const BookCardSkeleton: React.FC = () => {
     return (
-        <div className="bg-white rounded-3xl p-4 shadow-sm border border-slate-100 flex flex-col h-full">
-            <Skeleton className="aspect-[3/4] w-full rounded-2xl mb-4" />
-            <Skeleton className="h-4 w-3/4 mb-2" />
-            <Skeleton className="h-3 w-1/2 mb-4" />
-            <div className="mt-auto flex items-center justify-between">
-                <Skeleton className="h-6 w-20" />
-                <Skeleton className="h-8 w-8 rounded-full" />
+        <div className="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex flex-col h-[330px]">
+            <Skeleton className="h-[180px] w-full rounded-xl mb-3" />
+            <div className="space-y-1">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3" />
+            </div>
+            <Skeleton className="h-3 w-1/2 mt-1 mb-auto" />
+            
+            <div className="pt-2 border-t border-slate-50 mt-2 flex items-end justify-between">
+                <div className="flex flex-col gap-1">
+                   <Skeleton className="h-3 w-12" />
+                   <Skeleton className="h-5 w-20" />
+                </div>
+                <Skeleton className="h-8 w-8 rounded-lg" />
             </div>
         </div>
     );

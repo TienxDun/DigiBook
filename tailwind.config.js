@@ -16,8 +16,8 @@ export default {
         display: ['Bricolage Grotesque', 'sans-serif'],
       },
       fontSize: {
-        'micro': '10px',
-        'label': '12px',
+        'micro': '11px',
+        'label': '13px',
       },
       letterSpacing: {
         'premium': '0.15em',

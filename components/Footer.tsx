@@ -37,8 +37,8 @@ const Footer: React.FC = () => {
           </div>
 
           <div>
-            <h4 className="text-micro font-bold uppercase tracking-premium text-white mb-8">Khám phá</h4>
-            <ul className="space-y-4 text-[13px] font-bold text-slate-400">
+            <h4 className="text-xs font-bold uppercase tracking-premium text-white mb-8">Khám phá</h4>
+            <ul className="space-y-4 text-label font-bold text-slate-400">
               <li><Link to="/" className="hover:text-indigo-400 transition-colors">Trang chủ</Link></li>
               <li><Link to="/category/Tất cả sách" className="hover:text-indigo-400 transition-colors">Sách mới về</Link></li>
               <li><Link to="/category/Văn học" className="hover:text-indigo-400 transition-colors">Văn học tiểu thuyết</Link></li>
@@ -47,8 +47,8 @@ const Footer: React.FC = () => {
           </div>
 
           <div>
-            <h4 className="text-micro font-bold uppercase tracking-premium text-white mb-8">Hỗ trợ khách hàng</h4>
-            <ul className="space-y-4 text-[13px] font-bold text-slate-400">
+            <h4 className="text-xs font-bold uppercase tracking-premium text-white mb-8">Hỗ trợ khách hàng</h4>
+            <ul className="space-y-4 text-label font-bold text-slate-400">
               <li><Link to="/my-orders" className="hover:text-indigo-400 transition-colors">Theo dõi đơn hàng</Link></li>
               <li><a href="#" className="hover:text-indigo-400 transition-colors">Chính sách đổi trả</a></li>
               <li><a href="#" className="hover:text-indigo-400 transition-colors">Câu hỏi thường gặp</a></li>
@@ -61,7 +61,7 @@ const Footer: React.FC = () => {
           </div>
 
           <div>
-            <h4 className="text-micro font-bold uppercase tracking-premium text-white mb-8">Đăng ký bản tin</h4>
+            <h4 className="text-xs font-bold uppercase tracking-premium text-white mb-8">Đăng ký bản tin</h4>
             <p className="text-slate-400 text-sm mb-6 font-medium">Nhận ngay ưu đãi 10% cho đơn hàng đầu tiên và cập nhật sách mới hàng tuần.</p>
             <form className="relative">
               <input 
@@ -77,8 +77,8 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="text-slate-500 text-micro font-bold uppercase tracking-premium">
-            © 2025 DigiBook Store. Được thiết kế với <i className="fa-solid fa-heart text-rose-500 mx-1"></i> cho người yêu sách.
+          <div className="text-slate-500 text-xs font-bold uppercase tracking-premium">
+            © 2026 DigiBook Store. Được thiết kế với <i className="fa-solid fa-heart text-rose-500 mx-1"></i> cho người yêu sách.
           </div>
           <div className="flex items-center gap-6">
             <img src="https://img.icons8.com/color/48/visa.png" alt="Visa" className="h-6 opacity-50 grayscale hover:grayscale-0 transition-all cursor-pointer" />

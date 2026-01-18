@@ -18,6 +18,8 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book, quantity?: number) => vo
   const { wishlist, toggleWishlist, user, setShowLoginModal } = useAuth();
   
   const [book, setBook] = useState<Book | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [authorInfo, setAuthorInfo] = useState<{ id: string, name: string, bio: string, avatar: string } | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [relatedBooks, setRelatedBooks] = useState<Book[]>([]);
@@ -35,6 +37,8 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book, quantity?: number) => vo
   useEffect(() => {
     const fetchData = async () => {
       if (id) {
+        setLoading(true);
+        setError(false);
         // Fetch model config
         db.getAIConfig().then(config => {
           const model = AVAILABLE_AI_MODELS.find(m => m.id === config.activeModelId);
@@ -66,7 +70,10 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book, quantity?: number) => vo
           localStorage.setItem('digibook_recent', JSON.stringify(recent));
           // Hiển thị 5 cuốn khác để lấp đầy grid xl:grid-cols-5
           setRecentBooks(recent.filter(b => b.id !== foundBook.id).slice(0, 5));
+        } else {
+          setError(true);
         }
+        setLoading(false);
       }
     };
     fetchData();
@@ -95,7 +102,43 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book, quantity?: number) => vo
     setReviews(updatedReviews);
   };
 
-  if (!book) return <div className="h-screen flex items-center justify-center"><i className="fa-solid fa-spinner fa-spin text-3xl text-indigo-600"></i></div>;
+  if (loading) return (
+    <div className="h-screen flex flex-col items-center justify-center bg-slate-50">
+      <div className="w-16 h-16 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+      <p className="text-slate-400 font-bold uppercase tracking-premium text-micro">Đang tải dữ liệu...</p>
+    </div>
+  );
+
+  if (error || !book) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 px-4">
+      <div className="bg-white p-12 rounded-[3rem] shadow-xl shadow-slate-200/50 text-center max-w-lg border border-slate-100 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-rose-50 rounded-full blur-3xl -mr-16 -mt-16"></div>
+        <div className="relative z-10">
+          <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-8 transform -rotate-6">
+            <i className="fa-solid fa-book-skull text-4xl"></i>
+          </div>
+          <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Sách không tồn tại</h2>
+          <p className="text-slate-500 font-medium leading-relaxed mb-10">
+            Rất tiếc, cuốn sách bạn đang tìm kiếm đã ngừng kinh doanh hoặc không tồn tại trong hệ thống của DigiBook.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button 
+              onClick={() => navigate(-1)}
+              className="px-8 py-4 bg-slate-100 text-slate-600 rounded-xl font-bold uppercase tracking-premium text-xs hover:bg-slate-200 transition-all active:scale-95"
+            >
+              Quay lại
+            </button>
+            <Link 
+              to="/category/Tất cả sách"
+              className="px-8 py-4 bg-indigo-600 text-white rounded-xl font-bold uppercase tracking-premium text-xs hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all active:scale-95"
+            >
+              Khám phá sách khác
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   const handleToggleWishlist = () => {
     if (book) toggleWishlist(book);
@@ -153,11 +196,11 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book, quantity?: number) => vo
       {/* Main Container */}
       <div className="max-w-7xl mx-auto px-4 lg:px-8 pt-16 lg:pt-24 pb-24">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 mb-10 text-micro font-bold uppercase tracking-premium text-slate-400">
+        <nav className="flex items-center gap-2 mb-10 text-xs font-bold uppercase tracking-premium text-slate-400">
           <Link to="/" className="hover:text-indigo-600 transition-colors">Trang chủ</Link>
-          <i className="fa-solid fa-chevron-right text-[8px]"></i>
+          <i className="fa-solid fa-chevron-right text-micro"></i>
           <Link to={`/category/${book.category}`} className="hover:text-indigo-600 transition-colors">{book.category}</Link>
-          <i className="fa-solid fa-chevron-right text-[8px]"></i>
+          <i className="fa-solid fa-chevron-right text-micro"></i>
           <span className="text-slate-900 line-clamp-1">{book.title}</span>
         </nav>
 
@@ -210,19 +253,19 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book, quantity?: number) => vo
                   <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center mx-auto mb-3 transition-colors group-hover/badge:bg-indigo-100">
                     <i className="fa-solid fa-certificate text-indigo-500 text-base"></i>
                   </div>
-                  <span className="text-micro font-bold uppercase tracking-tight text-slate-500 leading-tight block">Chính hãng</span>
+                  <span className="text-xs font-bold uppercase tracking-tight text-slate-500 leading-tight block">Chính hãng</span>
                 </div>
                 <div className="text-center flex-1 border-r border-slate-50 px-1 group/badge">
                   <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center mx-auto mb-3 transition-colors group-hover/badge:bg-indigo-100">
                     <i className="fa-solid fa-bolt-lightning text-indigo-500 text-base"></i>
                   </div>
-                  <span className="text-micro font-bold uppercase tracking-tight text-slate-500 leading-tight block">Giao nhanh</span>
+                  <span className="text-xs font-bold uppercase tracking-tight text-slate-500 leading-tight block">Giao nhanh</span>
                 </div>
                 <div className="text-center flex-1 px-1 group/badge">
                   <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center mx-auto mb-3 transition-colors group-hover/badge:bg-indigo-100">
                     <i className="fa-solid fa-arrows-rotate text-indigo-500 text-base"></i>
                   </div>
-                  <span className="text-micro font-bold uppercase tracking-tight text-slate-500 leading-tight block">Đổi trả 7 ngày</span>
+                  <span className="text-xs font-bold uppercase tracking-tight text-slate-500 leading-tight block">Đổi trả 7 ngày</span>
                 </div>
               </div>
             </div>
@@ -236,9 +279,9 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book, quantity?: number) => vo
               <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-3">
-                    <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-bold uppercase tracking-premium">{book.category}</span>
+                    <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-bold uppercase tracking-premium">{book.category}</span>
                     <span className="text-slate-200">|</span>
-                    <span className="text-micro font-bold text-slate-400">ISBN: {book.isbn}</span>
+                    <span className="text-xs font-bold text-slate-400">ISBN: {book.isbn}</span>
                   </div>
                   
                   <h1 className="text-3xl lg:text-4xl font-extrabold text-slate-900 leading-tight mb-4 tracking-tight">

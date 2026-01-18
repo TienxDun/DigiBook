@@ -187,7 +187,7 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart }) => {
               </div>
 
               {authorBooks.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-5 lg:gap-6 px-2 lg:px-0">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-5 lg:gap-6 px-2 lg:px-0">
                   {authorBooks.map(book => (
                     <BookCard key={book.id} book={book} onAddToCart={onAddToCart} />
                   ))}
