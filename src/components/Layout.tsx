@@ -28,6 +28,9 @@ export const LayoutWrapper: React.FC<{
   children: React.ReactNode, 
   cartCount: number, 
   cartItems: CartItem[], 
+  selectedCartItemIds: string[],
+  onToggleSelection: (id: string) => void,
+  onToggleAll: (selectAll: boolean) => void,
   categories: CategoryInfo[],
   allBooks: Book[],
   onOpenCart: () => void, 
@@ -42,6 +45,9 @@ export const LayoutWrapper: React.FC<{
   children, 
   cartCount, 
   cartItems, 
+  selectedCartItemIds,
+  onToggleSelection,
+  onToggleAll,
   categories, 
   allBooks,
   onOpenCart, 
@@ -80,6 +86,9 @@ export const LayoutWrapper: React.FC<{
         isOpen={isCartOpen} 
         onClose={onCloseCart} 
         items={cartItems} 
+        selectedIds={selectedCartItemIds}
+        onToggleSelection={onToggleSelection}
+        onToggleAll={onToggleAll}
         onRemove={onRemoveCart} 
         onUpdateQty={onUpdateCartQty} 
       />

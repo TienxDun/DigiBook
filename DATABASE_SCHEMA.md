@@ -89,7 +89,19 @@ Lưu thông tin chi tiết của người dùng đã đăng ký.
 - `userName`: String (Tên hiển thị người đánh giá)
 - `rating`: Number (Điểm đánh giá 1-5)
 - `content`: String (Nội dung nhận xét)
+- `isPurchased`: Boolean (Trạng thái đã mua hàng - Tùy chọn, thường được tính toán khi hiển thị)
 - `createdAt`: Timestamp
+
+### Collection: `ai_models`
+Lưu danh sách các mô hình AI khả dụng trong hệ thống.
+- `id`: String (Document ID, ví dụ: "gemini-1.5-flash")
+- `name`: String (Tên hiển thị)
+- `category`: String (Hãng phát triển, ví dụ: "Google Gemini")
+- `rpm`: String (Requests Per Minute)
+- `tpm`: String (Tokens Per Minute)
+- `rpd`: String (Requests Per Day)
+- `createdAt`: Timestamp
+- `updatedAt`: Timestamp
 
 ### Collection: `coupons`
 - `id`: String (Document ID - Chính là mã Code in hoa)

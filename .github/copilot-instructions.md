@@ -6,14 +6,14 @@ You are an expert AI developer working on **DigiBook**, a modern bookstore appli
 
 ## 🏗️ Architecture & Service Boundaries
 
-- **Database Logic**: All Firestore interactions must be centralized in [services/db.ts](services/db.ts). Use the exported `db` instance. Avoid raw Firebase calls in components.
-- **Authentication**: Usage of [AuthContext.tsx](AuthContext.tsx) is preferred via the `useAuth()` hook for user state and auth actions (login, logout, wishlist).
-- **Admin Hub**: Admin-specific components are isolated in [components/admin/](components/admin/). They follow a "Dashboard-as-Container" pattern where [AdminDashboard.tsx](pages/AdminDashboard.tsx) coordinates them.
-- **Error Handling**: Use `ErrorHandler.handle(error, context)` from [services/errorHandler.ts](services/errorHandler.ts) for all admin operations to ensure consistent logging to Firestore and user notifications via `react-hot-toast`.
+- **Database Logic**: All Firestore interactions must be centralized in [src/services/db.ts](src/services/db.ts). Use the exported `db` instance. Avoid raw Firebase calls in components.
+- **Authentication**: Usage of [src/AuthContext.tsx](src/AuthContext.tsx) is preferred via the `useAuth()` hook for user state and auth actions (login, logout, wishlist).
+- **Admin Hub**: Admin-specific components are isolated in [src/components/admin/](src/components/admin/). They follow a "Dashboard-as-Container" pattern where [src/pages/AdminDashboard.tsx](src/pages/AdminDashboard.tsx) coordinates them.
+- **Error Handling**: Use `ErrorHandler.handle(error, context)` from [src/services/errorHandler.ts](src/services/errorHandler.ts) for all admin operations to ensure consistent logging to Firestore and user notifications via `react-hot-toast`.
 
 ##  Data Modeling & Types
 
-- **Source of Truth**: All TypeScript interfaces are defined in [types.ts](types.ts). Always refer to this file when creating or modifying data models.
+- **Source of Truth**: All TypeScript interfaces are defined in [src/types.ts](src/types.ts). Always refer to this file when creating or modifying data models.
 - **Key Models**:
     - `Book`: Includes metadata like `isbn`, `pages`, and `badge` (e.g., "Bán chạy").
     - `UserProfile`: Contains `role` ('admin' | 'user') and `status` ('active' | 'banned').
@@ -26,7 +26,7 @@ You are an expert AI developer working on **DigiBook**, a modern bookstore appli
 - **Icons**: Use **FontAwesome** classes (e.g., `fas fa-book`).
 - **Feedback**: Use `react-hot-toast` for temporary feedback.
 - **Badges**: Use consistent status ribbons for books:
-    - [BookCard.tsx](components/BookCard.tsx): `badge` property handles "Bán chạy", "Kinh điển", etc.
+    - [src/components/BookCard.tsx](src/components/BookCard.tsx): `badge` property handles "Bán chạy", "Kinh điển", etc.
 
 ##  Critical Workflows & Commands
 
@@ -43,3 +43,4 @@ You are an expert AI developer working on **DigiBook**, a modern bookstore appli
 
 - **Language**: Always respond to the user in **Vietnamese**.
 - **Execution**: For any task, first create a structured **TODO list** and execute it step-by-step. Use the `manage_todo_list` tool to track progress.
+- **Validation**: Sau khi hoàn thành tất cả, kiểm tra lỗi 1 lần cuối trước khi chấm dứt tác vụ.

@@ -61,6 +61,7 @@ export interface Review {
   rating: number;
   content: string;
   createdAt: any;
+  isPurchased?: boolean;
 }
 
 export interface OrderItem {

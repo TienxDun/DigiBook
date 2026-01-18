@@ -51,22 +51,25 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ 
-        y: -5,
+        y: -10,
         transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] }
       }}
       exit={{ opacity: 0, scale: 0.98 }}
       className="w-full h-full"
     >
       <div 
-        className={`relative group flex flex-col h-[330px] bg-white rounded-2xl p-3 border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 w-full ${stockQuantity <= 0 ? 'grayscale opacity-60' : ''}`}
+        className={`relative group flex flex-col h-[340px] bg-white rounded-[2rem] p-3 border border-slate-100 shadow-sm transition-all duration-500 w-full ${stockQuantity <= 0 ? 'grayscale opacity-60' : 'hover:shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-100/50'}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
+        {/* Glow Effect on Hover */}
+        <div className="absolute -inset-0.5 bg-gradient-to-tr from-indigo-500/10 via-purple-500/10 to-rose-500/10 rounded-[2rem] blur opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+
         {/* Media Container - Fixed Height */}
-        <div className="relative h-[180px] w-full rounded-xl overflow-hidden bg-slate-50 mb-3 flex-shrink-0">
+        <div className="relative h-[200px] w-full rounded-[1.5rem] overflow-hidden bg-slate-50 mb-3 flex-shrink-0">
           
           {/* Status Badges */}
-          <div className="absolute top-2 left-2 z-20 flex flex-col gap-1 items-start">
+          <div className="absolute top-2 left-2 z-30 flex flex-col gap-1 items-start">
             {stockQuantity <= 0 && (
               <span className="px-2 py-0.5 bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold uppercase tracking-wider rounded border border-white/10">Hết hàng</span>
             )}
@@ -81,7 +84,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
           {/* Wishlist Button */}
           <button 
             onClick={handleToggleWishlist}
-            className={`absolute top-2 right-2 z-20 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-300 ${
+            className={`absolute top-2 right-2 z-30 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-300 ${
               isWishlisted 
                 ? 'bg-rose-500 text-white shadow-sm' 
                 : 'bg-white/90 text-slate-400 hover:text-rose-500 shadow-sm hover:bg-white'
@@ -91,7 +94,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
           </button>
 
           {/* Rating Badge on Image */}
-          <div className="absolute bottom-2 right-2 z-20 px-1.5 py-0.5 bg-white/90 backdrop-blur-sm rounded-md flex items-center gap-1 shadow-sm border border-white/50">
+          <div className="absolute bottom-2 right-2 z-30 px-1.5 py-0.5 bg-white/90 backdrop-blur-sm rounded-md flex items-center gap-1 shadow-sm border border-white/50">
              <i className="fa-solid fa-star text-[10px] text-amber-400"></i>
              <span className="text-[11px] font-bold text-slate-700">{book.rating}</span>
           </div>
@@ -114,23 +117,63 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
             />
           </Link>
 
-          {/* Quick View Overlay */}
+          {/* Quick Info Overlay on Hover */}
           <AnimatePresence>
-            {isHovered && stockQuantity > 0 && onQuickView && (
-              <motion.button
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onQuickView(book);
-                }}
-                className="absolute inset-0 m-auto w-fit h-fit px-4 py-2 bg-white/90 backdrop-blur-md text-slate-900 rounded-xl text-[10px] font-bold uppercase tracking-premium shadow-xl border border-white/20 hover:bg-slate-900 hover:text-white transition-all z-20 flex items-center gap-2"
+            {isHovered && stockQuantity > 0 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] z-20 flex flex-col justify-between p-4"
               >
-                <i className="fa-solid fa-eye text-[9px]"></i>
-                Xem nhanh
-              </motion.button>
+                {/* Top Quick Actions */}
+                <div className="flex justify-between items-start translate-y-[-10px] group-hover:translate-y-0 transition-transform duration-300">
+                  <div className="flex flex-col gap-1">
+                    <span className="bg-indigo-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">
+                      {book.category}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Center Button */}
+                <motion.button
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (onQuickView) onQuickView(book);
+                  }}
+                  className="mx-auto w-12 h-12 bg-white text-slate-900 rounded-full shadow-2xl flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all duration-300"
+                >
+                  <i className="fa-solid fa-expand text-sm"></i>
+                </motion.button>
+
+                {/* Bottom Quick Stats */}
+                <div className="translate-y-[20px] group-hover:translate-y-0 transition-transform duration-300 flex flex-col gap-2">
+                   <div className="flex justify-around bg-white/90 backdrop-blur-md rounded-xl py-2 px-1 border border-white/20">
+                      <div className="flex flex-col items-center">
+                        <span className="text-[10px] font-bold text-slate-700">{book.pages}</span>
+                        <span className="text-[8px] uppercase text-slate-400 font-bold">Trang</span>
+                      </div>
+                      <div className="w-px h-4 bg-slate-200 self-center"></div>
+                      <div className="flex flex-col items-center">
+                        <span className="text-[10px] font-bold text-emerald-600">Free</span>
+                        <span className="text-[8px] uppercase text-slate-400 font-bold">Ship</span>
+                      </div>
+                      <div className="w-px h-4 bg-slate-200 self-center"></div>
+                      <div className="flex flex-col items-center">
+                        <span className="text-[10px] font-bold text-amber-500">{book.rating}</span>
+                        <span className="text-[8px] uppercase text-slate-400 font-bold">Sao</span>
+                      </div>
+                   </div>
+                   <p className="text-[10px] text-white/90 font-medium line-clamp-1 italic text-center">
+                      "{book.description?.substring(0, 40)}..."
+                   </p>
+                </div>
+              </motion.div>
             )}
           </AnimatePresence>
         </div>

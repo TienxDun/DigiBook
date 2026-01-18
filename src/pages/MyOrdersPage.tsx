@@ -1,104 +1,283 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../AuthContext';
-import { db, Order, OrderItem } from '../services/db';
+import { db, Order } from '../services/db';
+import SEO from '../components/SEO';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 };
 
+const ORDER_STATUSES = [
+  { id: 'all', label: 'Tất cả', icon: 'fa-list-ul' },
+  { id: 'processing', label: 'Đang xử lý', icon: 'fa-spinner', step: 1 },
+  { id: 'shipping', label: 'Đang giao', icon: 'fa-truck-fast', step: 2 },
+  { id: 'completed', label: 'Đã giao', icon: 'fa-circle-check', step: 3 },
+  { id: 'cancelled', label: 'Đã hủy', icon: 'fa-circle-xmark', step: -1 },
+];
+
 const MyOrdersPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, setShowLoginModal } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [orderItemsCounts, setOrderItemsCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    // FIX: Await getOrdersByUserId and fetch item counts
     const fetchOrders = async () => {
       if (user) {
-        const userOrders = await db.getOrdersByUserId(user.id);
-        setOrders(userOrders);
-        
-        // Fetch items for each order to get accurate count
-        const counts: Record<string, number> = {};
-        for (const order of userOrders) {
-           const detail = await db.getOrderWithItems(order.id);
-           counts[order.id] = detail?.items.length || 0;
+        setLoading(true);
+        try {
+          const userOrders = await db.getOrdersByUserId(user.id);
+          // Sort by date descending
+          userOrders.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          setOrders(userOrders);
+          
+          const counts: Record<string, number> = {};
+          for (const order of userOrders) {
+             const detail = await db.getOrderWithItems(order.id);
+             counts[order.id] = detail?.items.length || 0;
+          }
+          setOrderItemsCounts(counts);
+        } catch (error) {
+          console.error("Error fetching orders:", error);
+        } finally {
+          setLoading(false);
         }
-        setOrderItemsCounts(counts);
       }
     };
     fetchOrders();
+    window.scrollTo(0, 0);
   }, [user]);
+
+  const filteredOrders = useMemo(() => {
+    return orders.filter(order => {
+      const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase());
+      if (activeTab === 'all') return matchesSearch;
+      
+      const statusConfig = ORDER_STATUSES.find(s => s.id === activeTab);
+      if (activeTab === 'cancelled') return matchesSearch && order.statusStep === -1;
+      if (activeTab === 'completed') return matchesSearch && order.statusStep >= 3;
+      if (activeTab === 'shipping') return matchesSearch && order.statusStep === 2;
+      if (activeTab === 'processing') return matchesSearch && (order.statusStep === 0 || order.statusStep === 1);
+      
+      return matchesSearch;
+    });
+  }, [orders, activeTab, searchQuery]);
 
   if (!user) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-32 text-center fade-in">
-        <div className="w-20 h-20 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-          <i className="fa-solid fa-user-lock text-3xl text-slate-300"></i>
-        </div>
-        <h1 className="text-2xl font-extrabold text-slate-900 mb-2">Bạn chưa đăng nhập</h1>
-        <p className="text-slate-500 text-sm mb-8 max-w-sm mx-auto font-medium leading-relaxed">Vui lòng đăng nhập tài khoản để xem lại lịch sử các đơn hàng bạn đã đặt.</p>
-        <button onClick={() => setShowLoginModal(true)} className="px-8 py-3.5 bg-indigo-600 text-white rounded-xl font-extrabold uppercase tracking-premium text-micro shadow-xl shadow-indigo-100 active:scale-95 transition-all uppercase">Đăng nhập ngay</button>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 px-4">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white p-12 rounded-[3rem] shadow-xl shadow-slate-200/50 text-center max-w-lg border border-slate-100 relative overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -mr-16 -mt-16"></div>
+          <div className="relative z-10">
+            <div className="w-20 h-20 bg-indigo-50 text-indigo-500 rounded-3xl flex items-center justify-center mx-auto mb-8 transform -rotate-6">
+              <i className="fa-solid fa-user-lock text-4xl"></i>
+            </div>
+            <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight uppercase">Dừng lại một chút!</h2>
+            <p className="text-slate-500 font-medium leading-relaxed mb-10">
+              Bạn cần đăng nhập để truy cập vào lịch sử mua hàng và theo dõi hành trình của những cuốn sách đang đến với mình.
+            </p>
+            <button 
+              onClick={() => setShowLoginModal(true)}
+              className="w-full px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all active:scale-95"
+            >
+              Đăng nhập ngay
+            </button>
+          </div>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 pt-20 lg:pt-24 pb-32 fade-in">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
-        <div>
-          <p className="text-micro font-bold uppercase tracking-premium text-indigo-600 mb-1.5">Lịch sử giao dịch</p>
-          <h1 className="text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight mb-1">Đơn hàng của tôi</h1>
-          <p className="text-slate-500 text-xs font-medium">Theo dõi và quản lý các đơn đặt hàng tại DigiBook.</p>
-        </div>
+    <div className="bg-slate-50 min-h-screen pt-12 lg:pt-24 pb-32">
+      <SEO title="Đơn hàng của tôi" description="Quản lý và theo dõi lịch sử mua hàng của bạn tại DigiBook." />
+      
+      {/* Background Decor */}
+      <div className="fixed inset-0 pointer-events-none -z-10">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-100/30 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/3"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-rose-50/50 blur-[100px] rounded-full translate-y-1/3 -translate-x-1/4"></div>
       </div>
 
-      <div className="space-y-4">
-        {orders.length > 0 ? (
-          orders.map(order => {
-            const itemCount = orderItemsCounts[order.id] || 0;
-            
-            return (
-              <div key={order.id} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow group">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                  <div className="flex items-center gap-5">
-                    <div className="w-14 h-14 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
-                      <i className="fa-solid fa-box-open text-xl"></i>
+      <div className="max-w-5xl mx-auto px-4 lg:px-8">
+        {/* Header Segment */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            <nav className="flex items-center gap-2 mb-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+              <Link to="/" className="hover:text-indigo-600 transition-all flex items-center gap-1.5">
+                <i className="fa-solid fa-house"></i> TRANG CHỦ
+              </Link>
+              <i className="fa-solid fa-chevron-right text-[8px] opacity-30"></i>
+              <Link to="/profile" className="hover:text-indigo-600 transition-all">HỒ SƠ</Link>
+              <i className="fa-solid fa-chevron-right text-[8px] opacity-30"></i>
+              <span className="text-indigo-600">ĐƠN HÀNG</span>
+            </nav>
+            <h1 className="text-4xl lg:text-5xl font-black text-slate-900 leading-tight tracking-tighter">
+              Đơn hàng của tôi
+            </h1>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-4 bg-white p-2 rounded-2xl shadow-sm border border-slate-100 w-full md:w-80"
+          >
+            <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
+               <i className="fa-solid fa-magnifying-glass text-xs"></i>
+            </div>
+            <input 
+              type="text" 
+              placeholder="Tìm mã đơn hàng..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-grow bg-transparent outline-none text-xs font-bold text-slate-700 placeholder:text-slate-300"
+            />
+          </motion.div>
+        </div>
+
+        {/* Tabs Controls */}
+        <div className="mb-10 flex overflow-x-auto pb-4 gap-3 no-scrollbar">
+          {ORDER_STATUSES.map((status) => (
+            <button
+              key={status.id}
+              onClick={() => setActiveTab(status.id)}
+              className={`px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all flex items-center gap-3 border shadow-sm ${
+                activeTab === status.id 
+                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-indigo-100 scale-105' 
+                  : 'bg-white text-slate-400 border-slate-100 hover:border-indigo-200 hover:text-indigo-500'
+              }`}
+            >
+              <i className={`fa-solid ${status.icon}`}></i>
+              {status.label}
+              {activeTab === status.id && (
+                 <span className="bg-white/20 px-1.5 py-0.5 rounded-md text-[8px]">{filteredOrders.length}</span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Orders List */}
+        <div className="space-y-6">
+          <AnimatePresence mode="popLayout">
+            {loading ? (
+              [...Array(3)].map((_, i) => (
+                <div key={i} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 animate-pulse flex flex-col md:flex-row gap-6">
+                  <div className="w-16 h-16 bg-slate-100 rounded-2xl"></div>
+                  <div className="flex-grow space-y-3">
+                    <div className="h-4 bg-slate-100 rounded w-1/4"></div>
+                    <div className="h-3 bg-slate-50 rounded w-1/3"></div>
+                  </div>
+                  <div className="w-32 h-10 bg-slate-100 rounded-xl"></div>
+                </div>
+              ))
+            ) : filteredOrders.length > 0 ? (
+              filteredOrders.map((order, index) => (
+                <motion.div
+                  key={order.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="group bg-white p-6 lg:p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-500"
+                >
+                  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+                    <div className="flex items-center gap-6">
+                      <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl transition-all duration-500 ${
+                        order.statusStep === -1 ? 'bg-rose-50 text-rose-500' :
+                        order.statusStep >= 3 ? 'bg-emerald-50 text-emerald-500' :
+                        'bg-indigo-50 text-indigo-500 group-hover:bg-indigo-600 group-hover:text-white'
+                      }`}>
+                         <i className={`fa-solid ${
+                           order.statusStep === -1 ? 'fa-rectangle-xmark' :
+                           order.statusStep >= 3 ? 'fa-box-circle-check' :
+                           'fa-boxes-packing'
+                         }`}></i>
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-3 mb-1">
+                          <h3 className="text-lg font-black text-slate-900 tracking-tight">#{order.id}</h3>
+                          <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${
+                            order.statusStep === -1 ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                            order.statusStep >= 3 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                            'bg-indigo-50 text-indigo-600 border-indigo-100'
+                          }`}>
+                            {order.status}
+                          </span>
+                        </div>
+                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                           <i className="fa-regular fa-calendar text-[10px]"></i> {new Date(order.date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                           <span className="mx-2 opacity-20">|</span>
+                           <i className="fa-solid fa-book-open text-[10px]"></i> {orderItemsCounts[order.id] || 0} sản phẩm
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-base font-extrabold text-slate-900">Đơn hàng #{order.id}</h3>
-                      <p className="text-label text-slate-400 font-bold">{order.date} • {itemCount} sản phẩm</p>
+
+                    <div className="flex flex-wrap items-center gap-8 w-full lg:w-auto pt-6 lg:pt-0 border-t lg:border-t-0 border-slate-50">
+                      <div className="flex flex-col">
+                         <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1.5 leading-none">Tổng giá trị</p>
+                         <p className="text-xl font-black text-slate-900 leading-none">{formatPrice(order.payment.total)}</p>
+                      </div>
+                      
+                      <button 
+                        onClick={() => navigate(`/my-orders/${order.id}`)}
+                        className="flex-grow lg:flex-none px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-3"
+                      >
+                         <span>Chi tiết đơn</span>
+                         <i className="fa-solid fa-arrow-right-long transition-transform group-hover:translate-x-1"></i>
+                      </button>
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-6 w-full md:w-auto">
-                     <div>
-                       <p className="text-micro text-slate-400 font-bold uppercase tracking-premium mb-1">Trạng thái</p>
-                       <span className={`px-3 py-1 rounded-lg text-micro font-bold uppercase tracking-premium ${order.statusStep < 3 ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'}`}>
-                         {order.status}
-                       </span>
-                     </div>
-                     <div>
-                       <p className="text-micro text-slate-400 font-bold uppercase tracking-premium mb-1">Tổng cộng</p>
-                       <p className="text-base font-extrabold text-slate-900">{formatPrice(order.payment.total)}</p>
-                     </div>
-                     <button onClick={() => navigate(`/my-orders/${order.id}`)} className="flex-1 md:flex-none px-5 py-2.5 bg-slate-900 text-white rounded-xl text-micro font-extrabold uppercase tracking-premium hover:bg-indigo-600 transition-all active:scale-95">Chi tiết đơn</button>
-                  </div>
+                  {/* Desktop Preview: Little dots representing items */}
+                  {orderItemsCounts[order.id] > 0 && (
+                    <div className="mt-6 pt-6 border-t border-slate-50 flex items-center gap-2 overflow-hidden">
+                       <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mr-2 whitespace-nowrap">Đang xử lý gói hàng:</p>
+                       <div className="flex gap-1.5">
+                          {[...Array(Math.min(orderItemsCounts[order.id], 5))].map((_, i) => (
+                             <div key={i} className="w-1.5 h-1.5 rounded-full bg-indigo-200"></div>
+                          ))}
+                          {orderItemsCounts[order.id] > 5 && <span className="text-[8px] font-bold text-slate-300">+{orderItemsCounts[order.id] - 5}</span>}
+                       </div>
+                    </div>
+                  )}
+                </motion.div>
+              ))
+            ) : (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="py-24 text-center bg-white rounded-[4rem] border-2 border-dashed border-slate-100 shadow-inner"
+              >
+                <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-8 shadow-sm">
+                   <i className="fa-solid fa-receipt text-4xl text-slate-200"></i>
                 </div>
-              </div>
-            );
-          })
-        ) : (
-          <div className="py-16 text-center bg-white rounded-[2.5rem] border-2 border-dashed border-slate-100">
-            <i className="fa-solid fa-receipt text-4xl text-slate-200 mb-5"></i>
-            <h3 className="text-lg font-extrabold text-slate-900 mb-1.5 uppercase tracking-premium">Bạn chưa có đơn đặt hàng nào</h3>
-            <p className="text-slate-500 text-xs mb-8 font-medium">Hãy trải nghiệm mua sắm những cuốn sách tuyệt vời ngay nhé!</p>
-            <Link to="/" className="inline-block px-8 py-3.5 bg-indigo-600 text-white rounded-xl font-extrabold uppercase tracking-premium text-micro active:scale-95 transition-all shadow-lg shadow-indigo-100">Mua sắm ngay</Link>
-          </div>
-        )}
+                <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">KHÔNG TÌM THẤY ĐƠN HÀNG</h3>
+                <p className="text-slate-400 font-medium mb-12 max-w-sm mx-auto px-4 leading-relaxed">
+                  Có vẻ như bạn chưa có đơn hàng nào hoặc tiêu chí tìm kiếm không phù hợp. Hãy bắt đầu hành trình đọc sách ngay hôm nay!
+                </p>
+                <Link 
+                  to="/" 
+                  className="inline-flex items-center gap-3 px-10 py-5 bg-indigo-600 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] active:scale-95 transition-all shadow-2xl shadow-indigo-200 hover:bg-indigo-700"
+                >
+                  <i className="fa-solid fa-shopping-bag"></i>
+                  Khám phá cửa hàng
+                </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

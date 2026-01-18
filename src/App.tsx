@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useState, useEffect, useCallback } from 'react';
+import React, { Suspense, lazy, useState, useEffect, useCallback, useMemo } from 'react';
 import { HashRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { Toaster, toast } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './AuthContext';
@@ -29,6 +29,9 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AppContent: React.FC<{
   cartCount: number;
   cartItems: CartItem[];
+  selectedCartItemIds: string[];
+  onToggleSelection: (id: string) => void;
+  onToggleAll: (selectAll: boolean) => void;
   categories: CategoryInfo[];
   fetchInitialData: () => Promise<void>;
   isCartOpen: boolean;
@@ -38,7 +41,22 @@ const AppContent: React.FC<{
   addToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => void;
   setSearchQuery: (query: string) => void;
   searchQuery: string;
-}> = ({ cartCount, cartItems, categories, fetchInitialData, isCartOpen, setIsCartOpen, setCart, allBooks, addToCart, setSearchQuery, searchQuery }) => {
+}> = ({ 
+  cartCount, 
+  cartItems, 
+  selectedCartItemIds, 
+  onToggleSelection, 
+  onToggleAll, 
+  categories, 
+  fetchInitialData, 
+  isCartOpen, 
+  setIsCartOpen, 
+  setCart, 
+  allBooks, 
+  addToCart, 
+  setSearchQuery, 
+  searchQuery 
+}) => {
   const location = useLocation();
   const [quickViewBook, setQuickViewBook] = useState<Book | null>(null);
   const [flyingItem, setFlyingItem] = useState<{ id: string, image: string, x: number, y: number } | null>(null);
@@ -53,10 +71,17 @@ const AppContent: React.FC<{
     addToCart(book, quantity);
   };
 
+  const selectedItems = useMemo(() => 
+    cartItems.filter(item => selectedCartItemIds.includes(item.id)),
+  [cartItems, selectedCartItemIds]);
+
   return (
     <LayoutWrapper 
       cartCount={cartCount}
       cartItems={cartItems}
+      selectedCartItemIds={selectedCartItemIds}
+      onToggleSelection={onToggleSelection}
+      onToggleAll={onToggleAll}
       categories={categories}
       allBooks={allBooks}
       onOpenCart={() => setIsCartOpen(true)}
@@ -124,7 +149,7 @@ const AppContent: React.FC<{
               <Route path="/category/:categoryName" element={<PageTransition><CategoryPage onAddToCart={handleAddToCart} onQuickView={handleQuickView} /></PageTransition>} />
               <Route path="/author/:authorName" element={<PageTransition><AuthorPage onAddToCart={handleAddToCart} onQuickView={handleQuickView} /></PageTransition>} />
               <Route path="/wishlist" element={<PageTransition><WishlistPage onAddToCart={handleAddToCart} onQuickView={handleQuickView} /></PageTransition>} />
-              <Route path="/checkout" element={<PageTransition><CheckoutPage cart={cartItems} onClearCart={() => setCart([])} /></PageTransition>} />
+              <Route path="/checkout" element={<PageTransition><CheckoutPage cart={selectedItems} onClearCart={() => setCart(prev => prev.filter(item => !selectedCartItemIds.includes(item.id)))} /></PageTransition>} />
               <Route path="/order-success" element={<PageTransition><OrderSuccess /></PageTransition>} />
               <Route path="/my-orders" element={<PageTransition><MyOrdersPage /></PageTransition>} />
               <Route path="/my-orders/:orderId" element={<PageTransition><OrderDetailPage /></PageTransition>} />
@@ -142,11 +167,21 @@ const AppContent: React.FC<{
 const App: React.FC = () => {
   const { loading } = useAuth();
   const [cart, setCart] = useState<CartItem[]>(() => JSON.parse(localStorage.getItem('digibook_cart') || '[]'));
+  const [selectedCartItemIds, setSelectedCartItemIds] = useState<string[]>([]);
   const [allBooks, setAllBooks] = useState<Book[]>([]);
   const [categories, setCategories] = useState<CategoryInfo[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [dataLoading, setDataLoading] = useState(true);
+
+  // Sync selection with cart items
+  useEffect(() => {
+    const cartIds = cart.map(item => item.id);
+    setSelectedCartItemIds(prev => prev.filter(id => cartIds.includes(id)));
+    // If cart has new items and nothing was selected, or if new item added, maybe we don't auto-select.
+    // But usually, when you add to cart, you might want it selected? 
+    // Let's keep it simple: cart items exist, selection is a subset.
+  }, [cart]);
 
   const fetchInitialData = async () => {
     try {
@@ -176,6 +211,8 @@ const App: React.FC = () => {
       if (existing) return prev.map(item => item.id === book.id ? { ...item, quantity: item.quantity + quantity } : item);
       return [...prev, { ...book, quantity }];
     });
+
+    setSelectedCartItemIds(prev => prev.includes(book.id) ? prev : [...prev, book.id]);
     
     toast.success(
       <div className="flex flex-col gap-1">
@@ -201,6 +238,9 @@ const App: React.FC = () => {
       <AppContent 
         cartCount={cart.reduce((s, i) => s + i.quantity, 0)}
         cartItems={cart}
+        selectedCartItemIds={selectedCartItemIds}
+        onToggleSelection={(id) => setSelectedCartItemIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])}
+        onToggleAll={(selectAll) => setSelectedCartItemIds(selectAll ? cart.map(i => i.id) : [])}
         categories={categories}
         allBooks={allBooks}
         fetchInitialData={fetchInitialData}

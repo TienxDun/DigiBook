@@ -8,6 +8,9 @@ interface CartSidebarProps {
   isOpen: boolean;
   onClose: () => void;
   items: CartItem[];
+  selectedIds: string[];
+  onToggleSelection: (id: string) => void;
+  onToggleAll: (selectAll: boolean) => void;
   onRemove: (id: string) => void;
   onUpdateQty: (id: string, delta: number) => void;
 }
@@ -16,13 +19,26 @@ const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 };
 
-const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, items, onRemove, onUpdateQty }) => {
+const CartSidebar: React.FC<CartSidebarProps> = ({ 
+  isOpen, 
+  onClose, 
+  items, 
+  selectedIds,
+  onToggleSelection,
+  onToggleAll,
+  onRemove, 
+  onUpdateQty 
+}) => {
   const navigate = useNavigate();
   const { user, setShowLoginModal } = useAuth();
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  
+  const selectedItems = items.filter(item => selectedIds.includes(item.id));
+  const subtotal = selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const isAllSelected = items.length > 0 && selectedIds.length === items.length;
 
   const handleCheckoutClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (selectedItems.length === 0) return;
     if (!user) {
       setShowLoginModal(true);
     } else {
@@ -40,11 +56,40 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, items, onRem
       
       <aside className={`fixed top-0 right-0 h-full w-full max-w-md bg-white/80 backdrop-blur-3xl shadow-2xl z-[70] transition-transform duration-500 ease-out transform ${isOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col border-l border-white/20`}>
         <div className="p-6 border-b border-white/10 flex items-center justify-between">
-          <h2 className="text-xl font-extrabold text-slate-900 uppercase tracking-tight">Giỏ hàng của bạn</h2>
+          <div>
+            <h2 className="text-xl font-extrabold text-slate-900 uppercase tracking-tight">Giỏ hàng của bạn</h2>
+            {items.length > 0 && (
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                Đã chọn {selectedIds.length}/{items.length} sản phẩm
+              </p>
+            )}
+          </div>
           <button onClick={onClose} className="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500">
             <i className="fa-solid fa-xmark text-lg"></i>
           </button>
         </div>
+
+        {items.length > 0 && (
+          <div className="px-6 py-3 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between">
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <div 
+                onClick={() => onToggleAll(!isAllSelected)}
+                className={`w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center ${
+                  isAllSelected ? 'bg-indigo-600 border-indigo-600' : 'border-slate-300 bg-white group-hover:border-indigo-400'
+                }`}
+              >
+                {isAllSelected && <i className="fa-solid fa-check text-[10px] text-white"></i>}
+              </div>
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Chọn tất cả</span>
+            </label>
+            <button 
+              onClick={() => items.forEach(item => onRemove(item.id))}
+              className="text-[9px] font-black text-rose-500 uppercase tracking-widest hover:underline"
+            >
+              Xóa tất cả
+            </button>
+          </div>
+        )}
 
         <div className="flex-1 overflow-y-auto p-6 space-y-6 no-scrollbar">
           {items.length === 0 ? (
@@ -63,25 +108,38 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, items, onRem
             </div>
           ) : (
             items.map((item) => (
-              <div key={item.id} className="flex gap-4 group">
-                <div className="w-20 h-28 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 border border-slate-50">
-                  <img src={item.cover} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              <div key={item.id} className={`flex gap-4 group transition-opacity ${selectedIds.includes(item.id) ? 'opacity-100' : 'opacity-60'}`}>
+                <div className="flex items-center">
+                  <div 
+                    onClick={() => onToggleSelection(item.id)}
+                    className={`w-5 h-5 rounded-md border-2 cursor-pointer transition-all flex items-center justify-center flex-shrink-0 ${
+                      selectedIds.includes(item.id) ? 'bg-indigo-600 border-indigo-600 shadow-sm' : 'border-slate-200 bg-white hover:border-indigo-400'
+                    }`}
+                  >
+                    {selectedIds.includes(item.id) && <i className="fa-solid fa-check text-[10px] text-white"></i>}
+                  </div>
                 </div>
-                <div className="flex-1">
+                
+                <div className="w-20 h-28 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 border border-slate-50 relative">
+                  <img src={item.cover} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                  {!selectedIds.includes(item.id) && <div className="absolute inset-0 bg-white/40 backdrop-grayscale-[0.5]"></div>}
+                </div>
+                
+                <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start mb-1">
-                    <h4 className="font-extrabold text-slate-900 line-clamp-1 text-sm">{item.title}</h4>
-                    <button onClick={() => onRemove(item.id)} className="text-slate-300 hover:text-rose-500 transition-colors">
-                      <i className="fa-solid fa-trash-can text-xs"></i>
+                    <h4 className="font-extrabold text-slate-900 line-clamp-2 text-[13px] leading-snug uppercase tracking-tight pr-2">{item.title}</h4>
+                    <button onClick={() => onRemove(item.id)} className="w-8 h-8 rounded-lg hover:bg-rose-50 text-slate-300 hover:text-rose-500 transition-all flex items-center justify-center flex-shrink-0">
+                      <i className="fa-solid fa-trash-can text-[10px]"></i>
                     </button>
                   </div>
-                  <p className="text-slate-400 text-xs mb-3 font-medium">{item.author}</p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center border border-slate-100 rounded-xl bg-slate-50 px-2 py-1 gap-3">
-                      <button onClick={() => onUpdateQty(item.id, -1)} className="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors"><i className="fa-solid fa-minus text-[10px]"></i></button>
-                      <span className="text-xs font-bold text-slate-900">{item.quantity}</span>
-                      <button onClick={() => onUpdateQty(item.id, 1)} className="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors"><i className="fa-solid fa-plus text-[10px]"></i></button>
+                  <p className="text-slate-400 text-[10px] mb-3 font-bold uppercase tracking-widest">{item.author}</p>
+                  <div className="flex items-center justify-between mt-auto">
+                    <div className="flex items-center border border-slate-100 rounded-xl bg-slate-50 p-1 gap-2">
+                      <button onClick={() => onUpdateQty(item.id, -1)} className="w-7 h-7 rounded-lg hover:bg-white flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-all"><i className="fa-solid fa-minus text-[10px]"></i></button>
+                      <span className="text-xs font-black text-slate-900 min-w-[20px] text-center">{item.quantity}</span>
+                      <button onClick={() => onUpdateQty(item.id, 1)} className="w-7 h-7 rounded-lg hover:bg-white flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-all"><i className="fa-solid fa-plus text-[10px]"></i></button>
                     </div>
-                    <span className="font-extrabold text-slate-900">{formatPrice(item.price * item.quantity)}</span>
+                    <span className="font-black text-slate-900 text-sm">{formatPrice(item.price * item.quantity)}</span>
                   </div>
                 </div>
               </div>
@@ -91,23 +149,39 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, items, onRem
 
         {items.length > 0 && (
           <div className="p-8 border-t border-slate-100 bg-slate-50/50">
-            <div className="space-y-3 mb-8">
-              <div className="flex justify-between text-slate-500 text-micro font-bold uppercase tracking-premium">
-                <span>Tạm tính</span>
-                <span>{formatPrice(total)}</span>
+            <div className="space-y-4 mb-8">
+              <div className="flex justify-between items-center text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                <span>Tạm tính ({selectedItems.length} món)</span>
+                <span className="text-slate-600">{formatPrice(subtotal)}</span>
               </div>
-              <div className="flex justify-between text-slate-900 text-xl font-extrabold pt-4 border-t border-slate-200 uppercase tracking-tight">
-                <span>Tổng tiền</span>
-                <span className="text-indigo-600">{formatPrice(total)}</span>
+              <div className="flex justify-between items-end border-t border-slate-200 pt-5">
+                <div className="flex flex-col">
+                  <span className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Tổng cộng</span>
+                  <span className="text-2xl font-black text-slate-900 tracking-tighter leading-none">{formatPrice(subtotal)}</span>
+                </div>
+                <div className="text-right">
+                   <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mb-1 flex items-center justify-end gap-1">
+                      <i className="fa-solid fa-shield-check"></i> Bảo mật thanh toán
+                   </p>
+                </div>
               </div>
             </div>
+            
             <button 
               onClick={handleCheckoutClick}
-              className="w-full bg-indigo-600 text-white py-5 rounded-2xl font-extrabold text-micro uppercase tracking-premium hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3 active:scale-95"
+              disabled={selectedItems.length === 0}
+              className={`w-full py-5 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 ${
+                selectedItems.length > 0 
+                  ? 'bg-slate-900 text-white hover:bg-indigo-600 shadow-indigo-100' 
+                  : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+              }`}
             >
-              Thanh toán ngay
-              <i className="fa-solid fa-arrow-right"></i>
+              {selectedItems.length === 0 ? 'Vui lòng chọn sản phẩm' : `Thanh toán (${selectedItems.length})`}
+              <i className="fa-solid fa-arrow-right-long mr-1"></i>
             </button>
+            <p className="text-[10px] text-slate-400 font-bold text-center mt-6 uppercase tracking-widest opacity-60">
+               Giao hàng dự kiến: 2-3 ngày làm việc
+            </p>
           </div>
         )}
       </aside>

@@ -1,7 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Book } from '../types';
+import { useAuth } from '../AuthContext';
 
 interface QuickViewModalProps {
   book: Book | null;
@@ -10,9 +12,19 @@ interface QuickViewModalProps {
 }
 
 export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, onAddToCart }) => {
+  const { wishlist, toggleWishlist } = useAuth();
   const [quantity, setQuantity] = useState(1);
 
+  const isWishlisted = useMemo(() => 
+    book ? wishlist.some(b => b.id === book.id) : false, 
+    [wishlist, book]
+  );
+
   if (!book) return null;
+
+  const handleToggleWishlist = () => {
+    toggleWishlist(book);
+  };
 
   return (
     <AnimatePresence>
@@ -42,13 +54,20 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
           </button>
 
           {/* Left: Image */}
-          <div className="w-full md:w-5/12 bg-slate-50 p-8 flex items-center justify-center overflow-hidden">
-            <motion.img 
-              layoutId={`book-cover-${book.id}`}
-              src={book.cover} 
-              alt={book.title}
-              className="w-full max-w-[280px] h-auto object-cover rounded-xl shadow-2xl transition-transform hover:scale-105 duration-700"
-            />
+          <div className="w-full md:w-5/12 bg-slate-50 p-8 flex items-center justify-center overflow-hidden relative group/img">
+            <motion.div
+              className="relative"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: 'spring', stiffness: 300 }}
+            >
+              <motion.img 
+                layoutId={`book-cover-${book.id}`}
+                src={book.cover} 
+                alt={book.title}
+                className="w-full max-w-[280px] h-auto object-cover rounded-xl shadow-2xl relative z-10"
+              />
+              <div className="absolute inset-0 bg-indigo-600/20 blur-3xl rounded-full scale-150 -z-0 opacity-0 group-hover/img:opacity-100 transition-opacity duration-700"></div>
+            </motion.div>
           </div>
 
           {/* Right: Info */}
@@ -106,17 +125,40 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
               </div>
             </div>
 
-            <div className="flex gap-4">
-              <button 
-                onClick={(e) => {
-                  onAddToCart(book, quantity, { x: e.clientX, y: e.clientY });
-                  onClose();
-                }}
-                className="flex-1 py-4 bg-indigo-600 text-white rounded-2xl text-label font-bold uppercase tracking-premium hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200 active:scale-[0.98] flex items-center justify-center gap-3"
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-3">
+                <button 
+                  onClick={(e) => {
+                    onAddToCart(book, quantity, { x: e.clientX, y: e.clientY });
+                    onClose();
+                  }}
+                  className="flex-1 py-4 bg-indigo-600 text-white rounded-2xl text-label font-bold uppercase tracking-premium hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200 active:scale-[0.98] flex items-center justify-center gap-3"
+                >
+                  <i className="fa-solid fa-cart-shopping"></i>
+                  Thêm vào giỏ hàng
+                </button>
+
+                <button 
+                  onClick={handleToggleWishlist}
+                  className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all border-2 active:scale-95 ${
+                    isWishlisted 
+                      ? 'bg-rose-50 border-rose-100 text-rose-500 shadow-sm' 
+                      : 'bg-white border-slate-100 text-slate-400 hover:border-indigo-100 hover:text-indigo-600'
+                  }`}
+                  title={isWishlisted ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
+                >
+                  <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-lg`}></i>
+                </button>
+              </div>
+
+              <Link 
+                to={`/book/${book.id}`}
+                onClick={onClose}
+                className="w-full py-4 bg-slate-100 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-premium hover:bg-slate-200 transition-all flex items-center justify-center gap-3 active:scale-[0.98] border border-slate-200"
               >
-                <i className="fa-solid fa-cart-shopping"></i>
-                Thêm vào giỏ hàng
-              </button>
+                <i className="fa-solid fa-circle-info text-[12px]"></i>
+                Xem chi tiết sản phẩm
+              </Link>
             </div>
           </div>
         </motion.div>

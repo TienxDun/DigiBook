@@ -291,6 +291,19 @@ class DataService {
     );
   }
 
+  async checkIfUserPurchasedBook(userId: string, bookId: string): Promise<boolean> {
+    return this.wrap(
+      getDocs(query(collection(db_fs, 'orders'), where("userId", "==", userId)))
+        .then(snap => {
+          return snap.docs.some(d => {
+            const orderData = d.data();
+            return orderData.items?.some((item: any) => item.bookId === bookId);
+          });
+        }),
+      false
+    );
+  }
+
   async getOrderWithItems(orderId: string): Promise<(Order & { items: OrderItem[] }) | undefined> {
     return this.wrap(
       getDoc(doc(db_fs, 'orders', orderId)).then(snap => snap.exists() ? { id: snap.id, ...snap.data() } as any : undefined),
