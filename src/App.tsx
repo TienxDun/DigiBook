@@ -45,6 +45,7 @@ const AppContent: React.FC<{
       cartCount={cartCount}
       cartItems={cartItems}
       categories={categories}
+      allBooks={allBooks}
       onOpenCart={() => setIsCartOpen(true)}
       onSearch={setSearchQuery}
       searchQuery={searchQuery}
@@ -142,11 +143,11 @@ const App: React.FC = () => {
         cartCount={cart.reduce((s, i) => s + i.quantity, 0)}
         cartItems={cart}
         categories={categories}
+        allBooks={allBooks}
         fetchInitialData={fetchInitialData}
         isCartOpen={isCartOpen}
         setIsCartOpen={setIsCartOpen}
         setCart={setCart}
-        allBooks={allBooks}
         addToCart={addToCart}
         setSearchQuery={setSearchQuery}
         searchQuery={searchQuery}

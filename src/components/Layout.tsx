@@ -5,7 +5,7 @@ import Footer from './Footer';
 import MobileNav from './MobileNav';
 import CartSidebar from './CartSidebar';
 import { useAuth } from '../AuthContext';
-import { CartItem, CategoryInfo } from '../types';
+import { CartItem, CategoryInfo, Book } from '../types';
 
 export const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
@@ -29,6 +29,7 @@ export const LayoutWrapper: React.FC<{
   cartCount: number, 
   cartItems: CartItem[], 
   categories: CategoryInfo[],
+  allBooks: Book[],
   onOpenCart: () => void, 
   onSearch: (q: string) => void,
   searchQuery: string,
@@ -42,6 +43,7 @@ export const LayoutWrapper: React.FC<{
   cartCount, 
   cartItems, 
   categories, 
+  allBooks,
   onOpenCart, 
   onSearch, 
   searchQuery, 
@@ -61,6 +63,7 @@ export const LayoutWrapper: React.FC<{
           cartCount={cartCount} 
           cartItems={cartItems} 
           categories={categories}
+          allBooks={allBooks}
           onOpenCart={onOpenCart} 
           onSearch={onSearch} 
           searchQuery={searchQuery}

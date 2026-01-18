@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { CartItem, CategoryInfo } from '../types';
+import { CartItem, CategoryInfo, Book } from '../types';
 import { useAuth } from '../AuthContext';
 
 
@@ -9,22 +9,61 @@ interface HeaderProps {
   cartCount: number;
   cartItems: CartItem[];
   categories: CategoryInfo[];
+  allBooks: Book[];
   onOpenCart: () => void;
   onSearch: (query: string) => void;
   searchQuery: string;
   onRefreshData?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpenCart, onSearch, searchQuery, onRefreshData }) => {
+const Header: React.FC<HeaderProps> = ({ 
+  cartCount, 
+  cartItems, 
+  categories, 
+  allBooks,
+  onOpenCart, 
+  onSearch, 
+  searchQuery, 
+  onRefreshData 
+}) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, wishlist, logout, setShowLoginModal } = useAuth();
   
   const [searchValue, setSearchValue] = useState(searchQuery);
+  const [searchSuggestions, setSearchSuggestions] = useState<Book[]>([]);
+  const [showCartPreview, setShowCartPreview] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
     setSearchValue(searchQuery);
   }, [searchQuery]);
+
+  useEffect(() => {
+    const handleScrollProgress = () => {
+      const totalScroll = document.documentElement.scrollTop;
+      const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scroll = totalScroll / windowHeight;
+      setScrollProgress(scroll * 100);
+    };
+
+    window.addEventListener('scroll', handleScrollProgress);
+    return () => window.removeEventListener('scroll', handleScrollProgress);
+  }, []);
+
+  useEffect(() => {
+    if (searchValue.trim().length >= 2) {
+      const filtered = allBooks
+        .filter(book => 
+          book.title.toLowerCase().includes(searchValue.toLowerCase()) || 
+          book.author.toLowerCase().includes(searchValue.toLowerCase())
+        )
+        .slice(0, 5);
+      setSearchSuggestions(filtered);
+    } else {
+      setSearchSuggestions([]);
+    }
+  }, [searchValue, allBooks]);
 
   const [scrolled, setScrolled] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -32,12 +71,16 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
   const [showCategoryMenu, setShowCategoryMenu] = useState(false);
   const categoryMenuRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     const handleClickOutside = (event: MouseEvent) => {
       if (categoryMenuRef.current && !categoryMenuRef.current.contains(event.target as Node)) {
         setShowCategoryMenu(false);
+      }
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false);
       }
     };
 
@@ -67,6 +110,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
         if (location.pathname !== '/') navigate('/');
       }
       (e.target as HTMLInputElement).blur();
+      setIsSearchFocused(false);
     }
   };
 
@@ -85,6 +129,11 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
           : 'h-24 bg-transparent border-b border-transparent px-6'
       }`}
     >
+      {/* Scroll Progress Bar */}
+      {scrolled && (
+        <div className="absolute top-0 left-0 h-1 bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 z-[60] transition-all duration-300 ease-out" style={{ width: `${scrollProgress}%` }} />
+      )}
+
       <div className="max-w-[1400px] mx-auto h-full flex items-center justify-between gap-6">
         
         {/* Left: Logo & Navigation */}
@@ -168,7 +217,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
         </div>
 
         {/* Center: Search Bar */}
-        <div className={`relative flex-1 hidden md:block transition-all duration-700 ${isSearchFocused ? 'max-w-xl' : 'max-w-md'}`}>
+        <div ref={searchContainerRef} className={`relative flex-1 hidden md:block transition-all duration-700 ${isSearchFocused ? 'max-w-xl' : 'max-w-md'}`}>
           <div className="relative group">
             <input 
               ref={searchInputRef}
@@ -178,7 +227,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
               onChange={(e) => setSearchValue(e.target.value)}
               onKeyDown={handleKeyDown}
               onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setIsSearchFocused(false)}
               className={`w-full py-3.5 pl-12 pr-6 rounded-2xl text-label font-bold outline-none transition-all duration-500 border ${
                 isSearchFocused 
                 ? 'bg-white border-indigo-200 ring-[6px] ring-indigo-500/5 shadow-2xl shadow-indigo-200/50' 
@@ -194,18 +242,53 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
             </div>
 
             {/* Shortcut key indicator */}
-            {!isSearchFocused && (
+            {!isSearchFocused && !searchValue && (
               <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-40 group-hover:opacity-60 transition-opacity hidden sm:flex">
                 <kbd className="px-1.5 py-0.5 rounded border border-slate-300 bg-white text-[10px] font-bold text-slate-500">/</kbd>
               </div>
             )}
           </div>
+
+          {/* Search Suggestions */}
+          {isSearchFocused && searchSuggestions.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-[110] animate-fadeIn">
+              <div className="p-2">
+                {searchSuggestions.map(book => (
+                  <Link 
+                    key={book.id}
+                    to={`/book/${book.id}`}
+                    onClick={() => setIsSearchFocused(false)}
+                    className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-xl transition-all group"
+                  >
+                    <img src={book.cover} alt="" className="w-10 h-14 rounded shadow-sm object-cover" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-label font-bold text-slate-900 truncate group-hover:text-indigo-600 transition-colors">{book.title}</p>
+                      <p className="text-micro font-bold text-slate-400">{book.author}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-label font-extrabold text-indigo-600">{book.price.toLocaleString()}đ</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+              <button 
+                onClick={() => {
+                  onSearch(searchValue);
+                  navigate(`/search/${encodeURIComponent(searchValue.trim())}`);
+                  setIsSearchFocused(false);
+                }}
+                className="w-full py-3 bg-slate-50 text-micro font-bold uppercase tracking-premium text-slate-500 hover:text-indigo-600 transition-colors border-t border-slate-100"
+              >
+                Xem tất cả kết quả cho "{searchValue}"
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Right: Actions */}
         <div className="flex items-center gap-4">
           
-          <div className="flex items-center p-1 bg-slate-100/50 rounded-2xl">
+          <div className="flex items-center p-1 bg-slate-100/50 rounded-2xl relative">
             {/* Wishlist Icon */}
             <Link 
               to="/wishlist" 
@@ -220,18 +303,60 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
               )}
             </Link>
 
-            {/* Cart Toggle */}
-            <button 
-              onClick={onOpenCart} 
-              className="w-10 h-10 rounded-xl bg-white text-slate-600 hover:text-indigo-600 shadow-sm transition-all relative flex items-center justify-center group active:scale-90"
+            {/* Cart Toggle with Quick Preview */}
+            <div 
+              className="relative"
+              onMouseEnter={() => setShowCartPreview(true)}
+              onMouseLeave={() => setShowCartPreview(false)}
             >
-              <i className="fa-solid fa-bag-shopping text-[16px] group-hover:scale-110 transition-transform"></i>
-              {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] bg-indigo-600 text-white text-micro font-bold rounded-full flex items-center justify-center border-2 border-white px-1 shadow-md">
-                  {cartCount}
-                </span>
+              <button 
+                onClick={onOpenCart} 
+                className="w-10 h-10 rounded-xl bg-white text-slate-600 hover:text-indigo-600 shadow-sm transition-all relative flex items-center justify-center group active:scale-90"
+              >
+                <i className="fa-solid fa-bag-shopping text-[16px] group-hover:scale-110 transition-transform"></i>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] bg-indigo-600 text-white text-micro font-bold rounded-full flex items-center justify-center border-2 border-white px-1 shadow-md">
+                    {cartCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Quick Cart Preview Dropdown */}
+              {showCartPreview && cartItems.length > 0 && (
+                <div className="absolute top-full right-0 mt-4 w-80 bg-white rounded-3xl shadow-2xl border border-slate-100 p-5 z-[100] animate-fadeIn">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-label font-extrabold text-slate-900 uppercase tracking-tight">Giỏ hàng nhanh</p>
+                    <span className="text-micro font-bold text-slate-400">{cartCount} sản phẩm</span>
+                  </div>
+                  <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                    {cartItems.slice(0, 3).map(item => (
+                      <div key={item.id} className="flex gap-3">
+                        <img src={item.cover} alt="" className="w-12 h-16 rounded shadow-sm object-cover" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-micro font-extrabold text-slate-900 truncate leading-tight uppercase">{item.title}</p>
+                          <p className="text-micro font-bold text-slate-400">{item.quantity} x {item.price.toLocaleString()}đ</p>
+                        </div>
+                      </div>
+                    ))}
+                    {cartItems.length > 3 && (
+                      <p className="text-center text-micro font-bold text-indigo-500">Và {cartItems.length - 3} sản phẩm khác...</p>
+                    )}
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-slate-50">
+                    <div className="flex items-center justify-between mb-4">
+                      <p className="text-micro font-bold text-slate-500 uppercase tracking-premium">Tổng cộng:</p>
+                      <p className="text-label font-extrabold text-indigo-600">{cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toLocaleString()}đ</p>
+                    </div>
+                    <button 
+                      onClick={() => { onOpenCart(); setShowCartPreview(false); }}
+                      className="w-full py-3 bg-slate-900 text-white rounded-xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-600 transition-all"
+                    >
+                      Xem giỏ hàng chi tiết
+                    </button>
+                  </div>
+                </div>
               )}
-            </button>
+            </div>
           </div>
 
           <div className="w-px h-8 bg-slate-200 hidden sm:block"></div>
