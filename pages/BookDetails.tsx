@@ -53,17 +53,18 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book, quantity?: number) => vo
           const bookReviews = await db.getReviewsByBookId(id);
           setReviews(bookReviews);
           
-          // Gợi ý sách liên quan
-          const related = await db.getRelatedBooks(foundBook.category, id, foundBook.author);
+          // Gợi ý sách liên quan - Tăng lên 5 cuốn để lấp đầy grid
+          const related = await db.getRelatedBooks(foundBook.category, id, foundBook.author, 5);
           setRelatedBooks(related);
 
           // Update recent books in localStorage
           const stored = localStorage.getItem('digibook_recent');
           let recent: Book[] = stored ? JSON.parse(stored) : [];
-          // Filter out current book if already exists and add to top
-          recent = [foundBook, ...recent.filter(b => b.id !== foundBook.id)].slice(0, 5);
+          // Lưu 10 cuốn gần nhất để khi filter cuốn hiện tại vẫn còn đủ hiển thị
+          recent = [foundBook, ...recent.filter(b => b.id !== foundBook.id)].slice(0, 10);
           localStorage.setItem('digibook_recent', JSON.stringify(recent));
-          setRecentBooks(recent.filter(b => b.id !== foundBook.id));
+          // Hiển thị 5 cuốn khác để lấp đầy grid xl:grid-cols-5
+          setRecentBooks(recent.filter(b => b.id !== foundBook.id).slice(0, 5));
         }
       }
     };

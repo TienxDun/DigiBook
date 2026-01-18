@@ -1,6 +1,7 @@
 
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { db } from '../services/db';
 import BookCard from '../components/BookCard';
 import Pagination from '../components/Pagination';
@@ -134,70 +135,115 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
       )}
 
       <div className="max-w-7xl mx-auto px-4 -mt-8 relative z-20">
-        <div className="mb-8 flex overflow-x-auto pb-4 gap-3 no-scrollbar scroll-smooth">
-          {categories.map((cat, i) => {
-            const isActive = categoryName === cat.name || (!categoryName && cat.name === 'Tất cả sách');
-            const colors = [
-              { active: 'bg-indigo-600 text-white shadow-indigo-100', inactive: 'bg-white text-slate-600 hover:bg-indigo-50 hover:text-indigo-600' },
-              { active: 'bg-rose-500 text-white shadow-rose-100', inactive: 'bg-white text-slate-600 hover:bg-rose-50 hover:text-rose-500' },
-              { active: 'bg-emerald-500 text-white shadow-emerald-100', inactive: 'bg-white text-slate-600 hover:bg-emerald-50 hover:text-emerald-500' },
-              { active: 'bg-amber-500 text-white shadow-amber-100', inactive: 'bg-white text-slate-600 hover:bg-amber-50 hover:text-amber-500' },
-              { active: 'bg-cyan-500 text-white shadow-cyan-100', inactive: 'bg-white text-slate-600 hover:bg-cyan-50 hover:text-cyan-500' },
-              { active: 'bg-violet-500 text-white shadow-violet-100', inactive: 'bg-white text-slate-600 hover:bg-violet-50 hover:text-violet-500' },
-            ];
-            const color = colors[i % colors.length];
-            
-            return (
-              <Link
-                key={i}
-                to={`/category/${cat.name}`}
-                className={`flex-shrink-0 px-5 py-3 rounded-xl font-bold text-micro uppercase tracking-premium flex items-center gap-2.5 transition-all duration-300 border border-slate-100 shadow-sm ${
-                  isActive ? `${color.active} shadow-lg scale-105 border-transparent` : color.inactive
-                }`}
-              >
-                <i className={`fa-solid ${cat.icon} ${isActive ? 'text-sm' : 'text-base opacity-70'}`}></i>
-                {cat.name}
-              </Link>
-            );
-          })}
+        <div className="sticky top-[80px] z-30 mb-10 p-2.5 bg-white/80 backdrop-blur-lg rounded-[2rem] border border-white/50 shadow-xl shadow-slate-200/50 flex items-center gap-3 overflow-hidden group transition-all duration-300">
+          <div className="flex-shrink-0 flex items-center gap-2 px-5 py-3 border-r border-slate-200 mr-2">
+            <i className="fa-solid fa-layer-group text-indigo-500"></i>
+            <span className="text-[10px] font-black text-slate-800 uppercase tracking-widest hidden sm:block">Chân dung tri thức</span>
+          </div>
+          
+          <div className="flex-1 flex overflow-x-auto pb-1 gap-3 no-scrollbar scroll-smooth py-1">
+            {[{ name: 'Tất cả sách', icon: 'fa-book-open' }, ...categories].map((cat, i) => {
+              const isActive = categoryName === cat.name || (!categoryName && cat.name === 'Tất cả sách');
+              const bookCount = cat.name === 'Tất cả sách' 
+                ? allBooks.length 
+                : allBooks.filter(b => b.category.toLowerCase() === cat.name.toLowerCase()).length;
+
+              const colors = [
+                { active: 'bg-indigo-600 text-white shadow-indigo-200 ring-4 ring-indigo-50', inactive: 'bg-white text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200' },
+                { active: 'bg-rose-500 text-white shadow-rose-200 ring-4 ring-rose-50', inactive: 'bg-white text-slate-600 hover:bg-rose-50 hover:text-rose-500 hover:border-rose-200' },
+                { active: 'bg-emerald-500 text-white shadow-emerald-200 ring-4 ring-emerald-50', inactive: 'bg-white text-slate-600 hover:bg-emerald-50 hover:text-emerald-500 hover:border-emerald-200' },
+                { active: 'bg-amber-500 text-white shadow-amber-200 ring-4 ring-amber-50', inactive: 'bg-white text-slate-600 hover:bg-amber-50 hover:text-amber-500 hover:border-amber-200' },
+                { active: 'bg-cyan-500 text-white shadow-cyan-200 ring-4 ring-cyan-50', inactive: 'bg-white text-slate-600 hover:bg-cyan-50 hover:text-cyan-500 hover:border-cyan-200' },
+                { active: 'bg-violet-500 text-white shadow-violet-200 ring-4 ring-violet-50', inactive: 'bg-white text-slate-600 hover:bg-violet-50 hover:text-violet-500 hover:border-violet-200' },
+              ];
+              const color = colors[i % colors.length];
+              
+              return (
+                <Link
+                  key={i}
+                  to={`/category/${cat.name}`}
+                  className={`flex-shrink-0 px-6 py-3.5 rounded-2xl font-bold text-[10px] uppercase tracking-premium flex items-center gap-3 transition-all duration-500 border border-slate-100 relative group/cat ${
+                    isActive ? `${color.active} z-10 -translate-y-1` : `${color.inactive} hover:-translate-y-0.5 shadow-sm`
+                  }`}
+                >
+                  <i className={`fa-solid ${cat.icon} ${isActive ? 'scale-110 text-white' : 'text-slate-400 group-hover/cat:scale-110 group-hover/cat:text-current transition-all'}`}></i>
+                  <span>{cat.name}</span>
+                  {isActive && (
+                    <motion.div 
+                      layoutId="activeCategory"
+                      className="absolute inset-0 bg-transparent rounded-2xl z-[-1]"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
+          </div>
         </div>
 
         <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-lg shadow-slate-200/50 border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
           <div className="flex flex-wrap items-center gap-3">
              {!isPromotionPage && (
                <div className="flex items-center gap-3.5 mr-4">
-                 <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
-                   <i className={`fa-solid ${currentCategory.icon} text-lg`}></i>
+                 <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-inner">
+                   <i className={`fa-solid ${currentCategory.icon} text-xl`}></i>
                  </div>
                  <div>
-                   <p className="text-micro font-bold uppercase tracking-premium text-indigo-500 mb-0.5">Danh mục</p>
+                   <div className="flex items-center gap-2 mb-0.5">
+                     <p className="text-micro font-bold uppercase tracking-premium text-indigo-500">Danh mục</p>
+                     <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                     <p className="text-micro font-bold uppercase tracking-premium text-slate-400">
+                        {filteredBooks.length} sản phẩm
+                     </p>
+                   </div>
                    <h1 className="text-xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">{categoryName || 'Tất cả sách'}</h1>
                  </div>
                </div>
              )}
              {isPromotionPage && (
-               <div className="flex gap-2">
-                 <button className="px-4 py-2 bg-rose-50 text-rose-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-rose-100">Sale 50%</button>
-                 <button className="px-4 py-2 bg-amber-50 text-amber-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-amber-100">Hot</button>
-                 <button className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-emerald-100">Freeship</button>
+               <div className="flex flex-col gap-1 mr-4">
+                 <div className="flex items-center gap-2">
+                    <p className="text-micro font-bold uppercase tracking-premium text-rose-500">Chương trình</p>
+                    <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                    <p className="text-micro font-bold uppercase tracking-premium text-slate-400">
+                      {filteredBooks.length} ưu đãi
+                    </p>
+                 </div>
+                 <div className="flex gap-2">
+                   <button className="px-4 py-2 bg-rose-50 text-rose-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-rose-100">Sale 50%</button>
+                   <button className="px-4 py-2 bg-amber-50 text-amber-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-amber-100">Hot</button>
+                   <button className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-emerald-100">Freeship</button>
+                 </div>
                </div>
              )}
           </div>
-          <div className="flex items-center gap-4 bg-slate-50/50 p-1.5 rounded-xl border border-slate-100 w-full md:w-auto group focus-within:border-indigo-500 focus-within:bg-white transition-all">
-            <div className="flex items-center gap-2 pl-2.5">
-              <i className="fa-solid fa-arrow-down-wide-short text-slate-400 text-[10px]"></i>
-              <span className="text-micro font-bold text-slate-400 uppercase tracking-premium whitespace-nowrap">Sắp xếp theo</span>
+          <div className="flex items-center gap-2 bg-slate-100/50 p-1.5 rounded-2xl border border-slate-200 w-full md:w-auto overflow-x-auto no-scrollbar shadow-inner">
+            <div className="flex items-center gap-2 px-3 py-1.5 border-r border-slate-200 mr-1 hidden lg:flex">
+              <i className="fa-solid fa-sort-amount-down text-[10px] text-slate-400"></i>
+              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Sắp xếp</span>
             </div>
-            <select 
-              value={sortBy} 
-              onChange={(e) => setSortBy(e.target.value)}
-              className="bg-transparent text-micro font-bold text-slate-900 outline-none pr-5 py-1.5 cursor-pointer flex-1 md:flex-none uppercase tracking-premium"
-            >
-              <option value="newest">Mới nhất</option>
-              <option value="price-low">Giá: Thấp đến Cao</option>
-              <option value="price-high">Giá: Cao đến Thấp</option>
-              <option value="rating">Đánh giá cao</option>
-            </select>
+            
+            <div className="flex items-center gap-1.5">
+              {[
+                { id: 'newest', label: 'Mới nhất', icon: 'fa-clock' },
+                { id: 'price-low', label: 'Giá thấp', icon: 'fa-chevron-up' },
+                { id: 'price-high', label: 'Giá cao', icon: 'fa-chevron-down' },
+                { id: 'rating', label: 'Đánh giá', icon: 'fa-star' }
+              ].map((option) => (
+                <button
+                  key={option.id}
+                  onClick={() => setSortBy(option.id)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${
+                    sortBy === option.id 
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
+                    : 'bg-white text-slate-500 hover:text-indigo-600 hover:bg-slate-50 border border-slate-100 shadow-sm'
+                  }`}
+                >
+                  <i className={`fa-solid ${option.icon} ${sortBy === option.id ? 'text-white' : 'text-slate-300 group-hover:text-indigo-400'}`}></i>
+                  {option.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
