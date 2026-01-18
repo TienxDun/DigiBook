@@ -10,12 +10,13 @@ import { BookCardSkeleton } from '../components/Skeleton';
 import SEO from '../components/SEO';
 
 interface HomePageProps {
-  onAddToCart: (book: Book) => void;
+  onAddToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => void;
+  onQuickView?: (book: Book) => void;
   categories: CategoryInfo[];
   allBooks: Book[];
 }
 
-const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }) => {
+const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categories, allBooks }) => {
   const { user, wishlist } = useAuth();
 
   return (
@@ -232,7 +233,7 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, categories, allBooks }
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
             {allBooks.length > 0 ? allBooks.slice(0, 10).map(book => (
-              <BookCard key={book.id} book={book} onAddToCart={onAddToCart} />
+              <BookCard key={book.id} book={book} onAddToCart={onAddToCart} onQuickView={onQuickView} />
             )) : (
               [...Array(10)].map((_, i) => (
                 <BookCardSkeleton key={i} />

@@ -8,10 +8,11 @@ import { Book, Author } from '../types';
 import { BookCardSkeleton, Skeleton } from '../components/Skeleton';
 
 interface AuthorPageProps {
-  onAddToCart: (book: Book) => void;
+  onAddToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => void;
+  onQuickView?: (book: Book) => void;
 }
 
-const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart }) => {
+const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => {
   const { authorName } = useParams<{ authorName: string }>();
   const [authorBooks, setAuthorBooks] = useState<Book[]>([]);
   const [authorInfo, setAuthorInfo] = useState<Author | null>(null);
@@ -189,7 +190,7 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart }) => {
               {authorBooks.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-5 lg:gap-6 px-2 lg:px-0">
                   {authorBooks.map(book => (
-                    <BookCard key={book.id} book={book} onAddToCart={onAddToCart} />
+                    <BookCard key={book.id} book={book} onAddToCart={onAddToCart} onQuickView={onQuickView} />
                   ))}
                 </div>
               ) : (

@@ -10,12 +10,13 @@ import { BookCardSkeleton } from '../components/Skeleton';
 import SEO from '../components/SEO';
 
 interface CategoryPageProps {
-  onAddToCart: (book: Book) => void;
+  onAddToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => void;
+  onQuickView?: (book: Book) => void;
 }
 
 const ITEMS_PER_PAGE = 10;
 
-const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
+const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView }) => {
   const { categoryName } = useParams<{ categoryName: string }>();
   const [sortBy, setSortBy] = useState('newest');
   const [currentPage, setCurrentPage] = useState(1);
@@ -263,7 +264,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart }) => {
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5 mb-16">
               {paginatedBooks.map(book => (
-                <BookCard key={book.id} book={book} onAddToCart={onAddToCart} />
+                <BookCard key={book.id} book={book} onAddToCart={onAddToCart} onQuickView={onQuickView} />
               ))}
             </div>
             {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}

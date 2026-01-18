@@ -7,10 +7,11 @@ import BookCard from '../components/BookCard';
 import { BookCardSkeleton } from '../components/Skeleton';
 
 interface SearchResultsProps {
-  onAddToCart: (book: Book) => void;
+  onAddToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => void;
+  onQuickView?: (book: Book) => void;
 }
 
-const SearchResults: React.FC<SearchResultsProps> = ({ onAddToCart }) => {
+const SearchResults: React.FC<SearchResultsProps> = ({ onAddToCart, onQuickView }) => {
   const { query } = useParams<{ query: string }>();
   const [allBooks, setAllBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,7 +75,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onAddToCart }) => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5">
             {filteredBooks.map((book) => (
               <div key={book.id} className="fade-in-up">
-                <BookCard book={book} onAddToCart={onAddToCart} />
+                <BookCard book={book} onAddToCart={onAddToCart} onQuickView={onQuickView} />
               </div>
             ))}
           </div>

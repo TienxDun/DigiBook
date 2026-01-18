@@ -44,3 +44,36 @@ export const AdminRowSkeleton: React.FC = () => {
         </div>
     );
 };
+
+export const BookDetailsSkeleton: React.FC = () => {
+    return (
+        <div className="min-h-screen bg-slate-50 pt-24 pb-12">
+            <div className="max-w-7xl mx-auto px-4">
+                <div className="bg-white rounded-[3rem] shadow-xl overflow-hidden flex flex-col lg:flex-row">
+                    <div className="w-full lg:w-1/2 p-8 lg:p-16 bg-slate-50 flex items-center justify-center">
+                        <Skeleton className="w-full max-w-[400px] aspect-[3/4] rounded-2xl shadow-2xl" />
+                    </div>
+                    <div className="w-full lg:w-1/2 p-8 lg:p-16">
+                        <Skeleton className="h-4 w-24 rounded-full mb-6" />
+                        <Skeleton className="h-12 w-3/4 mb-4" />
+                        <Skeleton className="h-6 w-1/2 mb-8" />
+                        <div className="flex gap-4 mb-12">
+                            <Skeleton className="h-12 w-32 rounded-xl" />
+                            <Skeleton className="h-12 w-32 rounded-xl" />
+                        </div>
+                        <div className="space-y-4 mb-12">
+                            <Skeleton className="h-4 w-full" />
+                            <Skeleton className="h-4 w-full" />
+                            <Skeleton className="h-4 w-3/4" />
+                        </div>
+                        <div className="flex items-center justify-between mb-8">
+                            <Skeleton className="h-10 w-40" />
+                            <Skeleton className="h-12 w-32 rounded-2xl" />
+                        </div>
+                        <Skeleton className="h-16 w-full rounded-2xl" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};

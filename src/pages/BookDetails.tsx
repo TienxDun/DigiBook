@@ -7,12 +7,16 @@ import { db, Review } from '../services/db';
 import { AVAILABLE_AI_MODELS } from '../constants/ai-models';
 import BookCard from '../components/BookCard';
 import SEO from '../components/SEO';
+import { BookDetailsSkeleton } from '../components/Skeleton';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 };
 
-const BookDetails: React.FC<{ onAddToCart: (book: Book, quantity?: number) => void }> = ({ onAddToCart }) => {
+const BookDetails: React.FC<{ 
+  onAddToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => void, 
+  onQuickView?: (book: Book) => void 
+}> = ({ onAddToCart, onQuickView }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { wishlist, toggleWishlist, user, setShowLoginModal } = useAuth();
@@ -102,12 +106,7 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book, quantity?: number) => vo
     setReviews(updatedReviews);
   };
 
-  if (loading) return (
-    <div className="h-screen flex flex-col items-center justify-center bg-slate-50">
-      <div className="w-16 h-16 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-      <p className="text-slate-400 font-bold uppercase tracking-premium text-micro">Đang tải dữ liệu...</p>
-    </div>
-  );
+  if (loading) return <BookDetailsSkeleton />;
 
   if (error || !book) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 px-4">
@@ -230,7 +229,7 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book, quantity?: number) => vo
               
               <div className="mt-10 grid grid-cols-2 gap-4">
                 <button 
-                  onClick={() => onAddToCart(book, quantity)}
+                  onClick={(e) => onAddToCart(book, quantity, { x: e.clientX, y: e.clientY })}
                   disabled={book.stock_quantity <= 0}
                   className="py-5 bg-indigo-600 text-white rounded-2xl font-bold uppercase tracking-premium hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 active:scale-95 disabled:bg-slate-200 disabled:shadow-none disabled:text-slate-400 text-micro"
                 >
@@ -521,7 +520,7 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book, quantity?: number) => vo
             
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
               {relatedBooks.map(b => (
-                <BookCard key={b.id} book={b} onAddToCart={onAddToCart} />
+                <BookCard key={b.id} book={b} onAddToCart={onAddToCart} onQuickView={onQuickView} />
               ))}
             </div>
           </div>
@@ -542,7 +541,7 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book, quantity?: number) => vo
             
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
               {recentBooks.map(b => (
-                <BookCard key={b.id} book={b} onAddToCart={onAddToCart} />
+                <BookCard key={b.id} book={b} onAddToCart={onAddToCart} onQuickView={onQuickView} />
               ))}
             </div>
           </div>
@@ -559,7 +558,7 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book, quantity?: number) => vo
             <p className="text-indigo-400 text-micro font-bold uppercase tracking-premium">{formatPrice(book.price)}</p>
           </div>
           <button 
-            onClick={() => onAddToCart(book, quantity)}
+            onClick={(e) => onAddToCart(book, quantity, { x: e.clientX, y: e.clientY })}
             disabled={book.stock_quantity <= 0}
             className="h-10 px-5 bg-indigo-600 text-white rounded-xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 disabled:bg-slate-800 shadow-lg shadow-indigo-500/20"
           >

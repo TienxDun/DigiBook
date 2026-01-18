@@ -1,6 +1,6 @@
 import React, { Suspense, lazy, useState, useEffect, useCallback } from 'react';
 import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
+import { Toaster, toast } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './AuthContext';
 import { db } from './services/db';
 import { LayoutWrapper, AdminRoute, MainContent } from './components/Layout';
@@ -8,8 +8,9 @@ import LoginModal from './components/LoginModal';
 import PageTransition from './components/PageTransition';
 import ScrollToTop from './components/ScrollToTop';
 import BackToTop from './components/BackToTop';
+import QuickViewModal from './components/QuickViewModal';
 import { Book, CartItem, CategoryInfo } from './types';
-import { AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Lazy load pages
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -34,11 +35,23 @@ const AppContent: React.FC<{
   setIsCartOpen: (open: boolean) => void;
   setCart: React.Dispatch<React.SetStateAction<CartItem[]>>;
   allBooks: Book[];
-  addToCart: (book: Book, quantity?: number) => void;
+  addToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => void;
   setSearchQuery: (query: string) => void;
   searchQuery: string;
 }> = ({ cartCount, cartItems, categories, fetchInitialData, isCartOpen, setIsCartOpen, setCart, allBooks, addToCart, setSearchQuery, searchQuery }) => {
   const location = useLocation();
+  const [quickViewBook, setQuickViewBook] = useState<Book | null>(null);
+  const [flyingItem, setFlyingItem] = useState<{ id: string, image: string, x: number, y: number } | null>(null);
+
+  const handleQuickView = (book: Book) => setQuickViewBook(book);
+
+  const handleAddToCart = (book: Book, quantity?: number, startPos?: { x: number, y: number }) => {
+    if (startPos) {
+      setFlyingItem({ id: Math.random().toString(), image: book.cover, x: startPos.x, y: startPos.y });
+      setTimeout(() => setFlyingItem(null), 1000);
+    }
+    addToCart(book, quantity);
+  };
 
   return (
     <LayoutWrapper 
@@ -56,6 +69,43 @@ const AppContent: React.FC<{
       onUpdateCartQty={(id, delta) => setCart(c => c.map(i => i.id === id ? {...i, quantity: Math.max(1, i.quantity + delta)} : i))}
     >
       <LoginModal />
+      <QuickViewModal 
+        book={quickViewBook} 
+        onClose={() => setQuickViewBook(null)} 
+        onAddToCart={handleAddToCart} 
+      />
+
+      {/* Fly to Cart Animation */}
+      <AnimatePresence>
+        {flyingItem && (
+          <motion.div
+            key={flyingItem.id}
+            initial={{ 
+              position: 'fixed',
+              left: flyingItem.x,
+              top: flyingItem.y,
+              width: 60,
+              height: 80,
+              opacity: 1,
+              scale: 1,
+              zIndex: 9999,
+            }}
+            animate={{ 
+              left: window.innerWidth - 80, 
+              top: 20,
+              scale: 0.1,
+              opacity: 0.2,
+              rotate: 360,
+              borderRadius: '100%'
+            }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
+            className="pointer-events-none"
+          >
+            <img src={flyingItem.image} className="w-full h-full object-cover rounded shadow-2xl" alt="" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <MainContent>
         <Suspense fallback={
@@ -68,12 +118,12 @@ const AppContent: React.FC<{
         }>
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
-              <Route path="/" element={<PageTransition><HomePage allBooks={allBooks} categories={categories} onAddToCart={addToCart} /></PageTransition>} />
-              <Route path="/book/:id" element={<PageTransition><BookDetails onAddToCart={addToCart} /></PageTransition>} />
-              <Route path="/search/:query" element={<PageTransition><SearchResults onAddToCart={addToCart} /></PageTransition>} />
-              <Route path="/category/:categoryName" element={<PageTransition><CategoryPage onAddToCart={addToCart} /></PageTransition>} />
-              <Route path="/author/:authorName" element={<PageTransition><AuthorPage onAddToCart={addToCart} /></PageTransition>} />
-              <Route path="/wishlist" element={<PageTransition><WishlistPage onAddToCart={addToCart} /></PageTransition>} />
+              <Route path="/" element={<PageTransition><HomePage allBooks={allBooks} categories={categories} onAddToCart={handleAddToCart} onQuickView={handleQuickView} /></PageTransition>} />
+              <Route path="/book/:id" element={<PageTransition><BookDetails onAddToCart={handleAddToCart} onQuickView={handleQuickView} /></PageTransition>} />
+              <Route path="/search/:query" element={<PageTransition><SearchResults onAddToCart={handleAddToCart} onQuickView={handleQuickView} /></PageTransition>} />
+              <Route path="/category/:categoryName" element={<PageTransition><CategoryPage onAddToCart={handleAddToCart} onQuickView={handleQuickView} /></PageTransition>} />
+              <Route path="/author/:authorName" element={<PageTransition><AuthorPage onAddToCart={handleAddToCart} onQuickView={handleQuickView} /></PageTransition>} />
+              <Route path="/wishlist" element={<PageTransition><WishlistPage onAddToCart={handleAddToCart} onQuickView={handleQuickView} /></PageTransition>} />
               <Route path="/checkout" element={<PageTransition><CheckoutPage cart={cartItems} onClearCart={() => setCart([])} /></PageTransition>} />
               <Route path="/order-success" element={<PageTransition><OrderSuccess /></PageTransition>} />
               <Route path="/my-orders" element={<PageTransition><MyOrdersPage /></PageTransition>} />
@@ -125,6 +175,14 @@ const App: React.FC = () => {
       if (existing) return prev.map(item => item.id === book.id ? { ...item, quantity: item.quantity + quantity } : item);
       return [...prev, { ...book, quantity }];
     });
+    
+    toast.success(
+      <div className="flex flex-col gap-1">
+        <p>Đã thêm vào giỏ hàng!</p>
+        <p className="text-[11px] font-normal text-slate-500 line-clamp-1">{book.title}</p>
+      </div>
+    );
+    
     setIsCartOpen(true);
   }, []);
 
@@ -152,7 +210,34 @@ const App: React.FC = () => {
         setSearchQuery={setSearchQuery}
         searchQuery={searchQuery}
       />
-      <Toaster position="top-center" reverseOrder={false} />
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#ffffff',
+            color: '#0f172a',
+            padding: '16px 24px',
+            borderRadius: '24px',
+            fontSize: '14px',
+            fontWeight: '600',
+            boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+            border: '1px solid #f1f5f9',
+          },
+          success: {
+            iconTheme: {
+              primary: '#4f46e5',
+              secondary: '#ffffff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#f43f5e',
+              secondary: '#ffffff',
+            },
+          },
+        }}
+      />
     </Router>
   );
 };

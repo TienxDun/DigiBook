@@ -6,10 +6,11 @@ import BookCard from '../components/BookCard';
 import { useAuth } from '../AuthContext';
 
 interface WishlistPageProps {
-  onAddToCart: (book: Book) => void;
+  onAddToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => void;
+  onQuickView?: (book: Book) => void;
 }
 
-const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart }) => {
+const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart, onQuickView }) => {
   const { wishlist } = useAuth();
 
   return (
@@ -51,7 +52,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart }) => {
         {wishlist.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
             {wishlist.map(book => (
-              <BookCard key={book.id} book={book} onAddToCart={onAddToCart} />
+              <BookCard key={book.id} book={book} onAddToCart={onAddToCart} onQuickView={onQuickView} />
             ))}
           </div>
         ) : (

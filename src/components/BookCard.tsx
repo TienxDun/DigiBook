@@ -8,7 +8,8 @@ import { db } from '../services/db';
 
 interface BookCardProps {
   book: Book;
-  onAddToCart: (book: Book) => void;
+  onAddToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => void;
+  onQuickView?: (book: Book) => void;
 }
 
 const formatPrice = (price: number) => {
@@ -23,7 +24,7 @@ const getOptimizedImageUrl = (url: string) => {
   return url;
 };
 
-const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart }) => {
+const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) => {
   const { wishlist, toggleWishlist } = useAuth();
   const [imgLoaded, setImgLoaded] = useState(false);
   const [stockQuantity, setStockQuantity] = useState<number>(0);
@@ -107,11 +108,31 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart }) => {
               alt={book.title} 
               onLoad={() => setImgLoaded(true)}
               loading="lazy"
-              animate={isHovered ? { scale: 1.05 } : { scale: 1 }}
+              animate={isHovered ? { scale: 1.05, filter: 'blur(1px)' } : { scale: 1, filter: 'blur(0px)' }}
               transition={{ duration: 0.5 }}
               className={`w-full h-full object-cover ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
             />
           </Link>
+
+          {/* Quick View Overlay */}
+          <AnimatePresence>
+            {isHovered && stockQuantity > 0 && onQuickView && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onQuickView(book);
+                }}
+                className="absolute inset-0 m-auto w-fit h-fit px-4 py-2 bg-white/90 backdrop-blur-md text-slate-900 rounded-xl text-[10px] font-bold uppercase tracking-premium shadow-xl border border-white/20 hover:bg-slate-900 hover:text-white transition-all z-20 flex items-center gap-2"
+              >
+                <i className="fa-solid fa-eye text-[9px]"></i>
+                Xem nhanh
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Info Container */}
@@ -141,7 +162,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart }) => {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                onAddToCart(book);
+                onAddToCart(book, 1, { x: e.clientX, y: e.clientY });
               }}
               disabled={stockQuantity <= 0}
               className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 ${
