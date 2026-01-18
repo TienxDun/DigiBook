@@ -48,15 +48,14 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart }) => {
 
   return (
     <motion.div 
-      layout
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+      exit={{ opacity: 0, scale: 0.98 }}
+      transition={{ duration: 0.3 }}
       className="@container w-full"
     >
       <div 
-        className={`relative group flex flex-col @[400px]:flex-row h-[320px] @[400px]:h-[200px] bg-white rounded-2xl p-2.5 border border-slate-100 shadow-sm hover:shadow-[12px_12px_0px_0px_rgba(99,102,241,0.08)] hover:-translate-y-1 hover:-translate-x-1 transition-all duration-500 w-full ring-1 ring-transparent hover:ring-indigo-100 ${stockQuantity <= 0 ? 'grayscale opacity-60' : ''}`}
+        className={`relative group flex flex-col @[400px]:flex-row h-[320px] @[400px]:h-[200px] bg-white rounded-2xl p-2.5 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-full ring-1 ring-transparent hover:ring-indigo-100 ${stockQuantity <= 0 ? 'grayscale opacity-60' : ''}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -79,7 +78,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart }) => {
           {/* Wishlist Button - Interactive */}
           <button 
             onClick={handleToggleWishlist}
-            className={`absolute top-2 right-2 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 transform ${isHovered ? 'translate-y-0 scale-100' : 'translate-y-2 scale-75 opacity-0'} ${
+            className={`absolute top-2 right-2 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 transform ${isHovered ? 'scale-100 opacity-100' : 'scale-90 opacity-0'} ${
               isWishlisted 
                 ? 'bg-rose-500 text-white shadow-xl shadow-rose-500/30 ring-2 ring-rose-200' 
                 : 'bg-white/90 backdrop-blur-md text-slate-400 hover:text-rose-500 shadow-md hover:scale-110 active:scale-90'
@@ -132,7 +131,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart }) => {
         
         <div className="mt-auto pt-2.5 border-t border-slate-50 flex items-center justify-between">
           <div className="flex flex-col">
-            <span className="text-micro text-slate-300 line-through decoration-rose-300/30 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-1 group-hover:translate-y-0 font-bold tracking-tighter">
+            <span className="text-micro text-slate-300 line-through decoration-rose-300/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-bold tracking-tighter">
               {formatPrice(book.price * 1.2)}
             </span>
             <span className="text-base font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-indigo-900 tracking-tight leading-none">
@@ -147,13 +146,13 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart }) => {
               onAddToCart(book);
             }}
             disabled={stockQuantity <= 0}
-            className={`group/btn w-9 h-9 rounded-full flex items-center justify-center transition-all duration-500 ${
+            className={`group/btn w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 ${
               stockQuantity <= 0 
                 ? 'bg-slate-100 text-slate-300 cursor-not-allowed' 
-                : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10 hover:shadow-indigo-600/30 hover:-translate-y-1 active:scale-90'
+                : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10 hover:shadow-indigo-600/30 hover:-translate-y-1 active:scale-95'
             }`}
           >
-            <i className="fa-solid fa-plus text-xs group-hover/btn:rotate-90 transition-transform duration-300"></i>
+            <i className="fa-solid fa-plus text-xs"></i>
           </button>
         </div>
       </div>

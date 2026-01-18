@@ -311,11 +311,11 @@ const App: React.FC = () => {
     });
   }, []);
 
-  const addToCart = useCallback((book: Book) => {
+  const addToCart = useCallback((book: Book, quantity: number = 1) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === book.id);
-      if (existing) return prev.map(item => item.id === book.id ? { ...item, quantity: item.quantity + 1 } : item);
-      return [...prev, { ...book, quantity: 1 }];
+      if (existing) return prev.map(item => item.id === book.id ? { ...item, quantity: item.quantity + quantity } : item);
+      return [...prev, { ...book, quantity }];
     });
     setIsCartOpen(true);
   }, []);

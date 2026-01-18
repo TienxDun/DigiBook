@@ -11,7 +11,7 @@ const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 };
 
-const BookDetails: React.FC<{ onAddToCart: (book: Book) => void }> = ({ onAddToCart }) => {
+const BookDetails: React.FC<{ onAddToCart: (book: Book, quantity?: number) => void }> = ({ onAddToCart }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { wishlist, toggleWishlist, user, setShowLoginModal } = useAuth();
@@ -28,6 +28,8 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book) => void }> = ({ onAddToC
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [loadingAI, setLoadingAI] = useState(false);
   const [activeModelName, setActiveModelName] = useState('Gemini');
+  const [showFullDescription, setShowFullDescription] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -147,7 +149,7 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book) => void }> = ({ onAddToC
               
               <div className="mt-10 grid grid-cols-2 gap-4">
                 <button 
-                  onClick={() => onAddToCart(book)}
+                  onClick={() => onAddToCart(book, quantity)}
                   disabled={book.stock_quantity <= 0}
                   className="py-5 bg-indigo-600 text-white rounded-2xl font-bold uppercase tracking-premium hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 active:scale-95 disabled:bg-slate-200 disabled:shadow-none disabled:text-slate-400 text-micro"
                 >
@@ -192,66 +194,82 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book) => void }> = ({ onAddToC
           <div className="lg:col-span-8 space-y-8">
             
             {/* 1. Header Information Block */}
-            <div className="bg-white p-10 lg:p-12 rounded-[2.5rem] shadow-sm border border-slate-100">
-              <div className="flex items-center gap-4 mb-6">
-                <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-micro font-bold uppercase tracking-premium">{book.category}</span>
-                <span className="text-slate-300">|</span>
-                <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">ISBN: {book.isbn}</span>
+            <div className="bg-white p-6 lg:p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-bold uppercase tracking-premium">{book.category}</span>
+                <span className="text-slate-200">|</span>
+                <span className="text-micro font-bold text-slate-400">ISBN: {book.isbn}</span>
               </div>
               
-              <h1 className="text-4xl lg:text-6xl font-extrabold text-slate-900 leading-[1.1] mb-8 tracking-tight">
+              <h1 className="text-3xl lg:text-4xl font-extrabold text-slate-900 leading-[1.2] mb-6 tracking-tight">
                 {book.title}
               </h1>
 
-              <div className="flex flex-wrap items-center gap-10 mb-10">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white text-[15px] font-extrabold shadow-xl shadow-slate-900/20">
-                    {book.rating}
+              <div className="flex flex-wrap items-center gap-6 lg:gap-8 mb-8 pb-8 border-b border-slate-50">
+                <div className="flex items-center gap-3">
+                  <div className="flex gap-0.5">
+                    {[...Array(5)].map((_, i) => <i key={i} className={`fa-solid fa-star text-[12px] ${i < Math.floor(book.rating) ? 'text-amber-400' : 'text-slate-100'}`}></i>)}
                   </div>
-                  <div>
-                    <div className="flex gap-1 mb-1">
-                      {[...Array(5)].map((_, i) => <i key={i} className={`fa-solid fa-star text-micro ${i < Math.floor(book.rating) ? 'text-amber-400' : 'text-slate-100'}`}></i>)}
-                    </div>
-                    <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Đánh giá chung</p>
-                  </div>
+                  <span className="text-sm font-bold text-slate-900">{book.rating}</span>
                 </div>
-                <div className="h-10 w-px bg-slate-100 hidden sm:block"></div>
-                <div className="flex flex-col">
-                  <span className="text-4xl font-extrabold text-slate-900 tracking-tight leading-none">{formatPrice(book.price)}</span>
-                  {book.original_price && (
-                    <span className="text-base text-slate-400 line-through font-bold mt-2 opacity-60 italic">{formatPrice(book.original_price)}</span>
-                  )}
+                <div className="h-4 w-px bg-slate-200"></div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-slate-400 uppercase tracking-premium">Đã bán:</span>
+                  <span className="text-sm font-extrabold text-slate-900">{(book.id.length * 7 + 124) % 1000}</span>
                 </div>
               </div>
 
-              <div className="p-6 bg-white rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl -mr-16 -mt-16 transition-all group-hover:bg-indigo-100/50"></div>
-                <div className="relative z-10 flex gap-6">
-                  <div className="relative">
-                    <img 
-                      src={authorInfo?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(book.author)}&background=4f46e5&color=fff&bold=true`} 
-                      className="w-20 h-20 rounded-2xl object-cover border-2 border-slate-50 shadow-md group-hover:scale-105 transition-transform duration-500" 
-                      alt="" 
-                    />
-                    <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-sm border-2 border-white shadow-lg">
-                      <i className="fa-solid fa-feather-pointed"></i>
-                    </div>
-                  </div>
-                  <div className="flex-1 min-w-0 flex flex-col justify-center">
-                    <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-1.5">Tác giả</p>
-                    <Link to={`/author/${book.author}`} className="font-extrabold text-2xl text-slate-900 hover:text-indigo-600 transition-colors block truncate leading-tight tracking-tight">
-                      {book.author}
-                    </Link>
-                    {authorInfo?.bio && (
-                      <p className="text-label text-slate-400 font-bold line-clamp-1 mt-1.5 leading-relaxed italic">{authorInfo.bio}</p>
+              <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-4 mb-1">
+                    <span className="text-4xl font-extrabold text-indigo-600 tracking-tight leading-none">{formatPrice(book.price)}</span>
+                    {book.original_price && (
+                      <span className="px-2 py-0.5 bg-rose-50 text-rose-500 rounded-md text-xs font-bold leading-none">
+                        -{Math.round(((book.original_price - book.price) / book.original_price) * 100)}%
+                      </span>
                     )}
                   </div>
-                  <div className="flex items-center">
-                    <Link to={`/author/${book.author}`} className="w-14 h-14 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center hover:bg-slate-900 hover:text-white transition-all shadow-sm">
-                      <i className="fa-solid fa-arrow-right-long text-xl"></i>
-                    </Link>
-                  </div>
+                  {book.original_price && (
+                    <span className="text-sm text-slate-400 line-through font-bold mt-2 opacity-60 italic">{formatPrice(book.original_price)}</span>
+                  )}
                 </div>
+
+                <div className="flex items-center gap-4 p-1 bg-slate-50 rounded-2xl w-fit">
+                    <button 
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-indigo-600 transition-colors"
+                    >
+                      <i className="fa-solid fa-minus"></i>
+                    </button>
+                    <span className="w-8 text-center font-extrabold text-slate-900">{quantity}</span>
+                    <button 
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-indigo-600 transition-colors"
+                    >
+                      <i className="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                 <div className="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50 flex gap-4">
+                    <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-indigo-600 shadow-sm">
+                      <i className="fa-solid fa-truck-fast"></i>
+                    </div>
+                    <div>
+                      <p className="text-micro font-bold text-indigo-600 uppercase tracking-premium mb-0.5">Thời gian giao</p>
+                      <p className="text-sm font-extrabold text-slate-900">Thứ hai - 20/01</p>
+                    </div>
+                 </div>
+                 <div className="p-4 bg-amber-50/50 rounded-2xl border border-amber-100/50 flex gap-4">
+                    <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-amber-600 shadow-sm">
+                      <i className="fa-solid fa-box-open"></i>
+                    </div>
+                    <div>
+                      <p className="text-micro font-bold text-amber-600 uppercase tracking-premium mb-0.5">Tình trạng</p>
+                      <p className="text-sm font-extrabold text-slate-900">{book.stock_quantity > 0 ? `Còn hàng (${book.stock_quantity})` : 'Hết hàng'}</p>
+                    </div>
+                 </div>
               </div>
             </div>
 
@@ -314,14 +332,27 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book) => void }> = ({ onAddToC
             </div>
 
             {/* 2. Synopsis Block */}
-            <div className="bg-white p-10 lg:p-12 rounded-[2.5rem] shadow-sm border border-slate-100">
+            <div className="bg-white p-10 lg:p-12 rounded-[2.5rem] shadow-sm border border-slate-100 relative">
               <div className="flex items-center gap-4 mb-8">
                 <span className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-xs">01</span>
                 <h2 className="text-xl font-extrabold text-slate-900 uppercase tracking-tight">Giới thiệu tác phẩm</h2>
               </div>
-              <p className="text-lg text-slate-600 leading-[1.8] font-medium whitespace-pre-line">
-                {book.description}
-              </p>
+              <div className={`relative ${!showFullDescription ? 'max-h-[300px] overflow-hidden' : ''}`}>
+                <p className="text-lg text-slate-600 leading-[1.8] font-medium whitespace-pre-line">
+                  {book.description}
+                </p>
+                {!showFullDescription && (
+                  <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white via-white/80 to-transparent"></div>
+                )}
+              </div>
+              <div className="mt-6 flex justify-center">
+                <button 
+                  onClick={() => setShowFullDescription(!showFullDescription)}
+                  className="px-8 py-3 bg-slate-50 hover:bg-indigo-50 text-indigo-600 rounded-full font-bold text-micro uppercase tracking-premium transition-all border border-indigo-100/50"
+                >
+                  {showFullDescription ? 'Thu gọn' : 'Xem thêm nội dung'}
+                </button>
+              </div>
             </div>
 
             {/* 3. Publication Info Block */}
@@ -333,39 +364,24 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book) => void }> = ({ onAddToC
                  </div>
                </div>
                
-               <div className="grid grid-cols-1 md:grid-cols-2">
-                 {/* Author Bio Section */}
-                 <div className="p-10 lg:p-12 bg-slate-50/40 border-b md:border-b-0 md:border-r border-slate-50">
-                    <p className="text-micro font-bold text-indigo-600 uppercase tracking-premium mb-6">Tác giả & Tiểu sử</p>
-                    <p className="text-slate-500 leading-relaxed font-semibold text-sm">
-                      {book.authorBio}
-                    </p>
-                    <div className="mt-8">
-                      <Link to={`/author/${book.author}`} className="text-micro font-bold text-indigo-600 hover:underline flex items-center gap-3 uppercase tracking-premium">
-                        Chi tiết tác giả <i className="fa-solid fa-arrow-right-long text-xs"></i>
-                      </Link>
-                    </div>
-                 </div>
-                 
-                 {/* Edition Details Section */}
-                 <div className="p-10 lg:p-12">
-                    <p className="text-micro font-bold text-indigo-600 uppercase tracking-premium mb-6">Thông số ấn bản</p>
-                    <div className="space-y-6">
-                      {[
-                        { label: 'Ngôn ngữ', val: book.language, icon: 'fa-globe' },
-                        { label: 'Nhà xuất bản', val: book.publisher, icon: 'fa-building-columns' },
-                        { label: 'Năm xuất bản', val: book.publishYear, icon: 'fa-calendar-check' },
-                        { label: 'Số trang', val: `${book.pages} trang`, icon: 'fa-file-lines' },
-                        { label: 'Định dạng', val: 'Bìa cứng cao cấp', icon: 'fa-book-bookmark' }
-                      ].map((item, i) => (
-                        <div key={i} className="flex justify-between items-center text-[13px]">
-                          <span className="text-micro font-bold text-slate-400 uppercase tracking-premium flex items-center gap-3">
-                            <i className={`fa-solid ${item.icon} w-4 text-slate-300`}></i> {item.label}
-                          </span>
-                          <span className="font-extrabold text-slate-700">{item.val}</span>
-                        </div>
-                      ))}
-                    </div>
+               <div className="p-8 lg:p-12">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-2">
+                    {[
+                      { label: 'Tác giả', val: book.author },
+                      { label: 'Nhà xuất bản', val: book.publisher },
+                      { label: 'Năm xuất bản', val: book.publishYear },
+                      { label: 'Ngôn ngữ', val: book.language },
+                      { label: 'Số trang', val: book.pages },
+                      { label: 'Định dạng', val: 'Bìa cứng' },
+                      { label: 'Mã hàng', val: book.isbn },
+                      { label: 'Trọng lượng', val: '450 gr' },
+                      { label: 'Kích thước', val: '24 x 16 x 2 cm' }
+                    ].map((item, i) => (
+                      <div key={i} className={`flex py-3 border-b border-slate-50 last:border-0 md:last:border-b ${i >= 7 ? 'md:border-0' : ''}`}>
+                        <span className="w-1/3 text-micro font-bold text-slate-400 uppercase tracking-premium">{item.label}</span>
+                        <span className="w-2/3 text-sm font-extrabold text-slate-700">{item.val}</span>
+                      </div>
+                    ))}
                  </div>
                </div>
             </div>
@@ -493,7 +509,7 @@ const BookDetails: React.FC<{ onAddToCart: (book: Book) => void }> = ({ onAddToC
             <p className="text-indigo-400 text-micro font-bold uppercase tracking-premium">{formatPrice(book.price)}</p>
           </div>
           <button 
-            onClick={() => onAddToCart(book)}
+            onClick={() => onAddToCart(book, quantity)}
             disabled={book.stock_quantity <= 0}
             className="h-10 px-5 bg-indigo-600 text-white rounded-xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 disabled:bg-slate-800 shadow-lg shadow-indigo-500/20"
           >
