@@ -15,7 +15,7 @@ jobs:
 
       - name: Install and Build
         run: |
-          npm ci
+          npm ci --legacy-peer-deps
           npm run build
         env:
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}

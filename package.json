@@ -17,6 +17,11 @@
     "react-hot-toast": "^2.6.0",
     "react-router-dom": "6.22.3"
   },
+  "overrides": {
+    "react-helmet-async": {
+      "react": "$react"
+    }
+  },
   "devDependencies": {
     "@tailwindcss/container-queries": "^0.1.1",
     "@types/node": "^22.14.0",
