@@ -31,6 +31,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCategoryMenu, setShowCategoryMenu] = useState(false);
   const categoryMenuRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -40,11 +41,20 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
       }
     };
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+
     window.addEventListener('scroll', handleScroll);
     document.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('scroll', handleScroll);
       document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
 
@@ -161,6 +171,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
         <div className={`relative flex-1 hidden md:block transition-all duration-700 ${isSearchFocused ? 'max-w-xl' : 'max-w-md'}`}>
           <div className="relative group">
             <input 
+              ref={searchInputRef}
               type="text" 
               placeholder="Tìm tên sách, tác giả hoặc ISBN..." 
               value={searchValue}
@@ -181,6 +192,13 @@ const Header: React.FC<HeaderProps> = ({ cartCount, cartItems, categories, onOpe
                 <i className="fa-solid fa-magnifying-glass text-sm"></i>
               )}
             </div>
+
+            {/* Shortcut key indicator */}
+            {!isSearchFocused && (
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-40 group-hover:opacity-60 transition-opacity hidden sm:flex">
+                <kbd className="px-1.5 py-0.5 rounded border border-slate-300 bg-white text-[10px] font-bold text-slate-500">/</kbd>
+              </div>
+            )}
           </div>
         </div>
 
