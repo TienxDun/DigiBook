@@ -95,11 +95,11 @@ const AdminDashboard: React.FC = () => {
 
   const stats = useMemo(() => {
     const totalRevenue = orders.reduce((sum, o) => sum + (o.payment?.total || 0), 0);
-    const lowStock = books.filter(b => b.stock_quantity > 0 && b.stock_quantity < 10).length;
-    const outOfStock = books.filter(b => b.stock_quantity <= 0).length;
+    const lowStock = books.filter(b => b.stockQuantity > 0 && b.stockQuantity < 10).length;
+    const outOfStock = books.filter(b => b.stockQuantity === 0).length;
     const pendingOrders = orders.filter(o => o.statusStep < 3).length;
     const completedOrders = orders.filter(o => o.statusStep === 3).length;
-    const totalBooks = books.reduce((sum, b) => sum + b.stock_quantity, 0);
+    const totalBooks = books.reduce((sum, b) => sum + b.stockQuantity, 0);
     const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
     const todayOrdersCount = orders.filter(o => {
       const orderDate = o.createdAt?.toDate ? o.createdAt.toDate() : new Date(o.date);

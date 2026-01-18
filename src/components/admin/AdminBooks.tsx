@@ -35,8 +35,8 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
 
   const filteredBooks = useMemo(() => {
     return books.filter(book => {
-      if (filterStock === 'low') return book.stock_quantity > 0 && book.stock_quantity <= 10;
-      if (filterStock === 'out') return book.stock_quantity === 0;
+      if (filterStock === 'low') return book.stockQuantity > 0 && book.stockQuantity <= 10;
+      if (filterStock === 'out') return book.stockQuantity === 0;
       return true;
     });
   }, [books, filterStock]);
@@ -96,8 +96,8 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
       authorId: authors[0]?.id || '',
       category: categories[0]?.name || '',
       price: 0,
-      original_price: undefined,
-      stock_quantity: 10,
+      originalPrice: undefined,
+      stockQuantity: 10,
       description: '',
       isbn: '',
       cover: '',
@@ -117,8 +117,8 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
       authorId: book.authorId || authors.find(a => a.name === book.author)?.id || '',
       category: book.category,
       price: book.price,
-      original_price: book.original_price,
-      stock_quantity: book.stock_quantity,
+      originalPrice: book.originalPrice,
+      stockQuantity: book.stockQuantity,
       description: book.description,
       isbn: book.isbn,
       pages: book.pages,
@@ -321,7 +321,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                     <div>
                       <h3 className="font-extrabold text-slate-900 text-sm mb-0.5 line-clamp-1">{book.title}</h3>
                       <p className="text-micro font-bold text-slate-500 uppercase tracking-premium">{book.author}</p>
-                      <p className="text-micro text-slate-400 mt-1 md:hidden font-extrabold">{formatPrice(book.price)} • {book.stock_quantity > 0 ? `${book.stock_quantity} cuốn` : 'Hết hàng'}</p>
+                      <p className="text-micro text-slate-400 mt-1 md:hidden font-extrabold">{formatPrice(book.price)} • {book.stockQuantity > 0 ? `${book.stockQuantity} cuốn` : 'Hết hàng'}</p>
                     </div>
                   </div>
                 </td>
@@ -330,14 +330,14 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                 </td>
                 <td className="p-6 hidden lg:table-cell">
                   <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-micro font-bold uppercase tracking-premium ${
-                    book.stock_quantity > 10 ? 'bg-emerald-50 text-emerald-600' :
-                    book.stock_quantity > 0 ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'
+                    book.stockQuantity > 10 ? 'bg-emerald-50 text-emerald-600' :
+                    book.stockQuantity > 0 ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'
                   }`}>
                     <div className={`w-1 h-1 rounded-full mr-1.5 ${
-                       book.stock_quantity > 10 ? 'bg-emerald-600' :
-                       book.stock_quantity > 0 ? 'bg-amber-600' : 'bg-rose-600'
+                       book.stockQuantity > 10 ? 'bg-emerald-600' :
+                       book.stockQuantity > 0 ? 'bg-amber-600' : 'bg-rose-600'
                     }`}></div>
-                    {book.stock_quantity > 0 ? `${book.stock_quantity} quyển` : 'Hết hàng'}
+                    {book.stockQuantity > 0 ? `${book.stockQuantity} quyển` : 'Hết hàng'}
                   </span>
                 </td>
                 <td className="p-6">
@@ -465,8 +465,8 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                   <input
                     type="number"
                     min="0"
-                    value={bookFormData.original_price || ''}
-                    onChange={(e) => setBookFormData({...bookFormData, original_price: Number(e.target.value) || undefined})}
+                    value={bookFormData.originalPrice || ''}
+                    onChange={(e) => setBookFormData({...bookFormData, originalPrice: Number(e.target.value) || undefined})}
                     className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium text-slate-400"
                     placeholder="Để trống nếu không giảm giá"
                   />
@@ -478,8 +478,8 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                     type="number"
                     required
                     min="0"
-                    value={bookFormData.stock_quantity || ''}
-                    onChange={(e) => setBookFormData({...bookFormData, stock_quantity: Number(e.target.value)})}
+                    value={bookFormData.stockQuantity || ''}
+                    onChange={(e) => setBookFormData({...bookFormData, stockQuantity: Number(e.target.value)})}
                     className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-bold"
                     placeholder="0"
                   />

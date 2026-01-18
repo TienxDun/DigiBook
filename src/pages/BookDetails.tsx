@@ -299,7 +299,7 @@ const BookDetails: React.FC<{
                           {book.badge}
                         </span>
                       )}
-                      {book.stock_quantity <= 5 && book.stock_quantity > 0 && (
+                      {book.stockQuantity <= 5 && book.stockQuantity > 0 && (
                         <span className="px-4 py-1.5 bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg border border-white/20">
                           Sắp hết hàng
                         </span>
@@ -490,10 +490,10 @@ const BookDetails: React.FC<{
                  <div className="flex-1">
                     <div className="flex flex-wrap items-end gap-3 mb-3">
                        <span className="text-4xl font-black text-slate-900 tracking-tighter leading-none">{formatPrice(book.price)}</span>
-                       {book.original_price && (
+                       {book.originalPrice && (
                          <div className="flex flex-col mb-0.5">
-                            <span className="text-sm font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-lg line-through leading-none mb-1 opacity-70 italic whitespace-nowrap">{formatPrice(book.original_price)}</span>
-                            <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest leading-none">- {Math.round(((book.original_price - book.price) / book.original_price) * 100)}% Giảm giá</span>
+                            <span className="text-sm font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-lg line-through leading-none mb-1 opacity-70 italic whitespace-nowrap">{formatPrice(book.originalPrice)}</span>
+                            <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest leading-none">- {Math.round(((book.originalPrice - book.price) / book.originalPrice) * 100)}% Giảm giá</span>
                          </div>
                        )}
                     </div>
@@ -509,8 +509,8 @@ const BookDetails: React.FC<{
                        <span className="w-10 text-center font-black text-slate-900 text-sm">{quantity}</span>
                        <button onClick={() => setQuantity(quantity + 1)} className="w-10 h-10 rounded-xl hover:bg-white hover:shadow-sm transition-all flex items-center justify-center text-slate-500"><i className="fa-solid fa-plus text-[10px]"></i></button>
                     </div>
-                    {book.stock_quantity > 0 ? (
-                       <p className="text-[11px] font-black text-slate-400 uppercase tracking-tight pl-1">Tình trạng: <span className="text-emerald-600">Còn {book.stock_quantity} cuốn</span></p>
+                    {book.stockQuantity > 0 ? (
+                       <p className="text-[11px] font-black text-slate-400 uppercase tracking-tight pl-1">Tình trạng: <span className="text-emerald-600">Còn {book.stockQuantity} cuốn</span></p>
                     ) : (
                        <p className="text-[11px] font-black text-rose-500 uppercase tracking-tight pl-1">Tình trạng: Hết hàng</p>
                     )}
@@ -520,7 +520,7 @@ const BookDetails: React.FC<{
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-10">
                  <button 
                    onClick={(e) => onAddToCart(book, quantity, { x: e.clientX, y: e.clientY })}
-                   disabled={book.stock_quantity <= 0}
+                   disabled={book.stockQuantity <= 0}
                    className="py-5 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 group flex items-center justify-center gap-3 active:scale-95 disabled:bg-slate-200 disabled:shadow-none"
                  >
                     <i className="fa-solid fa-cart-shopping text-sm group-hover:scale-110 transition-transform"></i>
@@ -778,41 +778,67 @@ const BookDetails: React.FC<{
       <AnimatePresence>
         {scrolled && (
           <motion.div 
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
+            initial={{ y: 100, opacity: 0, x: '-50%' }}
+            animate={{ y: 0, opacity: 1, x: '-50%' }}
+            exit={{ y: 100, opacity: 0, x: '-50%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[92%] max-w-4xl"
+            className="fixed bottom-8 left-1/2 z-[100] w-[95%] max-w-5xl"
           >
-            <div className="bg-white/70 backdrop-blur-3xl border border-white/20 rounded-[2.5rem] p-3 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)] flex items-center gap-4 lg:gap-8 ring-1 ring-slate-900/5">
-              <div className="h-14 w-11 rounded-xl overflow-hidden shadow-lg border border-white/20 ml-2 hidden sm:block flex-shrink-0">
+            <div className="bg-white/80 backdrop-blur-2xl border border-white/40 rounded-[2.5rem] p-2.5 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] flex items-center gap-3 lg:gap-6 ring-1 ring-slate-900/5 relative overflow-hidden group">
+              {/* Subtle Animated Background Glow */}
+              <div className="absolute -inset-x-20 top-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent animate-pulse"></div>
+              
+              <div className="h-14 w-11 rounded-xl overflow-hidden shadow-md border border-white/50 ml-2 hidden sm:block flex-shrink-0">
                 {!imageError && <img src={book.cover} className="w-full h-full object-cover" alt="" />}
               </div>
               
-              <div className="flex-grow min-w-0 pr-4">
-                <p className="text-slate-900 font-black text-sm lg:text-base leading-tight truncate">{book.title}</p>
-                <div className="flex items-center gap-4">
+              <div className="flex-grow min-w-0 pr-4 pl-1">
+                <div className="flex items-center gap-2 mb-0.5">
+                   <p className="text-slate-900 font-extrabold text-sm lg:text-base leading-tight truncate">{book.title}</p>
+                   {book.originalPrice && (
+                     <span className="hidden lg:inline-flex px-1.5 py-0.5 bg-rose-500 text-white text-[9px] font-black rounded-md">
+                        -{Math.round((1 - book.price / book.originalPrice) * 100)}%
+                     </span>
+                   )}
+                </div>
+                <div className="flex items-center gap-3">
                    <p className="text-indigo-600 font-black text-lg">{formatPrice(book.price)}</p>
-                   {book.original_price && <p className="text-slate-400 text-xs font-bold line-through opacity-50">{formatPrice(book.original_price)}</p>}
+                   {book.originalPrice && <p className="text-slate-400 text-xs font-bold line-through opacity-40">{formatPrice(book.originalPrice)}</p>}
                 </div>
               </div>
               
               <div className="flex items-center gap-3 pr-2">
-                 <div className="hidden lg:flex items-center gap-2 px-3 py-2 bg-slate-900/5 rounded-2xl mr-2">
-                    <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-8 h-8 text-slate-500 hover:text-indigo-600 transition-colors"><i className="fa-solid fa-minus text-[10px]"></i></button>
-                    <span className="w-6 text-center font-black text-slate-900 text-sm">{quantity}</span>
-                    <button onClick={() => setQuantity(quantity + 1)} className="w-8 h-8 text-slate-500 hover:text-indigo-600 transition-colors"><i className="fa-solid fa-plus text-[10px]"></i></button>
+                 {/* Quantity Selector - Refined */}
+                 <div className="hidden md:flex items-center bg-slate-100/80 rounded-2xl p-1 border border-slate-200/50">
+                    <button 
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))} 
+                      className="w-10 h-10 rounded-xl hover:bg-white hover:text-indigo-600 transition-all text-slate-400 active:scale-90"
+                    >
+                      <i className="fa-solid fa-minus text-[10px]"></i>
+                    </button>
+                    <span className="w-8 text-center font-black text-slate-900 text-sm">{quantity}</span>
+                    <button 
+                      onClick={() => setQuantity(quantity + 1)} 
+                      className="w-10 h-10 rounded-xl hover:bg-white hover:text-indigo-600 transition-all text-slate-400 active:scale-90"
+                    >
+                      <i className="fa-solid fa-plus text-[10px]"></i>
+                    </button>
                  </div>
+
+                 {/* Buy Button */}
                  <button 
                    onClick={(e) => onAddToCart(book, quantity, { x: e.clientX, y: e.clientY })}
-                   disabled={book.stock_quantity <= 0}
-                   className="h-14 px-8 lg:px-12 bg-indigo-600 text-white rounded-[1.8rem] text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200 flex items-center justify-center gap-3 disabled:bg-slate-300 disabled:shadow-none whitespace-nowrap active:scale-95"
+                   disabled={book.stockQuantity <= 0}
+                   className="h-14 px-8 lg:px-14 bg-slate-900 text-white rounded-[1.8rem] text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-xl shadow-slate-900/10 flex items-center justify-center gap-3 disabled:bg-slate-300 disabled:shadow-none whitespace-nowrap active:scale-95 group/btn"
                  >
-                   {book.stock_quantity > 0 ? (
+                   {book.stockQuantity > 0 ? (
                      <>
-                       <i className="fa-solid fa-rocket animate-pulse"></i>
-                       <span className="hidden sm:inline">MUA NGAY TRỰC TIẾP</span>
-                       <span className="sm:hidden">MUA</span>
+                       <div className="relative">
+                          <i className="fa-solid fa-cart-shopping text-sm group-hover/btn:scale-110 transition-transform"></i>
+                          <span className="absolute -top-2 -right-2 w-2 h-2 bg-indigo-400 rounded-full animate-ping opacity-0 group-hover/btn:opacity-100"></span>
+                       </div>
+                       <span className="hidden sm:inline">THÊM VÀO GIỎ HÀNG</span>
+                       <span className="sm:hidden text-micro">GIỎ HÀNG</span>
                      </>
                    ) : 'HẾT HÀNG'}
                  </button>

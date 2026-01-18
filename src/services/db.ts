@@ -224,7 +224,7 @@ class DataService {
       cartItems.forEach((item, index) => {
         const snap = bookChecks[index];
         if (snap.exists()) {
-          const currentStock = snap.data().stock_quantity || 0;
+          const currentStock = snap.data().stockQuantity || 0;
           if (currentStock < item.quantity) {
             outOfStockItems.push(item.title);
           }
@@ -259,7 +259,7 @@ class DataService {
 
       cartItems.forEach((item, index) => {
         if (bookChecks[index].exists()) {
-          batch.update(doc(db_fs, 'books', item.id), { stock_quantity: increment(-item.quantity) });
+          batch.update(doc(db_fs, 'books', item.id), { stockQuantity: increment(-item.quantity) });
         }
       });
 
@@ -386,10 +386,9 @@ class DataService {
 
   async getReviewsByBookId(bookId: string): Promise<Review[]> {
     return this.wrap(
-      getDocs(query(collection(db_fs, 'reviews'), where("bookId", "==", bookId)))
+      getDocs(query(collection(db_fs, 'books', bookId, 'reviews'), orderBy('createdAt', 'desc')))
         .then(snap => {
-          const reviews = snap.docs.map(d => ({ id: d.id, ...d.data() } as Review));
-          return reviews.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+          return snap.docs.map(d => ({ id: d.id, ...d.data() } as Review));
         }),
       []
     );
@@ -397,7 +396,25 @@ class DataService {
 
   async addReview(review: Omit<Review, 'createdAt'>): Promise<void> {
     await this.wrap(
-      addDoc(collection(db_fs, 'reviews'), { ...review, createdAt: serverTimestamp() }),
+      (async () => {
+        // 1. Thêm review vào sub-collection
+        const reviewRef = collection(db_fs, 'books', review.bookId, 'reviews');
+        await addDoc(reviewRef, { ...review, createdAt: serverTimestamp() });
+
+        // 2. Tự động tính toán lại rating trung bình cho sách
+        // Lưu ý: Trong môi trường production, logic này nên được đặt trong Cloud Functions
+        const allReviewsSnap = await getDocs(reviewRef);
+        const reviews = allReviewsSnap.docs.map(d => d.data() as Review);
+        
+        if (reviews.length > 0) {
+          const totalRating = reviews.reduce((sum, r) => sum + r.rating, 0);
+          const averageRating = (totalRating / reviews.length).toFixed(1);
+          
+          await updateDoc(doc(db_fs, 'books', review.bookId), {
+            rating: Number(averageRating)
+          });
+        }
+      })(),
       undefined,
       'ADD_REVIEW',
       review.bookId
@@ -583,8 +600,8 @@ class DataService {
             author: info.authors?.join(', ') || 'Nhiều tác giả',
             authorBio: info.description?.substring(0, 300) || 'Thông tin tác giả đang được cập nhật.',
             price: Math.floor(Math.random() * (350000 - 85000) + 85000), // Random price VND
-            original_price: Math.floor(Math.random() * (450000 - 400000) + 400000),
-            stock_quantity: Math.floor(Math.random() * 50) + 5,
+            originalPrice: Math.floor(Math.random() * (450000 - 400000) + 400000),
+            stockQuantity: Math.floor(Math.random() * 50) + 5,
             rating: info.averageRating || (4 + Math.random()).toFixed(1),
             cover: coverUrl,
             category: appCat,

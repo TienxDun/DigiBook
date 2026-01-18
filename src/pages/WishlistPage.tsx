@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Book } from '../types';
 import BookCard from '../components/BookCard';
 import { useAuth } from '../AuthContext';
+import { db } from '../services/db';
 
 interface WishlistPageProps {
   onAddToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => void;
@@ -12,6 +13,36 @@ interface WishlistPageProps {
 
 const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart, onQuickView }) => {
   const { wishlist } = useAuth();
+  const [syncedWishlist, setSyncedWishlist] = useState<(Book & { isAvailable: boolean })[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const syncWishlist = async () => {
+      setLoading(true);
+      try {
+        const allBooks = await db.getBooks();
+        const synced = wishlist.map(wishItem => {
+          const dbBook = allBooks.find(b => b.id === wishItem.id);
+          if (!dbBook) {
+            return { ...wishItem, isAvailable: false, stockQuantity: 0 };
+          }
+          return { ...dbBook, isAvailable: true };
+        });
+        setSyncedWishlist(synced);
+      } catch (error) {
+        console.error("Error syncing wishlist:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (wishlist.length > 0) {
+      syncWishlist();
+    } else {
+      setSyncedWishlist([]);
+      setLoading(false);
+    }
+  }, [wishlist]);
 
   return (
     <div className="bg-slate-50/30 min-h-screen">
@@ -35,9 +66,9 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart, onQuickView })
           
           <div className="flex items-center gap-3">
              <button 
-               onClick={() => wishlist.forEach(book => onAddToCart(book))}
+               onClick={() => syncedWishlist.filter(b => b.isAvailable && b.stockQuantity > 0).forEach(book => onAddToCart(book))}
                className="group flex items-center gap-3 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-xs uppercase tracking-premium shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-               disabled={wishlist.length === 0}
+               disabled={syncedWishlist.filter(b => b.isAvailable && b.stockQuantity > 0).length === 0}
              >
                 <i className="fa-solid fa-cart-plus"></i>
                 Thêm tất cả vào giỏ
@@ -49,10 +80,35 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart, onQuickView })
           </div>
         </div>
 
-        {wishlist.length > 0 ? (
+        {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
-            {wishlist.map(book => (
-              <BookCard key={book.id} book={book} onAddToCart={onAddToCart} onQuickView={onQuickView} />
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="animate-pulse bg-white rounded-3xl h-80 border border-slate-100 shadow-sm"></div>
+            ))}
+          </div>
+        ) : syncedWishlist.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
+            {syncedWishlist.map(book => (
+              <div key={book.id} className="relative group">
+                <BookCard 
+                  book={book} 
+                  onAddToCart={onAddToCart} 
+                  onQuickView={onQuickView} 
+                />
+                
+                {(!book.isAvailable || book.stockQuantity <= 0) && (
+                  <div className="absolute inset-x-3 top-3 z-10">
+                    <div className="bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-black px-3 py-1.5 rounded-xl border border-white/10 shadow-xl uppercase tracking-widest flex items-center gap-2">
+                      <i className={`fa-solid ${!book.isAvailable ? 'fa-ban' : 'fa-box-open'} text-rose-400`}></i>
+                      {!book.isAvailable ? 'Ngừng kinh doanh' : 'Hết hàng'}
+                    </div>
+                  </div>
+                )}
+
+                {(!book.isAvailable || book.stockQuantity <= 0) && (
+                   <div className="absolute inset-0 bg-white/40 backdrop-grayscale-[0.5] rounded-[2rem] pointer-events-none -m-1 border border-white/20"></div>
+                )}
+              </div>
             ))}
           </div>
         ) : (

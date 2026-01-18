@@ -27,18 +27,26 @@ const getOptimizedImageUrl = (url: string) => {
 const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) => {
   const { wishlist, toggleWishlist } = useAuth();
   const [imgLoaded, setImgLoaded] = useState(false);
-  const [stockQuantity, setStockQuantity] = useState<number>(0);
+  const [stockQuantity, setStockQuantity] = useState<number>(book.stockQuantity);
   const [isHovered, setIsHovered] = useState(false);
   
   const isWishlisted = useMemo(() => wishlist.some(b => b.id === book.id), [wishlist, book.id]);
+  const isAvailable = (book as any).isAvailable !== false;
 
   useEffect(() => {
+    // Chỉ fetch lại nếu cần cập nhật real-time, hoặc đơn giản là đồng bộ với prop
+    setStockQuantity(book.stockQuantity);
+    
     const fetchStock = async () => {
-      const dbBook = await db.getBookById(book.id);
-      if (dbBook) setStockQuantity(dbBook.stock_quantity);
+      try {
+        const dbBook = await db.getBookById(book.id);
+        if (dbBook) setStockQuantity(dbBook.stockQuantity);
+      } catch (e) {
+        console.error("Error fetching stock for book:", book.id, e);
+      }
     };
     fetchStock();
-  }, [book.id]);
+  }, [book.id, book.stockQuantity]);
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -58,7 +66,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
       className="w-full h-full"
     >
       <div 
-        className={`relative group flex flex-col h-[340px] bg-white rounded-[2rem] p-3 border border-slate-100 shadow-sm transition-all duration-500 w-full ${stockQuantity <= 0 ? 'grayscale opacity-60' : 'hover:shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-100/50'}`}
+        className={`relative group flex flex-col h-[340px] bg-white rounded-[2rem] p-3 border border-slate-100 shadow-sm transition-all duration-500 w-full ${(!isAvailable || stockQuantity <= 0) ? 'grayscale opacity-60' : 'hover:shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-100/50'}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -70,7 +78,10 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
           
           {/* Status Badges */}
           <div className="absolute top-2 left-2 z-30 flex flex-col gap-1 items-start">
-            {stockQuantity <= 0 && (
+            {!isAvailable && (
+              <span className="px-2 py-0.5 bg-rose-600/90 backdrop-blur-sm text-white text-[10px] font-bold uppercase tracking-wider rounded border border-white/10">Ngừng kinh doanh</span>
+            )}
+            {isAvailable && stockQuantity <= 0 && (
               <span className="px-2 py-0.5 bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold uppercase tracking-wider rounded border border-white/10">Hết hàng</span>
             )}
             {book.badge && (
@@ -119,7 +130,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
 
           {/* Quick Info Overlay on Hover */}
           <AnimatePresence>
-            {isHovered && stockQuantity > 0 && (
+            {isHovered && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -191,9 +202,9 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
           
           <div className="pt-2 flex items-end justify-between border-t border-slate-50 mt-2">
             <div className="flex flex-col">
-              {book.original_price && (
+              {book.originalPrice && (
                 <span className="text-[11px] text-slate-400 line-through">
-                  {formatPrice(book.original_price)}
+                  {formatPrice(book.originalPrice)}
                 </span>
               )}
               <span className="text-[14px] font-bold text-slate-900 leading-tight">
@@ -207,9 +218,9 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
                 e.stopPropagation();
                 onAddToCart(book, 1, { x: e.clientX, y: e.clientY });
               }}
-              disabled={stockQuantity <= 0}
+              disabled={stockQuantity <= 0 || !isAvailable}
               className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 ${
-                stockQuantity <= 0 
+                (stockQuantity <= 0 || !isAvailable)
                   ? 'bg-slate-100 text-slate-300 cursor-not-allowed' 
                   : 'bg-slate-900 text-white hover:bg-indigo-600 shadow-sm active:scale-95'
               }`}

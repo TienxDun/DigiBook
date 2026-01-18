@@ -13,8 +13,8 @@ export interface Book {
   authorId?: string; // ID liên kết đến bảng Author
   authorBio: string;
   price: number;
-  original_price?: number;
-  stock_quantity: number;
+  originalPrice?: number;
+  stockQuantity: number;
   rating: number;
   cover: string;
   category: string;
