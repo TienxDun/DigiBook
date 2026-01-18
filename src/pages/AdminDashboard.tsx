@@ -130,6 +130,32 @@ const AdminDashboard: React.FC = () => {
 
     const maxRevenue = Math.max(...revenueByDay.map(d => d.total), 1);
 
+    // Lấy 5 đơn hàng mới nhất
+    const recentOrdersList = [...orders]
+      .sort((a, b) => {
+        const dateA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : new Date(a.date).getTime();
+        const dateB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : new Date(b.date).getTime();
+        return dateB - dateA;
+      })
+      .slice(0, 5);
+
+    // Tính toán Top sách bán chạy (giả định từ các đơn hàng)
+    const bookSalesMap = new Map();
+    orders.forEach(order => {
+      order.items?.forEach(item => {
+        const count = bookSalesMap.get(item.bookId) || 0;
+        bookSalesMap.set(item.bookId, count + item.quantity);
+      });
+    });
+
+    const topSellingList = [...books]
+      .map(book => ({
+        ...book,
+        salesCount: bookSalesMap.get(book.id) || 0
+      }))
+      .sort((a, b) => b.salesCount - a.salesCount)
+      .slice(0, 5);
+
     return { 
       totalRevenue, 
       lowStock, 
@@ -144,7 +170,9 @@ const AdminDashboard: React.FC = () => {
       totalAuthors: authors.length,
       totalCoupons: coupons.length,
       revenueByDay,
-      maxRevenue
+      maxRevenue,
+      recentOrders: recentOrdersList,
+      topSellingBooks: topSellingList
     };
   }, [orders, books, categories, authors, coupons]);
 
@@ -179,33 +207,33 @@ const AdminDashboard: React.FC = () => {
       )}
 
       {/* Sidebar - Cố định bên trái - Nâng cấp màu Midnight Premium (Luôn luôn tối) */}
-      <aside className={`w-80 flex flex-col fixed inset-y-0 z-[100] shadow-2xl transition-all duration-500 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} bg-[#0f172a]`}>
-        <div className="p-6 border-b border-white/5 flex items-center justify-between gap-4 h-24">
+      <aside className={`w-80 flex flex-col fixed inset-y-0 z-[100] shadow-2xl transition-all duration-700 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} bg-[#0f172a]`}>
+        <div className="p-8 border-b border-white/[0.03] flex items-center justify-between gap-4 h-24 bg-[#0f172a] relative z-20">
           <div className="flex items-center gap-4">
-            <Link to="/" className="w-12 h-12 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center text-white hover:scale-110 shadow-lg shadow-indigo-500/20 transition-all active:scale-95 group">
-              <i className="fa-solid fa-house-chimney group-hover:rotate-12 transition-transform"></i>
+            <Link to="/" className="w-11 h-11 bg-gradient-to-tr from-indigo-600 to-indigo-400 rounded-xl flex items-center justify-center text-white hover:scale-105 shadow-xl shadow-indigo-500/20 transition-all active:scale-95 group">
+              <i className="fa-solid fa-bolt-lightning group-hover:rotate-12 transition-transform"></i>
             </Link>
             <div>
-              <h1 className="text-sm font-black tracking-tight uppercase text-white">DigiBook</h1>
-              <p className="text-micro font-bold text-indigo-400 uppercase tracking-[0.2em] mt-0.5">Admin Dashboard</p>
+              <h1 className="text-base font-black tracking-tighter uppercase text-white leading-none">DigiBook</h1>
+              <p className="text-[9px] font-black text-indigo-400/80 uppercase tracking-[0.3em] mt-1.5 shadow-indigo-500/10">Architecture</p>
             </div>
           </div>
-          <button onClick={() => setIsMobileMenuOpen(false)} className="lg:hidden text-slate-400 hover:text-white p-2">
+          <button onClick={() => setIsMobileMenuOpen(false)} className="lg:hidden text-slate-500 hover:text-white p-2 transition-colors">
             <i className="fa-solid fa-xmark text-xl"></i>
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto p-5 space-y-2 mt-4 custom-scrollbar">
+        <nav className="flex-1 overflow-y-auto p-6 space-y-2.5 mt-2 custom-scrollbar relative z-10">
           {[
-            { id: "overview", label: "Tổng quan", icon: "fa-chart-pie" },
-            { id: "books", label: "Kho sách", icon: "fa-book-bookmark" },
-            { id: "orders", label: "Đơn hàng", icon: "fa-truck-fast" },
-            { id: "authors", label: "Tác giả", icon: "fa-user-pen" },
-            { id: "categories", label: "Danh mục", icon: "fa-shapes" },
-            { id: "coupons", label: "Khuyến mãi", icon: "fa-tags" },
-            { id: "users", label: "Tài khoản", icon: "fa-user-group" },
-            { id: "logs", label: "Nhật ký", icon: "fa-terminal" },
-            { id: "ai", label: "Trợ lý AI", icon: "fa-wand-magic-sparkles" }
+            { id: "overview", label: "Tổng quan", icon: "fa-grid-2" },
+            { id: "books", label: "Kho sách", icon: "fa-book" },
+            { id: "orders", label: "Giao dịch", icon: "fa-receipt" },
+            { id: "authors", label: "Tác giả", icon: "fa-pen-nib" },
+            { id: "categories", label: "Thể loại", icon: "fa-shapes" },
+            { id: "coupons", label: "Ưu đãi", icon: "fa-percent" },
+            { id: "users", label: "Nhân sự", icon: "fa-user-tie" },
+            { id: "logs", label: "Audit Log", icon: "fa-fingerprint" },
+            { id: "ai", label: "AI Core", icon: "fa-microchip" }
           ].map(tab => (
             <button
               key={tab.id}
@@ -213,30 +241,33 @@ const AdminDashboard: React.FC = () => {
                 setActiveTab(tab.id as any);
                 setIsMobileMenuOpen(false);
               }}
-              className={`flex items-center gap-4 w-full px-5 py-4 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all duration-300 group
+              className={`flex items-center gap-4 w-full px-5 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 group relative
                 ${activeTab === tab.id 
-                  ? "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-xl shadow-indigo-500/30 ring-1 ring-white/20" 
-                  : "text-slate-400 hover:text-white hover:bg-white/5 hover:translate-x-1"
+                  ? "bg-indigo-600 text-white shadow-2xl shadow-indigo-600/20" 
+                  : "text-slate-500 hover:text-slate-200 hover:bg-white/[0.03] hover:translate-x-1"
                 }`}
             >
-              <i className={`fa-solid ${tab.icon} w-5 text-center text-sm ${activeTab === tab.id ? 'text-white' : 'text-slate-500 group-hover:text-indigo-400'}`}></i>
+              <i className={`fa-solid ${tab.icon} w-5 text-center text-sm ${activeTab === tab.id ? 'text-white' : 'text-slate-600 group-hover:text-indigo-400'}`}></i>
               <span>{tab.label}</span>
+              {activeTab === tab.id && (
+                <div className="absolute right-3 w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_10px_white]"></div>
+              )}
             </button>
           ))}
         </nav>
 
         {/* Footer Sidebar - Dark Style */}
-        <div className="p-6 border-t border-white/5 mx-4 mb-4 rounded-3xl transition-colors bg-[#1e293b]/50">
+        <div className="p-6 border-t border-white/[0.03] mx-4 mb-6 rounded-[2rem] transition-all bg-white/[0.02] hover:bg-white/[0.04]">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center border border-indigo-500/20 bg-indigo-500/10 shadow-inner">
-              <i className="fa-solid fa-crown text-indigo-400"></i>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-indigo-500/10 border border-indigo-500/20 group">
+              <i className="fa-solid fa-crown text-indigo-400 group-hover:scale-110 transition-transform"></i>
             </div>
-            <div>
-              <span className="text-xs font-black uppercase block tracking-wider text-white">Super Admin</span>
-              <span className="text-micro font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2 mt-0.5">
-                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
-                Vận hành tốt
-              </span>
+            <div className="min-w-0">
+              <span className="text-[10px] font-black uppercase block tracking-widest text-white truncate">Administrator</span>
+              <div className="flex items-center gap-2 mt-1.5">
+                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]"></div>
+                 <span className="text-[8px] font-black text-emerald-500/80 uppercase tracking-widest">Hệ thống ổn định</span>
+              </div>
             </div>
           </div>
         </div>
@@ -303,87 +334,102 @@ const AdminDashboard: React.FC = () => {
                   { label: "Sách tồn", value: stats.totalBooks, icon: "fa-book-open-reader", bgColor: "bg-violet-500/10", iconColor: "text-violet-400", sub: `${stats.outOfStock} đầu sách đã hết` },
                   { label: "Đang xử lý", value: stats.pendingOrders, icon: "fa-clock", bgColor: "bg-amber-500/10", iconColor: "text-amber-400", sub: `${stats.completedOrders} đơn đã hoàn thành` }
                 ].map((stat, i) => (
-                  <div key={i} className={`p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] border shadow-2xl transition-all group relative overflow-hidden ${adminTheme === 'midnight' ? 'bg-[#0f172a]/50 border-white/5 hover:bg-[#0f172a]/80' : 'bg-white border-slate-200/60 hover:shadow-indigo-500/10 hover:border-indigo-200/50'}`}>
-                    <div className="flex items-start justify-between mb-6 relative z-10">
-                      <div className={`w-16 h-16 ${stat.bgColor} ${stat.iconColor} rounded-3xl flex items-center justify-center text-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.2)]`}>
+                  <div key={i} className={`p-6 lg:p-10 rounded-[2.5rem] lg:rounded-[3.5rem] border shadow-2xl transition-all duration-500 group relative overflow-hidden ${adminTheme === 'midnight' ? 'bg-[#0f172a]/40 border-white/[0.03] hover:bg-[#0f172a]/60' : 'bg-white border-slate-200/50 hover:shadow-indigo-500/5 hover:border-indigo-200'}`}>
+                    <div className="flex items-start justify-between mb-8 relative z-10">
+                      <div className={`w-14 h-14 lg:w-16 lg:h-16 ${stat.bgColor} ${stat.iconColor} rounded-[1.5rem] lg:rounded-[2rem] flex items-center justify-center text-xl lg:text-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-[0_0_30px_rgba(99,102,241,0.2)]`}>
                         <i className={`fa-solid ${stat.icon}`}></i>
                       </div>
                       <div className="flex flex-col items-end">
-                        <span className={`inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-black uppercase ${adminTheme === 'midnight' ? 'bg-white/5 text-slate-500' : 'bg-slate-50 text-slate-400'}`}>Live</span>
+                        <div className={`w-2 h-2 rounded-full ${stat.iconColor} animate-pulse shadow-[0_0_10px_currentColor]`}></div>
                       </div>
                     </div>
-                    <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mb-1.5 relative z-10">{stat.label}</p>
-                    <h3 className={`text-2xl lg:text-3xl font-black tracking-tight relative z-10 ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>{stat.value}</h3>
-                    <p className="text-[10px] lg:text-micro font-bold text-slate-500 mt-4 flex items-center gap-2 relative z-10">
-                      <span className={`w-1.5 h-1.5 rounded-full ${stat.iconColor} animate-pulse`}></span>
+                    <p className="text-[10px] lg:text-micro font-black text-slate-500 uppercase tracking-premium mb-2 relative z-10">{stat.label}</p>
+                    <h3 className={`text-2xl lg:text-3xl font-black tracking-tighter relative z-10 ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>{stat.value}</h3>
+                    <div className={`h-1 w-12 rounded-full mt-4 mb-2 transition-all duration-500 group-hover:w-20 ${stat.bgColor.replace('/10', '/30')}`}></div>
+                    <p className="text-[9px] lg:text-[10px] font-bold text-slate-500 uppercase tracking-wide flex items-center gap-2 relative z-10">
                       {stat.sub}
                     </p>
-                    {/* Background Accent */}
-                    <div className={`absolute -right-8 -bottom-8 w-24 lg:w-32 h-24 lg:h-32 ${stat.bgColor.replace('/10', '/5')} opacity-0 circle group-hover:opacity-100 transition-opacity duration-700 blur-3xl`}></div>
+                    {/* Background Light Effect */}
+                    <div className={`absolute -right-10 -bottom-10 w-32 h-32 ${stat.bgColor.replace('/10', '/5')} rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000 blur-[80px]`}></div>
                   </div>
                 ))}
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-                <div className={`lg:col-span-2 p-6 lg:p-8 rounded-[2rem] lg:rounded-[3rem] border shadow-2xl relative overflow-hidden transition-all ${adminTheme === 'midnight' ? 'bg-[#0f172a]/50 border-white/5' : 'bg-white border-slate-200/60 shadow-slate-200/50'}`}>
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
+                {/* Revenue Chart - chiếm 3 cột */}
+                <div className={`lg:col-span-3 p-6 lg:p-8 rounded-[2rem] lg:rounded-[3rem] border shadow-2xl relative overflow-hidden transition-all ${adminTheme === 'midnight' ? 'bg-[#0f172a]/50 border-white/5' : 'bg-white border-slate-200/60 shadow-slate-200/50'}`}>
                   <div className="flex items-center justify-between mb-8">
                     <div>
                       <h3 className={`text-lg lg:text-xl font-black uppercase tracking-tight ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>Biểu đồ doanh thu</h3>
-                      <p className="text-[10px] lg:text-micro font-bold text-indigo-400/60 uppercase tracking-premium mt-1">Phân tích tăng trưởng 7 ngày qua</p>
+                      <p className="text-[10px] lg:text-micro font-bold text-indigo-400/60 uppercase tracking-premium mt-1">Phân tích hiệu suất bán hàng 7 ngày qua</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                       <span className="flex items-center gap-2 text-micro font-bold text-emerald-400 uppercase">
-                          <i className="fa-solid fa-caret-up"></i> 12.5%
+                    <div className="flex items-center gap-4">
+                       <span className={`flex items-center gap-2 text-micro font-bold uppercase ${stats.revenueByDay[stats.revenueByDay.length-1].total >= stats.revenueByDay[stats.revenueByDay.length-2].total ? 'text-emerald-400' : 'text-rose-400'}`}>
+                          <i className={`fa-solid ${stats.revenueByDay[stats.revenueByDay.length-1].total >= stats.revenueByDay[stats.revenueByDay.length-2].total ? 'fa-caret-up' : 'fa-caret-down'}`}></i> 
+                          {Math.abs(stats.revenueByDay[stats.revenueByDay.length-1].total - stats.revenueByDay[stats.revenueByDay.length-2].total) > 0 ? 'Có biến động' : 'Ổn định'}
                        </span>
                     </div>
                   </div>
                   
                   {/* Revenue Chart Visualization */}
-                  <div className="h-64 mt-10 flex items-end justify-between gap-2 lg:gap-4 px-2">
+                  <div className="h-72 mt-10 flex items-end justify-between gap-2 lg:gap-6 px-4 relative z-10">
                     {stats.revenueByDay.map((day: any, i: number) => (
-                      <div key={i} className="flex-1 flex flex-col items-center gap-4 group cursor-pointer">
-                        <div className="relative w-full flex justify-center items-end h-48">
+                      <div key={i} className="flex-1 flex flex-col items-center gap-4 group cursor-pointer h-full justify-end">
+                        <div className="relative w-full flex justify-center items-end h-[85%]">
                            {/* Bar */}
                            <div 
-                             className="w-full max-w-[40px] bg-gradient-to-t from-indigo-600/80 to-indigo-400 rounded-xl lg:rounded-2xl transition-all duration-700 group-hover:scale-x-110 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] relative group"
-                             style={{ height: `${(day.total / stats.maxRevenue) * 100}%`, minHeight: '4px' }}
+                             className={`w-full max-w-[45px] rounded-t-2xl transition-all duration-700 group-hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] relative ${
+                               adminTheme === 'midnight' 
+                               ? 'bg-gradient-to-t from-indigo-900 to-indigo-500' 
+                               : 'bg-gradient-to-t from-indigo-600 to-indigo-400'
+                             }`}
+                             style={{ height: `${(day.total / stats.maxRevenue) * 100}%`, minHeight: '6px' }}
                            >
                               {/* Tooltip */}
-                              <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl z-20">
+                              <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2 rounded-xl text-[10px] font-black opacity-0 group-hover:opacity-100 transition-all transform group-hover:-translate-y-2 whitespace-nowrap shadow-2xl z-20 flex flex-col items-center">
+                                 <span className="text-slate-400 font-bold uppercase text-[8px] mb-1">{day.date}</span>
                                  {formatPrice(day.total)}
                               </div>
+
+                              {/* Glowing Dot on top */}
+                              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rounded-full shadow-[0_0_10px_white] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                            </div>
                         </div>
-                        <span className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${adminTheme === 'midnight' ? 'text-slate-500 group-hover:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-600'}`}>
-                          {day.date}
+                        <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${adminTheme === 'midnight' ? 'text-slate-500 group-hover:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-600'}`}>
+                          {day.date.split('/')[0]}
                         </span>
                       </div>
                     ))}
                   </div>
 
-                  {/* Grid Lines Overlay */}
-                  <div className="absolute inset-x-8 top-32 bottom-20 flex flex-col justify-between pointer-events-none opacity-5">
-                    {[...Array(5)].map((_, i) => (
+                  {/* Horizontal Grid Lines */}
+                  <div className="absolute inset-x-8 top-32 bottom-20 flex flex-col justify-between pointer-events-none opacity-[0.03]">
+                    {[...Array(6)].map((_, i) => (
                       <div key={i} className={`w-full h-px ${adminTheme === 'midnight' ? 'bg-white' : 'bg-slate-900'}`}></div>
                     ))}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
-                  <div className={`p-6 lg:p-7 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl border transition-all ${adminTheme === 'midnight' ? 'bg-[#0f172a]/50 border-white/5' : 'bg-white border-slate-200/60 shadow-slate-200/50'}`}>
+                <div className="grid grid-cols-1 gap-6 lg:gap-8">
+                  <div className={`p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl border transition-all ${adminTheme === 'midnight' ? 'bg-[#0f172a]/50 border-white/5' : 'bg-white border-slate-200/60 shadow-slate-200/50'}`}>
                     <div className="flex items-center justify-between mb-6">
-                      <h3 className={`text-xs lg:text-label font-bold uppercase tracking-premium ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>Nội dung</h3>
+                      <h3 className={`text-xs font-black uppercase tracking-premium ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>Nội dung</h3>
                       <i className="fa-solid fa-database text-indigo-400/40"></i>
                     </div>
-                    <div className="space-y-3 lg:space-y-4">
+                    <div className="space-y-4">
                       {[
-                        { label: "Tác giả", value: stats.totalAuthors, color: "purple" },
-                        { label: "Danh mục", value: stats.totalCategories, color: "blue" },
-                        { label: "Mã KM", value: stats.totalCoupons, color: "emerald" }
+                        { label: "Tác giả", value: stats.totalAuthors, color: "emerald", icon: "fa-pen-nib" },
+                        { label: "Danh mục", value: stats.totalCategories, color: "indigo", icon: "fa-shapes" },
+                        { label: "Mã KM", value: stats.totalCoupons, color: "amber", icon: "fa-ticket" }
                       ].map((item, id) => (
-                        <div key={id} className={`flex items-center justify-between p-3 rounded-xl lg:rounded-2xl border ${adminTheme === 'midnight' ? 'bg-black/20 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
-                          <span className="text-[10px] lg:text-xs font-bold text-slate-400 uppercase">{item.label}</span>
-                          <span className={`px-2 lg:px-3 py-1 rounded-lg text-micro font-bold border ${adminTheme === 'midnight' ? `bg-${item.color}-500/10 text-${item.color}-400 border-${item.color}-500/20` : `bg-${item.color}-50 text-${item.color}-600 border-${item.color}-100`}`}>
+                        <div key={id} className={`flex items-center justify-between p-4 rounded-2xl border group transition-all ${adminTheme === 'midnight' ? 'bg-white/5 border-white/5 hover:bg-white/10' : 'bg-slate-50 border-slate-100 hover:bg-white hover:shadow-lg hover:shadow-slate-100'}`}>
+                          <div className="flex items-center gap-3">
+                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs ${adminTheme === 'midnight' ? `bg-${item.color}-500/20 text-${item.color}-400` : `bg-${item.color}-50 text-${item.color}-600`}`}>
+                                <i className={`fa-solid ${item.icon}`}></i>
+                             </div>
+                             <span className="text-[10px] font-black text-slate-500 uppercase tracking-tight">{item.label}</span>
+                          </div>
+                          <span className={`text-sm font-black transition-transform group-hover:scale-110 ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>
                             {item.value}
                           </span>
                         </div>
@@ -391,30 +437,126 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-br from-indigo-600 to-violet-700 p-6 lg:p-7 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl text-white relative overflow-hidden group flex flex-col justify-center">
-                    <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:scale-125 transition-transform duration-500">
-                      <i className="fa-solid fa-bolt text-3xl lg:text-4xl text-white/50"></i>
-                    </div>
+                  <div className="bg-[#1e293b] p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl text-white relative overflow-hidden group flex flex-col justify-between border border-white/5">
+                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-indigo-600/20 rounded-full blur-[60px] group-hover:bg-indigo-600/30 transition-all duration-700"></div>
                     <div className="relative z-10">
-                      <h3 className="text-xs lg:text-label font-bold uppercase tracking-premium mb-4 lg:mb-6">Thao tác nhanh</h3>
-                      <div className="grid sm:grid-cols-2 lg:grid-cols-1 gap-2 lg:gap-3">
+                      <h3 className="text-xs font-black uppercase tracking-premium mb-6 flex items-center gap-2">
+                        <i className="fa-solid fa-bolt-lightning text-amber-400"></i>
+                        Thao tác nhanh
+                      </h3>
+                      <div className="grid grid-cols-1 gap-3">
                         <button
                           onClick={() => setActiveTab("books")}
-                          className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-md px-4 lg:px-5 py-2.5 lg:py-3 rounded-xl lg:rounded-2xl text-[10px] lg:text-micro font-bold transition-all text-left flex items-center gap-3 uppercase tracking-premium border border-white/10"
+                          className="w-full bg-white/5 hover:bg-indigo-600 backdrop-blur-md px-5 py-4 rounded-2xl text-[10px] font-black transition-all text-left flex items-center justify-between uppercase tracking-premium border border-white/5 shadow-inner group/btn"
                         >
-                          <i className="fa-solid fa-book"></i>
-                          <span>Kho sách</span>
+                          <div className="flex items-center gap-3">
+                            <i className="fa-solid fa-book-medical"></i>
+                            <span>Thêm sách mới</span>
+                          </div>
+                          <i className="fa-solid fa-chevron-right text-[8px] opacity-0 group-hover/btn:opacity-100 transition-all"></i>
                         </button>
                         <button
                           onClick={() => setActiveTab("orders")}
-                          className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-md px-4 lg:px-5 py-2.5 lg:py-3 rounded-xl lg:rounded-2xl text-[10px] lg:text-micro font-bold transition-all text-left flex items-center gap-3 uppercase tracking-premium border border-white/10"
+                          className="w-full bg-white/5 hover:bg-violet-600 backdrop-blur-md px-5 py-4 rounded-2xl text-[10px] font-black transition-all text-left flex items-center justify-between uppercase tracking-premium border border-white/5 shadow-inner group/btn"
                         >
-                          <i className="fa-solid fa-shopping-cart"></i>
-                          <span>Đơn hàng</span>
+                          <div className="flex items-center gap-3">
+                            <i className="fa-solid fa-boxes-packing"></i>
+                            <span>Xử lý đơn hàng</span>
+                          </div>
+                          <i className="fa-solid fa-chevron-right text-[8px] opacity-0 group-hover/btn:opacity-100 transition-all"></i>
                         </button>
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Activity Section - NEW */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+                {/* Recent Orders */}
+                <div className={`p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border shadow-2xl transition-all ${adminTheme === 'midnight' ? 'bg-[#0f172a]/50 border-white/5' : 'bg-white border-slate-200/60'}`}>
+                   <div className="flex items-center justify-between mb-8">
+                     <div>
+                       <h3 className={`text-lg font-black uppercase tracking-tight ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>Đơn hàng mới nhất</h3>
+                       <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Hoạt động mua hàng gần đây nhất</p>
+                     </div>
+                     <button onClick={() => setActiveTab('orders')} className="text-[10px] font-black uppercase tracking-premium text-indigo-400 hover:text-indigo-300 transition-colors">Xem tất cả</button>
+                   </div>
+                   
+                   <div className="space-y-4">
+                     {stats.recentOrders.length > 0 ? stats.recentOrders.map((order: any) => (
+                       <div key={order.id} className={`flex items-center justify-between p-5 rounded-3xl transition-all ${adminTheme === 'midnight' ? 'bg-white/5 border border-white/5 hover:bg-white/[0.08]' : 'bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl hover:shadow-slate-100'}`}>
+                         <div className="flex items-center gap-4">
+                           <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-lg ${
+                             order.statusStep === 3 ? 'bg-emerald-500/10 text-emerald-400' : 
+                             order.statusStep === 0 ? 'bg-amber-500/10 text-amber-400' : 'bg-indigo-500/10 text-indigo-400'
+                           }`}>
+                             <i className={`fa-solid ${order.statusStep === 3 ? 'fa-check' : 'fa-clock'}`}></i>
+                           </div>
+                           <div>
+                             <h4 className={`text-xs font-black uppercase tracking-tight ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>#{order.id.slice(-6)}</h4>
+                             <p className="text-[10px] font-bold text-slate-500 uppercase">{order.customer?.name || 'Ẩn danh'}</p>
+                           </div>
+                         </div>
+                         <div className="text-right">
+                           <p className={`text-xs font-black ${adminTheme === 'midnight' ? 'text-indigo-400' : 'text-indigo-600'}`}>{formatPrice(order.payment?.total || 0)}</p>
+                           <p className="text-[9px] font-bold text-slate-500 uppercase mt-1">
+                             {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : 'Hôm nay'}
+                           </p>
+                         </div>
+                       </div>
+                     )) : (
+                       <div className="py-20 text-center opacity-30">
+                          <i className="fa-solid fa-inbox text-4xl mb-3"></i>
+                          <p className="text-micro font-bold uppercase">Chưa có dữ liệu</p>
+                       </div>
+                     )}
+                   </div>
+                </div>
+
+                {/* Top Selling Books */}
+                <div className={`p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border shadow-2xl transition-all ${adminTheme === 'midnight' ? 'bg-[#0f172a]/50 border-white/5' : 'bg-white border-slate-200/60'}`}>
+                   <div className="flex items-center justify-between mb-8">
+                     <div>
+                       <h3 className={`text-lg font-black uppercase tracking-tight ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>Sản phẩm bán chạy</h3>
+                       <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Thống kê theo số lượng đã bán</p>
+                     </div>
+                     <button onClick={() => setActiveTab('books')} className="text-[10px] font-black uppercase tracking-premium text-indigo-400 hover:text-indigo-300 transition-colors">Quản lý kho</button>
+                   </div>
+
+                   <div className="space-y-4">
+                     {stats.topSellingBooks.length > 0 ? stats.topSellingBooks.map((book: any, idx: number) => (
+                       <div key={idx} className={`flex items-center justify-between p-4 rounded-3xl transition-all ${adminTheme === 'midnight' ? 'bg-white/5 border border-white/5 hover:bg-white/[0.08]' : 'bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl hover:shadow-slate-100'}`}>
+                         <div className="flex items-center gap-4">
+                           <div className="relative">
+                             <img src={book.cover} alt={book.title} className="w-12 h-16 object-cover rounded-xl shadow-lg border border-white/10" />
+                             <div className="absolute -top-2 -left-2 w-6 h-6 bg-indigo-600 rounded-lg flex items-center justify-center text-[10px] font-black text-white shadow-lg">
+                               {idx + 1}
+                             </div>
+                           </div>
+                           <div className="max-w-[180px]">
+                             <h4 className={`text-xs font-black uppercase tracking-tight line-clamp-1 ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>{book.title}</h4>
+                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">{book.category}</p>
+                           </div>
+                         </div>
+                         <div className="text-right">
+                           <div className="flex flex-col items-end">
+                              <span className={`px-2 py-1 rounded-lg text-micro font-black uppercase border ${adminTheme === 'midnight' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'bg-indigo-50 text-indigo-600 border-indigo-100'}`}>
+                                Đã bán: {book.salesCount}
+                              </span>
+                              <p className={`text-[10px] font-bold uppercase mt-2 ${book.stockQuantity < 10 ? 'text-rose-400' : 'text-slate-500'}`}>
+                                Tồn: {book.stockQuantity}
+                              </p>
+                           </div>
+                         </div>
+                       </div>
+                     )) : (
+                       <div className="py-20 text-center opacity-30">
+                          <i className="fa-solid fa-chart-line text-4xl mb-3"></i>
+                          <p className="text-micro font-bold uppercase">Chưa có dữ liệu giao dịch</p>
+                       </div>
+                     )}
+                   </div>
                 </div>
               </div>
             </div>
