@@ -172,9 +172,9 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
 
   if (loading) {
     return (
-      <div className="bg-slate-50 min-h-screen pt-20 lg:pt-24 px-4">
+      <div className="bg-slate-50 min-h-screen pt-4 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-indigo-950 rounded-[2.5rem] p-10 mb-8 flex flex-col lg:flex-row items-center gap-10">
+          <div className="bg-indigo-950 rounded-[2.5rem] p-10 mb-6 flex flex-col lg:flex-row items-center gap-10">
             <Skeleton className="w-48 h-48 rounded-3xl" />
             <div className="flex-1 space-y-4">
               <Skeleton className="h-4 w-1/4" />
@@ -226,9 +226,9 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-[500px] bg-indigo-600 -z-10 opacity-[0.03] pointer-events-none"></div>
 
-      <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-20 lg:pt-28">
+      <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-6 lg:pt-8">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 mb-8 text-micro font-bold uppercase tracking-premium text-slate-400">
+        <nav className="flex items-center gap-2 mb-6 text-micro font-bold uppercase tracking-premium text-slate-400">
           <Link to="/" className="hover:text-indigo-600 transition-colors">Trang chủ</Link>
           <i className="fa-solid fa-chevron-right text-xs opacity-50"></i>
           <Link to="/authors" className="hover:text-indigo-600 transition-colors">Tác giả</Link>
@@ -237,12 +237,12 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
         </nav>
 
         {/* Header Block */}
-        <div className="bg-indigo-950 rounded-[2.5rem] p-6 lg:p-10 mb-8 relative overflow-hidden shadow-2xl shadow-indigo-200">
+        <div className="bg-indigo-950 rounded-[1.5rem] lg:rounded-[2rem] p-5 lg:p-7 mb-6 relative overflow-hidden shadow-2xl shadow-indigo-200">
            <div className="absolute top-0 right-0 w-1/3 h-full bg-indigo-500/10 blur-[100px]" aria-hidden="true"></div>
            <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-indigo-400/5 rounded-full blur-[80px]"></div>
            
-           <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8 lg:gap-14">
-              <div className="w-32 h-32 lg:w-48 lg:h-48 rounded-3xl overflow-hidden border-[8px] border-white/5 shadow-2xl bg-indigo-900 flex-shrink-0 group">
+           <div className="relative z-10 flex flex-col lg:flex-row items-center gap-6 lg:gap-10">
+              <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-2xl lg:rounded-3xl overflow-hidden border-[6px] border-white/5 shadow-2xl bg-indigo-900 flex-shrink-0 group">
                 <img 
                   src={authorInfo?.avatar || `https://ui-avatars.com/api/?name=${authorName}&background=4f46e5&color=fff&size=512&bold=true`} 
                   alt={authorName} 
@@ -251,55 +251,55 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
               </div>
 
               <div className="flex-1 text-center lg:text-left">
-                <div className="flex flex-wrap justify-center lg:justify-start items-center gap-2 mb-4">
-                  <span className="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-lg text-micro font-bold uppercase tracking-premium border border-indigo-500/20">Tác giả tiêu biểu</span>
-                  <span className="px-3 py-1 bg-white/5 text-slate-400 rounded-lg text-micro font-bold uppercase tracking-premium border border-white/5">{mainCategory}</span>
+                <div className="flex flex-wrap justify-center lg:justify-start items-center gap-2 mb-3">
+                  <span className="px-2.5 py-0.5 bg-indigo-500/20 text-indigo-300 rounded-lg text-micro font-bold uppercase tracking-premium border border-indigo-500/20">Tác giả tiêu biểu</span>
+                  <span className="px-2.5 py-0.5 bg-white/5 text-slate-400 rounded-lg text-micro font-bold uppercase tracking-premium border border-white/5">{mainCategory}</span>
                 </div>
                 
-                <h1 className="text-3xl lg:text-5xl font-extrabold text-white mb-6 tracking-tight leading-tight">{authorName}</h1>
+                <h1 className="text-2xl lg:text-3xl font-extrabold text-white mb-4 tracking-tight leading-tight">{authorName}</h1>
                 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 lg:gap-6">
-                  <div className="bg-white/5 p-3 rounded-2xl border border-white/5 backdrop-blur-sm">
-                    <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-1">Tác phẩm</p>
-                    <p className="text-2xl font-extrabold text-white">{authorBooks.length}</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-4">
+                  <div className="bg-white/5 p-2 rounded-xl border border-white/5 backdrop-blur-sm">
+                    <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-0.5">Tác phẩm</p>
+                    <p className="text-xl font-extrabold text-white">{authorBooks.length}</p>
                   </div>
-                  <div className="bg-white/5 p-3 rounded-2xl border border-white/5 backdrop-blur-sm">
-                    <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-1">Đánh giá</p>
-                    <p className="text-2xl font-extrabold text-white">4.9<span className="text-xs text-indigo-400">/5</span></p>
+                  <div className="bg-white/5 p-2 rounded-xl border border-white/5 backdrop-blur-sm">
+                    <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-0.5">Đánh giá</p>
+                    <p className="text-xl font-extrabold text-white">4.9<span className="text-[10px] text-indigo-400">/5</span></p>
                   </div>
-                  <div className="bg-white/5 p-3 rounded-2xl border border-white/5 backdrop-blur-sm">
-                    <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-1">Độc giả</p>
-                    <p className="text-2xl font-extrabold text-white">12k+</p>
+                  <div className="bg-white/5 p-2 rounded-xl border border-white/5 backdrop-blur-sm">
+                    <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-0.5">Độc giả</p>
+                    <p className="text-xl font-extrabold text-white">12k+</p>
                   </div>
-                  <div className="bg-white/5 p-3 rounded-2xl border border-white/5 backdrop-blur-sm">
-                    <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-1">Theo dõi</p>
-                    <p className="text-2xl font-extrabold text-white">4.2k</p>
+                  <div className="bg-white/5 p-2 rounded-xl border border-white/5 backdrop-blur-sm">
+                    <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-0.5">Theo dõi</p>
+                    <p className="text-xl font-extrabold text-white">4.2k</p>
                   </div>
                 </div>
               </div>
            </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Main Info Side */}
-          <div className="lg:col-span-8 space-y-10">
+          <div className="lg:col-span-8 space-y-6">
             
             {/* Biography Block */}
-            <div className="bg-white p-6 lg:p-10 rounded-[2.5rem] border border-slate-200/60 shadow-xl shadow-slate-200/40">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center">
-                  <i className="fa-solid fa-feather-pointed text-sm"></i>
+            <div className="bg-white p-6 lg:p-8 rounded-3xl border border-slate-200/60 shadow-xl shadow-slate-200/40">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-9 h-9 bg-slate-900 text-white rounded-xl flex items-center justify-center">
+                  <i className="fa-solid fa-feather-pointed text-xs"></i>
                 </div>
                 <div>
-                  <h2 className="text-lg font-extrabold text-slate-900 uppercase tracking-premium">Tiểu sử & Sự nghiệp</h2>
-                  <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Hành trình trải nghiệm và sáng tạo</p>
+                  <h2 className="text-base font-extrabold text-slate-900 uppercase tracking-premium">Tiểu sử & Sự nghiệp</h2>
+                  <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Hành trình sáng tác</p>
                 </div>
               </div>
 
               <div className="prose prose-slate max-w-none">
-                <p className="text-base text-slate-600 leading-[1.8] font-medium space-y-4">
+                <p className="text-sm text-slate-600 leading-[1.7] font-medium space-y-3">
                   {authorInfo?.bio?.split('\n').map((para, i) => (
-                    <span key={i} className="block mb-4">
+                    <span key={i} className="block mb-3">
                       {para}
                     </span>
                   )) || (
@@ -311,10 +311,10 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
               </div>
 
               {/* Genres Focus */}
-              <div className="mt-8 flex flex-wrap gap-2">
+              <div className="mt-6 flex flex-wrap gap-2">
                 <span className="text-micro font-bold text-slate-400 uppercase tracking-premium mr-2">Tags:</span>
                 {Array.from(new Set(authorBooks.map(b => b.category))).map(cat => (
-                  <Link key={cat} to={`/category/${cat}`} className="px-4 py-1.5 bg-slate-50 text-slate-600 rounded-full text-micro font-bold uppercase tracking-premium hover:bg-white hover:text-indigo-600 transition-all border border-slate-200 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-500/10">
+                  <Link key={cat} to={`/category/${cat}`} className="px-3 py-1 bg-slate-50 text-slate-600 rounded-full text-micro font-bold uppercase tracking-premium hover:bg-white hover:text-indigo-600 transition-all border border-slate-200 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-500/10">
                     {cat}
                   </Link>
                 ))}
@@ -323,22 +323,22 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
 
             {/* Works List */}
             <div>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 px-4 gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 px-2 lg:px-0 gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-indigo-100">
-                    <i className="fa-solid fa-book-bookmark text-sm"></i>
+                  <div className="w-9 h-9 bg-indigo-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-indigo-100">
+                    <i className="fa-solid fa-book-bookmark text-xs"></i>
                   </div>
                   <div>
-                    <h2 className="text-lg font-extrabold text-slate-900 uppercase tracking-premium">Tất cả tác phẩm</h2>
-                    <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Hiện có {authorBooks.length} cuốn trên giá sách DigiBook</p>
+                    <h2 className="text-base font-extrabold text-slate-900 uppercase tracking-premium">Tất cả tác phẩm</h2>
+                    <p className="text-micro font-bold text-slate-400 uppercase tracking-premium">Hơn {authorBooks.length} cuốn trên giá sách DigiBook</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200/60 shadow-sm">
+                <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200/60 shadow-sm">
                    <select 
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as any)}
-                    className="text-micro font-bold uppercase tracking-premium bg-transparent outline-none px-3 py-1.5 text-slate-600 cursor-pointer"
+                    className="text-micro font-bold uppercase tracking-premium bg-transparent outline-none px-2 py-1.5 text-slate-600 cursor-pointer"
                    >
                      <option value="newest">Mới nhất</option>
                      <option value="rating">Đánh giá cao</option>
@@ -349,7 +349,7 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
               </div>
 
               {sortedBooks.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-2 lg:px-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-2 lg:px-0">
                   {sortedBooks.map((book, index) => (
                     <AuthorBookCard 
                       key={book.id} 
@@ -361,8 +361,8 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
                   ))}
                 </div>
               ) : (
-                <div className="py-16 text-center bg-white rounded-[2.5rem] border-2 border-dashed border-slate-200">
-                  <i className="fa-solid fa-box-open text-4xl text-slate-200 mb-4"></i>
+                <div className="py-12 text-center bg-white rounded-3xl border-2 border-dashed border-slate-200">
+                  <i className="fa-solid fa-box-open text-3xl text-slate-200 mb-3"></i>
                   <p className="text-slate-400 font-bold uppercase tracking-premium text-micro">Hiện đang cập nhật thêm tác phẩm...</p>
                 </div>
               )}

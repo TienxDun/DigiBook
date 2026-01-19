@@ -18,7 +18,7 @@ export const MainContent: React.FC<{ children: React.ReactNode }> = ({ children 
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
   return (
-    <main className={`flex-grow ${isAdmin ? '' : 'pt-20 lg:pt-24'}`}>
+    <main className={`flex-grow ${isAdmin ? '' : 'pt-16 lg:pt-20'}`}>
       {children}
     </main>
   );

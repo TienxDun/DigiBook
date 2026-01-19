@@ -89,14 +89,14 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
   const currentCategory = categories.find(c => c.name.toLowerCase() === categoryName?.toLowerCase()) || categories[0] || { name: categoryName || 'Danh mục', icon: 'fa-book', description: 'Khám phá thế giới tri thức' };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 pb-20 fade-in" ref={topRef}>
+    <div className="min-h-screen bg-slate-50/50 pb-10 fade-in" ref={topRef}>
       <SEO 
         title={categoryName}
         description={`Khám phá danh mục ${categoryName} tại DigiBook. ${currentCategory.description}`}
         url={`/category/${categoryName}`}
       />
-      {isPromotionPage ? (
-        <section className="bg-indigo-600 pt-16 pb-12 relative overflow-hidden">
+      {isPromotionPage && (
+        <section className="bg-indigo-600 pt-10 pb-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-1/2 h-full bg-white/5 skew-x-12 translate-x-20"></div>
           <div className="max-w-7xl mx-auto px-4 relative z-10">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
@@ -137,12 +137,10 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
             </div>
           </div>
         </section>
-      ) : (
-        <div className="h-28"></div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 -mt-8 relative z-20">
-        <div className="sticky top-[80px] z-30 mb-10 p-2.5 bg-white/80 backdrop-blur-lg rounded-[2rem] border border-white/50 shadow-xl shadow-slate-200/50 flex items-center gap-3 overflow-hidden group transition-all duration-300">
+      <div className={`max-w-7xl mx-auto px-4 relative z-20 ${isPromotionPage ? '-mt-8' : 'mt-2'}`}>
+        <div className="sticky top-[64px] lg:top-[80px] z-30 mb-4 p-2.5 bg-white/80 backdrop-blur-lg rounded-[2rem] border border-white/50 shadow-xl shadow-slate-200/50 flex items-center gap-3 overflow-hidden group transition-all duration-300">
           <div className="flex-shrink-0 flex items-center gap-2 px-5 py-3 border-r border-slate-200 mr-2">
             <i className="fa-solid fa-layer-group text-indigo-500"></i>
             <span className="text-xs font-black text-slate-800 uppercase tracking-widest hidden sm:block">Chân dung tri thức</span>
@@ -188,7 +186,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
           </div>
         </div>
 
-        <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-lg shadow-slate-200/50 border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
+        <div className="bg-white p-3 sm:p-4 rounded-3xl shadow-lg shadow-slate-200/50 border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 mb-4">
           <div className="flex flex-wrap items-center gap-3">
              {!isPromotionPage && (
                <div className="flex items-center gap-3.5 mr-4">
@@ -255,14 +253,14 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5 mb-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5 mb-8">
             {[...Array(ITEMS_PER_PAGE)].map((_, i) => (
               <BookCardSkeleton key={i} />
             ))}
           </div>
         ) : paginatedBooks.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5 mb-16">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5 mb-8">
               {paginatedBooks.map(book => (
                 <BookCard key={book.id} book={book} onAddToCart={onAddToCart} onQuickView={onQuickView} />
               ))}
@@ -270,7 +268,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
             {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
           </>
         ) : (
-          <div className="col-span-full py-24 text-center bg-white rounded-3xl border-2 border-dashed border-slate-200">
+          <div className="col-span-full py-12 text-center bg-white rounded-3xl border-2 border-dashed border-slate-200">
             <i className="fa-solid fa-book-open-reader text-4xl text-slate-200 mb-5"></i>
             <h3 className="text-lg font-extrabold text-slate-900">Không tìm thấy sản phẩm nào</h3>
             <Link to="/" className="inline-block mt-6 px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-sm transition-all hover:scale-105">Quay lại trang chủ</Link>
@@ -278,7 +276,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
         )}
 
         {isPromotionPage && (
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white p-6 rounded-3xl border border-slate-100 flex items-start gap-5 group hover:shadow-lg transition-all">
               <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 text-lg group-hover:scale-110 transition-transform">
                 <i className="fa-solid fa-truck-fast"></i>
