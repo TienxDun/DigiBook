@@ -324,35 +324,43 @@ const Header: React.FC<HeaderProps> = ({
 
               {/* Quick Cart Preview Dropdown */}
               {showCartPreview && cartItems.length > 0 && (
-                <div className="absolute top-full right-0 mt-4 w-80 bg-white rounded-3xl shadow-2xl border border-slate-200/60 p-5 z-[100] animate-fadeIn">
-                  <div className="flex items-center justify-between mb-4">
-                    <p className="text-label font-extrabold text-slate-900 uppercase tracking-tight">Giỏ hàng nhanh</p>
-                    <span className="text-micro font-bold text-slate-400">{cartCount} sản phẩm</span>
+                <div className="absolute top-full right-0 mt-4 w-80 bg-white/90 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] border border-white p-6 z-[100] transition-all animate-framer-in origin-top-right">
+                  <div className="flex items-center justify-between mb-6">
+                    <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Giỏ hàng ({cartCount})</p>
+                    <Link to="/category/Tất cả sách" onClick={() => setShowCartPreview(false)} className="text-[9px] font-black text-indigo-500 uppercase tracking-widest hover:text-indigo-600">Xem thêm</Link>
                   </div>
-                  <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                  <div className="space-y-4 max-h-[280px] overflow-y-auto pr-2 custom-scrollbar -mr-1">
                     {cartItems.slice(0, 3).map(item => (
-                      <div key={item.id} className="flex gap-3">
-                        <img src={item.cover} alt="" className="w-12 h-16 rounded shadow-sm object-cover" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-micro font-extrabold text-slate-900 truncate leading-tight uppercase">{item.title}</p>
-                          <p className="text-micro font-bold text-slate-400">{item.quantity} x {item.price.toLocaleString()}đ</p>
+                      <div key={item.id} className="flex gap-4 group">
+                        <div className="w-14 h-18 rounded-xl overflow-hidden shadow-sm border border-slate-50 flex-shrink-0">
+                          <img src={item.cover} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        </div>
+                        <div className="flex-1 min-w-0 pt-1">
+                          <p className="text-[10px] font-black text-slate-900 line-clamp-1 uppercase tracking-tight">{item.title}</p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">{item.author}</p>
+                          <div className="flex items-center gap-2">
+                             <span className="text-[10px] font-black text-slate-600 bg-slate-50 px-1.5 py-0.5 rounded-md border border-slate-100">{item.quantity}x</span>
+                             <p className="text-[11px] font-black text-rose-500 tracking-tight">{(item.price * item.quantity).toLocaleString()}đ</p>
+                          </div>
                         </div>
                       </div>
                     ))}
                     {cartItems.length > 3 && (
-                      <p className="text-center text-micro font-bold text-indigo-500">Và {cartItems.length - 3} sản phẩm khác...</p>
+                      <div className="py-2 bg-slate-50 rounded-xl text-center">
+                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">+{cartItems.length - 3} sản phẩm khác</p>
+                      </div>
                     )}
                   </div>
-                  <div className="mt-4 pt-4 border-t border-slate-50">
-                    <div className="flex items-center justify-between mb-4">
-                      <p className="text-micro font-bold text-slate-500 uppercase tracking-premium">Tổng cộng:</p>
-                      <p className="text-label font-extrabold text-rose-600">{cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toLocaleString()}đ</p>
+                  <div className="mt-6 pt-6 border-t border-slate-100">
+                    <div className="flex items-end justify-between mb-6">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none pb-0.5">Tổng cộng</p>
+                      <p className="text-2xl font-black text-slate-900 tracking-tighter leading-none">{cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toLocaleString()}đ</p>
                     </div>
                     <button 
                       onClick={() => { onOpenCart(); setShowCartPreview(false); }}
-                      className="w-full py-3 bg-slate-900 text-white rounded-xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-600 transition-all"
+                      className="w-full py-4 bg-slate-900 text-white rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-xl shadow-slate-200 active:scale-95"
                     >
-                      Xem giỏ hàng chi tiết
+                      Mở giỏ hàng chi tiết
                     </button>
                   </div>
                 </div>

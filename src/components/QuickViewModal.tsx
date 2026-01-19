@@ -60,9 +60,11 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
             <div className="w-full md:w-5/12 bg-slate-50 p-6 flex flex-col items-center justify-center overflow-hidden relative group/img">
               <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-rose-500/5 to-purple-500/10 opacity-60"></div>
               <motion.div
+                initial={{ opacity: 0, scale: 1.2, rotate: -5 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                 className="relative z-10"
                 whileHover={{ scale: 1.05, y: -5 }}
-                transition={{ type: 'spring', damping: 15 }}
               >
                 <img 
                   src={book.cover} 
@@ -186,13 +188,16 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                     onAddToCart(book, quantity, { x: e.clientX, y: e.clientY });
                     onClose();
                   }}
-                  className={`w-full py-4 rounded-xl text-xs font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-xl ${
+                  className={`w-full py-4 rounded-xl text-xs font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-xl relative overflow-hidden group/btn ${
                     book.stockQuantity > 0 && isAvailable
                     ? 'bg-slate-900 text-white hover:bg-indigo-600 shadow-indigo-100'
                     : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
                   }`}
                 >
-                  <i className="fa-solid fa-cart-shopping text-sm"></i>
+                  {/* Button Shine Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 ease-in-out"></div>
+                  
+                  <i className="fa-solid fa-cart-shopping text-sm group-hover/btn:scale-110 transition-transform"></i>
                   {!isAvailable ? 'Sách ngừng bán' : 'Thêm vào giỏ hàng'}
                 </button>
 
@@ -202,14 +207,17 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                     className={`py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all border-2 active:scale-95 text-[10px] font-black uppercase tracking-widest ${
                       isWishlisted 
                         ? 'bg-rose-50 border-rose-200 text-rose-500' 
-                        : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'
+                        : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200 hover:text-rose-500'
                     }`}
                   >
                     <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-sm`}></i>
                     {isWishlisted ? 'Đã thích' : 'Yêu thích'}
                   </button>
                   <button 
-                    onClick={() => navigate(`/book/${book.id}`)}
+                    onClick={() => {
+                      onClose();
+                      navigate(`/book/${book.id}`);
+                    }}
                     className="py-3.5 rounded-xl border-2 border-slate-100 text-slate-400 flex items-center justify-center gap-2 hover:bg-slate-50 hover:border-slate-200 transition-all active:scale-95 text-[10px] font-black uppercase tracking-widest"
                   >
                     <i className="fa-solid fa-circle-info text-sm"></i>
@@ -220,18 +228,24 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
 
               {/* Trust Badges */}
               <div className="mt-8 pt-8 border-t border-slate-50 grid grid-cols-2 gap-4">
-                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs">
+                 <motion.div 
+                   whileHover={{ y: -3 }}
+                   className="flex items-center gap-3 group"
+                 >
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs shadow-sm group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
                        <i className="fa-solid fa-shield-halved"></i>
                     </div>
-                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">Chính hãng 100%</span>
-                 </div>
-                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xs">
+                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none group-hover:text-slate-900 transition-colors">Chính hãng 100%</span>
+                 </motion.div>
+                 <motion.div 
+                   whileHover={{ y: -3 }}
+                   className="flex items-center gap-3 group"
+                 >
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xs shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
                        <i className="fa-solid fa-rotate"></i>
                     </div>
-                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">Đổi trả 30 ngày</span>
-                 </div>
+                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none group-hover:text-slate-900 transition-colors">Đổi trả 30 ngày</span>
+                 </motion.div>
               </div>
             </div>
           </motion.div>
