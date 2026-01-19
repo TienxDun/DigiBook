@@ -96,18 +96,46 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
                     <p className={`text-xs font-semibold leading-relaxed ${isMidnight ? 'text-slate-400' : 'text-slate-500'}`}>{log.detail}</p>
                   </td>
                   <td className="px-8 py-6 text-center">
-                    <span className={`px-3 py-1.5 rounded-lg text-micro font-extrabold uppercase tracking-widest shadow-sm ${
+                    <span className={`px-2.5 py-1 rounded-lg text-micro font-black uppercase tracking-widest shadow-lg backdrop-blur-md flex items-center justify-center gap-1.5 w-fit mx-auto border ${
                       (log.status === 'SUCCESS' || (log.status as string) === 'success') 
-                      ? (isMidnight ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-emerald-50 text-emerald-600') :
+                      ? (isMidnight 
+                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-emerald-500/10' 
+                          : 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-600 border-emerald-100 shadow-emerald-100'
+                        ) :
                       (log.status === 'ERROR' || (log.status as string) === 'error') 
-                      ? (isMidnight ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-rose-50 text-rose-600') :
+                      ? (isMidnight 
+                          ? 'bg-rose-500/10 text-rose-400 border-rose-500/20 shadow-rose-500/10' 
+                          : 'bg-gradient-to-r from-rose-50 to-pink-50 text-rose-600 border-rose-100 shadow-rose-100'
+                        ) :
                       ((log.status as string) === 'warning' || (log.status as string) === 'WARNING') 
-                      ? (isMidnight ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-amber-50 text-amber-600') :
-                      (isMidnight ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-blue-50 text-blue-600')
+                      ? (isMidnight 
+                          ? 'bg-amber-500/10 text-amber-500 border-amber-500/20 shadow-amber-500/10' 
+                          : 'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-600 border-amber-100 shadow-amber-100'
+                        ) :
+                      (isMidnight 
+                          ? 'bg-blue-500/10 text-blue-400 border-blue-500/20 shadow-blue-500/10' 
+                          : 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 border-blue-100 shadow-blue-100'
+                      )
                     }`}>
-                      {(log.status === 'SUCCESS' || (log.status as string) === 'success') ? 'Thành công' :
-                       (log.status === 'ERROR' || (log.status as string) === 'error') ? 'Lỗi hệ thống' :
-                       ((log.status as string) === 'warning' || (log.status as string) === 'WARNING') ? 'Cảnh báo' : 'Thông tin'}
+                      {(log.status === 'SUCCESS' || (log.status as string) === 'success') ? (
+                          <>
+                            <i className="fa-solid fa-circle-check text-[9px] opacity-70"></i> Thành công
+                          </>
+                       ) :
+                       (log.status === 'ERROR' || (log.status as string) === 'error') ? (
+                          <>
+                            <i className="fa-solid fa-circle-xmark text-[9px] opacity-70"></i> Lỗi
+                          </>
+                       ) :
+                       ((log.status as string) === 'warning' || (log.status as string) === 'WARNING') ? (
+                          <>
+                            <i className="fa-solid fa-triangle-exclamation text-[9px] opacity-70"></i> Cảnh báo
+                          </>
+                       ) : (
+                          <>
+                             <i className="fa-solid fa-circle-info text-[9px] opacity-70"></i> Thông tin
+                          </>
+                       )}
                     </span>
                   </td>
                 </tr>

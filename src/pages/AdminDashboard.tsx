@@ -255,22 +255,6 @@ const AdminDashboard: React.FC = () => {
             </button>
           ))}
         </nav>
-
-        {/* Footer Sidebar - Dark Style */}
-        <div className="p-6 border-t border-white/[0.03] mx-4 mb-6 rounded-[2rem] transition-all bg-white/[0.02] hover:bg-white/[0.04]">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-indigo-500/10 border border-indigo-500/20 group">
-              <i className="fa-solid fa-crown text-indigo-400 group-hover:scale-110 transition-transform"></i>
-            </div>
-            <div className="min-w-0">
-              <span className="text-xs font-black uppercase block tracking-widest text-white truncate">Administrator</span>
-              <div className="flex items-center gap-2 mt-1.5">
-                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]"></div>
-                 <span className="text-xs font-black text-emerald-500/80 uppercase tracking-widest">Há»‡ thá»‘ng á»•n Ä‘á»‹nh</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </aside>
 
       {/* Main Content Area */}

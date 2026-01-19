@@ -295,12 +295,14 @@ const BookDetails: React.FC<{
                    {/* Badge Overlays */}
                    <div className="absolute top-6 left-6 flex flex-col gap-2">
                       {book.badge && (
-                        <span className="px-4 py-1.5 bg-indigo-600 text-white text-xs font-black uppercase tracking-widest rounded-full shadow-lg border border-white/20">
+                        <span className="px-2.5 py-1 bg-gradient-to-r from-rose-500 to-pink-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-rose-500/30 border border-white/20 backdrop-blur-md flex items-center gap-1.5 w-fit">
+                          <i className="fa-solid fa-crown text-[9px] text-yellow-200"></i>
                           {book.badge}
                         </span>
                       )}
                       {book.stockQuantity <= 5 && book.stockQuantity > 0 && (
-                        <span className="px-4 py-1.5 bg-amber-500 text-white text-xs font-black uppercase tracking-widest rounded-full shadow-lg border border-white/20">
+                        <span className="px-2.5 py-1 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-orange-500/30 border border-white/20 backdrop-blur-md flex items-center gap-1.5 w-fit">
+                           <i className="fa-solid fa-box-open text-[9px] text-white"></i>
                           Sắp hết hàng
                         </span>
                       )}

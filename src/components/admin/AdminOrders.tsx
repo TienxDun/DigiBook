@@ -167,12 +167,20 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                       onChange={(e) => handleUpdateOrderStatus(order.id, Number(e.target.value))}
                       className={`w-full px-4 py-2 rounded-xl text-micro font-extrabold uppercase tracking-widest border-none outline-none cursor-pointer transition-all shadow-sm appearance-none ${
                         order.statusStep === 3 
-                        ? (isMidnight ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-emerald-50 text-emerald-600') :
+                        ? (isMidnight 
+                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10' 
+                            : 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-600 border border-emerald-100 shadow-lg shadow-emerald-100') :
                         order.statusStep === 2 
-                        ? (isMidnight ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-indigo-50 text-indigo-600') :
+                        ? (isMidnight 
+                            ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-lg shadow-indigo-500/10' 
+                            : 'bg-gradient-to-r from-indigo-50 to-blue-50 text-indigo-600 border border-indigo-100 shadow-lg shadow-indigo-100') :
                         order.statusStep === 1 
-                        ? (isMidnight ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-blue-50 text-blue-600') :
-                        (isMidnight ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-amber-50 text-amber-600')
+                        ? (isMidnight 
+                            ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-lg shadow-blue-500/10' 
+                            : 'bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-600 border border-blue-100 shadow-lg shadow-blue-100') :
+                        (isMidnight 
+                            ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20 shadow-lg shadow-amber-500/10' 
+                            : 'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-600 border border-amber-100 shadow-lg shadow-amber-100')
                       }`}
                     >
                       {orderStatusOptions.map(status => (

@@ -89,24 +89,35 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
             {/* Right: Info Section */}
             <div className="w-full md:w-7/12 p-8 md:p-12 overflow-y-auto custom-scrollbar bg-white">
               <div className="flex flex-wrap gap-2 mb-6">
-                <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-black uppercase tracking-widest rounded-lg border border-indigo-100">
+                <span className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-indigo-100/50 flex items-center gap-1.5 backdrop-blur-md">
+                  <i className="fa-solid fa-shapes text-[9px]"></i>
                   {book.category}
                 </span>
                 {book.badge && (
-                  <span className="px-3 py-1 bg-rose-50 text-rose-500 text-xs font-black uppercase tracking-widest rounded-lg border border-rose-100">
+                  <span className="px-2.5 py-1 bg-gradient-to-r from-rose-500 to-pink-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-rose-500/30 border border-white/20 backdrop-blur-md flex items-center gap-1.5">
+                    <i className="fa-solid fa-crown text-[9px] text-yellow-200"></i>
                     {book.badge}
                   </span>
                 )}
+                {!book.badge && book.rating >= 4.8 && (
+                  <span className="px-2.5 py-1 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-orange-500/30 border border-white/20 backdrop-blur-md flex items-center gap-1.5">
+                    <i className="fa-solid fa-fire text-[9px] text-white"></i>
+                    Hot
+                  </span>
+                )}
                 {!isAvailable ? (
-                  <span className="px-3 py-1 bg-rose-600 text-white text-xs font-black uppercase tracking-widest rounded-lg border border-rose-700 shadow-sm">
+                  <span className="px-2.5 py-1 bg-slate-900/90 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-slate-900/20 border border-white/10 backdrop-blur-md flex items-center gap-1.5">
+                    <i className="fa-solid fa-ban text-[9px] text-slate-400"></i>
                     Ngừng kinh doanh
                   </span>
                 ) : book.stockQuantity > 0 ? (
-                  <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-xs font-black uppercase tracking-widest rounded-lg border border-emerald-100">
+                  <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-emerald-100 flex items-center gap-1.5">
+                    <i className="fa-solid fa-check text-[9px]"></i>
                     Sẵn hàng
                   </span>
                 ) : (
-                  <span className="px-3 py-1 bg-slate-100 text-slate-500 text-xs font-black uppercase tracking-widest rounded-lg">
+                  <span className="px-2.5 py-1 bg-slate-700/90 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-slate-700/20 border border-white/10 backdrop-blur-md flex items-center gap-1.5">
+                    <i className="fa-solid fa-box-open text-[9px] text-slate-400"></i>
                     Hết hàng
                   </span>
                 )}
