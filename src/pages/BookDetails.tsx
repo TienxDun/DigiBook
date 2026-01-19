@@ -230,17 +230,17 @@ const BookDetails: React.FC<{
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 lg:px-8 pt-10 lg:pt-12 pb-20 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 lg:px-8 pt-6 lg:pt-8 pb-12 relative z-10">
         
         {/* Navigation & Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
           >
-            <nav className="flex items-center gap-2 mb-6 text-xs font-bold uppercase tracking-premium text-slate-400">
+            <nav className="flex items-center gap-2 mb-3 text-sm font-bold uppercase tracking-premium text-slate-400">
               <Link to="/" className="hover:text-indigo-600 transition-all flex items-center gap-1">
-                <i className="fa-solid fa-house text-xs"></i> Trang chủ
+                <i className="fa-solid fa-house text-sm"></i> Trang chủ
               </Link>
               <i className="fa-solid fa-chevron-right text-xs opacity-30"></i>
               <Link to={`/category/${book.category}`} className="hover:text-indigo-600 transition-all">
@@ -271,14 +271,14 @@ const BookDetails: React.FC<{
           </motion.div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* LEFT: Premium Visual Container */}
-          <div className="lg:col-span-5 space-y-8">
+          <div className="lg:col-span-5 space-y-6">
              <motion.div 
                initial={{ opacity: 0, scale: 0.95 }}
                animate={{ opacity: 1, scale: 1 }}
-               className="bg-white p-4 lg:p-6 rounded-[3rem] shadow-2xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden group"
+               className="bg-white p-3 lg:p-4 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden group"
              >
                 {/* Visual Accent */}
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent"></div>
@@ -295,14 +295,14 @@ const BookDetails: React.FC<{
                    {/* Badge Overlays */}
                    <div className="absolute top-6 left-6 flex flex-col gap-2">
                       {book.badge && (
-                        <span className="px-2.5 py-1 bg-gradient-to-r from-rose-500 to-pink-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-rose-500/30 border border-white/20 backdrop-blur-md flex items-center gap-1.5 w-fit">
-                          <i className="fa-solid fa-crown text-[9px] text-yellow-200"></i>
+                        <span className="px-2.5 py-1 bg-gradient-to-r from-rose-500 to-pink-600 text-white text-[11px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-rose-500/30 border border-white/20 backdrop-blur-md flex items-center gap-1.5 w-fit">
+                          <i className="fa-solid fa-crown text-[10px] text-yellow-200"></i>
                           {book.badge}
                         </span>
                       )}
                       {book.stockQuantity <= 5 && book.stockQuantity > 0 && (
-                        <span className="px-2.5 py-1 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-orange-500/30 border border-white/20 backdrop-blur-md flex items-center gap-1.5 w-fit">
-                           <i className="fa-solid fa-box-open text-[9px] text-white"></i>
+                        <span className="px-2.5 py-1 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[11px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-orange-500/30 border border-white/20 backdrop-blur-md flex items-center gap-1.5 w-fit">
+                           <i className="fa-solid fa-box-open text-[10px] text-white"></i>
                           Sắp hết hàng
                         </span>
                       )}
@@ -317,17 +317,17 @@ const BookDetails: React.FC<{
                 </div>
 
                    {/* Quick Props Mirror */}
-                <div className="grid grid-cols-3 gap-2 mt-8 px-1">
+                <div className="grid grid-cols-3 gap-2 mt-4 px-1">
                    {[
                      { l: 'Định dạng', v: 'Bìa cứng', i: 'fa-book-bookmark', c: 'indigo' },
                      { l: 'Kích thước', v: '14x20.5cm', i: 'fa-ruler-combined', c: 'amber' },
                      { l: 'Trọng lượng', v: '450g', i: 'fa-weight-hanging', c: 'emerald' }
                    ].map((p, i) => (
-                     <div key={i} className="text-center group/prop p-2 rounded-2xl hover:bg-slate-50 transition-all">
-                        <div className={`w-9 h-9 mx-auto rounded-xl bg-slate-50 flex items-center justify-center mb-2 group-hover/prop:bg-white transition-colors border border-transparent group-hover/prop:border-slate-100`}>
+                     <div key={i} className="text-center group/prop p-1 rounded-2xl hover:bg-slate-50 transition-all">
+                        <div className={`w-8 h-8 mx-auto rounded-xl bg-slate-50 flex items-center justify-center mb-1 group-hover/prop:bg-white transition-colors border border-transparent group-hover/prop:border-slate-100`}>
                            <i className={`fa-solid ${p.i} text-slate-400 group-hover/prop:text-indigo-500 text-xs transition-colors`}></i>
                         </div>
-                        <p className="text-xs font-black text-slate-400 uppercase tracking-tight mb-1">{p.l}</p>
+                        <p className="text-[11px] font-black text-slate-400 uppercase tracking-tight mb-0.5">{p.l}</p>
                         <p className="text-xs font-bold text-slate-800 leading-tight">{p.v}</p>
                      </div>
                    ))}
@@ -340,7 +340,7 @@ const BookDetails: React.FC<{
                initial={{ opacity: 0, y: 20 }}
                whileInView={{ opacity: 1, y: 0 }}
                viewport={{ once: true }}
-               className="bg-white p-8 lg:p-10 rounded-[3rem] shadow-sm border border-slate-200/60 flex flex-col relative overflow-hidden"
+               className="bg-white p-6 lg:p-8 rounded-[2.5rem] shadow-sm border border-slate-200/60 flex flex-col relative overflow-hidden"
              >
                 {/* Decorative Background Pattern */}
                 <div className="absolute top-0 right-0 w-32 h-32 opacity-[0.03] pointer-events-none -mr-8 -mt-8">
@@ -351,7 +351,7 @@ const BookDetails: React.FC<{
                 </div>
 
                 {/* Tab-like header */}
-                <div className="flex items-center justify-between mb-8 relative z-10">
+                <div className="flex items-center justify-between mb-4 relative z-10">
                    <div className="flex items-center gap-3">
                       <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>
                       <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Tóm tắt tác phẩm</h3>
@@ -366,29 +366,27 @@ const BookDetails: React.FC<{
                 <motion.div 
                   layout
                   className="relative"
-                  animate={{ height: showFullDescription ? 'auto' : '220px' }}
+                  animate={{ height: showFullDescription ? 'auto' : '180px' }}
                   transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                   style={{ overflow: 'hidden' }}
                 >
-                  <div className="text-slate-600 text-xs lg:text-[14px] leading-relaxed font-medium whitespace-pre-line tracking-normal text-justify pr-1">
-                    <span className="text-4xl font-serif text-indigo-600/20 float-left mr-2 -mt-2 leading-none">“</span>
+                  <div className="text-slate-600 text-sm lg:text-base leading-relaxed font-medium whitespace-pre-line tracking-normal text-justify pr-1">
+                    <span className="text-4xl font-serif text-indigo-600/20 float-left mr-2 -mt-1 leading-none">“</span>
                     {book.description}
                   </div>
                   {!showFullDescription && (
-                    <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white via-white/95 to-transparent z-10"></div>
+                    <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-white via-white/95 to-transparent z-10"></div>
                   )}
                 </motion.div>
                 
                 <button 
                   onClick={() => setShowFullDescription(!showFullDescription)}
-                  className="mt-6 w-full py-4 rounded-2xl bg-slate-50 border border-slate-200/60 text-xs font-black text-indigo-600 uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-500 group relative z-20 shadow-sm hover:shadow-indigo-200"
+                  className="mt-4 w-full py-3 rounded-xl bg-slate-50 border border-slate-200/60 text-xs font-black text-indigo-600 uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-500 group relative z-20 shadow-sm"
                 >
                   <span className="relative">
-                    {showFullDescription ? 'Thu gọn nội dung' : 'Khám phá toàn bộ chi tiết'} 
+                    {showFullDescription ? 'Thu gọn nội dung' : 'Xem toàn bộ chi tiết'} 
                   </span>
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center bg-white shadow-sm group-hover:bg-white/20 transition-colors`}>
-                    <i className={`fa-solid fa-chevron-${showFullDescription ? 'up' : 'down'} text-xs transition-transform ${showFullDescription ? '' : 'animate-bounce'}`}></i>
-                  </div>
+                  <i className={`fa-solid fa-chevron-${showFullDescription ? 'up' : 'down'} text-xs transition-transform ${showFullDescription ? '' : 'animate-bounce'}`}></i>
                 </button>
                 
                 {/* Footer Metadata in card */}
@@ -407,48 +405,48 @@ const BookDetails: React.FC<{
              </motion.div>
 
              {/* Author Segment - Relocated for Better Flow */}
-             <div className="bg-white p-8 lg:p-10 rounded-[3rem] shadow-sm border border-slate-200/60 relative overflow-hidden flex flex-col">
+             <div className="bg-white p-6 lg:p-8 rounded-[2.5rem] shadow-sm border border-slate-200/60 relative overflow-hidden flex flex-col">
                 {/* Decorative Backgrounds */}
                 <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-100/10 rounded-full blur-[100px] -ml-32 -mt-32"></div>
                 <div className="absolute bottom-0 right-0 w-48 h-48 bg-rose-50/20 rounded-full blur-[80px] -mr-24 -mb-24"></div>
                 
                 <div className="relative z-10 h-full flex flex-col">
-                   <div className="flex items-center gap-3 mb-10">
+                   <div className="flex items-center gap-2 mb-6">
                       <div className="w-1.5 h-6 bg-slate-900 rounded-full"></div>
-                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Tác giả sản phẩm</h3>
+                      <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Tác giả sản phẩm</h3>
                    </div>
 
                    <div className="flex flex-col items-center text-center flex-grow w-full">
                       {/* Avatar with dynamic ring */}
-                      <div className="relative mb-8 group shrink-0">
-                         <div className="absolute -inset-3 bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 rounded-full blur-[20px] group-hover:from-indigo-500/30 group-hover:to-purple-500/30 transition-all duration-700 animate-pulse"></div>
-                         <div className="relative p-1 bg-white rounded-full shadow-2xl z-10">
+                      <div className="relative mb-6 group shrink-0">
+                         <div className="absolute -inset-2 bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 rounded-full blur-[15px] group-hover:from-indigo-500/30 group-hover:to-purple-500/30 transition-all duration-700 animate-pulse"></div>
+                         <div className="relative p-1 bg-white rounded-full shadow-xl z-10">
                             <img 
                               src={authorInfo?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(book.author)}&background=4f46e5&color=fff&bold=true&size=128`} 
-                              className="w-28 h-28 rounded-full object-cover border-2 border-slate-50 transition-transform group-hover:scale-105 duration-700" 
+                              className="w-24 h-24 rounded-full object-cover border-2 border-slate-50 transition-transform group-hover:scale-105 duration-700" 
                               alt={book.author} 
                             />
                          </div>
                          {/* Verified Badge */}
-                         <div className="absolute bottom-1 right-1 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center text-indigo-600 z-20 border-2 border-slate-50">
-                            <i className="fa-solid fa-circle-check text-sm"></i>
+                         <div className="absolute bottom-1 right-1 w-6 h-6 bg-white rounded-full shadow-lg flex items-center justify-center text-indigo-600 z-20 border-2 border-slate-50">
+                            <i className="fa-solid fa-circle-check text-[10px]"></i>
                          </div>
                       </div>
 
                       {/* Author Name */}
                       <Link 
                         to={`/author/${book.author}`} 
-                        className="text-2xl lg:text-3xl font-black text-slate-900 hover:text-indigo-600 transition-all mb-3 block leading-tight tracking-tighter px-4 overflow-hidden line-clamp-2"
+                        className="text-xl lg:text-2xl font-black text-slate-900 hover:text-indigo-600 transition-all mb-2 block leading-tight tracking-tighter px-4 overflow-hidden line-clamp-1"
                         title={book.author}
                       >
                         {book.author}
                       </Link>
 
                       {/* Category Badge */}
-                      <div className="flex items-center justify-center w-full px-4 mb-8">
-                         <div className="flex items-center gap-2 bg-white px-4 py-1.5 rounded-full shadow-sm border border-slate-100 max-w-full group/badge transition-all hover:border-indigo-100">
+                      <div className="flex items-center justify-center w-full px-4 mb-6">
+                         <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-full shadow-sm border border-slate-100 max-w-full group/badge transition-all hover:border-indigo-100">
                             <i className="fa-solid fa-award text-xs text-indigo-500/50 group-hover/badge:text-indigo-500 transition-colors"></i>
-                            <p className="text-xs font-black text-slate-400 uppercase tracking-widest truncate">
+                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest truncate">
                                <span className="opacity-70">Chuyên gia</span> 
                                <span className="mx-1 text-slate-300">|</span>
                                <span className="text-indigo-600">{book.category}</span>
@@ -457,18 +455,18 @@ const BookDetails: React.FC<{
                       </div>
                       
                       <div className="relative max-w-[320px] w-full px-4">
-                         <i className="fa-solid fa-quote-left absolute -top-4 -left-0 text-indigo-400/20 text-3xl"></i>
-                         <p className="text-xs text-slate-500 font-bold leading-relaxed line-clamp-4 italic mb-10 relative z-10 text-center">
+                         <i className="fa-solid fa-quote-left absolute -top-3 -left-0 text-indigo-400/20 text-2xl"></i>
+                         <p className="text-xs text-slate-500 font-bold leading-relaxed line-clamp-3 italic mb-8 relative z-10 text-center">
                             {book.authorBio || authorInfo?.bio || "Tác giả có nhiều đóng góp quan trọng trong lĩnh vực literary arts với những tác phẩm mang đậm phong cách cá nhân và giá trị nhân văn sâu sắc."}
                          </p>
                       </div>
 
                       <Link 
                         to={`/author/${book.author}`}
-                        className="mt-auto w-fit px-8 py-4 bg-white text-slate-900 rounded-2xl text-xs font-black uppercase tracking-[0.15em] border border-slate-200 shadow-sm hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all flex items-center gap-3 group whitespace-nowrap"
+                        className="mt-auto w-fit px-6 py-3 bg-white text-slate-900 rounded-xl text-xs font-black uppercase tracking-[0.1em] border border-slate-200 shadow-sm hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all flex items-center gap-2 group whitespace-nowrap"
                       >
-                         <span>Xem hồ sơ tác giả</span>
-                         <i className="fa-solid fa-arrow-right-long group-hover:translate-x-1.5 transition-transform"></i>
+                         <span>Xem hồ sơ</span>
+                         <i className="fa-solid fa-arrow-right-long group-hover:translate-x-1 transition-transform"></i>
                       </Link>
                    </div>
                 </div>
@@ -476,26 +474,26 @@ const BookDetails: React.FC<{
           </div>
 
           {/* RIGHT: Sophisticated Content Column */}
-          <div className="lg:col-span-7 space-y-8">
+          <div className="lg:col-span-7 space-y-6">
             
             {/* 1. Pricing & Core Actions Control */}
             <motion.div 
                initial={{ opacity: 0, y: 20 }}
                animate={{ opacity: 1, y: 0 }}
                transition={{ delay: 0.1 }}
-               className="bg-white p-8 lg:p-10 rounded-[3rem] shadow-sm border border-slate-200/60 relative overflow-hidden"
+               className="bg-white p-6 lg:p-8 rounded-[2.5rem] shadow-sm border border-slate-200/60 relative overflow-hidden"
             >
               {/* Decorative Glow */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -mr-16 -mt-16 opacity-50"></div>
 
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
                  <div className="flex-1">
-                    <div className="flex flex-wrap items-end gap-3 mb-3">
+                    <div className="flex flex-wrap items-end gap-2 mb-2">
                        <span className="text-5xl font-black text-rose-600 tracking-tighter leading-none">{formatPrice(book.price)}</span>
                        {book.originalPrice && (
                          <div className="flex flex-col mb-0.5">
                             <span className="text-sm font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-lg line-through leading-none mb-1 opacity-70 italic whitespace-nowrap">{formatPrice(book.originalPrice)}</span>
-                            <span className="text-xs font-black text-rose-600 uppercase tracking-widest leading-none">- {Math.round(((book.originalPrice - book.price) / book.originalPrice) * 100)}% Giảm giá</span>
+                            <span className="text-xs font-black text-rose-600 uppercase tracking-widest leading-none">- {Math.round(((book.originalPrice - book.price) / book.originalPrice) * 100)}%</span>
                          </div>
                        )}
                     </div>
@@ -505,43 +503,43 @@ const BookDetails: React.FC<{
                     </div>
                  </div>
 
-                 <div className="flex flex-col gap-4">
-                    <div className="flex items-center gap-1 p-1 bg-slate-100/50 border border-slate-200/50 rounded-2xl w-fit">
-                       <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 h-10 rounded-xl hover:bg-white hover:shadow-sm transition-all flex items-center justify-center text-slate-500"><i className="fa-solid fa-minus text-xs"></i></button>
+                 <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-1 p-0.5 bg-slate-100/50 border border-slate-200/50 rounded-xl w-fit">
+                       <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 h-10 rounded-lg hover:bg-white hover:shadow-sm transition-all flex items-center justify-center text-slate-500"><i className="fa-solid fa-minus text-xs"></i></button>
                        <span className="w-10 text-center font-black text-slate-900 text-sm">{quantity}</span>
-                       <button onClick={() => setQuantity(quantity + 1)} className="w-10 h-10 rounded-xl hover:bg-white hover:shadow-sm transition-all flex items-center justify-center text-slate-500"><i className="fa-solid fa-plus text-xs"></i></button>
+                       <button onClick={() => setQuantity(quantity + 1)} className="w-10 h-10 rounded-lg hover:bg-white hover:shadow-sm transition-all flex items-center justify-center text-slate-500"><i className="fa-solid fa-plus text-xs"></i></button>
                     </div>
                     {book.stockQuantity > 0 ? (
-                       <p className="text-xs font-black text-slate-400 uppercase tracking-tight pl-1">Tình trạng: <span className="text-emerald-600">Còn {book.stockQuantity} cuốn</span></p>
+                       <p className="text-xs font-black text-slate-400 uppercase tracking-tight pl-1">Tình trạng: <span className="text-emerald-600">Còn {book.stockQuantity}</span></p>
                     ) : (
-                       <p className="text-xs font-black text-rose-500 uppercase tracking-tight pl-1">Tình trạng: Hết hàng</p>
+                       <p className="text-xs font-black text-rose-500 uppercase tracking-tight pl-1">Hết hàng</p>
                     )}
                  </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-6">
                  <button 
                    onClick={(e) => onAddToCart(book, quantity, { x: e.clientX, y: e.clientY })}
                    disabled={book.stockQuantity <= 0}
-                   className="py-5 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 group flex items-center justify-center gap-3 active:scale-95 disabled:bg-slate-200 disabled:shadow-none"
+                   className="py-4 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 group flex items-center justify-center gap-2 active:scale-95 disabled:bg-slate-200 disabled:shadow-none text-sm"
                  >
                     <i className="fa-solid fa-cart-shopping text-sm group-hover:scale-110 transition-transform"></i>
                     Thêm vào giỏ hàng
                  </button>
                  <button 
                    onClick={handleToggleWishlist}
-                   className={`py-5 rounded-2xl font-black uppercase tracking-widest transition-all flex items-center justify-center gap-3 border-2 active:scale-95 ${
+                   className={`py-4 rounded-xl font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border-2 active:scale-95 text-sm ${
                      isWishlisted ? 'bg-rose-50 border-rose-100 text-rose-500' : 'bg-white border-slate-100 text-slate-400 hover:border-indigo-100 hover:text-indigo-600'
                    }`}
                  >
                     <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-sm`}></i>
-                    {isWishlisted ? 'Đã yêu thích' : 'Lưu danh sách'}
+                    {isWishlisted ? 'Đã thích' : 'Yêu thích'}
                  </button>
               </div>
             </motion.div>
 
             {/* 2. Metadata Grid Dashboard */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                {[
                  { l: 'Tác giả', v: book.author, i: 'fa-feather-pointed', color: 'bg-orange-50 text-orange-600' },
                  { l: 'Xuất bản', v: book.publishYear || 2024, i: 'fa-calendar-check', color: 'bg-blue-50 text-blue-600' },
@@ -550,64 +548,64 @@ const BookDetails: React.FC<{
                ].map((m, i) => (
                  <motion.div 
                    key={i}
-                   whileHover={{ y: -5, shadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }}
-                   className="bg-white p-5 rounded-[2.5rem] shadow-sm border border-slate-200/60 flex flex-col items-center text-center transition-all overflow-hidden"
+                   whileHover={{ y: -3, shadow: '0 8px 20px -5px rgba(0, 0, 0, 0.08)' }}
+                   className="bg-white p-4 rounded-[1.8rem] shadow-sm border border-slate-200/60 flex flex-col items-center text-center transition-all overflow-hidden"
                  >
-                    <div className={`w-12 h-12 ${m.color} rounded-2xl flex items-center justify-center mb-4 shadow-sm shrink-0`}>
-                       <i className={`fa-solid ${m.i} text-base`}></i>
+                    <div className={`w-10 h-10 ${m.color} rounded-xl flex items-center justify-center mb-3 shadow-sm shrink-0`}>
+                       <i className={`fa-solid ${m.i} text-xs`}></i>
                     </div>
                     <div className="w-full">
-                       <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">{m.l}</p>
-                       <p className="text-xs font-bold text-slate-800 line-clamp-2 leading-snug px-1 min-h-[40px] flex items-center justify-center">{m.v}</p>
+                       <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-0.5 leading-none">{m.l}</p>
+                       <p className="text-xs font-bold text-slate-800 line-clamp-1 leading-snug px-1">{m.v}</p>
                     </div>
                  </motion.div>
                ))}
             </div>
 
             {/* 3. AI Intelligence Card */}
-            <div className="bg-slate-900 p-8 lg:p-10 rounded-[3rem] shadow-2xl relative overflow-hidden flex flex-col justify-center border border-white/5">
+            <div className="bg-slate-900 p-6 lg:p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden flex flex-col justify-center border border-white/5">
                   <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/10 rounded-full blur-[80px] -mr-20 -mt-20"></div>
                   <div className="absolute bottom-0 left-0 w-40 h-40 bg-purple-500/10 rounded-full blur-[80px] -ml-20 -mb-20"></div>
 
                   <div className="relative z-10 flex flex-col h-full">
-                     <div className="flex items-center gap-4 mb-8">
-                        <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                           <i className="fa-solid fa-microchip text-white text-lg animate-pulse"></i>
+                     <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                           <i className="fa-solid fa-microchip text-white text-base animate-pulse"></i>
                         </div>
                         <div>
-                           <h4 className="text-sm font-black text-white uppercase tracking-widest leading-none mb-1.5">AI Analysis</h4>
+                           <h4 className="text-xs font-black text-white uppercase tracking-widest leading-none mb-1">AI Analysis</h4>
                            <div className="flex items-center gap-2">
-                             <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping"></div>
-                             <span className="text-xs font-bold text-indigo-300 uppercase tracking-widest">{activeModelName} active</span>
+                             <div className="w-1 h-1 bg-emerald-400 rounded-full animate-ping"></div>
+                             <span className="text-xs font-bold text-indigo-300 uppercase tracking-widest">{activeModelName}</span>
                            </div>
                         </div>
                      </div>
 
-                     <div className="flex-grow flex flex-col justify-center min-h-[160px] max-h-[250px] overflow-hidden">
+                     <div className="flex-grow flex flex-col justify-center min-h-[140px] max-h-[220px] overflow-hidden">
                         {aiInsight ? (
                           <motion.div 
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 h-full overflow-y-auto custom-scrollbar"
+                            className="bg-white/5 backdrop-blur-xl rounded-xl p-5 border border-white/10 h-full overflow-y-auto custom-scrollbar"
                           >
-                             <i className="fa-solid fa-quote-left text-2xl text-indigo-500/30 mb-4 block"></i>
-                             <p className="text-xs text-indigo-50 font-medium leading-relaxed italic pr-2">
+                             <i className="fa-solid fa-quote-left text-xl text-indigo-500/30 mb-3 block"></i>
+                             <p className="text-sm text-indigo-50 font-medium leading-relaxed italic pr-2">
                                {aiInsight}
                              </p>
                           </motion.div>
                         ) : (
-                          <div className="text-center py-4 bg-white/5 rounded-3xl border border-white/5 border-dashed">
-                             <p className="text-indigo-200/50 text-xs font-bold uppercase tracking-widest leading-relaxed mb-8 px-6">
-                               Sử dụng trí tuệ nhân tạo để phân tích sâu sắc về nội dung và giá trị văn học.
+                          <div className="text-center py-4 bg-white/5 rounded-2xl border border-white/5 border-dashed">
+                             <p className="text-indigo-200/50 text-xs font-bold uppercase tracking-widest leading-relaxed mb-6 px-6">
+                               Sử dụng trí tuệ nhân tạo để phân tích sâu sắc về nội dung.
                              </p>
                              <button 
                                onClick={handleGetAIInsight}
                                disabled={loadingAI}
-                               className="mx-auto w-[80%] py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-700 hover:scale-[1.02] transition-all shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
+                               className="mx-auto w-[80%] py-3 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest hover:bg-indigo-700 hover:scale-[1.02] transition-all shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 text-xs"
                              >
                                {loadingAI ? (
-                                 <div className="flex items-center gap-3">
-                                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                 <div className="flex items-center gap-2">
+                                   <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                    <span>Đang phân tích...</span>
                                  </div>
                                ) : (
@@ -624,94 +622,86 @@ const BookDetails: React.FC<{
                </div>
 
             {/* 4. Community & Reviews */}
-            <div className="bg-white rounded-[3rem] border border-slate-100 overflow-hidden shadow-sm">
-                <div className="p-8 lg:p-12 flex flex-col bg-white">
-                   <div className="flex items-center justify-between mb-10">
-                     <div className="flex items-center gap-3">
+            <div className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-sm">
+                <div className="p-6 lg:p-10 flex flex-col bg-white">
+                   <div className="flex items-center justify-between mb-8">
+                     <div className="flex items-center gap-2">
                         <div className="w-1.5 h-6 bg-amber-400 rounded-full"></div>
-                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Đánh giá thực tế</h3>
+                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Đánh giá</h3>
                      </div>
-                     <div className="flex items-center gap-3 bg-amber-50 px-5 py-2.5 rounded-[1.5rem] border border-amber-100 shadow-sm shadow-amber-500/5">
+                     <div className="flex items-center gap-2 bg-amber-50 px-4 py-2 rounded-xl border border-amber-100">
                         <span className="text-3xl font-black text-amber-600 leading-none">{book.rating}</span>
                         <div className="flex flex-col">
-                           <div className="flex gap-0.5 mb-0.5">
-                              {[1,2,3,4,5].map(s => <i key={s} className={`fa-solid fa-star text-xs ${s <= Math.floor(book.rating) ? 'text-amber-500' : 'text-amber-200'}`}></i>)}
+                           <div className="flex gap-0.5">
+                              {[1,2,3,4,5].map(s => <i key={s} className={`fa-solid fa-star text-[10px] ${s <= Math.floor(book.rating) ? 'text-amber-500' : 'text-amber-200'}`}></i>)}
                            </div>
-                           <p className="text-xs font-black text-amber-600/60 uppercase tracking-tighter leading-none">Điểm trung bình</p>
                         </div>
                      </div>
                    </div>
                    
-                   <div className="space-y-6 flex-grow overflow-y-auto max-h-[400px] pr-4 custom-scrollbar mb-8 -mr-2">
+                   <div className="space-y-4 flex-grow overflow-y-auto max-h-[300px] pr-2 custom-scrollbar mb-6 -mr-1">
                         {reviews.length > 0 ? (
                           reviews.map(r => (
                             <motion.div 
                               initial={{ opacity: 0, scale: 0.98 }}
                               whileInView={{ opacity: 1, scale: 1 }}
                               key={r.id} 
-                              className="group bg-slate-50/50 p-5 rounded-[2rem] border border-slate-200/50 hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-500 overflow-hidden"
+                              className="group bg-slate-50/50 p-4 rounded-2xl border border-slate-200/50 hover:bg-white hover:shadow-lg transition-all duration-500 overflow-hidden"
                             >
                               <div className="flex gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-white text-indigo-600 shadow-sm flex items-center justify-center font-black text-sm flex-shrink-0 border border-slate-200/60 group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all duration-500">
+                                <div className="w-10 h-10 rounded-xl bg-white text-indigo-600 shadow-sm flex items-center justify-center font-black text-xs flex-shrink-0 border border-slate-200/60 transition-all duration-500">
                                   {r.userName.charAt(0)}
                                 </div>
                                 <div className="flex-grow pt-0.5">
-                                  <div className="flex justify-between items-start mb-2">
+                                  <div className="flex justify-between items-start mb-1">
                                     <div className="flex flex-col">
                                        <span className="text-xs font-black text-slate-900 uppercase tracking-tight">{r.userName}</span>
                                        <div className="flex items-center gap-2 mt-0.5">
-                                          <span className={`text-xs font-bold uppercase tracking-widest flex items-center gap-1 ${r.isPurchased ? 'text-emerald-600/70' : 'text-slate-400/70'}`}>
-                                             <i className={`fa-solid ${r.isPurchased ? 'fa-circle-check' : 'fa-circle-info'} text-xs`}></i>
-                                             {r.isPurchased ? 'Đã mua hàng' : 'Chưa mua hàng'}
-                                          </span>
-                                          <span className="text-xs text-slate-300">•</span>
-                                          <span className="text-xs font-bold text-slate-400 uppercase tracking-tight">
-                                             {r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString('vi-VN') : 'Vừa xong'}
+                                          <span className={`text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 ${r.isPurchased ? 'text-emerald-600/70' : 'text-slate-400/70'}`}>
+                                             {r.isPurchased ? 'Đã mua' : 'Chưa mua'}
                                           </span>
                                        </div>
                                     </div>
-                                    <div className="flex gap-0.5 bg-white px-2 py-1 rounded-lg border border-slate-100 shadow-sm">
-                                      {[...Array(5)].map((_, i) => <i key={i} className={`fa-solid fa-star text-xs ${i < r.rating ? 'text-amber-400' : 'text-slate-100'}`}></i>)}
+                                    <div className="flex gap-0.5 bg-white px-1.5 py-0.5 rounded-md border border-slate-100 shadow-sm">
+                                      {[...Array(5)].map((_, i) => <i key={i} className={`fa-solid fa-star text-[10px] ${i < r.rating ? 'text-amber-400' : 'text-slate-100'}`}></i>)}
                                     </div>
                                   </div>
-                                  <p className="text-xs text-slate-600 font-medium leading-relaxed italic pr-2 break-words">"{r.content}"</p>
+                                  <p className="text-sm text-slate-600 font-medium leading-relaxed italic pr-2">"{r.content}"</p>
                                 </div>
                               </div>
                             </motion.div>
                           ))
                         ) : (
-                          <div className="h-full flex flex-col items-center justify-center py-16 bg-slate-50/30 rounded-[3rem] border border-dashed border-slate-200">
-                            <div className="w-20 h-20 bg-white rounded-[2.5rem] flex items-center justify-center text-slate-200 mb-6 shadow-inner">
-                               <i className="fa-solid fa-message-sparkles text-3xl"></i>
-                            </div>
-                            <p className="text-xs font-black text-slate-400 uppercase tracking-widest text-center px-8">Chưa có đánh giá nào cho tác phẩm này. Hãy chia sẻ cảm nhận của bạn!</p>
+                          <div className="h-full flex flex-col items-center justify-center py-10 bg-slate-50/30 rounded-[2rem] border border-dashed border-slate-200">
+                            <i className="fa-solid fa-message-sparkles text-2xl text-slate-200 mb-4"></i>
+                            <p className="text-xs font-black text-slate-400 uppercase tracking-widest text-center px-8">Chưa có đánh giá nào.</p>
                           </div>
                         )}
                       </div>
 
                       {/* Add Review Action Control */}
-                      <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-200/60">
-                         <div className="flex items-center justify-between mb-4 px-2">
-                            <p className="text-xs font-black text-slate-900 uppercase tracking-widest">Viết nhận xét của bạn</p>
-                            <div className="flex gap-2">
+                      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/60">
+                         <div className="flex items-center justify-between mb-3 px-1">
+                            <p className="text-xs font-black text-slate-900 uppercase tracking-widest">Viết nhận xét</p>
+                            <div className="flex gap-1.5">
                                {[1,2,3,4,5].map(s => (
-                                 <button key={s} onClick={() => setNewRating(s)} className={`text-sm transition-all hover:scale-125 ${s <= newRating ? 'text-amber-400 drop-shadow-sm' : 'text-slate-200'}`}>
+                                 <button key={s} onClick={() => setNewRating(s)} className={`text-sm transition-all hover:scale-125 ${s <= newRating ? 'text-amber-400' : 'text-slate-200'}`}>
                                    <i className="fa-solid fa-star"></i>
                                  </button>
                                ))}
                             </div>
                          </div>
-                         <div className="flex gap-3">
+                         <div className="flex gap-2">
                             <input 
                               type="text"
                               value={newComment} 
                               onChange={e => setNewComment(e.target.value)}
-                              placeholder="Trải nghiệm của bạn với cuốn sách này..." 
-                              className="flex-grow px-6 py-4 bg-white rounded-2xl outline-none focus:ring-4 ring-indigo-500/10 font-bold text-xs text-slate-700 transition-all border border-slate-200 focus:border-indigo-500 shadow-inner"
+                              placeholder="Trải nghiệm của bạn..." 
+                              className="flex-grow px-4 py-3 bg-white rounded-xl outline-none focus:ring-4 ring-indigo-500/10 font-bold text-sm text-slate-700 transition-all border border-slate-200 focus:border-indigo-500 shadow-inner"
                             />
                             <button 
                               onClick={handleAddReview} 
-                              className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg active:scale-95"
+                              className="px-6 py-3 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg active:scale-95"
                             >
                                Gửi
                             </button>
@@ -724,21 +714,21 @@ const BookDetails: React.FC<{
 
         {/* 5. Suggestions Sections - Separated with clean headers */}
         {relatedBooks.length > 0 && (
-          <div className="mt-16 pt-12 border-t border-slate-100 relative">
+          <div className="mt-10 pt-8 border-t border-slate-100 relative">
             {/* Visual Anchor */}
             <div className="absolute top-[-2px] left-0 w-24 h-1 bg-indigo-600 rounded-full"></div>
             
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
               <div>
-                <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-2">Gợi ý dành riêng cho bạn</h2>
-                <div className="flex items-center gap-3">
-                   <div className="w-1.5 h-1.5 bg-indigo-600 rounded-full"></div>
-                   <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Văn học thuộc chuyên mục {book.category}</p>
+                <h2 className="text-2xl font-black text-slate-900 tracking-tighter mb-1">Gợi ý khác</h2>
+                <div className="flex items-center gap-2">
+                   <div className="w-1 h-1 bg-indigo-600 rounded-full"></div>
+                   <p className="text-xs font-black text-slate-400 uppercase tracking-widest">{book.category}</p>
                 </div>
               </div>
-              <Link to={`/category/${book.category}`} className="w-fit px-8 py-4 bg-white text-slate-900 rounded-2xl text-xs font-black uppercase tracking-widest border border-slate-200 shadow-sm hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all flex items-center gap-3 group">
-                Khám phá tất cả
-                <i className="fa-solid fa-arrow-right-long transition-transform group-hover:translate-x-2"></i>
+              <Link to={`/category/${book.category}`} className="w-fit px-6 py-3 bg-white text-slate-900 rounded-xl text-xs font-black uppercase tracking-widest border border-slate-200 shadow-sm hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all flex items-center gap-2 group">
+                Xem tất cả
+                <i className="fa-solid fa-arrow-right-long transition-transform group-hover:translate-x-1"></i>
               </Link>
             </div>
             
@@ -747,7 +737,7 @@ const BookDetails: React.FC<{
                whileInView={{ opacity: 1, y: 0 }}
                transition={{ duration: 0.8 }}
                viewport={{ once: true }}
-               className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 lg:gap-8"
+               className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6"
             >
               {relatedBooks.map(b => (
                 <BookCard key={b.id} book={b} onAddToCart={onAddToCart} onQuickView={onQuickView} />
@@ -758,16 +748,16 @@ const BookDetails: React.FC<{
 
         {/* Recently Viewed - Minimal Style */}
         {recentBooks.length > 0 && (
-          <div className="mt-16 pt-12 border-t border-slate-100">
-            <div className="flex flex-col items-center text-center mb-10">
-               <div className="w-12 h-12 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center mb-4 shadow-inner">
-                  <i className="fa-solid fa-history"></i>
+          <div className="mt-10 pt-8 border-t border-slate-100">
+            <div className="flex flex-col items-center text-center mb-8">
+               <div className="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center mb-3 shadow-inner">
+                  <i className="fa-solid fa-history text-sm"></i>
                </div>
-               <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-3">Hành trình khám phá của bạn</h2>
-               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tiếp tục hành trình với những cuốn sách bạn đã quan tâm</p>
+               <h2 className="text-2xl font-black text-slate-900 tracking-tighter mb-1">Sách đã xem</h2>
+               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tiếp tục hành trình khám phá của bạn</p>
             </div>
             
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 lg:gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
               {recentBooks.map(b => (
                 <BookCard key={b.id} book={b} onAddToCart={onAddToCart} onQuickView={onQuickView} />
               ))}
@@ -784,46 +774,46 @@ const BookDetails: React.FC<{
             animate={{ y: 0, opacity: 1, x: '-50%' }}
             exit={{ y: 100, opacity: 0, x: '-50%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-8 left-1/2 z-[100] w-[95%] max-w-5xl"
+            className="fixed bottom-4 left-1/2 z-[100] w-[98%] max-w-5xl"
           >
-            <div className="bg-white/80 backdrop-blur-2xl border border-white/40 rounded-[2.5rem] p-2.5 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] flex items-center gap-3 lg:gap-6 ring-1 ring-slate-900/5 relative overflow-hidden group">
+            <div className="bg-white/80 backdrop-blur-2xl border border-white/40 rounded-[2rem] p-2 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.15)] flex items-center gap-3 lg:gap-4 ring-1 ring-slate-900/5 relative overflow-hidden group">
               {/* Subtle Animated Background Glow */}
               <div className="absolute -inset-x-20 top-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent animate-pulse"></div>
               
-              <div className="h-14 w-11 rounded-xl overflow-hidden shadow-md border border-white/50 ml-2 hidden sm:block flex-shrink-0">
+              <div className="h-12 w-9 rounded-lg overflow-hidden shadow-md border border-white/50 ml-1 hidden sm:block flex-shrink-0">
                 {!imageError && <img src={book.cover} className="w-full h-full object-cover" alt="" />}
               </div>
               
-              <div className="flex-grow min-w-0 pr-4 pl-1">
+              <div className="flex-grow min-w-0 pr-2 pl-1">
                 <div className="flex items-center gap-2 mb-0.5">
-                   <p className="text-slate-900 font-extrabold text-sm lg:text-base leading-tight truncate">{book.title}</p>
+                   <p className="text-slate-900 font-extrabold text-xs lg:text-sm leading-tight truncate">{book.title}</p>
                    {book.originalPrice && (
-                     <span className="hidden lg:inline-flex px-1.5 py-0.5 bg-rose-500 text-white text-xs font-black rounded-md">
+                     <span className="hidden lg:inline-flex px-1 py-0.5 bg-rose-500 text-white text-[11px] font-black rounded">
                         -{Math.round((1 - book.price / book.originalPrice) * 100)}%
                      </span>
                    )}
                 </div>
-                <div className="flex items-center gap-3">
-                   <p className="text-rose-600 font-black text-xl tracking-tight">{formatPrice(book.price)}</p>
-                   {book.originalPrice && <p className="text-slate-400 text-xs font-bold line-through opacity-40">{formatPrice(book.originalPrice)}</p>}
+                <div className="flex items-center gap-2">
+                   <p className="text-rose-600 font-black text-lg tracking-tight">{formatPrice(book.price)}</p>
+                   {book.originalPrice && <p className="text-slate-400 text-[11px] font-bold line-through opacity-40">{formatPrice(book.originalPrice)}</p>}
                 </div>
               </div>
               
-              <div className="flex items-center gap-3 pr-2">
+              <div className="flex items-center gap-2 pr-1">
                  {/* Quantity Selector - Refined */}
-                 <div className="hidden md:flex items-center bg-slate-100/80 rounded-2xl p-1 border border-slate-200/50">
+                 <div className="hidden md:flex items-center bg-slate-100/80 rounded-xl p-0.5 border border-slate-200/50">
                     <button 
                       onClick={() => setQuantity(Math.max(1, quantity - 1))} 
-                      className="w-10 h-10 rounded-xl hover:bg-white hover:text-indigo-600 transition-all text-slate-400 active:scale-90"
+                      className="w-8 h-8 rounded-lg hover:bg-white hover:text-indigo-600 transition-all text-slate-400 active:scale-90"
                     >
-                      <i className="fa-solid fa-minus text-xs"></i>
+                      <i className="fa-solid fa-minus text-[10px]"></i>
                     </button>
-                    <span className="w-8 text-center font-black text-slate-900 text-sm">{quantity}</span>
+                    <span className="w-6 text-center font-black text-slate-900 text-xs">{quantity}</span>
                     <button 
                       onClick={() => setQuantity(quantity + 1)} 
-                      className="w-10 h-10 rounded-xl hover:bg-white hover:text-indigo-600 transition-all text-slate-400 active:scale-90"
+                      className="w-8 h-8 rounded-lg hover:bg-white hover:text-indigo-600 transition-all text-slate-400 active:scale-90"
                     >
-                      <i className="fa-solid fa-plus text-xs"></i>
+                      <i className="fa-solid fa-plus text-[10px]"></i>
                     </button>
                  </div>
 
@@ -831,16 +821,13 @@ const BookDetails: React.FC<{
                  <button 
                    onClick={(e) => onAddToCart(book, quantity, { x: e.clientX, y: e.clientY })}
                    disabled={book.stockQuantity <= 0}
-                   className="h-14 px-8 lg:px-14 bg-slate-900 text-white rounded-[1.8rem] text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-xl shadow-slate-900/10 flex items-center justify-center gap-3 disabled:bg-slate-300 disabled:shadow-none whitespace-nowrap active:scale-95 group/btn"
+                   className="h-12 px-6 lg:px-10 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg flex items-center justify-center gap-2 disabled:bg-slate-300 disabled:shadow-none whitespace-nowrap active:scale-95 group/btn"
                  >
                    {book.stockQuantity > 0 ? (
                      <>
-                       <div className="relative">
-                          <i className="fa-solid fa-cart-shopping text-sm group-hover/btn:scale-110 transition-transform"></i>
-                          <span className="absolute -top-2 -right-2 w-2 h-2 bg-indigo-400 rounded-full animate-ping opacity-0 group-hover/btn:opacity-100"></span>
-                       </div>
-                       <span className="hidden sm:inline">THÊM VÀO GIỎ HÀNG</span>
-                       <span className="sm:hidden text-micro">GIỎ HÀNG</span>
+                       <i className="fa-solid fa-cart-shopping text-xs"></i>
+                       <span className="hidden sm:inline">VÀO GIỎ HÀNG</span>
+                       <span className="sm:hidden">MUA NGAY</span>
                      </>
                    ) : 'HẾT HÀNG'}
                  </button>
