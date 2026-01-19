@@ -89,8 +89,9 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn">
-      {/* Search & Filter Bar */}
+    <>
+      <div className="space-y-6 animate-fadeIn">
+        {/* Search & Filter Bar */}
       <div className={`${
         isMidnight 
         ? 'bg-[#1e293b]/50 backdrop-blur-xl border-white/5 shadow-2xl hover:border-indigo-500/30' 
@@ -241,35 +242,36 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
           </div>
         )}
       </div>
+    </div>
 
-      {/* Order Details Modal */}
-      <AnimatePresence>
-        {isOrderModalOpen && selectedOrder && (
+    {/* Order Details Modal */}
+    <AnimatePresence>
+      {isOrderModalOpen && selectedOrder && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-6"
+        >
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6"
-          >
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
-              onClick={() => setIsOrderModalOpen(false)}
-            />
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            onClick={() => setIsOrderModalOpen(false)}
+          />
 
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className={`${
-                isMidnight 
-                  ? 'bg-[#1e293b] border-white/10 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.7)]' 
-                  : 'bg-white border-slate-200 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.1)]'
-              } w-full max-w-[1000px] max-h-[85vh] overflow-hidden flex flex-col border relative z-10 rounded-[2.5rem]`}
-            >
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.98, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.98, y: 10 }}
+            transition={{ type: "spring", damping: 25, stiffness: 400 }}
+            className={`${
+              isMidnight 
+                ? 'bg-[#1e293b] border-white/10 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.7)]' 
+                : 'bg-white border-slate-200 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.1)]'
+            } w-full max-w-[1024px] max-h-[90vh] overflow-hidden flex flex-col border relative z-20 rounded-[2.5rem]`}
+          >
               {/* Header */}
               <div className={`px-8 py-5 flex items-center justify-between border-b ${isMidnight ? 'border-white/5' : 'border-slate-100'}`}>
                 <div>
@@ -292,6 +294,30 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
               
               <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
                 <div className="max-w-4xl mx-auto space-y-8">
+                  {/* Status Steps Bar */}
+                  <div className={`flex items-center gap-4 overflow-x-auto no-scrollbar py-1 ${isMidnight ? 'border-b border-white/5 pb-8' : 'border-b border-slate-100 pb-8'}`}>
+                    <span className={`text-xs font-black uppercase tracking-[0.2em] whitespace-nowrap ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Duyệt trạng thái:</span>
+                    <div className="flex gap-2">
+                      {orderStatusOptions.map(status => (
+                        <button
+                          key={status.step}
+                          disabled={updatingOrderStatus}
+                          onClick={() => handleUpdateOrderStatus(selectedOrder.id, status.step)}
+                          className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                            selectedOrder.statusStep === status.step
+                            ? (status.color === 'emerald' ? 'bg-emerald-600 text-white shadow-[0_8px_20px_-4px_rgba(16,185,129,0.4)]' :
+                               status.color === 'indigo' ? 'bg-indigo-600 text-white shadow-[0_8px_20px_-4px_rgba(79,70,229,0.4)]' :
+                               status.color === 'blue' ? 'bg-blue-600 text-white shadow-[0_8px_20px_-4px_rgba(37,99,235,0.4)]' :
+                               'bg-amber-600 text-white shadow-[0_8px_20px_-4px_rgba(217,119,6,0.4)]')
+                            : (isMidnight ? 'bg-white/5 text-slate-500 hover:text-white' : 'bg-white text-slate-400 hover:text-slate-600 border border-slate-100 hover:shadow-sm')
+                          }`}
+                        >
+                          {status.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-12 gap-6">
                     {/* Customer Info Card */}
                     <div className="col-span-12 md:col-span-6">
@@ -431,31 +457,8 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
               </div>
 
               {/* Footer / Actions */}
-              <div className={`px-8 py-5 flex items-center justify-between border-t ${isMidnight ? 'bg-white/5 border-white/10' : 'bg-slate-50/80 border-slate-100'}`}>
-                <div className="flex items-center gap-4 overflow-x-auto no-scrollbar py-1">
-                  <span className={`text-xs font-black uppercase tracking-[0.2em] whitespace-nowrap ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Duyệt trạng thái:</span>
-                  <div className="flex gap-2">
-                    {orderStatusOptions.map(status => (
-                      <button
-                        key={status.step}
-                        disabled={updatingOrderStatus}
-                        onClick={() => handleUpdateOrderStatus(selectedOrder.id, status.step)}
-                        className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-                          selectedOrder.statusStep === status.step
-                          ? (status.color === 'emerald' ? 'bg-emerald-600 text-white shadow-[0_8px_20px_-4px_rgba(16,185,129,0.4)]' :
-                             status.color === 'indigo' ? 'bg-indigo-600 text-white shadow-[0_8px_20px_-4px_rgba(79,70,229,0.4)]' :
-                             status.color === 'blue' ? 'bg-blue-600 text-white shadow-[0_8px_20px_-4px_rgba(37,99,235,0.4)]' :
-                             'bg-amber-600 text-white shadow-[0_8px_20px_-4px_rgba(217,119,6,0.4)]')
-                          : (isMidnight ? 'bg-white/5 text-slate-500 hover:text-white' : 'bg-white text-slate-400 hover:text-slate-600 border border-slate-100 hover:shadow-sm')
-                        }`}
-                      >
-                        {status.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="flex gap-3 shrink-0 ml-4">
+              <div className={`px-8 py-5 flex items-center justify-end border-t ${isMidnight ? 'bg-white/5 border-white/10' : 'bg-slate-50/80 border-slate-100'}`}>
+                <div className="flex gap-3 shrink-0">
                   <button
                     onClick={() => window.print()}
                     className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${
@@ -479,7 +482,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 };
 
