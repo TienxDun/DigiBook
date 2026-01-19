@@ -1,5 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import toast from 'react-hot-toast';
 import { db } from '../../services/db';
 import { Book, CategoryInfo, Author } from '../../types';
@@ -66,6 +67,49 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
 
   const totalPages = Math.ceil(filteredBooks.length / itemsPerPage);
   const paginatedBooks = filteredBooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // Render Badge Helper
+  const renderBadge = (badgeText: string, stockQuantity?: number, isTable: boolean = false) => {
+    let style = "from-rose-500 to-pink-600 shadow-rose-500/20";
+    let icon = "fa-crown";
+
+    const text = badgeText?.toLowerCase() || "";
+    if (text.includes("mới")) {
+      style = "from-emerald-500 to-teal-600 shadow-emerald-500/20";
+      icon = "fa-sparkles";
+    } else if (text.includes("giảm") || text.includes("sale")) {
+      style = "from-amber-500 to-orange-600 shadow-amber-500/20";
+      icon = "fa-percent";
+    } else if (text.includes("kinh điển")) {
+      style = "from-indigo-500 to-purple-600 shadow-indigo-500/20";
+      icon = "fa-book-bookmark";
+    } else if (stockQuantity === 0) {
+      style = "from-slate-700 to-slate-900 shadow-slate-900/20";
+      icon = "fa-box-open";
+      badgeText = "Hết hàng";
+    } else if (stockQuantity !== undefined && stockQuantity < 5 && !badgeText) {
+      style = "from-orange-500 to-rose-600 shadow-orange-500/20";
+      icon = "fa-triangle-exclamation";
+      badgeText = "Sắp hết";
+    } else if (stockQuantity !== undefined && stockQuantity > 100 && !badgeText) {
+      style = "from-rose-500 to-pink-600 shadow-rose-500/20";
+      icon = "fa-fire-flame-curved";
+      badgeText = "Bán chạy";
+    }
+
+    if (!badgeText && (stockQuantity === undefined || stockQuantity >= 5)) return isTable ? <span className="text-slate-400 text-micro font-bold uppercase tracking-widest">—</span> : null;
+
+    const baseClass = isTable 
+      ? `inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-tr ${style} text-white text-[10px] font-black uppercase tracking-wider rounded-lg shadow-md border border-white/10`
+      : `absolute -top-1.5 -right-1.5 px-2 py-0.5 bg-gradient-to-tr ${style} text-white text-[8px] font-black uppercase tracking-wider rounded-md shadow-lg border border-white/20 z-10 flex items-center gap-1 animate-fadeIn`;
+
+    return (
+      <div className={baseClass}>
+        <i className={`fa-solid ${icon} ${isTable ? "text-[9px]" : "text-[7px]"} ${text.includes("mới") ? "text-white" : "text-yellow-300"}`}></i>
+        {badgeText}
+      </div>
+    );
+  };
 
   const toggleSelectBook = (id: string) => {
     setSelectedBooks(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
@@ -383,7 +427,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
           <table className="w-full text-left border-collapse min-w-[1200px]">
           <thead>
             <tr className={`${isMidnight ? 'bg-slate-800/30' : 'bg-slate-50/50'} border-b ${isMidnight ? 'border-white/5' : 'border-slate-100'}`}>
-              <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium w-12 text-center">
+              <th className="px-4 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium w-14 text-center">
                 <div 
                   onClick={toggleSelectAllBooks}
                   className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
@@ -395,10 +439,11 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                   {selectedBooks.length === filteredBooks.length && filteredBooks.length > 0 && <i className="fa-solid fa-check text-xs"></i>}
                 </div>
               </th>
-              <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium">Thông tin sách</th>
-              <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium hidden md:table-cell">Giá bán</th>
-              <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium hidden lg:table-cell">Tồn kho</th>
-              <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium text-right">Thao tác</th>
+              <th className="px-4 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium min-w-[300px]">Thông tin sách</th>
+              <th className="px-4 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium hidden xl:table-cell w-40">Nhãn hiệu</th>
+              <th className="px-4 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium hidden md:table-cell w-32">Giá bán</th>
+              <th className="px-4 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium hidden lg:table-cell w-32">Tồn kho</th>
+              <th className="px-4 py-5 text-micro font-bold text-slate-400 uppercase tracking-premium text-right w-28">Thao tác</th>
             </tr>
           </thead>
           <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-slate-100'}`}>
@@ -408,7 +453,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                 ? (isMidnight ? 'bg-indigo-500/10' : 'bg-indigo-50/30') 
                 : (isMidnight ? 'hover:bg-white/5' : 'hover:bg-slate-50/50')
               }`}>
-                <td className="p-6 text-center">
+                <td className="px-4 py-4 text-center">
                   <div 
                     onClick={() => toggleSelectBook(book.id)}
                     className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
@@ -420,27 +465,25 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                     {selectedBooks.includes(book.id) && <i className="fa-solid fa-check text-xs"></i>}
                   </div>
                 </td>
-                <td className="p-6">
+                <td className="px-4 py-4">
                   <div className="flex items-center gap-4">
-                    <div className="relative group/cover">
-                      <img src={book.cover || '/placeholder-book.jpg'} alt={book.title} className="w-12 h-16 object-cover rounded-lg shadow-md transition-transform group-hover/cover:scale-110" />
-                      {book.badge && (
-                        <div className="absolute -top-2 -right-2 bg-indigo-600 text-white text-xs font-black px-1.5 py-0.5 rounded-full uppercase tracking-tighter shadow-lg">
-                          {book.badge}
-                        </div>
-                      )}
+                    <div className="relative group/cover flex-shrink-0">
+                      <img src={book.cover || '/placeholder-book.jpg'} alt={book.title} className="w-10 h-14 object-cover rounded-lg shadow-md transition-transform group-hover/cover:scale-110" />
                     </div>
-                    <div>
-                      <h3 className={`font-extrabold text-sm mb-0.5 line-clamp-1 ${isMidnight ? 'text-slate-200' : 'text-slate-900'}`}>{book.title}</h3>
-                      <p className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-500'}`}>{book.author}</p>
-                      <p className={`text-micro mt-1 md:hidden font-extrabold ${isMidnight ? 'text-slate-400' : 'text-slate-400'}`}>{formatPrice(book.price)} • {book.stockQuantity > 0 ? `${book.stockQuantity} cuốn` : 'Hết hàng'}</p>
+                    <div className="min-w-0">
+                      <h3 className={`font-extrabold text-sm mb-0.5 truncate ${isMidnight ? 'text-slate-200' : 'text-slate-900'}`}>{book.title}</h3>
+                      <p className={`text-micro font-bold uppercase tracking-premium truncate ${isMidnight ? 'text-slate-500' : 'text-slate-500'}`}>{book.author}</p>
+                      <p className={`text-micro mt-1 md:hidden font-extrabold whitespace-nowrap ${isMidnight ? 'text-slate-400' : 'text-slate-400'}`}>{formatPrice(book.price)} • {book.stockQuantity > 0 ? `${book.stockQuantity} cuốn` : 'Hết hàng'}</p>
                     </div>
                   </div>
                 </td>
-                <td className="p-6 hidden md:table-cell">
+                <td className="px-4 py-4 hidden xl:table-cell whitespace-nowrap">
+                  {renderBadge(book.badge || '', book.stockQuantity, true)}
+                </td>
+                <td className="px-4 py-4 hidden md:table-cell whitespace-nowrap">
                   <span className={`text-sm font-extrabold tracking-tight ${isMidnight ? 'text-indigo-400' : 'text-indigo-600'}`}>{formatPrice(book.price)}</span>
                 </td>
-                <td className="p-6 hidden lg:table-cell">
+                <td className="px-4 py-4 hidden lg:table-cell whitespace-nowrap">
                   <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-micro font-bold uppercase tracking-premium ${
                     book.stockQuantity > 10 
                     ? (isMidnight ? 'bg-emerald-500/10 text-emerald-400' : 'bg-emerald-50 text-emerald-600') :
@@ -455,7 +498,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                     {book.stockQuantity > 0 ? `${book.stockQuantity} quyển` : 'Hết hàng'}
                   </span>
                 </td>
-                <td className="p-6">
+                <td className="px-4 py-4 text-right whitespace-nowrap">
                   <div className="flex items-center justify-end gap-2">
                     <button 
                       onClick={() => handleEditBook(book)}
@@ -507,33 +550,35 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
       </div>
 
       {/* Book Modal */}
-      <AnimatePresence>
-        {isBookModalOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6"
-          >
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence mode="wait">
+          {isBookModalOpen && (
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
-              onClick={() => setIsBookModalOpen(false)}
-            />
-
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className={`${
-                isMidnight 
-                  ? 'bg-[#1e293b] border-white/10 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.7)]' 
-                  : 'bg-white border-slate-200 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.1)]'
-              } w-full max-w-[1000px] max-h-[90vh] overflow-hidden flex flex-col border relative z-10 rounded-[2rem]`}
+              key="admin-book-modal-portal"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-6 font-sans"
             >
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+                onClick={() => setIsBookModalOpen(false)}
+              />
+
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className={`${
+                  isMidnight 
+                    ? 'bg-[#1e293b] border-white/10 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.7)]' 
+                    : 'bg-white border-slate-200 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.1)]'
+                } w-full max-w-[1000px] max-h-[95vh] overflow-hidden flex flex-col border relative z-10 rounded-[2rem]`}
+              >
               <div className={`px-8 py-5 border-b flex items-center justify-between ${isMidnight ? 'border-white/5 bg-white/5' : 'border-slate-100 bg-slate-50/30'}`}>
                 <div className="flex items-center gap-4">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm shadow-inner ${editingBook ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600'}`}>
@@ -1032,13 +1077,9 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                               )}
 
                               {/* Live Badge Preview */}
-                              {bookFormData.badge && (
-                                <div className="absolute top-6 left-6 z-10 animate-fadeIn">
-                                  <span className="px-4 py-1.5 bg-slate-900/90 backdrop-blur-md text-white text-xs font-black uppercase tracking-widest rounded-lg border border-white/20 shadow-xl">
-                                    {bookFormData.badge}
-                                  </span>
-                                </div>
-                              )}
+                              <div className="absolute -top-2 -right-2 z-10 scale-125 origin-top-right">
+                                {renderBadge(bookFormData.badge || '', bookFormData.stockQuantity)}
+                              </div>
                            </div>
                            {bookFormData.title && (
                              <div className="mt-4 px-4 text-center">
@@ -1083,8 +1124,10 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
             </form>
           </motion.div>
         </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
       )}
-      </AnimatePresence>
     </div>
   );
 };
