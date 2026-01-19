@@ -96,7 +96,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
         url={`/category/${categoryName}`}
       />
       {isPromotionPage ? (
-        <section className="bg-indigo-600 pt-28 pb-16 relative overflow-hidden">
+        <section className="bg-indigo-600 pt-16 pb-12 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-1/2 h-full bg-white/5 skew-x-12 translate-x-20"></div>
           <div className="max-w-7xl mx-auto px-4 relative z-10">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-12">

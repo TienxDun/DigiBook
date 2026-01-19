@@ -8,7 +8,7 @@ const OrderSuccess: React.FC = () => {
   const orderId = location.state?.orderId || 'DB' + (Math.floor(Math.random() * 900000) + 100000);
   
   return (
-    <div className="container mx-auto px-6 py-24 lg:py-32 text-center fade-in max-w-2xl">
+    <div className="container mx-auto px-6 py-12 lg:py-20 text-center fade-in max-w-2xl">
       <motion.div 
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}

@@ -97,10 +97,9 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart, onQuickView })
 
   return (
     <div className="bg-slate-50/30 min-h-screen">
-      {/* Background Decor */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-rose-50/50 blur-[120px] rounded-full -z-10 translate-x-1/4 -translate-y-1/4"></div>
       
-      <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-20 lg:pt-24 pb-20">
+      <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-12 lg:pt-16 pb-16">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 lg:mb-16 gap-6">
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-rose-50 rounded-lg mb-4 border border-rose-100/50">
@@ -207,7 +206,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart, onQuickView })
             <p className="text-slate-500 text-sm">Thử tìm kiếm với từ khóa khác nhé!</p>
           </div>
         ) : (
-          <div className="py-24 lg:py-32 text-center bg-white rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group">
+          <div className="py-16 lg:py-20 text-center bg-white rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-50/30 to-transparent"></div>
             <div className="relative z-10">
               <div className="w-20 h-20 bg-rose-50 text-rose-300 rounded-2xl flex items-center justify-center mx-auto mb-8 rotate-12 group-hover:rotate-0 transition-transform duration-500">

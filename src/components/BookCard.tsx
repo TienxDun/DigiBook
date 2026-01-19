@@ -75,7 +75,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
         <div className="absolute -inset-0.5 bg-gradient-to-tr from-indigo-500/10 via-purple-500/10 to-rose-500/10 rounded-[2rem] blur opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
         {/* Media Container - Fixed Height */}
-        <div className="relative h-[200px] w-full rounded-[1.5rem] overflow-hidden bg-slate-50 mb-3 flex-shrink-0">
+        <div className="relative h-[170px] w-full rounded-[1.5rem] overflow-hidden bg-slate-50 mb-3 flex-shrink-0">
           
           {/* Status Badges */}
           <div className="absolute top-2 left-2 z-30 flex flex-col gap-1 items-start">
@@ -136,7 +136,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] z-20 flex flex-col justify-between p-4"
+                className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] z-20 flex flex-col justify-between p-3"
               >
                 {/* Top Quick Actions */}
                 <div className="flex justify-between items-start translate-y-[-10px] group-hover:translate-y-0 transition-transform duration-300">
@@ -204,14 +204,14 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
             <p className="text-slate-500 text-xs font-medium truncate italic">{book.author}</p>
           </div>
           
-          <div className="pt-2 flex items-end justify-between border-t border-slate-50 mt-1">
+          <div className="pt-2 flex items-center justify-between border-t border-slate-100 mt-auto">
             <div className="flex flex-col">
-              {book.originalPrice && (
-                <span className="text-[11px] text-slate-400 line-through">
+              {book.originalPrice && book.originalPrice > book.price && (
+                <span className="text-[10px] uppercase font-bold text-slate-400 line-through decoration-rose-400/50">
                   {formatPrice(book.originalPrice)}
                 </span>
               )}
-              <span className="text-base font-black text-rose-600 leading-tight">
+              <span className="text-base font-black text-rose-600 leading-none">
                 {formatPrice(book.price)}
               </span>
             </div>
@@ -223,13 +223,13 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
                 onAddToCart(book, 1, { x: e.clientX, y: e.clientY });
               }}
               disabled={stockQuantity <= 0 || !isAvailable}
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 ${
+              className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
                 (stockQuantity <= 0 || !isAvailable)
                   ? 'bg-slate-100 text-slate-300 cursor-not-allowed' 
-                  : 'bg-slate-900 text-white hover:bg-indigo-600 shadow-sm active:scale-95'
+                  : 'bg-indigo-600 text-white hover:bg-slate-900 shadow-lg shadow-indigo-200 active:scale-95'
               }`}
             >
-              <i className="fa-solid fa-plus text-xs"></i>
+              <i className="fa-solid fa-cart-shopping text-sm"></i>
             </button>
           </div>
         </div>

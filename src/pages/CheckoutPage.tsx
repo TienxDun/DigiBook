@@ -129,8 +129,8 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen pt-20 lg:pt-24 fade-in">
-      <div className="bg-white border-b border-slate-100 py-5 mb-8">
+    <div className="bg-slate-50 min-h-screen pt-12 lg:pt-16 fade-in">
+      <div className="bg-white border-b border-slate-100 py-3 mb-6">
         <div className="max-w-7xl mx-auto px-4">
           <div className="max-w-xl mx-auto flex items-center justify-between">
             {[

@@ -230,7 +230,7 @@ const BookDetails: React.FC<{
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 lg:px-8 pt-16 lg:pt-24 pb-24 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 lg:px-8 pt-10 lg:pt-12 pb-20 relative z-10">
         
         {/* Navigation & Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -722,7 +722,7 @@ const BookDetails: React.FC<{
 
         {/* 5. Suggestions Sections - Separated with clean headers */}
         {relatedBooks.length > 0 && (
-          <div className="mt-32 pt-20 border-t border-slate-100 relative">
+          <div className="mt-16 pt-12 border-t border-slate-100 relative">
             {/* Visual Anchor */}
             <div className="absolute top-[-2px] left-0 w-24 h-1 bg-indigo-600 rounded-full"></div>
             
@@ -756,9 +756,9 @@ const BookDetails: React.FC<{
 
         {/* Recently Viewed - Minimal Style */}
         {recentBooks.length > 0 && (
-          <div className="mt-32 pt-20 border-t border-slate-100">
-            <div className="flex flex-col items-center text-center mb-16">
-               <div className="w-12 h-12 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center mb-6 shadow-inner">
+          <div className="mt-16 pt-12 border-t border-slate-100">
+            <div className="flex flex-col items-center text-center mb-10">
+               <div className="w-12 h-12 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center mb-4 shadow-inner">
                   <i className="fa-solid fa-history"></i>
                </div>
                <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-3">Hành trình khám phá của bạn</h2>

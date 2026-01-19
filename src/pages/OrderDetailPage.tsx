@@ -69,7 +69,7 @@ const OrderDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="bg-slate-50 min-h-screen pt-12 lg:pt-24 pb-32">
+    <div className="bg-slate-50 min-h-screen pt-12 lg:pt-16 pb-16">
       <SEO title={`Đơn hàng #${orderWithItems.id}`} description={`Chi tiết trạng thái và sản phẩm của đơn hàng #${orderWithItems.id}`} />
       
       {/* Background Decor */}

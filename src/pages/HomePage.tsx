@@ -31,7 +31,7 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
         <div className="absolute top-0 right-0 w-1/2 h-full bg-slate-50 -skew-x-12 translate-x-32 hidden lg:block"></div>
         <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-slate-50/50 to-transparent lg:hidden"></div>
         
-        <div className="max-w-7xl mx-auto px-4 relative z-10 flex flex-col lg:flex-row items-center gap-10 pt-20 pb-8 lg:pt-28">
+        <div className="max-w-7xl mx-auto px-4 relative z-10 flex flex-col lg:flex-row items-center gap-10 pt-16 pb-6 lg:pt-20">
           <div className="flex-1 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 rounded-full text-indigo-600 text-micro font-extrabold uppercase tracking-ultra mb-4">
               <i className="fa-solid fa-wand-magic-sparkles"></i> New Generation Bookstore
@@ -214,7 +214,7 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
       </section>
 
       {/* Books Section */}
-      <section className="py-16 lg:py-24 bg-slate-50/50 relative overflow-hidden">
+      <section className="py-12 lg:py-16 bg-slate-50/50 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-50/50 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/3"></div>
         
         <div className="max-w-7xl mx-auto px-4 relative">
@@ -250,9 +250,9 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
       </section>
 
       {/* Promo Section */}
-      <section className="py-16 lg:py-24 bg-white">
+      <section className="py-12 lg:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4">
-           <div className="bg-slate-900 rounded-[2.5rem] lg:rounded-[4rem] p-8 lg:p-20 flex flex-col lg:flex-row items-center gap-10 lg:gap-12 relative overflow-hidden">
+           <div className="bg-slate-900 rounded-[2.5rem] lg:rounded-[4rem] p-8 lg:p-16 flex flex-col lg:flex-row items-center gap-10 lg:gap-12 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_120%,#4f46e5,transparent)] opacity-20"></div>
               
               <div className="flex-1 relative z-10 text-center lg:text-left">

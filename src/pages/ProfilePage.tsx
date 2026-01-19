@@ -131,7 +131,7 @@ const ProfilePage: React.FC = () => {
     }
 
     return (
-        <div className="bg-slate-50 min-h-screen py-12 lg:py-20">
+        <div className="bg-slate-50 min-h-screen py-10 lg:py-12">
             <div className="w-[92%] xl:w-[60%] mx-auto px-4">
                 <div className="max-w-4xl mx-auto">
                     {/* Header */}

@@ -99,7 +99,7 @@ const MyOrdersPage: React.FC = () => {
   }
 
   return (
-    <div className="bg-slate-50 min-h-screen pt-12 lg:pt-20 pb-32">
+    <div className="bg-slate-50 min-h-screen pt-12 lg:pt-16 pb-16">
       <SEO title="Đơn hàng của tôi" description="Quản lý và theo dõi lịch sử mua hàng của bạn tại DigiBook." />
       
       {/* Background Decor */}

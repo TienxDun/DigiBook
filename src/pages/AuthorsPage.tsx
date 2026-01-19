@@ -94,7 +94,7 @@ const AuthorsPage: React.FC = () => {
       <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-500/5 rounded-full blur-[120px] -z-10"></div>
       <div className="absolute top-1/2 -left-24 w-72 h-72 bg-purple-500/5 rounded-full blur-[100px] -z-10"></div>
 
-      <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-20 lg:pt-28">
+      <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-12 lg:pt-16">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 mb-8 text-micro font-bold uppercase tracking-premium text-slate-400">
           <Link to="/" className="hover:text-indigo-600 transition-colors">Trang chủ</Link>
@@ -276,7 +276,7 @@ const AuthorsPage: React.FC = () => {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="py-32 text-center"
+            className="py-16 text-center"
           >
              <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i className="fa-solid fa-user-slash text-3xl text-slate-300"></i>

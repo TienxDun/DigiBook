@@ -39,8 +39,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onAddToCart, onQuickView 
   }, [allBooks, query]);
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-28 lg:pt-32 pb-24 px-4 overflow-hidden">
-      <div className="max-w-7xl mx-auto mb-12">
+    <div className="min-h-screen bg-slate-50 pt-16 lg:pt-20 pb-16 px-4 overflow-hidden">
+      <div className="max-w-7xl mx-auto mb-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 rounded-lg mb-4">
