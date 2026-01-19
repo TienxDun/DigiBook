@@ -768,26 +768,26 @@ const BookDetails: React.FC<{
 
       {/* FIXED BUY BAR: Glassmorphism Ultra Premium */}
       <AnimatePresence>
-        {scrolled && (
+        {(scrolled || window.innerWidth < 1024) && (
           <motion.div 
-            initial={{ y: 100, opacity: 0, x: '-50%' }}
-            animate={{ y: 0, opacity: 1, x: '-50%' }}
-            exit={{ y: 100, opacity: 0, x: '-50%' }}
+            initial={{ y: 100, opacity: 0, x: window.innerWidth < 1024 ? 0 : '-50%' }}
+            animate={{ y: 0, opacity: 1, x: window.innerWidth < 1024 ? 0 : '-50%' }}
+            exit={{ y: 100, opacity: 0, x: window.innerWidth < 1024 ? 0 : '-50%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-            className="fixed bottom-6 left-1/2 z-[100] w-[95%] max-w-4xl"
+            className={`fixed left-0 lg:left-1/2 z-[100] w-full lg:w-[95%] lg:max-w-4xl transition-all duration-300 ${scrolled ? 'bottom-0 lg:bottom-6' : 'bottom-0 lg:-bottom-20'}`}
           >
-            <div className="bg-white/70 backdrop-blur-3xl border border-white/50 rounded-[2.5rem] p-2 pr-3 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.18)] flex items-center gap-4 ring-1 ring-slate-900/5 relative overflow-hidden group">
+            <div className={`bg-white/80 backdrop-blur-3xl border-t lg:border border-slate-200/50 lg:rounded-[2.5rem] p-4 lg:p-2 lg:pr-3 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] lg:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.18)] flex items-center justify-between lg:justify-start gap-4 ring-1 ring-slate-900/5 relative overflow-hidden group pb-safe-bottom`}>
               {/* Subtle Animated Background Glow */}
               <div className="absolute -inset-x-20 top-0 h-[2px] bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent animate-pulse"></div>
               
-              <div className="h-14 w-10.5 rounded-xl overflow-hidden shadow-lg border border-white/60 ml-1.5 hidden md:block flex-shrink-0 relative group/thumb">
+              <div className="h-14 w-10.5 rounded-xl overflow-hidden shadow-lg border border-white/60 ml-1.5 hidden sm:block flex-shrink-0 relative group/thumb">
                 {!imageError && <img src={book.cover} className="w-full h-full object-cover group-hover/thumb:scale-110 transition-transform duration-500" alt="" />}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent"></div>
               </div>
               
               <div className="flex-grow min-w-0 pl-1">
                 <div className="flex items-center gap-2 mb-0.5">
-                   <p className="text-slate-900 font-black text-[13px] leading-tight truncate tracking-tight">{book.title}</p>
+                   <p className="text-slate-900 font-black text-sm lg:text-[13px] leading-tight truncate tracking-tight">{book.title}</p>
                    {book.originalPrice && book.originalPrice > book.price && (
                      <span className="hidden lg:inline-flex px-1.5 py-0.5 bg-rose-500 text-white text-[9px] font-black rounded-lg shadow-sm shadow-rose-200 uppercase tracking-tighter">
                         -{Math.round((1 - book.price / book.originalPrice) * 100)}%
@@ -796,64 +796,38 @@ const BookDetails: React.FC<{
                 </div>
                 <div className="flex items-center gap-2.5">
                    <div className="flex items-baseline gap-1.5">
-                      <p className="text-rose-600 font-black text-xl tracking-tighter">{formatPrice(book.price)}</p>
+                      <p className="text-rose-600 font-black text-2xl lg:text-xl tracking-tighter">{formatPrice(book.price)}</p>
                       {book.originalPrice && book.originalPrice > book.price && (
                         <p className="text-slate-400 text-[11px] font-bold line-through opacity-50 decoration-slate-300">{formatPrice(book.originalPrice)}</p>
                       )}
                    </div>
-                   <div className="h-3 w-px bg-slate-200 hidden sm:block"></div>
-                   <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest hidden sm:block">
+                   <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest hidden lg:block">
                       <i className="fa-solid fa-bolt-lightning mr-1"></i>Giá sành điệu
                    </p>
                 </div>
               </div>
               
-              <div className="flex items-center gap-3">
-                 {/* Quantity Selector - More Polished */}
-                 <div className="hidden md:flex items-center bg-slate-100/60 rounded-[1.2rem] p-1 border border-slate-200/40 shadow-inner">
-                    <button 
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))} 
-                      className="w-8 h-8 rounded-lg bg-white/50 text-slate-500 hover:text-indigo-600 hover:bg-white shadow-sm transition-all active:scale-90 flex items-center justify-center border border-slate-200/50"
-                    >
-                      <i className="fa-solid fa-minus text-[10px]"></i>
-                    </button>
-                    <span className="w-8 text-center font-black text-slate-900 text-sm tracking-tighter">{quantity}</span>
-                    <button 
-                      onClick={() => setQuantity(quantity + 1)} 
-                      className="w-8 h-8 rounded-lg bg-white/50 text-slate-500 hover:text-indigo-600 hover:bg-white shadow-sm transition-all active:scale-90 flex items-center justify-center border border-slate-200/50"
-                    >
-                      <i className="fa-solid fa-plus text-[10px]"></i>
-                    </button>
-                 </div>
-
+              <div className="flex items-center gap-4">
                  {/* Action Buttons Grid */}
                  <div className="flex items-center gap-2">
                     <button 
                       onClick={handleToggleWishlist}
-                      className={`h-11 w-11 rounded-xl flex items-center justify-center transition-all border-2 active:scale-95 ${
+                      className={`h-12 w-12 lg:h-11 lg:w-11 rounded-2xl flex items-center justify-center transition-all border border-slate-200 active:scale-95 ${
                         isWishlisted 
-                        ? 'bg-rose-50 border-rose-100 text-rose-500' 
-                        : 'bg-white border-slate-100 text-slate-400 hover:text-rose-500 hover:border-rose-100 hover:shadow-sm'
+                        ? 'bg-rose-50 border-rose-100 text-rose-500 shadow-inner' 
+                        : 'bg-white text-slate-400 hover:text-rose-500 hover:bg-rose-50'
                       }`}
                     >
-                      <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-sm`}></i>
+                      <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-base lg:text-sm`}></i>
                     </button>
 
                     <button 
                       onClick={(e) => onAddToCart(book, quantity, { x: e.clientX, y: e.clientY })}
                       disabled={book.stockQuantity <= 0}
-                      className="h-12 px-6 lg:px-10 bg-slate-900 text-white rounded-[1.2rem] text-xs font-black uppercase tracking-[0.15em] hover:bg-indigo-600 hover:shadow-xl hover:shadow-indigo-500/30 transition-all shadow-lg shadow-slate-200 flex items-center justify-center gap-2.5 disabled:bg-slate-300 disabled:shadow-none whitespace-nowrap active:scale-[0.97] group/btn relative overflow-hidden"
+                      className="h-14 px-6 lg:h-12 lg:px-10 bg-indigo-600 text-white rounded-2xl lg:rounded-[1.2rem] text-xs lg:text-xs font-black uppercase tracking-widest hover:bg-slate-900 shadow-xl shadow-indigo-200 lg:shadow-indigo-500/30 transition-all flex items-center justify-center gap-2.5 disabled:bg-slate-300 disabled:shadow-none whitespace-nowrap active:scale-[0.97] group/btn relative overflow-hidden"
                     >
-                      {/* Button Shine Effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 ease-in-out"></div>
-                      
-                      {book.stockQuantity > 0 ? (
-                        <>
-                          <i className="fa-solid fa-cart-shopping text-sm group-hover/btn:scale-110 transition-transform"></i>
-                          <span className="hidden sm:inline">Vào giỏ ngay</span>
-                          <span className="sm:hidden">Mua ngay</span>
-                        </>
-                      ) : 'Hết hàng'}
+                      <i className="fa-solid fa-cart-shopping text-sm group-hover/btn:scale-110 transition-transform"></i>
+                      <span>{book.stockQuantity > 0 ? 'Thêm giỏ hàng' : 'Hết hàng'}</span>
                     </button>
                  </div>
               </div>

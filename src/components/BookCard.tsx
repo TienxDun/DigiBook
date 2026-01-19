@@ -51,15 +51,15 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
       className="w-full h-full"
     >
       <div 
-        className={`relative group flex flex-col h-[340px] bg-white rounded-[2rem] p-3 border border-slate-200/60 shadow-sm transition-all duration-500 w-full ${(!isAvailable || !hasStock) ? 'grayscale opacity-60' : 'hover:shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-300/50 hover:ring-4 hover:ring-indigo-500/5'}`}
+        className={`relative group flex flex-col min-h-[320px] lg:min-h-[340px] bg-white rounded-3xl sm:rounded-[2rem] p-2.5 sm:p-3 border border-slate-200/60 shadow-sm transition-all duration-500 w-full ${(!isAvailable || !hasStock) ? 'grayscale opacity-60' : 'hover:shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-300/50 hover:ring-4 hover:ring-indigo-500/5'}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Glow Effect on Hover */}
-        <div className="absolute -inset-0.5 bg-gradient-to-tr from-indigo-500/10 via-purple-500/10 to-rose-500/10 rounded-[2rem] blur opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+        <div className="absolute -inset-0.5 bg-gradient-to-tr from-indigo-500/10 via-purple-500/10 to-rose-500/10 rounded-3xl sm:rounded-[2rem] blur opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
-        {/* Media Container - Fixed Height */}
-        <div className="relative h-[170px] w-full rounded-[1.5rem] overflow-hidden bg-slate-50 mb-3 flex-shrink-0">
+        {/* Media Container - Improved Aspect Ratio */}
+        <div className="relative h-[160px] sm:h-[180px] w-full rounded-[1.2rem] sm:rounded-[1.5rem] overflow-hidden bg-slate-50 mb-3 flex-shrink-0">
           
           {/* Status Badges */}
           <div className={`absolute top-2 left-2 z-30 flex flex-col gap-1.5 items-start transition-all duration-300 ${isHovered ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`}>

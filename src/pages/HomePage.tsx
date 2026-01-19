@@ -27,16 +27,16 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
         url="/"
       />
       {/* Hero Section */}
-      <section className="relative min-h-[50vh] lg:min-h-[60vh] flex items-center overflow-hidden bg-white mt-[-80px] lg:mt-[-80px]">
+      <section className="relative min-h-[40vh] lg:min-h-[60vh] flex items-center overflow-hidden bg-white mt-[-80px] lg:mt-[-80px]">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-slate-50 -skew-x-12 translate-x-32 hidden lg:block"></div>
         <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-slate-50/50 to-transparent lg:hidden"></div>
         
-        <div className="max-w-7xl mx-auto px-4 relative z-10 flex flex-col lg:flex-row items-center gap-10 pt-16 pb-6 lg:pt-20">
+        <div className="max-w-7xl mx-auto px-4 relative z-10 flex flex-col lg:flex-row items-center gap-10 pt-12 pb-6 lg:pt-20">
           <div className="flex-1 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 rounded-full text-indigo-600 text-micro font-extrabold uppercase tracking-ultra mb-4">
               <i className="fa-solid fa-wand-magic-sparkles"></i> New Generation Bookstore
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold text-slate-900 leading-[1.1] mb-4 lg:mb-6 tracking-tighter">
+            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold text-slate-900 leading-[1.1] mb-3 lg:mb-6 tracking-tighter">
               Khai phá <br />
               <span className="text-indigo-600">Tiềm năng</span> <br />
               qua từng trang sách.
@@ -82,9 +82,9 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
       </section>
 
       {/* Quick Category Bar - Premium Navigation */}
-      <section className="sticky top-[72px] z-40 py-4 transition-all duration-500">
+      <section className="sticky top-[64px] lg:top-[80px] z-40 py-3 lg:py-4 transition-all duration-500">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="bg-slate-900/95 backdrop-blur-xl rounded-[1.5rem] border border-white/10 p-2 shadow-[0_20px_50px_-12px_rgba(79,70,229,0.3)] flex items-center gap-3 overflow-hidden">
+          <div className="bg-slate-900/95 backdrop-blur-xl rounded-2xl lg:rounded-[1.5rem] border border-white/10 p-1.5 lg:p-2 shadow-[0_20px_50px_-12px_rgba(79,70,229,0.3)] flex items-center gap-2 lg:gap-3 overflow-hidden">
             <div className="flex-shrink-0 flex items-center gap-2 pl-4 pr-5 border-r border-white/10 mr-1">
               <div className="relative">
                 <i className="fa-solid fa-compass text-indigo-400 text-sm"></i>
@@ -123,10 +123,10 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
       </section>
 
       {/* Intro Spotlight - Bento Integrated */}
-      <section className="py-8 lg:py-12 bg-white">
+      <section className="py-6 lg:py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="md:col-span-1 bg-cyan-50/50 p-6 rounded-3xl border border-cyan-100/50 flex flex-col gap-4 group">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 lg:gap-4">
+            <div className="md:col-span-1 bg-cyan-50/50 p-5 lg:p-6 rounded-[2rem] lg:rounded-3xl border border-cyan-100/50 flex flex-col gap-4 group">
                <div className="w-10 h-10 bg-cyan-500 text-white rounded-xl flex items-center justify-center text-sm shadow-lg shadow-cyan-500/20 group-hover:scale-110 transition-transform"><i className="fa-solid fa-certificate"></i></div>
                <div>
                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-1">Bản Quyền</h3>
@@ -156,7 +156,7 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
       </section>
 
       {/* Bento Spotlight Section - High Density Highlights */}
-      <section className="py-8 lg:py-12 bg-white">
+      <section className="py-6 lg:py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-2 lg:grid-cols-6 grid-rows-none auto-rows-fr gap-3 lg:gap-4 lg:h-[450px]">
             {/* Main Featured Book (Large) */}
@@ -164,15 +164,15 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
               <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_30%,rgba(99,102,241,0.2),transparent)]"></div>
               <div className="relative z-10 h-full flex flex-col justify-between">
                 <div>
-                  <span className="px-3 py-1 bg-indigo-600 text-xs font-bold uppercase tracking-premium rounded-full mb-6 inline-block">Editor's Choice</span>
-                  <h3 className="text-2xl lg:text-4xl font-extrabold mb-4 leading-tight tracking-tighter">Bestsellers <br/>của tháng.</h3>
-                  <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-[200px]">Bộ sưu tập tinh hoa hội tụ.</p>
+                  <span className="px-3 py-1 bg-indigo-600 text-[10px] font-bold uppercase tracking-premium rounded-full mb-4 lg:mb-6 inline-block">Editor's Choice</span>
+                  <h3 className="text-xl lg:text-4xl font-extrabold mb-3 lg:mb-4 leading-tight tracking-tighter">Bestsellers <br/>của tháng.</h3>
+                  <p className="text-slate-400 text-xs lg:text-sm font-medium leading-relaxed max-w-[150px] lg:max-w-[200px]">Bộ sưu tập tinh hoa hội tụ.</p>
                 </div>
-                <Link to="/category/Bán chạy" className="w-fit px-6 py-3 bg-white text-slate-900 rounded-xl font-bold text-xs uppercase tracking-premium hover:bg-indigo-500 hover:text-white transition-all">Khám phá</Link>
+                <Link to="/category/Bán chạy" className="w-fit px-5 lg:px-6 py-2.5 lg:py-3 bg-white text-slate-900 rounded-xl font-bold text-[10px] lg:text-xs uppercase tracking-premium hover:bg-indigo-500 hover:text-white transition-all">Khám phá</Link>
               </div>
               <img 
                 src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop" 
-                className="absolute -right-10 -bottom-10 w-48 lg:w-64 h-auto rotate-12 group-hover:rotate-6 group-hover:scale-110 transition-all duration-700 opacity-40 lg:opacity-100" 
+                className="absolute -right-6 -bottom-6 lg:-right-10 lg:-bottom-10 w-40 lg:w-64 h-auto rotate-12 group-hover:rotate-6 group-hover:scale-110 transition-all duration-700 opacity-40 lg:opacity-100" 
                 alt="" 
               />
             </div>
@@ -180,12 +180,12 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
             {/* AI Assistant Promo */}
             <div className="col-span-2 lg:col-span-3 bg-indigo-50 rounded-[2rem] p-6 lg:p-8 relative overflow-hidden group">
               <div className="relative z-10 flex items-center justify-between h-full">
-                <div className="max-w-[60%]">
-                  <h4 className="text-lg font-black text-slate-900 mb-2">Trợ lý AI</h4>
-                  <p className="text-sm text-slate-500 font-medium mb-4">Tìm cuốn sách phù hợp với tâm trạng của bạn ngay tức thì.</p>
-                  <Link to="/admin/ai" className="text-indigo-600 font-bold text-xs uppercase tracking-widest flex items-center gap-2">Thử ngay <i className="fa-solid fa-arrow-right"></i></Link>
+                <div className="max-w-[70%] lg:max-w-[60%]">
+                  <h4 className="text-base lg:text-lg font-black text-slate-900 mb-1 lg:mb-2 text-indigo-600">Trợ lý AI</h4>
+                  <p className="text-xs lg:text-sm text-slate-500 font-medium mb-3 lg:mb-4 leading-relaxed">Tìm cuốn sách phù hợp với tâm trạng của bạn ngay tức thì.</p>
+                  <Link to="/admin/ai" className="text-indigo-600 font-bold text-[10px] lg:text-xs uppercase tracking-widest flex items-center gap-2 group/link">Thử ngay <i className="fa-solid fa-arrow-right group-hover/link:translate-x-1 transition-transform"></i></Link>
                 </div>
-                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg text-indigo-500 text-2xl animate-bounce">
+                <div className="w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-2xl lg:rounded-full flex items-center justify-center shadow-xl shadow-indigo-100 text-indigo-500 text-xl lg:text-2xl animate-bounce">
                   <i className="fa-solid fa-robot"></i>
                 </div>
               </div>

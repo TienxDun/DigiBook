@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { CartItem, CategoryInfo, Book } from '../types';
 import { useAuth } from '../AuthContext';
 
@@ -34,6 +35,7 @@ const Header: React.FC<HeaderProps> = ({
   const [searchSuggestions, setSearchSuggestions] = useState<Book[]>([]);
   const [showCartPreview, setShowCartPreview] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
   useEffect(() => {
     setSearchValue(searchQuery);
@@ -287,8 +289,16 @@ const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           
+          {/* Mobile Search Toggle */}
+          <button 
+            onClick={() => setIsMobileSearchOpen(true)}
+            className="md:hidden w-10 h-10 rounded-xl text-slate-500 hover:bg-slate-100 transition-all flex items-center justify-center"
+          >
+            <i className="fa-solid fa-magnifying-glass text-lg"></i>
+          </button>
+
           <div className="flex items-center p-1 bg-slate-100/50 rounded-2xl relative">
             {/* Wishlist Icon */}
             <Link 
@@ -447,6 +457,81 @@ const Header: React.FC<HeaderProps> = ({
           )}
         </div>
       </div>
+      {/* Mobile Search Overlay */}
+      <AnimatePresence>
+        {isMobileSearchOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed inset-0 bg-white z-[120] p-4 flex flex-col"
+          >
+            <div className="flex items-center gap-4 mb-6">
+              <button 
+                onClick={() => setIsMobileSearchOpen(false)}
+                className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500"
+              >
+                <i className="fa-solid fa-arrow-left"></i>
+              </button>
+              <div className="flex-1 relative">
+                <input 
+                  autoFocus
+                  type="text" 
+                  placeholder="Tìm kiếm sách..." 
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      onSearch(searchValue);
+                      navigate(`/search/${encodeURIComponent(searchValue.trim())}`);
+                      setIsMobileSearchOpen(false);
+                      setIsSearchFocused(false);
+                    }
+                  }}
+                  className="w-full py-3 px-4 bg-slate-100 rounded-2xl text-label font-bold outline-none border border-transparent focus:border-indigo-200 focus:bg-white transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto">
+              {searchValue.trim().length >= 2 ? (
+                <div className="space-y-4">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Kết quả gợi ý</p>
+                  {searchSuggestions.map(book => (
+                    <Link 
+                      key={book.id}
+                      to={`/book/${book.id}`}
+                      onClick={() => {
+                        setIsMobileSearchOpen(false);
+                        setIsSearchFocused(false);
+                      }}
+                      className="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-2xl transition-all"
+                    >
+                      <img src={book.cover} alt="" className="w-14 h-20 rounded-xl object-cover shadow-sm" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-label font-extrabold text-slate-900 truncate uppercase tracking-tight">{book.title}</p>
+                        <p className="text-micro font-bold text-slate-400">{book.author}</p>
+                        <p className="text-label font-black text-rose-600 mt-1">{book.price.toLocaleString()}đ</p>
+                      </div>
+                    </Link>
+                  ))}
+                  {searchSuggestions.length === 0 && (
+                    <div className="py-20 text-center">
+                      <i className="fa-solid fa-face-frown text-4xl text-slate-200 mb-4"></i>
+                      <p className="text-slate-400 font-bold">Không tìm thấy sách phù hợp</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="py-12 text-center text-slate-300">
+                  <i className="fa-solid fa-magnifying-glass text-5xl mb-4 opacity-20"></i>
+                  <p className="text-sm font-bold uppercase tracking-widest opacity-40">Nhập từ khóa để tìm kiếm</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 };
