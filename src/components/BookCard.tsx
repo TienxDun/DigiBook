@@ -107,34 +107,26 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
               alt={book.title} 
               onLoad={() => setImgLoaded(true)}
               loading="lazy"
-              animate={isHovered ? { scale: 1.05, filter: 'blur(1px)' } : { scale: 1, filter: 'blur(0px)' }}
-              transition={{ duration: 0.5 }}
+              animate={isHovered ? { scale: 1.1, filter: 'blur(2px) brightness(0.8)' } : { scale: 1, filter: 'blur(0px) brightness(1)' }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               className={`w-full h-full object-cover ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
             />
           </Link>
 
-          {/* Quick Info Overlay on Hover */}
+          {/* Quick Info Overlay on Hover - Redesigned for Premium Look */}
           <AnimatePresence>
             {isHovered && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] z-20 flex flex-col justify-between p-3"
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-[4px] z-20 flex flex-col items-center justify-center p-4 pb-16"
               >
-                {/* Top Quick Actions */}
-                <div className="flex justify-between items-start translate-y-[-10px] group-hover:translate-y-0 transition-transform duration-300">
-                  <div className="flex flex-col gap-1">
-                    <span className="bg-indigo-600 text-white text-xs font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">
-                      {book.category}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Center Button */}
+                {/* Center Button: Clear & Primary Action */}
                 <motion.button
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.1, duration: 0.4 }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={(e) => {
@@ -142,33 +134,37 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
                     e.stopPropagation();
                     if (onQuickView) onQuickView(book);
                   }}
-                  className="mx-auto w-12 h-12 bg-white text-slate-900 rounded-full shadow-2xl flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all duration-300"
+                  className="flex flex-col items-center gap-2 group/btn"
                 >
-                  <i className="fa-solid fa-expand text-sm"></i>
+                  <div className="w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-full flex items-center justify-center group-hover/btn:bg-white group-hover/btn:text-slate-900 transition-all duration-300 shadow-xl">
+                    <i className="fa-solid fa-eye text-sm"></i>
+                  </div>
                 </motion.button>
 
-                {/* Bottom Quick Stats */}
-                <div className="translate-y-[20px] group-hover:translate-y-0 transition-transform duration-300 flex flex-col gap-2">
-                   <div className="flex justify-around bg-white/90 backdrop-blur-md rounded-xl py-2 px-3 border border-white/20">
-                      <div className="flex flex-col items-center">
-                        <span className="text-xs font-bold text-slate-700">{book.pages}</span>
-                        <span className="text-[10px] uppercase text-slate-400 font-bold tracking-tighter">Trang</span>
+                {/* Bottom Quick Stats: Integrated & Clean */}
+                <motion.div 
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.2, duration: 0.4 }}
+                  className="absolute bottom-4 left-4 right-4"
+                >
+                   <div className="flex justify-around items-center bg-white/10 backdrop-blur-xl rounded-2xl py-2 px-1 border border-white/10">
+                      <div className="flex flex-col items-center flex-1">
+                        <span className="text-[11px] font-black text-white leading-none mb-1">{book.pages}</span>
+                        <span className="text-[8px] uppercase text-white/50 font-bold tracking-widest">Trang</span>
                       </div>
-                      <div className="w-px h-4 bg-slate-200 self-center"></div>
-                      <div className="flex flex-col items-center">
-                        <span className="text-xs font-bold text-emerald-600">Free</span>
-                        <span className="text-[10px] uppercase text-slate-400 font-bold tracking-tighter">Ship</span>
+                      <div className="w-px h-6 bg-white/10"></div>
+                      <div className="flex flex-col items-center flex-1">
+                        <span className="text-[11px] font-black text-white leading-none mb-1">FREE</span>
+                        <span className="text-[8px] uppercase text-white/50 font-bold tracking-widest">Ship</span>
                       </div>
-                      <div className="w-px h-4 bg-slate-200 self-center"></div>
-                      <div className="flex flex-col items-center">
-                        <span className="text-xs font-bold text-indigo-600">{book.language === 'Tiếng Việt' ? 'VN' : 'EN'}</span>
-                        <span className="text-[10px] uppercase text-slate-400 font-bold tracking-tighter">Ngôn ngữ</span>
+                      <div className="w-px h-6 bg-white/10"></div>
+                      <div className="flex flex-col items-center flex-1">
+                        <span className="text-[11px] font-black text-white leading-none mb-1">{book.language === 'Tiếng Việt' ? 'VN' : 'EN'}</span>
+                        <span className="text-[8px] uppercase text-white/50 font-bold tracking-widest">Bản</span>
                       </div>
                    </div>
-                   <p className="text-xs text-white/90 font-medium line-clamp-1 italic text-center">
-                      "{book.description?.substring(0, 40)}..."
-                   </p>
-                </div>
+                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>

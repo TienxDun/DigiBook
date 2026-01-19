@@ -57,160 +57,165 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
             </button>
 
             {/* Left: Image Section */}
-            <div className="w-full md:w-5/12 bg-slate-50 p-8 flex flex-col items-center justify-center overflow-hidden relative group/img">
-              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.05),transparent)]"></div>
+            <div className="w-full md:w-5/12 bg-slate-50 p-6 flex flex-col items-center justify-center overflow-hidden relative group/img">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-rose-500/5 to-purple-500/10 opacity-60"></div>
               <motion.div
                 className="relative z-10"
-                whileHover={{ scale: 1.05, rotate: -2 }}
-                transition={{ type: 'spring', stiffness: 200 }}
+                whileHover={{ scale: 1.05, y: -5 }}
+                transition={{ type: 'spring', damping: 15 }}
               >
                 <img 
                   src={book.cover} 
                   alt={book.title}
-                  className="w-full max-w-[260px] h-auto object-cover rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.3)] border border-slate-200/50"
+                  className="w-full max-w-[240px] h-auto object-cover rounded-2xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] border border-white/50 relative z-20"
                 />
-                <div className="absolute inset-0 bg-indigo-600/10 blur-3xl rounded-full -z-10 group-hover/img:bg-indigo-600/20 transition-all duration-700 scale-150"></div>
+                {/* Visual shadow glow */}
+                <div className="absolute inset-0 bg-slate-900/60 blur-2xl rounded-2xl transform translate-y-8 scale-90 -z-10 opacity-30"></div>
               </motion.div>
               
-              {/* Image Footer Info */}
-              <div className="mt-8 flex gap-4 text-slate-400">
-                <div className="flex flex-col items-center">
-                   <span className="text-sm font-bold text-slate-900">{book.pages}</span>
-                   <span className="text-xs uppercase font-bold tracking-widest">Trang</span>
+              {/* Image Footer Stats */}
+              <div className="mt-8 flex gap-6 text-slate-400 relative z-10">
+                <div className="flex flex-col items-center gap-1">
+                   <span className="text-sm font-black text-slate-900 leading-none">{book.pages}</span>
+                   <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-slate-400">Trang</span>
                 </div>
-                <div className="w-px h-8 bg-slate-200"></div>
-                <div className="flex flex-col items-center">
-                   <span className="text-sm font-bold text-slate-900">{book.rating}</span>
-                   <span className="text-xs uppercase font-bold tracking-widest">Đánh giá</span>
+                <div className="w-px h-6 bg-slate-200 self-center"></div>
+                <div className="flex flex-col items-center gap-1">
+                   <span className="text-sm font-black text-slate-900 leading-none">{book.rating}</span>
+                   <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-slate-400">Rating</span>
+                </div>
+                <div className="w-px h-6 bg-slate-200 self-center"></div>
+                <div className="flex flex-col items-center gap-1">
+                   <span className="text-sm font-black text-slate-900 leading-none">{book.language === 'Tiếng Việt' ? 'VN' : 'EN'}</span>
+                   <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-slate-400">Bản</span>
                 </div>
               </div>
             </div>
 
             {/* Right: Info Section */}
-            <div className="w-full md:w-7/12 p-8 md:p-12 overflow-y-auto custom-scrollbar bg-white">
-              <div className="flex flex-wrap gap-2 mb-6">
-                <span className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-indigo-100/50 flex items-center gap-1.5 backdrop-blur-md">
-                  <i className="fa-solid fa-shapes text-[9px]"></i>
+            <div className="w-full md:w-7/12 p-8 md:p-10 overflow-y-auto custom-scrollbar bg-white flex flex-col">
+              <div className="flex flex-wrap gap-2 mb-4">
+                <span className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-[11px] font-black uppercase tracking-widest rounded-lg border border-indigo-100/50 flex items-center gap-1.5">
+                  <i className="fa-solid fa-shapes text-[10px]"></i>
                   {book.category}
                 </span>
                 {book.badge && (
-                  <span className="px-2.5 py-1 bg-gradient-to-r from-rose-500 to-pink-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-rose-500/30 border border-white/20 backdrop-blur-md flex items-center gap-1.5">
-                    <i className="fa-solid fa-crown text-[9px] text-yellow-200"></i>
+                  <span className="px-2.5 py-1 bg-gradient-to-r from-rose-500 to-pink-600 text-white text-[11px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-rose-500/30 border border-white/20 flex items-center gap-1.5">
+                    <i className="fa-solid fa-crown text-[10px] text-yellow-200"></i>
                     {book.badge}
                   </span>
                 )}
-                {!book.badge && book.rating >= 4.8 && (
-                  <span className="px-2.5 py-1 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-orange-500/30 border border-white/20 backdrop-blur-md flex items-center gap-1.5">
-                    <i className="fa-solid fa-fire text-[9px] text-white"></i>
-                    Hot
-                  </span>
-                )}
                 {!isAvailable ? (
-                  <span className="px-2.5 py-1 bg-slate-900/90 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-slate-900/20 border border-white/10 backdrop-blur-md flex items-center gap-1.5">
-                    <i className="fa-solid fa-ban text-[9px] text-slate-400"></i>
-                    Ngừng kinh doanh
+                  <span className="px-2.5 py-1 bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest rounded-lg flex items-center gap-1.5">
+                    <i className="fa-solid fa-ban text-[10px]"></i>
+                    Ngừng bán
                   </span>
                 ) : book.stockQuantity > 0 ? (
-                  <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-emerald-100 flex items-center gap-1.5">
-                    <i className="fa-solid fa-check text-[9px]"></i>
+                  <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[11px] font-black uppercase tracking-widest rounded-lg border border-emerald-100 flex items-center gap-1.5 font-sans">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
                     Sẵn hàng
                   </span>
                 ) : (
-                  <span className="px-2.5 py-1 bg-slate-700/90 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-slate-700/20 border border-white/10 backdrop-blur-md flex items-center gap-1.5">
-                    <i className="fa-solid fa-box-open text-[9px] text-slate-400"></i>
+                  <span className="px-2.5 py-1 bg-slate-100 text-slate-400 text-[11px] font-black uppercase tracking-widest rounded-lg flex items-center gap-1.5">
                     Hết hàng
                   </span>
                 )}
               </div>
 
-              <h2 className="text-3xl font-black text-slate-900 mb-2 leading-tight tracking-tight">{book.title}</h2>
+              <h2 className="text-3xl lg:text-4xl font-black text-slate-900 mb-2 leading-[1.1] tracking-tighter">{book.title}</h2>
               <div className="flex items-center gap-2 mb-6">
-                <p className="text-sm font-bold text-slate-500">Tác giả:</p>
-                <Link to={`/author/${book.author}`} className="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tác giả</p>
+                <div className="w-1.5 h-1.5 rounded-full bg-slate-200"></div>
+                <Link to={`/author/${book.author}`} className="text-sm font-black text-indigo-600 hover:text-indigo-800 transition-colors uppercase tracking-tight">
                   {book.author}
                 </Link>
               </div>
 
-              <p className="text-slate-500 text-sm font-medium mb-8 leading-relaxed line-clamp-4 italic border-l-4 border-indigo-100 pl-4">
-                "{book.description || "Khám phá chiều sâu của tri thức qua từng trang sách..."}"
-              </p>
+              <div className="relative mb-8 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+                <i className="fa-solid fa-quote-left text-indigo-100 text-3xl absolute top-3 left-3 -z-10"></i>
+                <p className="text-slate-600 text-sm font-medium leading-relaxed italic relative z-10">
+                  {book.description ? (book.description.length > 200 ? book.description.substring(0, 200) + '...' : book.description) : "Khám phá chiều sâu của tri thức qua từng trang sách..."}
+                </p>
+              </div>
 
-              {/* Price and Quantity Selection */}
-              <div className="bg-slate-50 rounded-3xl p-6 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+              {/* Price Row */}
+              <div className="flex items-end justify-between mb-8 gap-4 flex-wrap">
                 <div>
-                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Giá bán chính thức</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] leading-none">Giá ưu đãi</span>
+                    {book.originalPrice && book.originalPrice > book.price && (
+                      <span className="px-1.5 py-0.5 bg-rose-500 text-white text-[10px] font-black rounded uppercase">
+                        -{Math.round((1 - book.price / book.originalPrice) * 100)}%
+                      </span>
+                    )}
+                  </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-4xl font-black text-rose-600 tracking-tighter">
                       {book.price.toLocaleString()}đ
                     </span>
                     {book.originalPrice && (
-                      <span className="text-lg text-slate-400 line-through font-medium">
+                      <span className="text-base text-slate-400 line-through font-bold opacity-60">
                         {book.originalPrice.toLocaleString()}đ
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-black text-slate-400 uppercase tracking-widest sm:hidden">Số lượng:</span>
-                  <div className="flex items-center bg-white rounded-2xl p-1.5 shadow-sm border border-slate-100">
+                <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-xl border border-slate-200/50">
                     <button 
                       onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                      className="w-10 h-10 rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center text-slate-600 active:scale-90"
+                      className="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center text-slate-600 hover:text-indigo-600 transition-all active:scale-90"
                     >
-                      <i className="fa-solid fa-minus text-xs"></i>
+                      <i className="fa-solid fa-minus text-[10px]"></i>
                     </button>
-                    <span className="w-12 text-center font-black text-slate-900 text-lg">{quantity}</span>
+                    <span className="w-10 text-center font-black text-slate-900 text-base">{quantity}</span>
                     <button 
                       onClick={() => setQuantity(q => q + 1)}
-                      className="w-10 h-10 rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center text-slate-600 active:scale-90"
+                      className="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center text-slate-600 hover:text-indigo-600 transition-all active:scale-90"
                     >
-                      <i className="fa-solid fa-plus text-xs"></i>
+                      <i className="fa-solid fa-plus text-[10px]"></i>
                     </button>
-                  </div>
                 </div>
               </div>
 
-              {/* Enhanced Action Buttons */}
-              <div className="flex flex-col gap-4">
-                <div className="flex gap-4">
-                  <button 
-                    disabled={book.stockQuantity <= 0 || !isAvailable}
-                    onClick={(e) => {
-                      onAddToCart(book, quantity, { x: e.clientX, y: e.clientY });
-                      onClose();
-                    }}
-                    className={`flex-[4] py-4.5 rounded-2xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-lg ${
-                      book.stockQuantity > 0 && isAvailable
-                      ? 'bg-slate-900 text-white hover:bg-indigo-600 shadow-slate-200'
-                      : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
-                    }`}
-                  >
-                    <i className="fa-solid fa-cart-shopping text-sm"></i>
-                    {!isAvailable ? 'Không khả dụng' : 'Thêm vào giỏ hàng'}
-                  </button>
+              {/* Action Buttons */}
+              <div className="mt-auto space-y-3">
+                <button 
+                  disabled={book.stockQuantity <= 0 || !isAvailable}
+                  onClick={(e) => {
+                    onAddToCart(book, quantity, { x: e.clientX, y: e.clientY });
+                    onClose();
+                  }}
+                  className={`w-full py-4 rounded-xl text-xs font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-xl ${
+                    book.stockQuantity > 0 && isAvailable
+                    ? 'bg-slate-900 text-white hover:bg-indigo-600 shadow-indigo-100'
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                  }`}
+                >
+                  <i className="fa-solid fa-cart-shopping text-sm"></i>
+                  {!isAvailable ? 'Sách ngừng bán' : 'Thêm vào giỏ hàng'}
+                </button>
 
+                <div className="grid grid-cols-2 gap-3">
                   <button 
                     onClick={handleToggleWishlist}
-                    className={`flex-1 rounded-2xl flex items-center justify-center transition-all border-2 active:scale-95 group ${
+                    className={`py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all border-2 active:scale-95 text-[10px] font-black uppercase tracking-widest ${
                       isWishlisted 
-                        ? 'bg-rose-500 border-rose-500 text-white shadow-rose-200 shadow-lg' 
-                        : 'bg-white border-slate-100 text-slate-400 hover:border-rose-500 hover:text-rose-500'
+                        ? 'bg-rose-50 border-rose-200 text-rose-500' 
+                        : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'
                     }`}
-                    title={isWishlisted ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
                   >
-                    <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-xl group-hover:scale-110 transition-transform`}></i>
+                    <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-sm`}></i>
+                    {isWishlisted ? 'Đã thích' : 'Yêu thích'}
+                  </button>
+                  <button 
+                    onClick={() => navigate(`/book/${book.id}`)}
+                    className="py-3.5 rounded-xl border-2 border-slate-100 text-slate-400 flex items-center justify-center gap-2 hover:bg-slate-50 hover:border-slate-200 transition-all active:scale-95 text-[10px] font-black uppercase tracking-widest"
+                  >
+                    <i className="fa-solid fa-circle-info text-sm"></i>
+                    Chi tiết
                   </button>
                 </div>
-
-                <Link 
-                  to={`/book/${book.id}`}
-                  onClick={onClose}
-                  className="w-full py-4 bg-indigo-50 text-indigo-600 rounded-2xl text-xs font-black uppercase tracking-premium hover:bg-indigo-100 transition-all flex items-center justify-center gap-3 active:scale-[0.98] border border-indigo-100/50"
-                >
-                  <i className="fa-solid fa-arrow-right-to-bracket text-sm"></i>
-                  Xem chi tiết cuốn sách này
-                </Link>
               </div>
 
               {/* Trust Badges */}
@@ -219,13 +224,13 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                     <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs">
                        <i className="fa-solid fa-shield-halved"></i>
                     </div>
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Chính hãng 100%</span>
+                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">Chính hãng 100%</span>
                  </div>
                  <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xs">
                        <i className="fa-solid fa-rotate"></i>
                     </div>
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Đổi trả 30 ngày</span>
+                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">Đổi trả 30 ngày</span>
                  </div>
               </div>
             </div>
