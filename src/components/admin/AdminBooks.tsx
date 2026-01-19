@@ -23,6 +23,7 @@ const formatPrice = (price: number) => {
 const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, refreshData, theme = 'light' }) => {
   const isMidnight = theme === 'midnight';
   
+  const [searchTerm, setSearchTerm] = useState('');
   const [filterStock, setFilterStock] = useState<'all' | 'low' | 'out'>('all');
   const [selectedBooks, setSelectedBooks] = useState<string[]>([]);
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
@@ -57,55 +58,106 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     };
   }, [isBookModalOpen]);
 
+  // Reset to page 1 when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterStock]);
+
   const filteredBooks = useMemo(() => {
     return books.filter(book => {
+      const matchesSearch = 
+        book.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (book.isbn && book.isbn.includes(searchTerm));
+
+      if (!matchesSearch) return false;
+
       if (filterStock === 'low') return book.stockQuantity > 0 && book.stockQuantity <= 10;
       if (filterStock === 'out') return book.stockQuantity === 0;
       return true;
     });
-  }, [books, filterStock]);
+  }, [books, filterStock, searchTerm]);
 
   const totalPages = Math.ceil(filteredBooks.length / itemsPerPage);
   const paginatedBooks = filteredBooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
+  // Inventory Stats
+  const stats = useMemo(() => {
+    return {
+      total: books.length,
+      low: books.filter(b => b.stockQuantity > 0 && b.stockQuantity <= 10).length,
+      out: books.filter(b => b.stockQuantity === 0).length,
+      value: books.reduce((acc, b) => acc + (b.price * (b.stockQuantity || 0)), 0)
+    };
+  }, [books]);
+
+  const handleUpdateStock = async (bookId: string, currentStock: number, delta: number) => {
+    const newStock = Math.max(0, currentStock + delta);
+    try {
+      await db.updateBook(bookId, { stockQuantity: newStock });
+      toast.success('Cập nhật tồn kho thành công');
+      refreshData();
+    } catch (error) {
+      ErrorHandler.handle(error, 'cập nhật tồn kho');
+    }
+  };
+
+  const handleExportInventory = () => {
+    const data = books.map(b => ({
+      'Tên sách': b.title,
+      'ISBN': b.isbn || 'N/A',
+      'Giá bán': b.price,
+      'Tồn kho': b.stockQuantity,
+      'Trạng thái': b.stockQuantity === 0 ? 'Hết hàng' : b.stockQuantity <= 10 ? 'Sắp hết' : 'Sẵn sàng'
+    }));
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `digital-book-inventory-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('Đã xuất báo cáo tồn kho');
+  };
+
   // Render Badge Helper
   const renderBadge = (badgeText: string, stockQuantity?: number, isTable: boolean = false) => {
-    let style = "from-rose-500 to-pink-600 shadow-rose-500/20";
-    let icon = "fa-crown";
+    let colorClass = "bg-slate-100 text-slate-600 border-slate-200";
+    let icon = "fa-tag";
 
     const text = badgeText?.toLowerCase() || "";
     if (text.includes("mới")) {
-      style = "from-emerald-500 to-teal-600 shadow-emerald-500/20";
+      colorClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
       icon = "fa-sparkles";
-    } else if (text.includes("giảm") || text.includes("sale")) {
-      style = "from-amber-500 to-orange-600 shadow-amber-500/20";
-      icon = "fa-percent";
+    } else if (text.includes("giảm") || text.includes("sale") || text.includes("bán chạy")) {
+      colorClass = "bg-rose-50 text-rose-700 border-rose-200";
+      icon = "fa-fire-flame-curved";
+      if (!badgeText && text.includes("bán chạy")) badgeText = "Bán chạy";
     } else if (text.includes("kinh điển")) {
-      style = "from-indigo-500 to-purple-600 shadow-indigo-500/20";
+      colorClass = "bg-indigo-50 text-indigo-700 border-indigo-200";
       icon = "fa-book-bookmark";
     } else if (stockQuantity === 0) {
-      style = "from-slate-700 to-slate-900 shadow-slate-900/20";
+      colorClass = "bg-slate-900 text-white border-slate-800";
       icon = "fa-box-open";
       badgeText = "Hết hàng";
     } else if (stockQuantity !== undefined && stockQuantity < 5 && !badgeText) {
-      style = "from-orange-500 to-rose-600 shadow-orange-500/20";
+      colorClass = "bg-amber-50 text-amber-700 border-amber-200";
       icon = "fa-triangle-exclamation";
       badgeText = "Sắp hết";
-    } else if (stockQuantity !== undefined && stockQuantity > 100 && !badgeText) {
-      style = "from-rose-500 to-pink-600 shadow-rose-500/20";
-      icon = "fa-fire-flame-curved";
-      badgeText = "Bán chạy";
     }
 
     if (!badgeText && (stockQuantity === undefined || stockQuantity >= 5)) return isTable ? <span className="text-slate-400 text-micro font-bold uppercase tracking-widest">—</span> : null;
 
     const baseClass = isTable 
-      ? `inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-tr ${style} text-white text-[10px] font-black uppercase tracking-wider rounded-lg shadow-md border border-white/10`
-      : `absolute -top-1.5 -right-1.5 px-2 py-0.5 bg-gradient-to-tr ${style} text-white text-[8px] font-black uppercase tracking-wider rounded-md shadow-lg border border-white/20 z-10 flex items-center gap-1 animate-fadeIn`;
+      ? `inline-flex items-center gap-1.5 px-2.5 py-1 ${colorClass} text-[9px] font-black uppercase tracking-wider rounded-lg border shadow-sm transition-all hover:scale-105`
+      : `absolute -top-1.5 -right-1.5 px-2 py-0.5 ${colorClass} text-white text-[8px] font-black uppercase tracking-wider rounded-md shadow-lg border z-10 flex items-center gap-1 animate-fadeIn`;
 
     return (
       <div className={baseClass}>
-        <i className={`fa-solid ${icon} ${isTable ? "text-[9px]" : "text-[7px]"} ${text.includes("mới") ? "text-white" : "text-yellow-300"}`}></i>
+        <i className={`fa-solid ${icon} ${isTable ? "text-[8px]" : "text-[7px]"} opacity-80`}></i>
         {badgeText}
       </div>
     );
@@ -310,6 +362,30 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
 
   return (
     <div className="space-y-6 animate-fadeIn">
+      {/* Inventory Dashboard Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: 'Tổng sản phẩm', value: stats.total, icon: 'fa-book', color: 'indigo' },
+          { label: 'Sắp hết hàng', value: stats.low, icon: 'fa-triangle-exclamation', color: 'amber' },
+          { label: 'Đã hết hàng', value: stats.out, icon: 'fa-box-open', color: 'rose' },
+          { label: 'Giá trị kho', value: formatPrice(stats.value), icon: 'fa-wallet', color: 'emerald' }
+        ].map((stat, i) => (
+          <div key={i} className={`${
+            isMidnight ? 'bg-[#1e293b]/50 border-white/5 shadow-2xl' : 'bg-white border-slate-200/60 shadow-sm'
+          } p-6 rounded-[2rem] border group transition-all hover:border-${stat.color}-500/50`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">{stat.label}</p>
+                <p className={`text-2xl font-black ${isMidnight ? 'text-slate-100' : 'text-slate-900'}`}>{stat.value}</p>
+              </div>
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-lg bg-${stat.color}-50 text-${stat.color}-600 border border-${stat.color}-100 shadow-sm group-hover:scale-110 transition-transform`}>
+                <i className={`fa-solid ${stat.icon}`}></i>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {seedStatus && (
         <div className={`p-4 rounded-2xl flex items-center gap-3 animate-slideIn border ${
           seedStatus.type === 'success' ? (isMidnight ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-emerald-50 text-emerald-700 border-emerald-100') :
@@ -328,49 +404,99 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
       <div className={`${
         isMidnight 
         ? 'bg-[#1e293b]/50 backdrop-blur-xl border-white/5 shadow-2xl shadow-black/20' 
-        : 'bg-white border-slate-200/60 shadow-sm shadow-slate-200/40'
-        } flex flex-wrap items-center justify-between gap-6 p-6 rounded-[2rem] border transition-all hover:border-indigo-500/30`}>
-        <div className="flex items-center gap-4">
-          <span className="text-micro font-bold text-slate-400 uppercase tracking-premium">Lọc kho:</span>
-          <div className={`flex gap-2 p-1 rounded-xl ${isMidnight ? 'bg-slate-800/50' : 'bg-slate-100'}`}>
-            {[
-              { id: 'all', label: 'Tất cả' },
-              { id: 'low', label: 'Sắp hết' },
-              { id: 'out', label: 'Hết hàng' }
-            ].map(filter => (
-              <button
-                key={filter.id}
-                onClick={() => setFilterStock(filter.id as any)}
-                className={`px-4 py-1.5 rounded-lg text-micro font-bold uppercase tracking-premium transition-all ${
-                  filterStock === filter.id 
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' 
-                  : `${isMidnight ? 'text-slate-500 hover:text-slate-300' : 'text-slate-500 hover:text-slate-900'}`
-                }`}
+        : 'bg-white/80 backdrop-blur-xl border-slate-200/60 shadow-xl shadow-slate-200/30'
+        } flex flex-wrap items-center justify-between gap-6 p-5 rounded-[2.5rem] border transition-all hover:border-indigo-500/20 sticky top-0 z-30`}>
+        
+        {/* Nhóm Tìm kiếm & Lọc */}
+        <div className="flex flex-wrap items-center gap-5 flex-1 min-w-[300px]">
+          {/* Thanh tìm kiếm Premium */}
+          <div className="relative group flex-1 max-w-md">
+            <div className={`absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+              isMidnight ? 'bg-slate-800 text-slate-500' : 'bg-slate-100 text-slate-400'
+            } group-focus-within:bg-indigo-600 group-focus-within:text-white group-focus-within:shadow-lg group-focus-within:shadow-indigo-600/20`}>
+              <i className="fa-solid fa-magnifying-glass text-[10px]"></i>
+            </div>
+            <input 
+              type="text" 
+              placeholder="Tìm kiếm sách, tác giả, ISBN..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={`w-full h-12 pl-16 pr-5 rounded-2xl text-xs font-bold outline-none border transition-all ${
+                isMidnight 
+                ? 'bg-slate-900/50 border-slate-700/50 text-slate-200 focus:border-indigo-500/50 focus:bg-slate-900' 
+                : 'bg-white border-slate-200 text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5'
+              }`}
+            />
+            {searchTerm && (
+              <button 
+                onClick={() => setSearchTerm('')}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-200/50 text-slate-400 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center"
               >
-                {filter.label}
+                <i className="fa-solid fa-xmark text-[10px]"></i>
               </button>
-            ))}
+            )}
+          </div>
+
+          <div className={`h-8 w-px ${isMidnight ? 'bg-slate-700/50' : 'bg-slate-200'} hidden xl:block`}></div>
+
+          {/* Lọc kho */}
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Lọc:</span>
+            <div className={`flex gap-1.5 p-1.5 rounded-2xl ${isMidnight ? 'bg-slate-800/50' : 'bg-slate-100/80'} border ${isMidnight ? 'border-slate-700/50' : 'border-slate-200/50'}`}>
+              {[
+                { id: 'all', label: 'Tất cả' },
+                { id: 'low', label: 'Sắp hết' },
+                { id: 'out', label: 'Hết hàng' }
+              ].map(filter => (
+                <button
+                  key={filter.id}
+                  onClick={() => setFilterStock(filter.id as any)}
+                  className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${
+                    filterStock === filter.id 
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' 
+                    : `${isMidnight ? 'text-slate-500 hover:text-slate-300' : 'text-slate-500 hover:text-slate-900'}`
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
+
+        {/* Nhóm Hành động */}
         <div className="flex items-center gap-3">
+          <button 
+            onClick={handleExportInventory}
+            className={`h-12 px-6 rounded-2xl font-bold transition-all flex items-center gap-2 group border ${
+              isMidnight 
+              ? 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700' 
+              : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 shadow-sm'
+            }`}
+          >
+            <i className="fa-solid fa-file-export text-xs opacity-50 group-hover:opacity-100 group-hover:text-indigo-500"></i>
+            <span className="text-xs uppercase tracking-wider">Xuất</span>
+          </button>
+          
           <button 
             onClick={handleAutoSync}
             disabled={isSyncing}
-            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all shadow-lg ${
+            className={`h-12 px-6 rounded-2xl font-bold transition-all shadow-sm border flex items-center gap-2 group ${
               isSyncing 
-              ? (isMidnight ? 'bg-slate-800 text-slate-600' : 'bg-slate-100 text-slate-400') + ' cursor-not-allowed' 
-              : (isMidnight ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-100')
+              ? (isMidnight ? 'bg-slate-800 text-slate-600 border-slate-700' : 'bg-slate-100 text-slate-400 border-slate-200') + ' cursor-not-allowed' 
+              : (isMidnight ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border-emerald-500/20' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border-emerald-100')
             }`}
           >
-            <i className={`fa-solid ${isSyncing ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-down'}`}></i>
-            <span>{isSyncing ? 'Đang đồng bộ...' : 'Auto Sync'}</span>
+            <i className={`fa-solid ${isSyncing ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-down'} text-xs'}`}></i>
+            <span className="text-xs uppercase tracking-wider">{isSyncing ? 'Đang sync...' : 'Auto Sync'}</span>
           </button>
+
           <button 
             onClick={handleOpenAddBook}
-            className="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 flex items-center gap-2"
+            className="h-12 px-6 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 flex items-center gap-3 group active:scale-95"
           >
-            <i className="fa-solid fa-plus"></i>
-            <span>Thêm sách mới</span>
+            <i className="fa-solid fa-plus text-xs group-hover:rotate-90 transition-transform duration-300"></i>
+             Thêm sách mới
           </button>
         </div>
       </div>
@@ -484,19 +610,35 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                   <span className={`text-sm font-extrabold tracking-tight ${isMidnight ? 'text-indigo-400' : 'text-indigo-600'}`}>{formatPrice(book.price)}</span>
                 </td>
                 <td className="px-4 py-4 hidden lg:table-cell whitespace-nowrap">
-                  <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-micro font-bold uppercase tracking-premium ${
-                    book.stockQuantity > 10 
-                    ? (isMidnight ? 'bg-emerald-500/10 text-emerald-400' : 'bg-emerald-50 text-emerald-600') :
-                    book.stockQuantity > 0 
-                    ? (isMidnight ? 'bg-amber-500/10 text-amber-400' : 'bg-amber-50 text-amber-600') : 
-                    (isMidnight ? 'bg-rose-500/10 text-rose-400' : 'bg-rose-50 text-rose-600')
-                  }`}>
-                    <div className={`w-1.5 h-1.5 rounded-full mr-2 ${
-                       book.stockQuantity > 10 ? 'bg-emerald-500' :
-                       book.stockQuantity > 0 ? 'bg-amber-500' : 'bg-rose-500'
-                    }`}></div>
-                    {book.stockQuantity > 0 ? `${book.stockQuantity} quyển` : 'Hết hàng'}
-                  </span>
+                  <div className="flex items-center gap-3 group/stock">
+                    <button 
+                      onClick={() => handleUpdateStock(book.id, book.stockQuantity, -1)}
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+                        isMidnight ? 'bg-slate-800 text-slate-500 hover:bg-rose-500/20 hover:text-rose-400' : 'bg-slate-100 text-slate-400 hover:bg-rose-50 hover:text-rose-600'
+                      }`}
+                    >
+                      <i className="fa-solid fa-minus text-[10px]"></i>
+                    </button>
+                    
+                    <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-micro font-bold uppercase tracking-premium min-w-[100px] justify-center ${
+                      book.stockQuantity > 10 
+                      ? (isMidnight ? 'bg-emerald-500/10 text-emerald-400' : 'bg-emerald-50 text-emerald-600') :
+                      book.stockQuantity > 0 
+                      ? (isMidnight ? 'bg-amber-500/10 text-amber-400' : 'bg-amber-50 text-amber-600') : 
+                      (isMidnight ? 'bg-rose-500/10 text-rose-400' : 'bg-rose-50 text-rose-600')
+                    }`}>
+                      {book.stockQuantity > 0 ? `${book.stockQuantity} quyển` : 'Hết hàng'}
+                    </span>
+
+                    <button 
+                      onClick={() => handleUpdateStock(book.id, book.stockQuantity, 1)}
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+                        isMidnight ? 'bg-slate-800 text-slate-500 hover:bg-emerald-500/20 hover:text-emerald-400' : 'bg-slate-100 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600'
+                      }`}
+                    >
+                      <i className="fa-solid fa-plus text-[10px]"></i>
+                    </button>
+                  </div>
                 </td>
                 <td className="px-4 py-4 text-right whitespace-nowrap">
                   <div className="flex items-center justify-end gap-2">
@@ -719,7 +861,18 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                         </h3>
                         <div className="grid grid-cols-12 gap-6">
                           <div className="col-span-12 md:col-span-4">
-                            <label className="text-xs font-black uppercase tracking-widest mb-3 block text-slate-900">Mã ISBN</label>
+                            <label className="text-xs font-black uppercase tracking-widest mb-3 block text-slate-900 flex items-center justify-between">
+                              Mã ISBN
+                              <button 
+                                type="button"
+                                onClick={handleFetchBookByISBN}
+                                disabled={isFetchingISBN}
+                                className="text-[9px] text-indigo-600 hover:text-indigo-800 font-black flex items-center gap-1 bg-indigo-50 px-2 py-0.5 rounded-md"
+                              >
+                                {isFetchingISBN ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
+                                Tự động điền
+                              </button>
+                            </label>
                             <input
                               type="text"
                               value={bookFormData.isbn || ''}

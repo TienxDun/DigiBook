@@ -217,6 +217,15 @@ class DataService {
     );
   }
 
+  async updateBook(id: string, data: Partial<Book>): Promise<void> {
+    await this.wrap(
+      updateDoc(doc(db_fs, 'books', id), { ...data, updatedAt: serverTimestamp() }),
+      undefined,
+      'UPDATE_BOOK',
+      id
+    );
+  }
+
   async deleteBook(id: string): Promise<void> {
     await this.wrap(
       deleteDoc(doc(db_fs, 'books', id)),

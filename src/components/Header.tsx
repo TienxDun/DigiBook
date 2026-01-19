@@ -433,7 +433,7 @@ const Header: React.FC<HeaderProps> = ({
               onClick={() => setShowLoginModal(true)}
               className="group relative px-6 py-3 bg-slate-900 text-white rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-600 transition-all shadow-xl shadow-slate-900/10 active:scale-95 overflow-hidden"
             >
-              <span className="relative z-10">Khám phá ngay</span>
+              <span className="relative z-10">Đăng nhập</span>
               <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </button>
           )}
