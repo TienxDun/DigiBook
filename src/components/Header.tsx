@@ -309,12 +309,25 @@ const Header: React.FC<HeaderProps> = ({
                   : 'text-muted-foreground hover:bg-white hover:text-rose-500 hover:shadow-sm'
               }`}
             >
-              <i className={`${wishlist.length > 0 ? 'fa-solid' : 'fa-regular'} fa-heart text-base sm:text-lg group-hover:scale-110 transition-transform`}></i>
+              <AnimatePresence mode="wait">
+                <motion.i 
+                  key={wishlist.length > 0 ? 'solid' : 'regular'}
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 1.2, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className={`${wishlist.length > 0 ? 'fa-solid' : 'fa-regular'} fa-heart text-base sm:text-lg group-hover:scale-110 transition-transform`}
+                ></motion.i>
+              </AnimatePresence>
               {wishlist.length > 0 && (
-                <span className="absolute top-1.5 right-1.5 sm:top-2.5 sm:right-2.5 flex h-1.5 w-1.5 sm:h-2 sm:w-2">
+                <motion.span 
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="absolute top-1.5 right-1.5 sm:top-2.5 sm:right-2.5 flex h-1.5 w-1.5 sm:h-2 sm:w-2"
+                >
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-rose-500 border border-white"></span>
-                </span>
+                </motion.span>
               )}
             </Link>
 

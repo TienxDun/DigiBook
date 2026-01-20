@@ -409,7 +409,7 @@ const BookDetails: React.FC<{
                     <div className="h-10 w-px bg-slate-100 hidden md:block"></div>
 
                     <div className="flex flex-col gap-1.5">
-                       <div className="flex items-center gap-1.5 text-emerald-600 font-bold text-xs uppercase tracking-widest bg-emerald-50 w-fit px-2 py-1 rounded-lg border border-emerald-100">
+                       <div className="flex items-center gap-1.5 text-emerald-600 font-bold text-xs uppercase tracking-widest bg-emerald-50 w-fit px-2 py-1 rounded-lg border border-emerald-100 whitespace-nowrap">
                           <i className="fa-solid fa-check-circle text-xs"></i>
                           Sẵn hàng
                        </div>
@@ -438,21 +438,32 @@ const BookDetails: React.FC<{
                     <button 
                       onClick={(e) => onAddToCart(book, quantity, { x: e.clientX, y: e.clientY })}
                       disabled={book.stockQuantity <= 0}
-                      className="md:w-[160px] flex-grow md:flex-none h-12 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg shadow-slate-200 active:scale-[0.98] disabled:bg-slate-200 flex items-center justify-center gap-2"
+                      className="md:w-[160px] flex-grow md:flex-none h-12 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg shadow-slate-200 active:scale-[0.98] disabled:bg-slate-200 flex items-center justify-center gap-2 whitespace-nowrap"
                     >
                        <i className="fa-solid fa-cart-shopping text-sm"></i>
                        Mua ngay
                     </button>
 
-                    <button 
+                    <motion.button 
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={handleToggleWishlist}
-                      className={`shrink-0 h-12 w-12 rounded-xl font-black transition-all flex items-center justify-center border-2 shadow-sm active:scale-95 ${
+                      className={`h-12 w-12 rounded-xl border flex items-center justify-center transition-all ${
                         isWishlisted ? 'bg-rose-50 border-rose-100 text-rose-500' : 'bg-white border-slate-100 text-slate-400 hover:border-rose-100 hover:text-rose-500'
                       }`}
                       aria-label={isWishlisted ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
                     >
-                       <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-lg`}></i>
-                    </button>
+                       <AnimatePresence mode="wait">
+                        <motion.i
+                          key={isWishlisted ? 'solid' : 'regular'}
+                          initial={{ scale: 0.7, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 1.2, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-lg`}
+                        ></motion.i>
+                       </AnimatePresence>
+                    </motion.button>
                  </div>
               </div>
             </section>
@@ -567,15 +578,15 @@ const BookDetails: React.FC<{
         </div>
 
         {/* 5. Add Review - Compact horizontal version */}
-        <section className="mt-6 bg-white p-4 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col md:flex-row items-center gap-4">
-           <div className="flex items-center gap-3 shrink-0">
+        <section className="mt-6 bg-white p-4 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col md:flex-row items-center md:items-center gap-4">
+           <div className="flex items-center gap-3 shrink-0 w-full md:w-auto">
               <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
                  <i className="fa-solid fa-pen-nib text-sm"></i>
               </div>
               <p className="text-xs font-black text-slate-900 uppercase tracking-widest">Viết đánh giá của bạn</p>
            </div>
            
-           <div className="flex items-center gap-1 shrink-0 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+           <div className="flex items-center gap-1 shrink-0 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100 w-full md:w-auto justify-center">
               {[1,2,3,4,5].map(s => (
                 <button key={s} onClick={() => setNewRating(s)} className={`text-base transition-all hover:scale-125 ${s <= newRating ? 'text-amber-400' : 'text-slate-200'}`}>
                   <i className="fa-solid fa-star"></i>
@@ -583,17 +594,17 @@ const BookDetails: React.FC<{
               ))}
            </div>
 
-           <div className="flex-grow flex gap-2 w-full">
+           <div className="flex flex-col sm:flex-row gap-2 w-full">
               <input 
                 type="text"
                 value={newComment} 
                 onChange={e => setNewComment(e.target.value)}
                 placeholder="Chia sẻ cảm nhận của bạn về cuốn sách này..." 
-                className="flex-grow px-4 py-2 bg-slate-50 rounded-xl outline-none focus:ring-2 ring-indigo-500/20 font-medium text-sm text-slate-700 transition-all border border-slate-200"
+                className="flex-grow px-4 py-2 bg-slate-50 rounded-xl outline-none focus:ring-2 ring-indigo-500/20 font-medium text-sm text-slate-700 transition-all border border-slate-200 min-w-0"
               />
               <button 
                 onClick={handleAddReview} 
-                className="px-6 py-2 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all active:scale-95 whitespace-nowrap"
+                className="w-full sm:w-auto px-6 py-2 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all active:scale-95 whitespace-nowrap"
               >
                  Gửi nhận xét
               </button>
