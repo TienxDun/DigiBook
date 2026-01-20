@@ -51,20 +51,20 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
       className="w-full h-full"
     >
       <div 
-        className={`relative group flex flex-col min-h-[320px] lg:min-h-[340px] bg-white rounded-3xl sm:rounded-[2rem] p-2.5 sm:p-3 border border-slate-200/60 shadow-sm transition-all duration-500 w-full ${(!isAvailable || !hasStock) ? 'grayscale opacity-60' : 'hover:shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-300/50 hover:ring-4 hover:ring-indigo-500/5'}`}
+        className={`relative group flex flex-col min-h-[320px] lg:min-h-[340px] bg-white rounded-3xl sm:rounded-[2rem] p-2.5 sm:p-3 border border-secondary shadow-sm transition-all duration-500 w-full ${(!isAvailable || !hasStock) ? 'grayscale opacity-60' : 'hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/20 hover:ring-4 hover:ring-primary/10'}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Glow Effect on Hover */}
-        <div className="absolute -inset-0.5 bg-gradient-to-tr from-indigo-500/10 via-purple-500/10 to-rose-500/10 rounded-3xl sm:rounded-[2rem] blur opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+        <div className="absolute -inset-0.5 bg-gradient-to-tr from-primary/10 via-purple-500/10 to-rose-500/10 rounded-3xl sm:rounded-[2rem] blur opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
         {/* Media Container - Improved Aspect Ratio */}
-        <div className="relative h-[160px] sm:h-[180px] w-full rounded-[1.2rem] sm:rounded-[1.5rem] overflow-hidden bg-slate-50 mb-3 flex-shrink-0">
+        <div className="relative h-[160px] sm:h-[180px] w-full rounded-[1.2rem] sm:rounded-[1.5rem] overflow-hidden bg-secondary mb-3 flex-shrink-0">
           
           {/* Status Badges */}
           <div className={`absolute top-2 left-2 z-30 flex flex-col gap-1.5 items-start transition-all duration-300 ${isHovered ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`}>
             {!isAvailable && (
-              <div className="px-2.5 py-1 bg-slate-900/90 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-slate-900/20 border border-white/10 backdrop-blur-md flex items-center gap-1.5">
+              <div className="px-2.5 py-1 bg-foreground/90 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-foreground/20 border border-white/10 backdrop-blur-md flex items-center gap-1.5">
                 <i className="fa-solid fa-ban text-[9px] text-slate-400"></i>
                 Ngừng kinh doanh
               </div>
@@ -120,7 +120,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-slate-900/60 backdrop-blur-[4px] z-20 flex flex-col items-center justify-center p-4 pb-16"
+                className="absolute inset-0 bg-foreground/60 backdrop-blur-[4px] z-20 flex flex-col items-center justify-center p-4 pb-16"
               >
                 {/* Center Button: Clear & Primary Action */}
                 <motion.button
@@ -136,7 +136,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
                   }}
                   className="flex flex-col items-center gap-2 group/btn"
                 >
-                  <div className="w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-full flex items-center justify-center group-hover/btn:bg-white group-hover/btn:text-slate-900 transition-all duration-300 shadow-xl">
+                  <div className="w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-full flex items-center justify-center group-hover/btn:bg-white group-hover/btn:text-foreground transition-all duration-300 shadow-xl">
                     <i className="fa-solid fa-eye text-sm"></i>
                   </div>
                 </motion.button>
@@ -177,14 +177,14 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
         >
           <div>
             <div className="block mb-0.5">
-              <h3 className="font-bold text-slate-800 text-sm leading-snug line-clamp-2 group-hover/info:text-indigo-600 transition-colors">
+              <h3 className="font-bold text-slate-800 text-sm leading-snug line-clamp-2 group-hover/info:text-primary transition-colors">
                 {book.title}
               </h3>
             </div>
             <p className="text-slate-500 text-xs font-medium truncate italic">{book.author}</p>
           </div>
           
-          <div className="pt-2 flex items-center justify-between border-t border-slate-100 mt-auto">
+          <div className="pt-2 flex items-center justify-between border-t border-secondary mt-auto">
             <div className="flex flex-col">
               {book.originalPrice && book.originalPrice > book.price && (
                 <span className="text-[10px] uppercase font-bold text-slate-400 line-through decoration-rose-400/50">
@@ -201,8 +201,8 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
                 onClick={handleToggleWishlist}
                 className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${
                   isWishlisted 
-                    ? 'bg-rose-50 text-rose-500 border-rose-100 shadow-sm' 
-                    : 'bg-slate-50 text-slate-400 border-slate-100 hover:text-rose-500 hover:bg-rose-50'
+                    ? 'bg-primary/5 text-primary border-primary/10 shadow-sm' 
+                    : 'bg-secondary text-slate-400 border-secondary hover:text-primary hover:bg-primary/5'
                 }`}
               >
                 <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-sm`}></i>
@@ -217,8 +217,8 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
                 disabled={!hasStock || !isAvailable}
                 className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
                   (!hasStock || !isAvailable)
-                    ? 'bg-slate-100 text-slate-300 cursor-not-allowed' 
-                    : 'bg-indigo-600 text-white hover:bg-slate-900 shadow-lg shadow-indigo-200'
+                    ? 'bg-secondary text-slate-300 cursor-not-allowed' 
+                    : 'bg-primary text-white hover:bg-foreground shadow-lg shadow-primary/20'
                 }`}
               >
                 <i className="fa-solid fa-cart-shopping text-sm"></i>

@@ -132,7 +132,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     const text = badgeText?.toLowerCase() || "";
     if (text.includes("mới")) {
       colorClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
-      icon = "fa-sparkles";
+      icon = "fa-wand-magic-sparkles";
     } else if (text.includes("giảm") || text.includes("sale") || text.includes("bán chạy")) {
       colorClass = "bg-rose-50 text-rose-700 border-rose-200";
       icon = "fa-fire-flame-curved";

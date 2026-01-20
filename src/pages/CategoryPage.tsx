@@ -140,7 +140,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
       )}
 
       <div className={`max-w-7xl mx-auto px-4 relative z-20 ${isPromotionPage ? '-mt-8' : 'mt-2'}`}>
-        <div className="sticky top-[64px] lg:top-[80px] z-30 mb-4 p-2.5 bg-white/80 backdrop-blur-lg rounded-[2rem] border border-white/50 shadow-xl shadow-slate-200/50 flex items-center gap-3 overflow-hidden group transition-all duration-300">
+        <div className="sticky top-[64px] lg:top-[80px] z-40 mb-4 p-2.5 bg-white/80 backdrop-blur-lg rounded-[2rem] border border-white/50 shadow-xl shadow-slate-200/50 flex items-center gap-3 overflow-hidden group transition-all duration-300">
           <div className="flex-shrink-0 flex items-center gap-2 px-5 py-3 border-r border-slate-200 mr-2">
             <i className="fa-solid fa-layer-group text-indigo-500"></i>
             <span className="text-xs font-black text-slate-800 uppercase tracking-widest hidden sm:block">Chân dung tri thức</span>

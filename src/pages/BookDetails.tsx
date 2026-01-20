@@ -477,7 +477,7 @@ const BookDetails: React.FC<{
                   <div className="relative z-10 flex flex-col h-full">
                      <div className="flex items-center gap-2.5 mb-3">
                         <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                           <i className="fa-solid fa-sparkles text-white text-xs"></i>
+                           <i className="fa-solid fa-wand-magic-sparkles text-white text-xs"></i>
                         </div>
                         <div>
                            <h4 className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-0.5">AI INSIGHTS</h4>

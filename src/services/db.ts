@@ -823,12 +823,13 @@ class DataService {
 
     try {
       const config = await this.getAIConfig();
-      const modelId = config.activeModelId;
+      const modelId = config.activeModelId || 'gemini-3-flash';
 
-      // XÁC ĐỊNH PROVIDER DỰA TRÊN MODEL ID
-      
-      // 1. OPENROUTER (Nếu model ID có chứa '/' - định dạng chuẩn của OpenRouter)
-      if (openRouterKey && modelId.includes('/')) {
+      // XÁC ĐỊNH PROVIDER VÀ KIỂM TRA KEY
+      if (modelId.includes('/')) {
+        // OPENROUTER
+        if (!openRouterKey) throw new Error("Vui lòng cấu hình VITE_OPENROUTER_API_KEY trong file .env");
+        
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -842,16 +843,22 @@ class DataService {
             messages: [{ role: 'user', content: prompt }]
           })
         });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`OpenRouter Error: ${errorData.error?.message || response.statusText}`);
+        }
+
         const data = await response.json();
         const text = data.choices?.[0]?.message?.content;
         if (text) {
           this.logActivity(actionName, `Generated using OpenRouter (${modelId})`, 'SUCCESS', 'INFO', 'AI');
           return text.trim();
         }
-      }
+      } else if (modelId.includes('llama') || modelId.includes('mixtral') || modelId.includes('gemma')) {
+        // GROQ
+        if (!groqKey) throw new Error("Vui lòng cấu hình VITE_GROQ_API_KEY trong file .env");
 
-      // 2. GROQ (Nếu model ID chứa 'llama', 'mixtral' hoặc 'gemma' và không thuộc OpenRouter)
-      if (groqKey && (modelId.includes('llama') || modelId.includes('mixtral') || modelId.includes('gemma')) && !modelId.includes('/')) {
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -863,19 +870,25 @@ class DataService {
             messages: [{ role: 'user', content: prompt }]
           })
         });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`Groq Error: ${errorData.error?.message || response.statusText}`);
+        }
+
         const data = await response.json();
         const text = data.choices?.[0]?.message?.content;
         if (text) {
           this.logActivity(actionName, `Generated using Groq (${modelId})`, 'SUCCESS', 'INFO', 'AI');
           return text.trim();
         }
-      }
+      } else {
+        // GEMINI (Default)
+        if (!geminiKey) throw new Error("Vui lòng cấu hình VITE_GEMINI_API_KEY trong file .env");
 
-      // 3. GEMINI (Mặc định cho các model gemini-* hoặc fallback cuối)
-      if (geminiKey) {
-        // Fallback model nếu modelId không hợp lệ cho Gemini trực tiếp
         const geminiModel = modelId.startsWith('gemini-') ? modelId : 'gemini-3-flash';
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiKey}`;
+        
         const response = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -883,6 +896,11 @@ class DataService {
             contents: [{ parts: [{ text: prompt }] }]
           })
         });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`Gemini Error: ${errorData.error?.message || response.statusText}`);
+        }
 
         const data = await response.json();
         const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -893,7 +911,7 @@ class DataService {
         }
       }
 
-      throw new Error("Không có API Key khả dụng cho Model đã chọn.");
+      throw new Error("Không thể trích xuất nội dung từ phản hồi của AI.");
     } catch (error: any) {
       console.error("AI Service Error:", error);
       this.logActivity(`${actionName}_ERROR`, error.message, 'ERROR', 'ERROR', 'AI');

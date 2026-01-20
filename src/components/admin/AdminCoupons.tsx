@@ -90,19 +90,19 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-6 animate-fadeIn text-foreground">
       <div className={`${
         isMidnight 
-        ? 'bg-[#1e293b]/50 backdrop-blur-xl border-white/5 shadow-2xl hover:border-indigo-500/30' 
-        : 'bg-white border-slate-200/60 shadow-sm shadow-slate-200/40 hover:border-slate-300'
+        ? 'bg-[#1e293b]/50 backdrop-blur-xl border-white/5 shadow-2xl hover:border-primary/30' 
+        : 'bg-card border-border shadow-sm shadow-slate-200/40 hover:border-primary/30'
         } flex flex-wrap items-center justify-between gap-6 p-6 rounded-[2rem] border transition-all`}>
         <div>
-          <h3 className={`text-lg font-extrabold uppercase tracking-tight ${isMidnight ? 'text-white' : 'text-slate-900'}`}>Mã khuyến mãi (Coupons)</h3>
-          <p className={`text-micro font-bold uppercase tracking-premium mt-1 ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Quản lý các chương trình ưu đãi của cửa hàng</p>
+          <h3 className={`text-lg font-extrabold uppercase tracking-tight ${isMidnight ? 'text-white' : 'text-foreground'}`}>Mã khuyến mãi (Coupons)</h3>
+          <p className={`text-micro font-bold uppercase tracking-premium mt-1 ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Quản lý các chương trình ưu đãi của cửa hàng</p>
         </div>
         <button 
           onClick={handleOpenAddCoupon}
-          className="bg-indigo-600 text-white px-6 py-3 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
+          className="bg-primary text-primary-foreground px-6 py-3 rounded-2xl text-micro font-bold uppercase tracking-premium hover:opacity-90 transition-all shadow-lg shadow-primary/20"
         >
           <i className="fa-solid fa-plus mr-2"></i>Tạo mã mới
         </button>
@@ -111,40 +111,40 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
       <div className={`${
         isMidnight 
         ? 'bg-[#1e293b]/50 backdrop-blur-xl border-white/5 shadow-2xl' 
-        : 'bg-white border-slate-200/60 shadow-sm shadow-slate-200/20'
+        : 'bg-card border-border shadow-sm shadow-slate-200/20'
         } rounded-[2rem] border overflow-hidden`}>
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left min-w-[800px]">
-          <thead className={`${isMidnight ? 'bg-white/5' : 'bg-slate-50/50'}`}>
-            <tr>
-              <th className={`px-8 py-5 text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Mã code</th>
-              <th className={`px-8 py-5 text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Loại giảm giá</th>
-              <th className={`px-8 py-5 text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Giá trị</th>
-              <th className={`px-8 py-5 text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Trạng thái</th>
-              <th className={`px-8 py-5 text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Hết hạn</th>
-              <th className={`px-8 py-5 text-micro font-bold uppercase tracking-premium text-center ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Thao tác</th>
+          <thead className={`${isMidnight ? 'bg-white/5' : 'bg-secondary/50'}`}>
+            <tr className={`border-b ${isMidnight ? 'border-white/5' : 'border-border'}`}>
+              <th className={`px-8 py-5 text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Mã code</th>
+              <th className={`px-8 py-5 text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Loại giảm giá</th>
+              <th className={`px-8 py-5 text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Giá trị</th>
+              <th className={`px-8 py-5 text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Trạng thái</th>
+              <th className={`px-8 py-5 text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Hết hạn</th>
+              <th className={`px-8 py-5 text-micro font-bold uppercase tracking-premium text-center ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Thao tác</th>
             </tr>
           </thead>
-          <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-slate-100'}`}>
+          <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-border'}`}>
             {coupons.map(coupon => (
-              <tr key={coupon.id} className={`transition-all ${isMidnight ? 'hover:bg-white/5' : 'hover:bg-slate-50'}`}>
+              <tr key={coupon.id} className={`transition-all ${isMidnight ? 'hover:bg-white/5' : 'hover:bg-secondary/20'}`}>
                 <td className="px-8 py-5">
-                  <span className={`font-extrabold tracking-premium uppercase ${isMidnight ? 'text-indigo-400' : 'text-indigo-600'}`}>{coupon.code}</span>
+                  <span className={`font-extrabold tracking-premium uppercase ${isMidnight ? 'text-primary' : 'text-primary'}`}>{coupon.code}</span>
                 </td>
-                <td className="px-8 py-5 text-sm font-medium text-slate-600">
+                <td className="px-8 py-5 text-sm font-medium text-muted-foreground">
                   {coupon.discountType === 'percentage' ? 'Phần trăm (%)' : 'Cố định (đ)'}
                 </td>
-                <td className="px-8 py-5 text-sm font-bold text-slate-900">
+                <td className="px-8 py-5 text-sm font-bold text-foreground">
                   {coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `${coupon.discountValue.toLocaleString()}đ`}
                 </td>
                 <td className="px-8 py-5">
                   <span className={`px-3 py-1 rounded-lg text-micro font-bold uppercase tracking-premium ${
-                    coupon.isActive ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+                    coupon.isActive ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'
                   }`}>
                     {coupon.isActive ? 'Đang chạy' : 'Đã dừng'}
                   </span>
                 </td>
-                <td className="px-8 py-5 text-sm text-slate-500 font-medium">
+                <td className="px-8 py-5 text-sm text-muted-foreground font-medium">
                   {coupon.expiryDate}
                 </td>
                 <td className="px-8 py-5 text-center">
@@ -152,7 +152,7 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
                     <button 
                       onClick={() => handleEditCoupon(coupon)}
                       className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm ${
-                        isMidnight ? 'bg-white/5 text-slate-300 hover:bg-indigo-500 hover:text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        isMidnight ? 'bg-white/5 text-slate-300 hover:bg-primary hover:text-white' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
                       }`}
                       title="Chỉnh sửa"
                     >
@@ -161,7 +161,7 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
                     <button 
                       onClick={() => handleDeleteCoupon(coupon.id)}
                       className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm ${
-                        isMidnight ? 'bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white' : 'bg-rose-50 text-rose-600 hover:bg-rose-100'
+                        isMidnight ? 'bg-destructive/10 text-destructive hover:bg-destructive hover:text-white' : 'bg-destructive/10 text-destructive hover:bg-destructive-foreground'
                       }`}
                       title="Xóa"
                     >
@@ -180,7 +180,7 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
       <AnimatePresence>
         {isCouponModalOpen && (
           <Portal>
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 text-foreground">
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -196,21 +196,21 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
                 className={`${
                   isMidnight 
                     ? 'bg-[#1e293b] border-white/10 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.7)]' 
-                    : 'bg-white border-slate-200 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.1)]'
+                    : 'bg-card border-border shadow-[0_32px_128px_-16px_rgba(0,0,0,0.1)]'
                 } w-full max-w-[600px] max-h-[90vh] overflow-hidden flex flex-col border relative z-10 rounded-3xl`}
               >
                 {/* Header */}
-                <div className={`px-8 py-5 flex items-center justify-between border-b ${isMidnight ? 'border-white/5' : 'border-slate-100'}`}>
+                <div className={`px-8 py-5 flex items-center justify-between border-b ${isMidnight ? 'border-white/5' : 'border-border'}`}>
                   <div>
-                    <h2 className={`text-lg font-black uppercase tracking-tight ${isMidnight ? 'text-slate-100' : 'text-slate-900'}`}>
+                    <h2 className={`text-lg font-black uppercase tracking-tight ${isMidnight ? 'text-slate-100' : 'text-foreground'}`}>
                       {editingCoupon ? 'Cấu hình ưu đãi' : 'Tạo mã voucher'}
                     </h2>
-                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-0.5">Chiến dịch Marketing DigiBook</p>
+                    <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mt-0.5">Chiến dịch Marketing DigiBook</p>
                   </div>
                   <button 
                     onClick={() => setIsCouponModalOpen(false)} 
                     className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
-                      isMidnight ? 'text-slate-500 hover:bg-white/5' : 'text-slate-400 hover:bg-slate-50'
+                      isMidnight ? 'text-slate-500 hover:bg-white/5' : 'text-muted-foreground hover:bg-secondary'
                     }`}
                   >
                     <i className="fa-solid fa-xmark"></i>
@@ -222,7 +222,7 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
                     <div className="space-y-6">
                       <div className="grid grid-cols-12 gap-5">
                         <div className="col-span-12">
-                          <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>
+                          <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>
                             Mã định danh voucher *
                           </label>
                           <input
@@ -233,15 +233,15 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
                             onChange={(e) => setCouponFormData({...couponFormData, code: e.target.value.toUpperCase()})}
                             className={`w-full h-11 px-6 rounded-2xl border transition-all font-black text-sm tracking-widest uppercase outline-none ${
                               isMidnight 
-                              ? 'bg-white/5 border-white/5 text-indigo-400 focus:border-indigo-500' 
-                              : 'bg-slate-50/50 border-slate-100 focus:bg-white focus:border-indigo-500'
+                              ? 'bg-white/5 border-white/5 text-primary focus:border-primary' 
+                              : 'bg-secondary/50 border-border focus:bg-card focus:border-primary'
                             } ${editingCoupon ? 'opacity-40 cursor-not-allowed border-dashed' : ''}`}
                             placeholder="SummerSale2024"
                           />
                         </div>
 
                         <div className="col-span-12 md:col-span-6">
-                          <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>
+                          <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>
                             Loại hình giảm giá
                           </label>
                           <div className="relative">
@@ -250,19 +250,19 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
                               onChange={(e) => setCouponFormData({...couponFormData, discountType: e.target.value as 'percentage' | 'fixed'})}
                               className={`w-full h-11 px-6 rounded-2xl border transition-all font-black outline-none cursor-pointer text-xs appearance-none ${
                                 isMidnight 
-                                ? 'bg-white/5 border-white/5 text-white focus:border-indigo-500' 
-                                : 'bg-slate-50/50 border-slate-100 focus:bg-white focus:border-indigo-500'
+                                ? 'bg-white/5 border-white/5 text-white focus:border-primary' 
+                                : 'bg-secondary/50 border-border focus:bg-card focus:border-primary'
                               }`}
                             >
                               <option value="percentage">Phần trăm (%)</option>
                               <option value="fixed">Số tiền cố định (đ)</option>
                             </select>
-                            <i className="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                            <i className="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground text-xs pointer-events-none"></i>
                           </div>
                         </div>
 
                         <div className="col-span-12 md:col-span-6">
-                          <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>
+                          <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>
                             Giá trị ưu đãi ({couponFormData.discountType === 'percentage' ? '%' : 'đ'})
                           </label>
                           <input
@@ -273,14 +273,14 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
                             onChange={(e) => setCouponFormData({...couponFormData, discountValue: Number(e.target.value)})}
                             className={`w-full h-11 px-6 rounded-2xl border transition-all font-black text-sm outline-none ${
                               isMidnight 
-                              ? 'bg-white/5 border-white/5 text-white focus:border-indigo-500' 
-                              : 'bg-slate-50/50 border-slate-100 focus:bg-white focus:border-indigo-500'
+                              ? 'bg-white/5 border-white/5 text-white focus:border-primary' 
+                              : 'bg-secondary/50 border-border focus:bg-card focus:border-primary'
                             }`}
                           />
                         </div>
 
                         <div className="col-span-12 md:col-span-6">
-                          <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>
+                          <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>
                             Giá trị đơn tối thiểu (đ)
                           </label>
                           <input
@@ -290,14 +290,14 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
                             onChange={(e) => setCouponFormData({...couponFormData, minOrderValue: Number(e.target.value)})}
                             className={`w-full h-11 px-6 rounded-2xl border transition-all font-black text-sm outline-none ${
                               isMidnight 
-                              ? 'bg-white/5 border-white/5 text-white focus:border-indigo-500' 
-                              : 'bg-slate-50/50 border-slate-100 focus:bg-white focus:border-indigo-500'
+                              ? 'bg-white/5 border-white/5 text-white focus:border-primary' 
+                              : 'bg-secondary/50 border-border focus:bg-card focus:border-primary'
                             }`}
                           />
                         </div>
 
                         <div className="col-span-12 md:col-span-6">
-                          <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>
+                          <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>
                             Tổng lượt sử dụng tối đa
                           </label>
                           <input
@@ -307,14 +307,14 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
                             onChange={(e) => setCouponFormData({...couponFormData, usageLimit: Number(e.target.value)})}
                             className={`w-full h-11 px-6 rounded-2xl border transition-all font-black text-sm outline-none ${
                               isMidnight 
-                              ? 'bg-white/5 border-white/5 text-white focus:border-indigo-500' 
-                              : 'bg-slate-50/50 border-slate-100 focus:bg-white focus:border-indigo-500'
+                              ? 'bg-white/5 border-white/5 text-white focus:border-primary' 
+                              : 'bg-secondary/50 border-border focus:bg-card focus:border-primary'
                             }`}
                           />
                         </div>
 
                         <div className="col-span-12 md:col-span-6">
-                          <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>
+                          <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>
                             Hạn chót áp dụng
                           </label>
                           <input
@@ -324,26 +324,26 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
                             onChange={(e) => setCouponFormData({...couponFormData, expiryDate: e.target.value})}
                             className={`w-full h-11 px-6 rounded-2xl border transition-all font-black text-xs outline-none ${
                               isMidnight 
-                              ? 'bg-white/5 border-white/5 text-white focus:border-indigo-500' 
-                              : 'bg-slate-50/50 border-slate-100 focus:bg-white focus:border-indigo-500'
+                              ? 'bg-white/5 border-white/5 text-white focus:border-primary' 
+                              : 'bg-secondary/50 border-border focus:bg-card focus:border-primary'
                             }`}
                           />
                         </div>
 
                         <div className="col-span-12 md:col-span-6">
-                          <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>
+                          <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>
                             Quyền thực thi
                           </label>
                           <div 
                             onClick={() => setCouponFormData({...couponFormData, isActive: !couponFormData.isActive})}
                             className={`h-11 px-6 rounded-2xl border flex items-center gap-4 cursor-pointer transition-all ${
                               couponFormData.isActive 
-                                ? (isMidnight ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-600')
-                                : (isMidnight ? 'bg-white/5 border-white/5 text-slate-500' : 'bg-slate-50/50 border-slate-100 text-slate-400')
+                                ? (isMidnight ? 'bg-success/10 border-success/20 text-success' : 'bg-success/10 border-success/20 text-success')
+                                : (isMidnight ? 'bg-white/5 border-white/5 text-slate-500' : 'bg-secondary/50 border-border text-muted-foreground/30')
                             }`}
                           >
                             <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all ${
-                              couponFormData.isActive ? 'bg-current border-current' : 'border-slate-300'
+                              couponFormData.isActive ? 'bg-current border-current' : 'border-current'
                             }`}>
                               {couponFormData.isActive && <i className="fa-solid fa-check text-[10px] text-white"></i>}
                             </div>
@@ -355,14 +355,14 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
                   </div>
 
                   {/* Footer */}
-                  <div className={`px-8 py-5 flex items-center justify-end gap-3 border-t ${isMidnight ? 'bg-white/5 border-white/10' : 'bg-slate-50/80 border-slate-100'}`}>
+                  <div className={`px-8 py-5 flex items-center justify-end gap-3 border-t ${isMidnight ? 'bg-white/5 border-white/10' : 'bg-secondary/80 border-border'}`}>
                     <button
                       type="button"
                       onClick={() => setIsCouponModalOpen(false)}
                       className={`px-6 h-11 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
                         isMidnight 
                         ? 'bg-white/5 text-slate-400 hover:bg-white/10' 
-                        : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 shadow-sm'
+                        : 'bg-card text-muted-foreground border border-border hover:bg-secondary shadow-sm'
                       }`}
                     >
                       Hủy bỏ
@@ -370,7 +370,7 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="px-8 h-11 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all shadow-xl hover:shadow-none active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                      className="px-8 h-11 bg-primary text-primary-foreground rounded-2xl font-black text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-xl hover:shadow-none active:scale-95 disabled:opacity-50 flex items-center gap-2"
                     >
                       {isSubmitting ? (
                         <i className="fas fa-spinner fa-spin"></i>
