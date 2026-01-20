@@ -103,6 +103,18 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
             )}
           </div>
 
+          {/* Wishlist Button - Top Right */}
+          <button
+            onClick={handleToggleWishlist}
+            className={`absolute top-2 right-2 z-30 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 shadow-md backdrop-blur-md border ${
+              isWishlisted 
+                ? 'bg-rose-500 text-white border-rose-500' 
+                : 'bg-white/80 text-foreground border-white/50 hover:bg-white hover:text-rose-500'
+            } ${isHovered ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`}
+          >
+            <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-[10px]`}></i>
+          </button>
+
           {/* Rating Badge on Image */}
           <div className={`absolute bottom-2 right-2 z-30 px-1.5 py-0.5 bg-white/90 backdrop-blur-sm rounded-md flex items-center gap-1 shadow-sm border border-white/50 transition-all duration-300 ${isHovered ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
              <i className="fa-solid fa-star text-xs text-amber-400"></i>
@@ -212,38 +224,25 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={handleToggleWishlist}
-                className={`w-10 h-10 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${
-                  isWishlisted 
-                    ? 'bg-rose-50 text-rose-500 border-rose-100 shadow-sm' 
-                    : 'bg-secondary text-slate-400 border-secondary hover:text-rose-500 hover:bg-rose-50'
-                }`}
-              >
-                <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-sm`}></i>
-              </button>
-              
-              <button
+            <button
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   onAddToCart(book, 1, { x: e.clientX, y: e.clientY });
                 }}
                 disabled={!hasStock || !isAvailable}
-                className={`w-10 h-10 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center transition-all duration-300 ${
                   (!hasStock || !isAvailable)
                     ? 'bg-secondary text-slate-300 cursor-not-allowed' 
-                    : 'bg-primary text-white hover:bg-foreground shadow-lg shadow-primary/20'
+                    : 'bg-primary text-white hover:bg-foreground hover:scale-105 active:scale-95 shadow-md shadow-primary/10'
                 }`}
               >
-                <i className="fa-solid fa-cart-shopping text-sm"></i>
+                <i className="fa-solid fa-cart-shopping text-[10px] sm:text-xs"></i>
               </button>
             </div>
           </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
   );
 };
 

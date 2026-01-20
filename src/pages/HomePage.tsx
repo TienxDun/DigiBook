@@ -159,56 +159,56 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
       {/* Bento Spotlight Section - High Density Highlights */}
       <section className="py-6 lg:py-12 bg-background">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-2 lg:grid-cols-6 grid-rows-none auto-rows-fr gap-3 lg:gap-4 lg:h-[450px]">
+          <div className="grid grid-cols-6 grid-rows-none auto-rows-fr gap-3 lg:gap-4 lg:h-[450px]">
             {/* Main Featured Book (Large) */}
-            <div className="col-span-2 lg:col-span-3 lg:row-span-2 bg-foreground rounded-[2rem] p-6 lg:p-10 text-white relative overflow-hidden group">
+            <div className="col-span-6 lg:col-span-3 lg:row-span-2 bg-foreground rounded-[2rem] p-5 lg:p-10 text-white relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_30%,rgba(112,51,255,0.2),transparent)]"></div>
               <div className="relative z-10 h-full flex flex-col justify-between">
                 <div>
                   <span className="px-3 py-1 bg-primary text-[10px] font-bold uppercase tracking-premium rounded-full mb-4 lg:mb-6 inline-block">Editor's Choice</span>
-                  <h3 className="text-xl lg:text-4xl font-extrabold mb-3 lg:mb-4 leading-tight tracking-tighter">Bestsellers <br/>của tháng.</h3>
-                  <p className="text-slate-400 text-xs lg:text-sm font-medium leading-relaxed max-w-[150px] lg:max-w-[200px]">Bộ sưu tập tinh hoa hội tụ.</p>
+                  <h3 className="text-xl lg:text-4xl font-extrabold mb-2 lg:mb-4 leading-tight tracking-tighter">Bestsellers <br/>của tháng.</h3>
+                  <p className="text-slate-400 text-[10px] lg:text-sm font-medium leading-relaxed max-w-[150px] lg:max-w-[200px]">Bộ sưu tập tinh hoa hội tụ.</p>
                 </div>
                 <Link to="/category/Bán chạy" className="w-fit px-5 lg:px-6 py-2.5 lg:py-3 bg-white text-foreground rounded-xl font-bold text-[10px] lg:text-xs uppercase tracking-premium hover:bg-primary hover:text-white transition-all">Khám phá</Link>
               </div>
               <img 
                 src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop" 
-                className="absolute -right-6 -bottom-6 lg:-right-10 lg:-bottom-10 w-40 lg:w-64 h-auto rotate-12 group-hover:rotate-6 group-hover:scale-110 transition-all duration-700 opacity-40 lg:opacity-100" 
+                className="absolute -right-6 -bottom-6 lg:-right-10 lg:-bottom-10 w-32 lg:w-64 h-auto rotate-12 group-hover:rotate-6 group-hover:scale-110 transition-all duration-700 opacity-30 lg:opacity-100" 
                 alt="" 
               />
             </div>
 
             {/* AI Assistant Promo */}
-            <div className="col-span-2 lg:col-span-3 bg-accent rounded-[2rem] p-6 lg:p-8 relative overflow-hidden group">
+            <div className="col-span-6 lg:col-span-3 bg-accent rounded-[2rem] p-5 lg:p-8 relative overflow-hidden group">
               <div className="relative z-10 flex items-center justify-between h-full">
-                <div className="max-w-[70%] lg:max-w-[60%]">
-                  <h4 className="text-base lg:text-lg font-black text-foreground mb-1 lg:mb-2 text-primary">Trợ lý AI</h4>
-                  <p className="text-xs lg:text-sm text-slate-500 font-medium mb-3 lg:mb-4 leading-relaxed">Tìm cuốn sách phù hợp với tâm trạng của bạn ngay tức thì.</p>
+                <div className="max-w-[75%] lg:max-w-[60%]">
+                  <h4 className="text-sm lg:text-lg font-black text-foreground mb-1 lg:mb-2 text-primary uppercase tracking-wider">Trợ lý AI</h4>
+                  <p className="text-[10px] lg:text-sm text-slate-500 font-medium mb-3 lg:mb-4 leading-relaxed">Tìm cuốn sách phù hợp với tâm trạng của bạn ngay tức thì.</p>
                   <Link to="/admin/ai" className="text-primary font-bold text-[10px] lg:text-xs uppercase tracking-widest flex items-center gap-2 group/link">Thử ngay <i className="fa-solid fa-robot group-hover/link:translate-x-1 transition-transform"></i></Link>
                 </div>
-                <div className="w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-2xl lg:rounded-full flex items-center justify-center shadow-xl shadow-accent/20 text-primary text-xl lg:text-2xl animate-bounce">
+                <div className="w-10 h-10 lg:w-16 lg:h-16 bg-white rounded-xl lg:rounded-full flex items-center justify-center shadow-xl shadow-accent/20 text-primary text-lg lg:text-2xl animate-bounce">
                   <i className="fa-solid fa-robot"></i>
                 </div>
               </div>
             </div>
 
             {/* Small High-Density Info Cards */}
-            <div className="col-span-1 bg-amber-50 rounded-[2rem] p-5 flex flex-col items-center justify-center text-center group hover:bg-amber-100 transition-colors">
-              <i className="fa-solid fa-bolt text-amber-500 text-xl mb-2"></i>
-              <span className="text-xs font-black text-foreground uppercase">Flash Sale</span>
-              <p className="text-micro font-bold text-amber-600 mt-1">Đang diễn ra</p>
+            <div className="col-span-2 bg-amber-50 rounded-[2rem] p-4 lg:p-5 flex flex-col items-center justify-center text-center group hover:bg-amber-100 transition-colors">
+              <i className="fa-solid fa-bolt text-amber-500 text-lg lg:text-xl mb-2"></i>
+              <span className="text-[9px] lg:text-xs font-black text-foreground uppercase">Flash Sale</span>
+              <p className="hidden xs:block text-micro font-bold text-amber-600 mt-1">Đang diễn ra</p>
             </div>
 
-            <div className="col-span-1 bg-emerald-50 rounded-[2rem] p-5 flex flex-col items-center justify-center text-center group hover:bg-emerald-100 transition-colors">
-              <i className="fa-solid fa-truck-fast text-emerald-500 text-xl mb-2"></i>
-              <span className="text-xs font-black text-foreground uppercase">Free Ship</span>
-              <p className="text-micro font-bold text-emerald-600 mt-1">Đơn từ 500k</p>
+            <div className="col-span-2 bg-emerald-50 rounded-[2rem] p-4 lg:p-5 flex flex-col items-center justify-center text-center group hover:bg-emerald-100 transition-colors">
+              <i className="fa-solid fa-truck-fast text-emerald-500 text-lg lg:text-xl mb-2"></i>
+              <span className="text-[9px] lg:text-xs font-black text-foreground uppercase">Free Ship</span>
+              <p className="hidden xs:block text-micro font-bold text-emerald-600 mt-1">Đơn từ 500k</p>
             </div>
 
-            <div className="col-span-1 bg-secondary rounded-[2rem] p-5 flex flex-col items-center justify-center text-center group hover:bg-muted transition-colors">
-               <i className="fa-solid fa-users text-slate-400 text-xl mb-2"></i>
-               <span className="text-xs font-black text-foreground uppercase">Cộng đồng</span>
-               <p className="text-micro font-bold text-slate-500 mt-1">15k Member</p>
+            <div className="col-span-2 bg-secondary rounded-[2rem] p-4 lg:p-5 flex flex-col items-center justify-center text-center group hover:bg-muted transition-colors">
+               <i className="fa-solid fa-users text-slate-400 text-lg lg:text-xl mb-2"></i>
+               <span className="text-[9px] lg:text-xs font-black text-foreground uppercase">Cộng đồng</span>
+               <p className="hidden xs:block text-micro font-bold text-slate-500 mt-1">15k Member</p>
             </div>
           </div>
         </div>
