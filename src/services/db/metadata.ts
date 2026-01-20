@@ -27,7 +27,7 @@ export async function getAuthors(): Promise<Author[]> {
   );
 }
 
-export async function saveAuthor(author: Author): Promise<void> {
+export async function saveAuthor(author: Author): Promise<string> {
   const id = author.id || Date.now().toString();
   await wrap(
     setDoc(doc(db_fs, 'authors', id), { ...author, id }, { merge: true }),
@@ -35,6 +35,7 @@ export async function saveAuthor(author: Author): Promise<void> {
     'SAVE_AUTHOR',
     author.name
   );
+  return id;
 }
 
 export async function deleteAuthor(id: string): Promise<void> {
