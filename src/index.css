@@ -2,6 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --toast-bg: #ffffff;
+  --toast-color: #0f172a;
+  --toast-border: #f1f5f9;
+}
+
+.admin-midnight {
+  --toast-bg: #1e293b;
+  --toast-color: #f1f5f9;
+  --toast-border: rgba(255, 255, 255, 0.1);
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+.admin-midnight .bg-background {
+  background-color: #0f172a !important;
+}
+
+.admin-midnight .text-foreground {
+  color: #f1f5f9 !important;
+}
+
 @layer base {
   body {
     @apply bg-background text-foreground overflow-x-hidden text-base;
@@ -10,6 +32,14 @@
     -webkit-tap-highlight-color: transparent;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 

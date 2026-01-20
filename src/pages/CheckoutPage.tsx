@@ -306,7 +306,13 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                     <span className="text-micro font-bold text-emerald-700 uppercase tracking-premium flex items-center gap-2">
                       <i className="fa-solid fa-ticket"></i> {appliedCoupon.code}
                     </span>
-                    <button onClick={() => setAppliedCoupon(null)} className="text-emerald-700 hover:text-rose-500 text-xs"><i className="fa-solid fa-circle-xmark"></i></button>
+                    <button 
+                      onClick={() => setAppliedCoupon(null)} 
+                      className="w-10 h-10 flex items-center justify-center text-emerald-700 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all active:scale-90"
+                      aria-label="Remove coupon"
+                    >
+                      <i className="fa-solid fa-circle-xmark text-lg"></i>
+                    </button>
                   </div>
                 )}
               </div>

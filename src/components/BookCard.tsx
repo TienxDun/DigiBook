@@ -15,10 +15,23 @@ const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 };
 
-const getOptimizedImageUrl = (url: string) => {
+const getOptimizedImageUrl = (url: string, size: 'small' | 'medium' | 'large' = 'medium') => {
   if (url.includes('unsplash.com')) {
     const baseUrl = url.split('?')[0];
-    return `${baseUrl}?auto=format,compress&fm=webp&q=80&w=500&fit=max`;
+    const sizes = {
+      small: 'w=200&h=300&fit=max',
+      medium: 'w=300&h=450&fit=max',
+      large: 'w=500&h=750&fit=max'
+    };
+    return `${baseUrl}?auto=format,compress&fm=webp&q=80&${sizes[size]}`;
+  }
+  return url;
+};
+
+const getImageSrcSet = (url: string) => {
+  if (url.includes('unsplash.com')) {
+    const baseUrl = url.split('?')[0];
+    return `${baseUrl}?auto=format,compress&fm=webp&q=80&w=300&h=450&fit=max 1x, ${baseUrl}?auto=format,compress&fm=webp&q=80&w=500&h=750&fit=max 2x`;
   }
   return url;
 };
@@ -54,6 +67,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
         className={`relative group flex flex-col min-h-[320px] lg:min-h-[340px] bg-white rounded-3xl sm:rounded-[2rem] p-2.5 sm:p-3 border border-secondary shadow-sm transition-all duration-500 w-full ${(!isAvailable || !hasStock) ? 'grayscale opacity-60' : 'hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/20 hover:ring-4 hover:ring-primary/10'}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        onClick={() => setIsHovered(!isHovered)} // Toggle on mobile tap
       >
         {/* Glow Effect on Hover */}
         <div className="absolute -inset-0.5 bg-gradient-to-tr from-primary/10 via-purple-500/10 to-rose-500/10 rounded-3xl sm:rounded-[2rem] blur opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
@@ -104,6 +118,8 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
             )}
             <motion.img 
               src={getOptimizedImageUrl(book.cover)} 
+              srcSet={getImageSrcSet(book.cover)}
+              sizes="(max-width: 640px) 200px, (max-width: 1024px) 300px, 500px"
               alt={book.title} 
               onLoad={() => setImgLoaded(true)}
               loading="lazy"
@@ -199,7 +215,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
             <div className="flex items-center gap-1.5">
               <button
                 onClick={handleToggleWishlist}
-                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${
+                className={`w-10 h-10 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${
                   isWishlisted 
                     ? 'bg-primary/5 text-primary border-primary/10 shadow-sm' 
                     : 'bg-secondary text-slate-400 border-secondary hover:text-primary hover:bg-primary/5'
@@ -215,7 +231,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
                   onAddToCart(book, 1, { x: e.clientX, y: e.clientY });
                 }}
                 disabled={!hasStock || !isAvailable}
-                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                className={`w-10 h-10 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
                   (!hasStock || !isAvailable)
                     ? 'bg-secondary text-slate-300 cursor-not-allowed' 
                     : 'bg-primary text-white hover:bg-foreground shadow-lg shadow-primary/20'

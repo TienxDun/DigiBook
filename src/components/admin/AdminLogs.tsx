@@ -104,7 +104,9 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
                       </p>
                       {log.metadata && (
                         <div className="mt-1 hidden group-hover:block animate-fadeIn">
-                          <pre className="text-[10px] p-2 bg-black/5 rounded font-mono text-muted-foreground overflow-x-auto">
+                          <pre className={`text-[10px] p-2 rounded font-mono text-muted-foreground overflow-x-auto ${
+                            isMidnight ? 'bg-black/20 border border-white/5' : 'bg-black/5'
+                          }`}>
                             {typeof log.metadata === 'string' ? log.metadata : JSON.stringify(log.metadata, null, 2)}
                           </pre>
                         </div>

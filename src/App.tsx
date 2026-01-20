@@ -25,7 +25,9 @@ const OrderSuccess = lazy(() => import('./pages/OrderSuccess'));
 const MyOrdersPage = lazy(() => import('./pages/MyOrdersPage'));
 const OrderDetailPage = lazy(() => import('./pages/OrderDetailPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+
+// Lazy load admin routes as separate chunk
+const AdminRoutes = lazy(() => import(/* webpackChunkName: "admin" */ './routes/AdminRoutes'));
 
 const AppContent: React.FC<{
   cartCount: number;
@@ -156,7 +158,7 @@ const AppContent: React.FC<{
               <Route path="/my-orders" element={<PageTransition><MyOrdersPage /></PageTransition>} />
               <Route path="/my-orders/:orderId" element={<PageTransition><OrderDetailPage /></PageTransition>} />
               <Route path="/profile" element={<PageTransition><ProfilePage /></PageTransition>} />
-              <Route path="/admin" element={<AdminRoute><PageTransition><AdminDashboard /></PageTransition></AdminRoute>} />
+              <Route path="/admin/*" element={<AdminRoute><AdminRoutes /></AdminRoute>} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </AnimatePresence>
@@ -258,14 +260,14 @@ const App: React.FC = () => {
         toastOptions={{
           duration: 3000,
           style: {
-            background: '#ffffff',
-            color: '#0f172a',
+            background: 'var(--toast-bg)',
+            color: 'var(--toast-color)',
             padding: '16px 24px',
             borderRadius: '24px',
             fontSize: '15px',
             fontWeight: '600',
             boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
-            border: '1px solid #f1f5f9',
+            border: '1px solid var(--toast-border)',
           },
           success: {
             iconTheme: {

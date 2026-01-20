@@ -25,6 +25,7 @@ interface AdminUsersProps {
 }
 
 const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'light' }) => {
+  const isMidnight = theme === 'midnight';
   const [userRoleFilter, setUserRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
   const [userStatusFilter, setUserStatusFilter] = useState<'all' | 'active' | 'banned'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -89,18 +90,20 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
   return (
     <div className="space-y-6 animate-fadeIn text-foreground">
       {/* Filters Bar */}
-      <div className="bg-card/40 backdrop-blur-md border border-border shadow-3xl flex flex-wrap items-center justify-between gap-4 p-6 rounded-[2.5rem] transition-all hover:border-primary/20">
+      <div className={`${isMidnight ? 'bg-[#1e293b]/40 border-white/5' : 'bg-card/40 backdrop-blur-md border-border shadow-3xl'} flex flex-wrap items-center justify-between gap-4 p-6 rounded-[2.5rem] transition-all hover:border-primary/20`}>
         <div className="flex items-center gap-6">
           <div className="space-y-2">
             <span className="text-[9px] font-black uppercase tracking-premium text-muted-foreground ml-1">Vai trò</span>
-            <div className="flex gap-1 p-1 rounded-xl bg-secondary/30 border border-border/50">
+            <div className={`flex gap-1 p-1 rounded-xl ${
+              isMidnight ? 'bg-slate-700/30 border-white/10' : 'bg-secondary/30 border-border/50'
+            }`}>
               {(['all', 'admin', 'user'] as const).map(role => (
                 <button
                   key={role}
                   onClick={() => { setUserRoleFilter(role); setCurrentPage(1); }}
                   className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-premium transition-all ${
                     userRoleFilter === role
-                    ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
                     : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
                   }`}
                 >
@@ -112,14 +115,16 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
 
           <div className="space-y-2">
             <span className="text-[9px] font-black uppercase tracking-premium text-muted-foreground ml-1">Trạng thái</span>
-            <div className="flex gap-1 p-1 rounded-xl bg-secondary/30 border border-border/50">
+            <div className={`flex gap-1 p-1 rounded-xl ${
+              isMidnight ? 'bg-slate-700/30 border-white/10' : 'bg-secondary/30 border-border/50'
+            }`}>
               {(['all', 'active', 'banned'] as const).map(status => (
                 <button
                   key={status}
                   onClick={() => { setUserStatusFilter(status); setCurrentPage(1); }}
                   className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-premium transition-all ${
                     userStatusFilter === status
-                    ? (status === 'banned' ? 'bg-destructive text-white shadow-lg shadow-destructive/20' : 'bg-green-500 text-white shadow-lg shadow-green-500/20')
+                    ? (status === 'banned' ? 'bg-destructive text-destructive-foreground shadow-lg shadow-destructive/20' : 'bg-green-500 text-white shadow-lg shadow-green-500/20')
                     : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
                   }`}
                 >
@@ -138,12 +143,16 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
               placeholder="Tìm kiếm..."
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-border bg-secondary/30 text-foreground font-bold outline-none focus:border-primary focus:bg-card transition-all"
+              className={`w-full pl-10 pr-4 py-3 rounded-xl border font-bold outline-none transition-all ${
+                isMidnight 
+                ? 'bg-slate-800/50 border-white/5 text-slate-200 focus:bg-slate-800 focus:border-primary/50' 
+                : 'border-border bg-secondary/30 text-foreground focus:border-primary focus:bg-card'
+              }`}
             />
           </div>
           <button
             onClick={refreshData}
-            className="w-12 h-12 flex items-center justify-center rounded-xl bg-secondary text-muted-foreground hover:bg-primary hover:text-white transition-all shadow-sm group active:scale-95"
+            className="w-12 h-12 flex items-center justify-center rounded-xl bg-secondary text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all shadow-sm group active:scale-95"
             title="Refresh"
           >
             <i className="fa-solid fa-rotate-right group-hover:rotate-180 transition-transform duration-500"></i>
@@ -151,12 +160,11 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
         </div>
       </div>
 
-      {/* Users List Card */}
-      <div className="bg-card/40 backdrop-blur-md border border-border shadow-3xl rounded-[2.5rem] overflow-hidden min-h-[500px]">
+      <div className={`${isMidnight ? 'bg-[#1e293b]/40 border-white/5' : 'bg-card/40 backdrop-blur-md border-border shadow-3xl'} rounded-[2.5rem] overflow-hidden min-h-[500px]`}>
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
-              <tr className="border-b border-border/50">
+              <tr className={`border-b ${isMidnight ? 'bg-slate-900/50 border-white/5' : 'border-border/50'}`}>
                 <th className="px-6 py-4 text-[9px] font-black text-muted-foreground uppercase tracking-premium">Người dùng</th>
                 <th className="px-6 py-4 text-[9px] font-black text-muted-foreground uppercase tracking-premium">Liên hệ</th>
                 <th className="px-6 py-4 text-[9px] font-black text-muted-foreground uppercase tracking-premium text-center">Vai trò</th>
@@ -164,7 +172,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
                 <th className="px-6 py-4 text-[9px] font-black text-muted-foreground uppercase tracking-premium text-right">Thao tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/30">
+            <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-border/30'}`}>
               <AnimatePresence mode="popLayout">
                 {paginatedUsers.length > 0 ? paginatedUsers.map((user, idx) => (
                   <motion.tr 
@@ -173,7 +181,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="group transition-all duration-300 hover:bg-secondary/30"
+                    className={`group transition-all duration-300 ${isMidnight ? 'hover:bg-slate-700/30' : 'hover:bg-secondary/30'}`}
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
@@ -210,7 +218,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all shadow-sm ${
                           user.role === 'admin'
                           ? 'bg-amber-500 text-white shadow-amber-500/20'
-                          : 'bg-secondary text-muted-foreground hover:bg-primary/10 hover:text-primary border border-border/50'
+                          : (isMidnight ? 'bg-slate-700 text-slate-400 border-white/5 hover:bg-primary/20 hover:text-primary' : 'bg-secondary text-muted-foreground hover:bg-primary/10 hover:text-primary border border-border/50')
                         }`}
                       >
                         <i className={user.role === 'admin' ? "fa-solid fa-shield-halved text-[8px]" : "fa-solid fa-user text-[8px]"}></i>
@@ -256,7 +264,9 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
                   <tr>
                     <td colSpan={5} className="px-6 py-12 text-center">
                         <div className="flex flex-col items-center gap-4">
-                          <div className="w-16 h-16 rounded-2xl bg-secondary/50 flex items-center justify-center border border-border/50 shadow-inner">
+                          <div className={`w-16 h-16 rounded-2xl flex items-center justify-center border shadow-inner ${
+                            isMidnight ? 'bg-slate-800 border-white/5' : 'bg-secondary/50 border-border/50'
+                          }`}>
                             <i className="fa-solid fa-users-slash text-2xl text-muted-foreground/20"></i>
                           </div>
                           <div className="space-y-1">
@@ -280,7 +290,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="px-6 py-4 border-t border-border/50 bg-secondary/20">
+          <div className={`px-6 py-4 border-t ${isMidnight ? 'border-white/5 bg-slate-900/40' : 'border-border/50 bg-secondary/20'}`}>
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}

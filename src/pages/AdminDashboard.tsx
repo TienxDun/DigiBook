@@ -22,6 +22,7 @@ interface AISettings {
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"overview" | "books" | "orders" | "categories" | "authors" | "coupons" | "users" | "logs" | "ai">("overview");
   const [adminTheme, setAdminTheme] = useState<"midnight" | "light">(localStorage.getItem("digibook_admin_theme") as any || "midnight");
+  const isMidnight = adminTheme === "midnight";
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [books, setBooks] = useState<Book[]>([]);
@@ -98,6 +99,15 @@ const AdminDashboard: React.FC = () => {
   useEffect(() => {
     refreshData();
   }, [activeTab]);
+
+  useEffect(() => {
+    if (adminTheme === 'midnight') {
+      document.body.classList.add('admin-midnight');
+    } else {
+      document.body.classList.remove('admin-midnight');
+    }
+    return () => document.body.classList.remove('admin-midnight');
+  }, [adminTheme]);
 
   const menuGroups = [
     {
@@ -250,15 +260,19 @@ const AdminDashboard: React.FC = () => {
       )}
 
       {/* Sidebar - Cố định bên trái - Nâng cấp màu Sidebar Premium */}
-      <aside className={`${isSidebarCollapsed ? 'w-24' : 'w-80'} flex flex-col fixed inset-y-0 z-[100] shadow-xl transition-all duration-500 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} bg-sidebar border-r border-sidebar-border`}>
-        <div className={`p-6 border-b border-sidebar-border flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between'} gap-4 h-24 bg-sidebar relative z-20`}>
+      <aside className={`${isSidebarCollapsed ? 'w-24' : 'w-80'} flex flex-col fixed inset-y-0 z-[100] shadow-xl transition-all duration-500 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} ${
+        isMidnight ? 'bg-[#0f172a] border-white/5' : 'bg-sidebar border-sidebar-border'
+      } border-r`}>
+        <div className={`p-6 flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between'} gap-4 h-24 relative z-20 border-b ${
+          isMidnight ? 'border-white/5 bg-[#0f172a]' : 'border-sidebar-border bg-sidebar'
+        }`}>
           {!isSidebarCollapsed ? (
             <div className="flex items-center gap-4 animate-fadeIn">
               <Link to="/" className="w-11 h-11 bg-primary rounded-xl flex items-center justify-center text-primary-foreground hover:scale-105 shadow-xl shadow-primary/20 transition-all active:scale-95 group">
                 <i className="fa-solid fa-bolt-lightning group-hover:rotate-12 transition-transform"></i>
               </Link>
               <div>
-                <h1 className="text-base font-black tracking-tighter uppercase text-sidebar-foreground leading-none">DigiBook</h1>
+                <h1 className={`text-base font-black tracking-tighter uppercase leading-none ${isMidnight ? 'text-slate-100' : 'text-sidebar-foreground'}`}>DigiBook</h1>
                 <p className="text-xs font-black text-primary/80 uppercase tracking-[0.3em] mt-1.5">Architecture</p>
               </div>
             </div>
@@ -267,8 +281,10 @@ const AdminDashboard: React.FC = () => {
               <i className="fa-solid fa-bolt-lightning group-hover:rotate-12 transition-transform"></i>
             </Link>
           )}
-          <button onClick={() => setIsMobileMenuOpen(false)} className="lg:hidden text-sidebar-foreground/50 hover:text-sidebar-foreground p-2 transition-colors">
-            <i className="fa-solid fa-xmark text-xl"></i>
+          <button onClick={() => setIsMobileMenuOpen(false)} className={`lg:hidden w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
+            isMidnight ? 'text-slate-400 hover:text-white hover:bg-white/5' : 'text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+          }`}>
+            <i className="fa-solid fa-xmark text-lg"></i>
           </button>
         </div>
 
@@ -276,7 +292,9 @@ const AdminDashboard: React.FC = () => {
           {menuGroups.map((group, gIdx) => (
             <div key={gIdx} className="space-y-2">
               {!isSidebarCollapsed && (
-                <h3 className="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-sidebar-foreground/40 mb-4 animate-fadeIn">
+                <h3 className={`px-4 text-[10px] font-black uppercase tracking-[0.2em] mb-4 animate-fadeIn ${
+                  isMidnight ? 'text-slate-500' : 'text-sidebar-foreground/40'
+                }`}>
                   {group.title}
                 </h3>
               )}
@@ -291,11 +309,15 @@ const AdminDashboard: React.FC = () => {
                     title={isSidebarCollapsed ? tab.label : ""}
                     className={`flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-4 px-5'} w-full py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 group relative
                       ${activeTab === tab.id 
-                        ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-xl shadow-sidebar-primary/20" 
-                        : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent hover:translate-x-1"
+                        ? (isMidnight ? "bg-primary text-white shadow-xl shadow-primary/20" : "bg-sidebar-primary text-sidebar-primary-foreground shadow-xl shadow-sidebar-primary/20") 
+                        : (isMidnight ? "text-slate-400 hover:text-white hover:bg-white/5 hover:translate-x-1" : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent hover:translate-x-1")
                       }`}
                   >
-                    <i className={`fa-solid ${tab.icon} ${isSidebarCollapsed ? 'text-lg' : 'text-sm w-5 text-center'} ${activeTab === tab.id ? 'text-sidebar-primary-foreground' : 'text-sidebar-foreground/40 group-hover:text-primary'}`}></i>
+                    <i className={`fa-solid ${tab.icon} ${isSidebarCollapsed ? 'text-lg' : 'text-sm w-5 text-center'} ${
+                      activeTab === tab.id 
+                        ? (isMidnight ? 'text-white' : 'text-sidebar-primary-foreground') 
+                        : (isMidnight ? 'text-slate-500 group-hover:text-primary' : 'text-sidebar-foreground/40 group-hover:text-primary')
+                    }`}></i>
                     {!isSidebarCollapsed && <span className="animate-fadeIn">{tab.label}</span>}
                     
                     {activeTab === tab.id && !isSidebarCollapsed && (
@@ -312,10 +334,12 @@ const AdminDashboard: React.FC = () => {
         </nav>
 
         {/* Sidebar Footer - Collapse Toggle */}
-        <div className="p-4 border-t border-white/[0.03] hidden lg:block">
+        <div className={`p-4 border-t hidden lg:block ${isMidnight ? 'border-white/5' : 'border-white/[0.03]'}`}>
           <button 
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="w-full flex items-center justify-center gap-3 py-3 rounded-xl bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest overflow-hidden"
+            className={`w-full flex items-center justify-center gap-3 py-3 rounded-xl transition-all text-[10px] font-black uppercase tracking-widest overflow-hidden ${
+              isMidnight ? 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white' : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+            }`}
           >
             <i className={`fa-solid ${isSidebarCollapsed ? 'fa-angles-right' : 'fa-angles-left'} transition-transform duration-500`}></i>
             {!isSidebarCollapsed && <span className="whitespace-nowrap animate-fadeIn">Thu gọn menu</span>}
@@ -325,11 +349,15 @@ const AdminDashboard: React.FC = () => {
 
       {/* Main Content Area */}
       <main className={`flex-1 min-w-0 ${isSidebarCollapsed ? 'lg:ml-24' : 'lg:ml-80'} min-h-screen flex flex-col transition-all duration-500 bg-background`}>
-        <header className="backdrop-blur-xl border-b border-border sticky top-0 z-40 h-24 flex items-center justify-between px-6 lg:px-10 transition-all bg-background/80">
+        <header className={`backdrop-blur-xl border-b sticky top-0 z-40 h-24 flex items-center justify-between px-6 lg:px-10 transition-all ${
+          isMidnight ? 'border-white/5 bg-[#0f172a]/80 shadow-lg' : 'border-border bg-background/80'
+        }`}>
            <div className="flex items-center gap-4">
               <button 
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="lg:hidden w-12 h-12 rounded-2xl flex items-center justify-center transition-all active:scale-95 bg-card text-foreground border border-border"
+                className={`lg:hidden w-12 h-12 rounded-2xl flex items-center justify-center transition-all active:scale-95 border ${
+                  isMidnight ? 'bg-slate-800 text-slate-200 border-white/5' : 'bg-card text-foreground border-border'
+                }`}
               >
                 <i className="fa-solid fa-bars-staggered"></i>
               </button>
@@ -353,21 +381,38 @@ const AdminDashboard: React.FC = () => {
            
            <div className="flex items-center gap-3 lg:gap-6">
               {/* System Stats - NEW */}
-              <div className="hidden xl:flex items-center gap-6 px-6 border-r border-border mr-2">
+              <div className={`hidden xl:flex items-center gap-6 px-6 border-r mr-2 ${isMidnight ? 'border-white/5' : 'border-border'}`}>
                  <div className="text-right">
                     <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">Dung lượng</p>
-                    <p className="text-[11px] font-black text-foreground">1.2 GB / 5GB</p>
+                    <p className={`text-[11px] font-black ${isMidnight ? 'text-slate-200' : 'text-foreground'}`}>1.2 GB / 5GB</p>
                  </div>
-                 <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
+                 <div className={`w-12 h-1.5 rounded-full overflow-hidden ${isMidnight ? 'bg-slate-800' : 'bg-muted'}`}>
                     <div className="h-full w-[24%] bg-primary shadow-[0_0_10px_rgba(112,51,255,0.5)]"></div>
                  </div>
               </div>
+
+              {/* Theme Toggle Button */}
+              <button 
+                onClick={toggleTheme}
+                className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center transition-all active:scale-95 shadow-lg border ${
+                  isMidnight 
+                  ? 'bg-slate-800 border-white/5 text-amber-400 shadow-black/20 hover:bg-slate-700' 
+                  : 'bg-card text-indigo-600 border-border shadow-slate-200/50 hover:bg-slate-50'
+                }`}
+                title={isMidnight ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}
+              >
+                <i className={`fa-solid ${isMidnight ? 'fa-sun' : 'fa-moon'}`}></i>
+              </button>
 
               {/* Seed Data Button */}
               <button 
                 onClick={handleSeedData}
                 disabled={isSeeding}
-                className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center transition-all active:scale-95 shadow-lg bg-card text-amber-600 border border-border shadow-slate-200/50 hover:bg-slate-50 ${isSeeding ? 'opacity-50' : ''}`}
+                className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center transition-all active:scale-95 shadow-lg border ${
+                  isMidnight 
+                  ? 'bg-slate-800 border-white/5 text-amber-500 shadow-black/20 hover:bg-slate-700' 
+                  : 'bg-card text-amber-600 border-border shadow-slate-200/50 hover:bg-slate-50'
+                } ${isSeeding ? 'opacity-50' : ''}`}
                 title="Khởi tạo dữ liệu hệ thống"
               >
                 <i className={`fa-solid ${isSeeding ? 'fa-circle-notch animate-spin' : 'fa-database'}`}></i>
@@ -375,9 +420,11 @@ const AdminDashboard: React.FC = () => {
 
               <div className="hidden md:flex flex-col items-end">
                 <span className="text-micro font-black text-muted-foreground uppercase tracking-widest">{new Date().toLocaleDateString('vi-VN', { weekday: 'long' })}</span>
-                <span className="text-sm font-black text-foreground">{new Date().toLocaleDateString('vi-VN')}</span>
+                <span className={`text-sm font-black ${isMidnight ? 'text-slate-200' : 'text-foreground'}`}>{new Date().toLocaleDateString('vi-VN')}</span>
               </div>
-              <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center border border-border shadow-inner bg-card text-muted-foreground">
+              <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center border shadow-inner ${
+                isMidnight ? 'bg-slate-800 border-white/5 text-slate-400' : 'bg-card border-border text-muted-foreground'
+              }`}>
                  <i className="fa-solid fa-calendar-check text-primary"></i>
               </div>
            </div>
@@ -406,7 +453,7 @@ const AdminDashboard: React.FC = () => {
         <div className="p-4 lg:p-10 flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
           {activeTab === "overview" && (
             <div className="space-y-6 lg:space-y-10 animate-fadeIn">
-              {/* Stats Grid - Premium Glassmorphism */}
+                {/* Stats Grid - Premium Glassmorphism */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
                 {[
                   { label: "Doanh thu", value: formatPrice(stats.totalRevenue), icon: "fa-sack-dollar", bgColor: "bg-chart-1/10", iconColor: "text-chart-1", sub: `Chiếm ${((stats.totalRevenue/1000000)*100).toFixed(1)}% mục tiêu tuần`, growth: "+12.5%", trend: "up" },
@@ -414,7 +461,11 @@ const AdminDashboard: React.FC = () => {
                   { label: "Sách tồn", value: stats.totalBooks, icon: "fa-book-open-reader", bgColor: "bg-chart-2/10", iconColor: "text-chart-2", sub: `${stats.outOfStock} đầu sách đã hết`, growth: stats.lowStock > 0 ? `-${stats.lowStock}` : "ổn định", trend: stats.lowStock > 0 ? "down" : "neutral" },
                   { label: "Đang xử lý", value: stats.pendingOrders, icon: "fa-clock", bgColor: "bg-chart-3/10", iconColor: "text-chart-3", sub: `${stats.completedOrders} đơn đã hoàn thành`, growth: "Ưu tiên cao", trend: "neutral" }
                 ].map((stat, i) => (
-                  <div key={i} className="p-5 lg:p-7 rounded-[2rem] lg:rounded-[2.5rem] border border-border shadow-2xl transition-all duration-500 group relative overflow-hidden bg-card hover:shadow-primary/5 hover:border-primary">
+                  <div key={i} className={`p-5 lg:p-7 rounded-[2rem] lg:rounded-[2.5rem] border shadow-2xl transition-all duration-500 group relative overflow-hidden ${
+                    isMidnight 
+                    ? 'bg-[#1e293b]/40 border-white/5 hover:border-primary/40 hover:bg-[#1e293b]/60' 
+                    : 'bg-card border-border hover:shadow-primary/5 hover:border-primary'
+                  }`}>
                     <div className="flex items-start justify-between mb-6 relative z-10">
                       <div className={`w-12 h-12 lg:w-14 lg:h-14 ${stat.bgColor} ${stat.iconColor} rounded-2xl lg:rounded-[1.2rem] flex items-center justify-center text-lg lg:text-xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-[0_0_30px_rgba(112,51,255,0.2)]`}>
                         <i className={`fa-solid ${stat.icon}`}></i>
@@ -444,14 +495,16 @@ const AdminDashboard: React.FC = () => {
 
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
                 {/* Revenue Chart - chiếm 3 cột */}
-                <div className="lg:col-span-3 p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] border border-border shadow-2xl relative overflow-hidden transition-all bg-card shadow-slate-200/50">
+                <div className={`lg:col-span-3 p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] border shadow-2xl relative overflow-hidden transition-all ${
+                  isMidnight ? 'bg-[#1e293b]/40 border-white/5 shadow-black/20' : 'bg-card border-border shadow-slate-200/50'
+                }`}>
                   <div className="flex items-center justify-between mb-12">
                     <div>
                       <h3 className="text-lg lg:text-xl font-black uppercase tracking-tight text-foreground">Hiệu quả kinh doanh</h3>
                       <p className="text-xs lg:text-micro font-bold text-primary/60 uppercase tracking-premium mt-1">Chu kỳ {chartView === 'week' ? '7 ngày' : '30 ngày'} gần nhất • VNĐ</p>
                     </div>
                     <div className="flex items-center gap-4">
-                       <div className="flex bg-muted p-1 rounded-xl border border-border">
+                       <div className={`flex p-1 rounded-xl border ${isMidnight ? 'bg-slate-800 border-white/5' : 'bg-muted border-border'}`}>
                           <button 
                             onClick={() => setChartView("week")}
                             className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${chartView === 'week' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:text-foreground'}`}
@@ -471,7 +524,9 @@ const AdminDashboard: React.FC = () => {
                   {/* Revenue Chart Visualization */}
                   <div className="flex gap-4 h-80 mt-10 relative">
                     {/* Y-Axis Labels */}
-                    <div className="hidden sm:flex flex-col justify-between h-[75%] text-[9px] font-black text-muted-foreground uppercase tracking-tighter w-14 pb-2">
+                    <div className={`hidden sm:flex flex-col justify-between h-[75%] text-[9px] font-black uppercase tracking-tighter w-14 pb-2 ${
+                      isMidnight ? 'text-slate-500' : 'text-muted-foreground'
+                    }`}>
                        {stats.yAxisLabels.map((val, idx) => (
                          <span key={idx} className="text-right">
                            {val >= 1000000 ? `${(val/1000000).toFixed(1)}M` : val >= 1000 ? `${(val/1000).toFixed(0)}K` : val}
@@ -484,7 +539,7 @@ const AdminDashboard: React.FC = () => {
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
                           <div className="text-center">
                             <i className="fa-solid fa-chart-line text-4xl mb-2"></i>
-                            <p className="text-[10px] font-black uppercase tracking-widest">Chưa có dữ liệu giao dịch</p>
+                            <p className={`text-[10px] font-black uppercase tracking-widest ${isMidnight ? 'text-slate-500' : 'text-foreground'}`}>Chưa có dữ liệu giao dịch</p>
                           </div>
                         </div>
                       )}
@@ -508,7 +563,7 @@ const AdminDashboard: React.FC = () => {
                                >
                                   {/* Value label on top (visible on small screens or hover) */}
                                   <div className={`absolute -top-10 left-1/2 -translate-x-1/2 transition-all duration-300 transform group-hover:-translate-y-2 whitespace-nowrap z-20 ${isPeak ? 'opacity-100 -translate-y-1' : 'opacity-0 group-hover:opacity-100'}`}>
-                                     <span className={`${isPeak ? 'bg-primary text-primary-foreground' : 'bg-foreground text-background'} px-3 py-1.5 rounded-xl text-[10px] font-black shadow-2xl border border-border`}>
+                                     <span className={`${isPeak ? 'bg-primary text-primary-foreground' : (isMidnight ? 'bg-slate-800 text-slate-200' : 'bg-foreground text-background')} px-3 py-1.5 rounded-xl text-[10px] font-black shadow-2xl border ${isMidnight ? 'border-white/10' : 'border-border'}`}>
                                         {formatPrice(day.total)}
                                      </span>
                                   </div>
@@ -527,11 +582,13 @@ const AdminDashboard: React.FC = () => {
 
                             {/* Label Area - Occupies the remaining 25% height */}
                             <div className="flex-1 flex flex-col items-center justify-center gap-0.5">
-                              <span className={`${chartView === 'week' ? 'text-[10px]' : 'text-[8px]'} font-black uppercase tracking-widest transition-colors text-muted-foreground group-hover:text-primary ${chartView === 'month' && i % 5 !== 0 ? 'hidden' : ''}`}>
+                              <span className={`${chartView === 'week' ? 'text-[10px]' : 'text-[8px]'} font-black uppercase tracking-widest transition-colors ${
+                                isMidnight ? 'text-slate-500' : 'text-muted-foreground'
+                              } group-hover:text-primary ${chartView === 'month' && i % 5 !== 0 ? 'hidden' : ''}`}>
                                 {day.day}
                               </span>
                               {chartView === 'week' && (
-                                 <span className="text-[8px] font-bold text-muted-foreground uppercase">Th.{day.month}</span>
+                                 <span className={`text-[8px] font-bold uppercase ${isMidnight ? 'text-slate-600' : 'text-muted-foreground'}`}>Th.{day.month}</span>
                               )}
                             </div>
                           </div>
@@ -542,14 +599,16 @@ const AdminDashboard: React.FC = () => {
                     {/* Horizontal Grid Lines */}
                     <div className="absolute left-14 right-4 top-0 bottom-[25%] flex flex-col justify-between pointer-events-none">
                       {[...Array(5)].map((_, i) => (
-                        <div key={i} className="w-full h-px bg-border/50"></div>
+                        <div key={i} className={`w-full h-px ${isMidnight ? 'bg-white/5' : 'bg-border/50'}`}></div>
                       ))}
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 lg:gap-8">
-                  <div className="p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl border border-border transition-all bg-card shadow-slate-200/50">
+                  <div className={`p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl border transition-all ${
+                    isMidnight ? 'bg-[#1e293b]/40 border-white/5 shadow-black/20' : 'bg-card border-border shadow-slate-200/50'
+                  }`}>
                     <div className="flex items-center justify-between mb-8">
                       <h3 className="text-xs font-black uppercase tracking-premium text-foreground">Thống kê kho</h3>
                       <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -562,12 +621,16 @@ const AdminDashboard: React.FC = () => {
                         { label: "Danh mục", value: stats.totalCategories, color: "indigo", icon: "fa-shapes" },
                         { label: "Mã KM", value: stats.totalCoupons, color: "amber", icon: "fa-ticket" }
                       ].map((item, id) => (
-                        <div key={id} className="flex items-center justify-between p-4 rounded-2xl border border-border group transition-all duration-300 bg-muted hover:bg-card hover:shadow-xl hover:shadow-slate-100 hover:border-transparent">
+                        <div key={id} className={`flex items-center justify-between p-4 rounded-2xl border group transition-all duration-300 ${
+                          isMidnight 
+                          ? 'bg-slate-800/40 border-white/5 hover:bg-slate-800 hover:border-primary/40' 
+                          : 'bg-muted border-border hover:bg-card hover:shadow-xl hover:shadow-slate-100 hover:border-transparent'
+                        }`}>
                           <div className="flex items-center gap-4">
                              <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-xs transition-transform group-hover:rotate-12 bg-primary/10 text-primary`}>
                                 <i className={`fa-solid ${item.icon}`}></i>
                              </div>
-                             <span className="text-xs font-black text-muted-foreground uppercase tracking-tight">{item.label}</span>
+                             <span className={`text-xs font-black uppercase tracking-tight ${isMidnight ? 'text-slate-400' : 'text-muted-foreground'}`}>{item.label}</span>
                           </div>
                           <span className="text-sm font-black transition-all group-hover:text-primary group-hover:scale-125 text-foreground">
                             {item.value}
@@ -618,7 +681,9 @@ const AdminDashboard: React.FC = () => {
               {/* Activity Section - NEW */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                 {/* Recent Orders */}
-                <div className="p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border border-border shadow-2xl transition-all bg-card">
+                <div className={`p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border shadow-2xl transition-all ${
+                  isMidnight ? 'bg-[#1e293b]/40 border-white/5 shadow-black/20' : 'bg-card border-border'
+                }`}>
                    <div className="flex items-center justify-between mb-8">
                      <div>
                        <h3 className="text-lg font-black uppercase tracking-tight text-foreground">Đơn hàng mới nhất</h3>
@@ -629,7 +694,11 @@ const AdminDashboard: React.FC = () => {
                    
                    <div className="space-y-4">
                      {stats.recentOrders.length > 0 ? stats.recentOrders.map((order: any) => (
-                       <div key={order.id} className="flex items-center justify-between p-5 rounded-3xl transition-all bg-muted border border-border hover:bg-card hover:shadow-xl hover:shadow-slate-100">
+                       <div key={order.id} className={`flex items-center justify-between p-5 rounded-3xl transition-all border ${
+                         isMidnight 
+                          ? 'bg-slate-800/40 border-white/5 hover:bg-slate-800 hover:border-primary/40' 
+                          : 'bg-muted border-border hover:bg-card hover:shadow-xl hover:shadow-slate-100'
+                       }`}>
                          <div className="flex items-center gap-4">
                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-lg ${
                              order.statusStep === 3 ? 'bg-chart-1/10 text-chart-1' : 
@@ -659,7 +728,9 @@ const AdminDashboard: React.FC = () => {
                 </div>
 
                 {/* Top Selling Books */}
-                <div className="p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border border-border shadow-2xl transition-all bg-card">
+                <div className={`p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border shadow-2xl transition-all ${
+                  isMidnight ? 'bg-[#1e293b]/40 border-white/5 shadow-black/20' : 'bg-card border-border'
+                }`}>
                    <div className="flex items-center justify-between mb-8">
                      <div>
                        <h3 className="text-lg font-black uppercase tracking-tight text-foreground">Sản phẩm bán chạy</h3>
@@ -670,7 +741,11 @@ const AdminDashboard: React.FC = () => {
 
                    <div className="space-y-4">
                      {stats.topSellingBooks.length > 0 ? stats.topSellingBooks.map((book: any, idx: number) => (
-                       <div key={idx} className="flex items-center justify-between p-4 rounded-3xl transition-all bg-muted border border-border hover:bg-card hover:shadow-xl hover:shadow-slate-100">
+                       <div key={idx} className={`flex items-center justify-between p-4 rounded-3xl transition-all border ${
+                         isMidnight 
+                          ? 'bg-slate-800/40 border-white/5 hover:bg-slate-800 hover:border-primary/40' 
+                          : 'bg-muted border-border hover:bg-card hover:shadow-xl hover:shadow-slate-100'
+                       }`}>
                          <div className="flex items-center gap-4">
                            <div className="relative">
                              <img src={book.cover} alt={book.title} className="w-12 h-16 object-cover rounded-xl shadow-lg border border-border" />

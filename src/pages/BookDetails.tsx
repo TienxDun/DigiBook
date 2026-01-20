@@ -25,14 +25,14 @@ const SocialShare: React.FC<{ title: string }> = ({ title }) => {
 
   return (
     <div className="flex items-center gap-2 mt-4">
-      <button onClick={copyLink} className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-500 hover:bg-slate-900 hover:text-white transition-all text-xs shadow-sm border border-slate-200" title="Sao chép liên kết">
-        <i className="fa-solid fa-link"></i>
+      <button onClick={copyLink} className="w-11 h-11 rounded-xl bg-white flex items-center justify-center text-slate-500 hover:bg-slate-900 hover:text-white transition-all shadow-sm border border-slate-200 active:scale-90" title="Sao chép liên kết">
+        <i className="fa-solid fa-link text-sm"></i>
       </button>
-      <button className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-500 hover:bg-[#1877F2] hover:text-white transition-all text-xs shadow-sm border border-slate-200">
-        <i className="fa-brands fa-facebook-f"></i>
+      <button className="w-11 h-11 rounded-xl bg-white flex items-center justify-center text-slate-500 hover:bg-[#1877F2] hover:text-white transition-all shadow-sm border border-slate-200 active:scale-90">
+        <i className="fa-brands fa-facebook-f text-sm"></i>
       </button>
-      <button className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-500 hover:bg-[#1DA1F2] hover:text-white transition-all text-xs shadow-sm border border-slate-200">
-        <i className="fa-brands fa-twitter"></i>
+      <button className="w-11 h-11 rounded-xl bg-white flex items-center justify-center text-slate-500 hover:bg-[#1DA1F2] hover:text-white transition-all shadow-sm border border-slate-200 active:scale-90">
+        <i className="fa-brands fa-twitter text-sm"></i>
       </button>
     </div>
   );
@@ -419,16 +419,26 @@ const BookDetails: React.FC<{
 
                  {/* Right Side: Interactive Controls */}
                  <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-                    <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200/50">
-                       <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-8 h-8 rounded-lg hover:bg-white hover:shadow-sm transition-all flex items-center justify-center text-slate-500"><i className="fa-solid fa-minus text-[10px]"></i></button>
-                       <span className="w-5 text-center font-black text-slate-900 text-xs">{quantity}</span>
-                       <button onClick={() => setQuantity(quantity + 1)} className="w-8 h-8 rounded-lg hover:bg-white hover:shadow-sm transition-all flex items-center justify-center text-slate-500"><i className="fa-solid fa-plus text-[10px]"></i></button>
+                    <div className="flex items-center gap-1.5 bg-slate-50 p-1.5 rounded-2xl border border-slate-200/50">
+                       <button 
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))} 
+                        className="w-10 h-10 rounded-xl bg-white hover:bg-slate-100 shadow-sm transition-all flex items-center justify-center text-slate-500 active:scale-90"
+                       >
+                        <i className="fa-solid fa-minus text-sm"></i>
+                       </button>
+                       <span className="w-8 text-center font-black text-slate-900 text-base">{quantity}</span>
+                       <button 
+                        onClick={() => setQuantity(quantity + 1)} 
+                        className="w-10 h-10 rounded-xl bg-white hover:bg-slate-100 shadow-sm transition-all flex items-center justify-center text-slate-500 active:scale-90"
+                       >
+                        <i className="fa-solid fa-plus text-sm"></i>
+                       </button>
                     </div>
                     
                     <button 
                       onClick={(e) => onAddToCart(book, quantity, { x: e.clientX, y: e.clientY })}
                       disabled={book.stockQuantity <= 0}
-                      className="md:w-[160px] flex-grow md:flex-none h-11 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg shadow-slate-200 active:scale-[0.98] disabled:bg-slate-200 flex items-center justify-center gap-2"
+                      className="md:w-[160px] flex-grow md:flex-none h-12 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg shadow-slate-200 active:scale-[0.98] disabled:bg-slate-200 flex items-center justify-center gap-2"
                     >
                        <i className="fa-solid fa-cart-shopping text-sm"></i>
                        Mua ngay
@@ -436,12 +446,12 @@ const BookDetails: React.FC<{
 
                     <button 
                       onClick={handleToggleWishlist}
-                      className={`shrink-0 h-11 w-11 rounded-xl font-black transition-all flex items-center justify-center border-2 active:scale-95 ${
+                      className={`shrink-0 h-12 w-12 rounded-xl font-black transition-all flex items-center justify-center border-2 shadow-sm active:scale-95 ${
                         isWishlisted ? 'bg-rose-50 border-rose-100 text-rose-500' : 'bg-white border-slate-100 text-slate-400 hover:border-indigo-100 hover:text-indigo-600'
                       }`}
                       aria-label={isWishlisted ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
                     >
-                       <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-sm`}></i>
+                       <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-lg`}></i>
                     </button>
                  </div>
               </div>

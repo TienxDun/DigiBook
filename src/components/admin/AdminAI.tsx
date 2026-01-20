@@ -25,6 +25,7 @@ interface AdminAIProps {
 }
 
 const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light' }) => {
+  const isMidnight = theme === 'midnight';
   const [activeTab, setActiveTab] = useState<'models' | 'test'>('models');
   const [isUpdatingAI, setIsUpdatingAI] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -217,7 +218,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
           </div>
         </div>
 
-        <div className="bg-card/40 backdrop-blur-md border border-border shadow-3xl rounded-[2.5rem] p-8 col-span-2 flex flex-col justify-center gap-6">
+        <div className={`${isMidnight ? 'bg-[#1e293b]/40 border-white/5' : 'bg-card/40 backdrop-blur-md border-border shadow-3xl'} rounded-[2.5rem] p-8 col-span-2 flex flex-col justify-center gap-6`}>
           <div className="flex flex-wrap items-center justify-between gap-6 pb-6 border-b border-border/50">
             <div className="flex items-center gap-5">
               <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-primary/10 text-primary shadow-sm">
@@ -251,13 +252,13 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
       </div>
 
       {/* Main Controls Section */}
-      <div className="bg-card/40 backdrop-blur-md border border-border shadow-3xl rounded-[2.5rem] p-8 min-h-[600px]">
+      <div className={`${isMidnight ? 'bg-[#1e293b]/40 border-white/5' : 'bg-card/40 backdrop-blur-md border-border shadow-3xl'} rounded-[2.5rem] p-8 min-h-[600px]`}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-10 pb-6 border-b border-border/50">
           <div className="flex items-center gap-10">
             <button
               onClick={() => setActiveTab('models')}
               className={`pb-4 text-micro font-black uppercase tracking-premium relative transition-all ${
-                activeTab === 'models' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+                activeTab === 'models' ? 'text-primary' : (isMidnight ? 'text-slate-400 hover:text-primary' : 'text-muted-foreground hover:text-foreground')
               }`}
             >
               Models Registry
@@ -266,7 +267,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
             <button
               onClick={() => setActiveTab('test')}
               className={`pb-4 text-micro font-black uppercase tracking-premium relative transition-all ${
-                activeTab === 'test' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+                activeTab === 'test' ? 'text-primary' : (isMidnight ? 'text-slate-400 hover:text-primary' : 'text-muted-foreground hover:text-foreground')
               }`}
             >
               AI Laboratory
@@ -278,7 +279,11 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
             <button
               onClick={handleSyncModels}
               disabled={isUpdatingAI}
-              className="px-6 py-3.5 rounded-2xl bg-secondary text-muted-foreground font-black text-micro uppercase tracking-premium hover:bg-primary hover:text-white transition-all disabled:opacity-50 active:scale-95 flex items-center gap-2"
+              className={`px-6 py-3.5 rounded-2xl font-black text-micro uppercase tracking-premium transition-all disabled:opacity-50 active:scale-95 flex items-center gap-2 ${
+                isMidnight 
+                  ? 'bg-slate-700/50 text-slate-400 hover:bg-primary hover:text-primary-foreground' 
+                  : 'bg-secondary text-muted-foreground hover:bg-primary hover:text-primary-foreground'
+              }`}
             >
               <i className={`fa-solid fa-rotate ${isUpdatingAI ? 'animate-spin' : ''}`}></i>
               Sync Defaults
@@ -316,8 +321,10 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                         key={model.id}
                         className={`group p-6 rounded-3xl border transition-all duration-500 relative flex flex-col justify-between ${
                           activeModelId === model.id 
-                          ? 'bg-primary/5 border-primary shadow-lg shadow-primary/5' 
-                          : 'bg-secondary/30 border-border hover:border-primary/40 hover:bg-card shadow-sm'
+                          ? (isMidnight ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-primary/5 border-primary shadow-lg shadow-primary/5')
+                          : (isMidnight 
+                             ? 'bg-slate-800/40 border-white/5 hover:border-primary/40 hover:bg-slate-800' 
+                             : 'bg-secondary/30 border-border hover:border-primary/40 hover:bg-card shadow-sm')
                         }`}
                       >
                         {activeModelId === model.id && (
@@ -332,13 +339,21 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                             <div className="flex gap-2">
                                 <button 
                                   onClick={() => handleOpenEditModal(model)}
-                                  className="w-9 h-9 rounded-xl bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/30 transition-all shadow-sm active:scale-90"
+                                  className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all shadow-sm active:scale-90 ${
+                                    isMidnight 
+                                      ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:text-primary hover:border-primary/30' 
+                                      : 'bg-card border border-border text-muted-foreground hover:text-primary hover:border-primary/30'
+                                  }`}
                                 >
                                   <i className="fa-solid fa-pen-nib text-[10px]"></i>
                                 </button>
                                 <button 
                                   onClick={() => handleDeleteModel(model.id)}
-                                  className="w-9 h-9 rounded-xl bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-destructive hover:border-destructive/30 transition-all shadow-sm active:scale-90"
+                                  className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all shadow-sm active:scale-90 ${
+                                    isMidnight 
+                                      ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:text-destructive hover:border-destructive/30' 
+                                      : 'bg-card border border-border text-muted-foreground hover:text-destructive hover:border-destructive/30'
+                                  }`}
                                 >
                                   <i className="fa-solid fa-trash-alt text-[10px]"></i>
                                 </button>
@@ -369,7 +384,9 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                           className={`mt-6 w-full py-3.5 rounded-2xl text-micro font-black uppercase tracking-[0.15em] transition-all disabled:opacity-100 ${
                             activeModelId === model.id 
                             ? 'bg-primary text-white shadow-md shadow-primary/20' 
-                            : 'bg-secondary text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                            : (isMidnight 
+                                ? 'bg-slate-700/50 text-slate-400 hover:bg-primary/10 hover:text-primary' 
+                                : 'bg-secondary text-muted-foreground hover:bg-primary/10 hover:text-primary')
                           }`}
                         >
                           {activeModelId === model.id ? 'Core Engine Active' : 'Switch to this model'}
@@ -449,7 +466,9 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                 initial={{ scale: 0.9, y: 20, opacity: 0 }}
                 animate={{ scale: 1, y: 0, opacity: 1 }}
                 exit={{ scale: 0.9, y: 20, opacity: 0 }}
-                className="bg-card w-full max-w-xl rounded-[3rem] shadow-3xl overflow-hidden border border-border"
+                className={`w-full max-w-xl rounded-[3rem] shadow-3xl overflow-hidden border ${
+                  isMidnight ? 'bg-slate-800 border-white/10' : 'bg-card border-border'
+                }`}
               >
                  <div className="p-10 pb-0 flex justify-between items-start">
                   <div className="space-y-1">
@@ -458,7 +477,11 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                   </div>
                   <button 
                     onClick={() => setShowModal(false)}
-                    className="w-12 h-12 rounded-2xl bg-secondary text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all active:scale-90 flex items-center justify-center"
+                    className={`w-12 h-12 rounded-2xl transition-all active:scale-90 flex items-center justify-center ${
+                      isMidnight 
+                        ? 'bg-slate-700/50 text-slate-400 hover:bg-destructive/10 hover:text-destructive' 
+                        : 'bg-secondary text-muted-foreground hover:bg-destructive/10 hover:text-destructive'
+                    }`}
                   >
                     <i className="fa-solid fa-xmark text-lg"></i>
                   </button>
@@ -471,7 +494,9 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                         <select
                           value={formData.category}
                           onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                          className="w-full px-6 py-4 rounded-2xl bg-secondary/50 border border-border font-bold text-sm outline-none focus:border-primary focus:bg-card transition-all"
+                          className={`w-full px-6 py-4 rounded-2xl border font-bold text-sm outline-none focus:border-primary transition-all ${
+                            isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary/50 border-border'
+                          }`}
                         >
                           <option value="Google Gemini">Google Gemini</option>
                           <option value="Groq Cloud">Groq Cloud</option>
@@ -485,7 +510,9 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                           value={formData.id}
                           onChange={(e) => setFormData({ ...formData, id: e.target.value })}
                           placeholder="e.g. gemini-1.5-pro"
-                          className="w-full px-6 py-4 rounded-2xl bg-secondary/50 border border-border font-bold text-sm outline-none focus:border-primary focus:bg-card transition-all"
+                          className={`w-full px-6 py-4 rounded-2xl border font-bold text-sm outline-none focus:border-primary focus:bg-card transition-all ${
+                            isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary/50 border-border'
+                          }`}
                         />
                       </div>
                    </div>
@@ -497,7 +524,9 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="e.g. Gemini 1.5 Pro (Premium AI)"
-                      className="w-full px-6 py-4 rounded-2xl bg-secondary/50 border border-border font-bold text-sm outline-none focus:border-primary focus:bg-card transition-all"
+                      className={`w-full px-6 py-4 rounded-2xl border font-bold text-sm outline-none focus:border-primary focus:bg-card transition-all ${
+                        isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary/50 border-border'
+                      }`}
                     />
                   </div>
 
@@ -509,7 +538,9 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                         value={formData.rpm}
                         onChange={(e) => setFormData({ ...formData, rpm: e.target.value })}
                         placeholder="e.g. 15"
-                        className="w-full px-6 py-4 rounded-2xl bg-secondary/50 border border-border font-bold text-sm outline-none focus:border-primary focus:bg-card transition-all text-center"
+                        className={`w-full px-6 py-4 rounded-2xl border font-bold text-sm outline-none focus:border-primary focus:bg-card transition-all text-center ${
+                          isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary/50 border-border'
+                        }`}
                       />
                     </div>
                     <div className="space-y-3">
@@ -519,7 +550,9 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                         value={formData.tpm}
                         onChange={(e) => setFormData({ ...formData, tpm: e.target.value })}
                         placeholder="e.g. 1M"
-                        className="w-full px-6 py-4 rounded-2xl bg-secondary/50 border border-border font-bold text-sm outline-none focus:border-primary focus:bg-card transition-all text-center"
+                        className={`w-full px-6 py-4 rounded-2xl border font-bold text-sm outline-none focus:border-primary focus:bg-card transition-all text-center ${
+                          isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary/50 border-border'
+                        }`}
                       />
                     </div>
                     <div className="space-y-3">
@@ -529,7 +562,9 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                         value={formData.rpd}
                         onChange={(e) => setFormData({ ...formData, rpd: e.target.value })}
                         placeholder="e.g. 1500"
-                        className="w-full px-6 py-4 rounded-2xl bg-secondary/50 border border-border font-bold text-sm outline-none focus:border-primary focus:bg-card transition-all text-center"
+                        className={`w-full px-6 py-4 rounded-2xl border font-bold text-sm outline-none focus:border-primary focus:bg-card transition-all text-center ${
+                          isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary/50 border-border'
+                        }`}
                       />
                     </div>
                   </div>
@@ -538,7 +573,9 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                     <button
                       type="button"
                       onClick={() => setShowModal(false)}
-                      className="flex-1 py-4 rounded-2xl bg-secondary text-muted-foreground font-black text-micro uppercase tracking-widest hover:bg-border transition-all active:scale-95"
+                      className={`flex-1 py-4 rounded-2xl font-black text-micro uppercase tracking-widest transition-all active:scale-95 ${
+                        isMidnight ? 'bg-slate-700/50 text-slate-400 hover:bg-border' : 'bg-secondary text-muted-foreground hover:bg-border'
+                      }`}
                     >
                       Bỏ qua
                     </button>

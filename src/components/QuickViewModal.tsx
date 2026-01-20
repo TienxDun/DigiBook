@@ -163,19 +163,19 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-xl border border-slate-200/50">
+                <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-2xl border border-slate-200/50">
                     <button 
                       onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                      className="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center text-slate-600 hover:text-indigo-600 transition-all active:scale-90"
+                      className="w-11 h-11 rounded-xl bg-white shadow-sm flex items-center justify-center text-slate-600 hover:text-indigo-600 transition-all active:scale-90"
                     >
-                      <i className="fa-solid fa-minus text-[10px]"></i>
+                      <i className="fa-solid fa-minus text-sm"></i>
                     </button>
-                    <span className="w-10 text-center font-black text-slate-900 text-base">{quantity}</span>
+                    <span className="w-10 text-center font-black text-slate-900 text-lg">{quantity}</span>
                     <button 
                       onClick={() => setQuantity(q => q + 1)}
-                      className="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center text-slate-600 hover:text-indigo-600 transition-all active:scale-90"
+                      className="w-11 h-11 rounded-xl bg-white shadow-sm flex items-center justify-center text-slate-600 hover:text-indigo-600 transition-all active:scale-90"
                     >
-                      <i className="fa-solid fa-plus text-[10px]"></i>
+                      <i className="fa-solid fa-plus text-sm"></i>
                     </button>
                 </div>
               </div>

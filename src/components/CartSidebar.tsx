@@ -108,7 +108,15 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
 
               {/* Header Section */}
               <div className="relative z-10 flex flex-col shrink-0">
-                <div className="px-6 pt-5 pb-3 flex items-center justify-between">
+                <motion.div 
+                  className="px-6 pt-5 pb-3 flex items-center justify-between"
+                  drag="y"
+                  dragConstraints={{ top: 0, bottom: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(e, info) => {
+                    if (info.offset.y > 100) onClose();
+                  }}
+                >
                   <div>
                     <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase italic underline decoration-indigo-500 decoration-4 underline-offset-4">Giỏ hàng</h2>
                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-0.5">
@@ -117,11 +125,11 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                   </div>
                   <button 
                     onClick={onClose} 
-                    className="w-9 h-9 rounded-full bg-white shadow-sm border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors"
+                    className="w-12 h-12 rounded-full bg-white shadow-sm border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors active:scale-90"
                   >
-                    <i className="fa-solid fa-xmark text-sm"></i>
+                    <i className="fa-solid fa-xmark text-lg"></i>
                   </button>
-                </div>
+                </motion.div>
 
                 {/* Free Shipping Progress Indicator: More Compact */}
                 {items.length > 0 && (
@@ -232,10 +240,10 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                             />
                           </div>
                           
-                          <div className={`absolute -top-1 -left-1 w-5 h-5 rounded-full border-2 border-white shadow-md flex items-center justify-center transition-all duration-300 ${
+                          <div className={`absolute -top-1 -left-1 w-6 h-6 rounded-full border-2 border-white shadow-md flex items-center justify-center transition-all duration-300 ${
                             selectedIds.includes(item.id) ? 'bg-indigo-600 scale-110' : 'bg-white'
                           }`}>
-                            <i className={`fa-solid fa-check text-[7px] ${selectedIds.includes(item.id) ? 'text-white' : 'text-slate-200'}`}></i>
+                            <i className={`fa-solid fa-check text-[8px] ${selectedIds.includes(item.id) ? 'text-white' : 'text-slate-200'}`}></i>
                           </div>
                         </div>
 
@@ -252,9 +260,9 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                             </div>
                             <button 
                               onClick={(e) => { e.stopPropagation(); onRemove(item.id); }}
-                              className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-rose-50 text-slate-300 hover:text-rose-500 transition-all ml-1"
+                              className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-rose-50 text-slate-300 hover:text-rose-500 transition-all ml-1 active:scale-90"
                             >
-                              <i className="fa-solid fa-trash-can text-[9px]"></i>
+                              <i className="fa-solid fa-trash-can text-sm"></i>
                             </button>
                           </div>
 
@@ -274,22 +282,22 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
 
                           {/* Small Action Bar */}
                           <div className="mt-auto flex items-center justify-between">
-                            <div className="flex items-center bg-slate-50 rounded-lg p-0.5 border border-slate-100">
+                            <div className="flex items-center bg-slate-50 rounded-xl p-1 border border-slate-100">
                               <button 
                                 onClick={(e) => { e.stopPropagation(); onUpdateQty(item.id, -1); }} 
-                                className="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-white rounded-md transition-all"
+                                className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-white rounded-lg transition-all active:scale-90"
                               >
-                                <i className="fa-solid fa-minus text-[7px]"></i>
+                                <i className="fa-solid fa-minus text-sm"></i>
                               </button>
-                              <span className="text-[10px] font-black text-slate-700 w-5 text-center">{item.quantity}</span>
+                              <span className="text-sm font-black text-slate-700 w-8 text-center">{item.quantity}</span>
                               <button 
                                 onClick={(e) => { e.stopPropagation(); onUpdateQty(item.id, 1); }} 
-                                className="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-white rounded-md transition-all"
+                                className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-white rounded-lg transition-all active:scale-90"
                               >
-                                <i className="fa-solid fa-plus text-[7px]"></i>
+                                <i className="fa-solid fa-plus text-sm"></i>
                               </button>
                             </div>
-                            <div className="text-right" onClick={() => onToggleSelection(item.id)}>
+                            <div className="text-right flex-1 pl-2" onClick={() => onToggleSelection(item.id)}>
                               <p className={`font-black text-[13px] tracking-tighter ${
                                 selectedIds.includes(item.id) ? 'text-indigo-600' : 'text-slate-900'
                               }`}>
