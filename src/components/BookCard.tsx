@@ -218,7 +218,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
                 className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
                   (!hasStock || !isAvailable)
                     ? 'bg-slate-100 text-slate-300 cursor-not-allowed' 
-                    : 'bg-indigo-600 text-white hover:bg-slate-900 shadow-lg shadow-indigo-200 active:scale-95'
+                    : 'bg-indigo-600 text-white hover:bg-slate-900 shadow-lg shadow-indigo-200'
                 }`}
               >
                 <i className="fa-solid fa-cart-shopping text-sm"></i>

@@ -13,7 +13,14 @@ export class ErrorHandler {
     
     // Log to Firestore system_logs
     try {
-      db.logActivity(`ERROR_${context.toUpperCase()}`, error.message || 'Unknown error', 'ERROR');
+      db.logActivity(
+        `ERROR_${context.toUpperCase()}`, 
+        error.message || 'Unknown error', 
+        'ERROR', 
+        'ERROR', 
+        'SYSTEM',
+        { stack: error.stack, context }
+      );
     } catch (e) {
       console.error("Failed to log error to DB", e);
     }

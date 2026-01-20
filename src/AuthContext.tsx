@@ -219,18 +219,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const toggleWishlist = useCallback(async (book: Book) => {
+    let updated: Book[] = [];
+    
     setWishlist(prev => {
       const exists = prev.find(b => b.id === book.id);
-      const updated = exists ? prev.filter(b => b.id !== book.id) : [...prev, book];
-      
-      // Sync to cloud if user is logged in
-      if (user) {
-        db.updateWishlist(user.id, updated.map(b => b.id))
-          .catch(err => console.error("Wishlist sync error:", err));
-      }
-      
+      updated = exists ? prev.filter(b => b.id !== book.id) : [...prev, book];
       return updated;
     });
+
+    // Sycn to cloud IF user is logged in - OUTSIDE of state updater
+    if (user) {
+      try {
+        await db.updateWishlist(user.id, updated.map(b => b.id));
+      } catch (err) {
+        console.error("Wishlist sync error:", err);
+      }
+    }
   }, [user]);
 
   const clearWishlist = useCallback(async () => {

@@ -63,9 +63,9 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
               <tr className={`${isMidnight ? 'bg-white/5 border-white/5' : 'bg-slate-50'} border-b`}>
                 <th className={`px-8 py-5 text-micro font-extrabold uppercase tracking-widest ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Thời gian</th>
                 <th className={`px-8 py-5 text-micro font-extrabold uppercase tracking-widest ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Người dùng</th>
-                <th className={`px-8 py-5 text-micro font-extrabold uppercase tracking-widest ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Hành động</th>
+                <th className={`px-8 py-5 text-micro font-extrabold uppercase tracking-widest ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Hành động & Loại</th>
                 <th className={`px-8 py-5 text-micro font-extrabold uppercase tracking-widest ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Nội dung</th>
-                <th className={`px-8 py-5 text-micro font-extrabold uppercase tracking-widest text-center ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Kết quả</th>
+                <th className={`px-8 py-5 text-micro font-extrabold uppercase tracking-widest text-center ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Cấp độ & Kết quả</th>
               </tr>
             </thead>
             <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-slate-50'}`}>
@@ -90,53 +90,82 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
                     </div>
                   </td>
                   <td className="px-8 py-6">
-                    <span className={`text-xs font-black uppercase tracking-tight ${isMidnight ? 'text-slate-200' : 'text-slate-900'}`}>{log.action}</span>
+                    <div className="flex flex-col gap-1.5">
+                      <span className={`text-xs font-black uppercase tracking-tight ${isMidnight ? 'text-slate-200' : 'text-slate-900'}`}>{log.action}</span>
+                      {log.category && (
+                        <span className={`text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-md w-fit ${
+                          isMidnight ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/10' : 'bg-indigo-50 text-indigo-600 border border-indigo-100'
+                        }`}>
+                          {log.category}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-8 py-6 max-w-md">
                     <p className={`text-xs font-semibold leading-relaxed ${isMidnight ? 'text-slate-400' : 'text-slate-500'}`}>{log.detail}</p>
+                    {log.metadata && (
+                       <pre className="text-[10px] mt-2 p-2 bg-black/10 rounded overflow-x-auto font-mono max-w-xs">
+                          {typeof log.metadata === 'string' ? log.metadata : JSON.stringify(log.metadata, null, 2)}
+                       </pre>
+                    )}
                   </td>
                   <td className="px-8 py-6 text-center">
-                    <span className={`px-2.5 py-1 rounded-lg text-micro font-black uppercase tracking-widest shadow-lg backdrop-blur-md flex items-center justify-center gap-1.5 w-fit mx-auto border ${
-                      (log.status === 'SUCCESS' || (log.status as string) === 'success') 
-                      ? (isMidnight 
-                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-emerald-500/10' 
-                          : 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-600 border-emerald-100 shadow-emerald-100'
-                        ) :
-                      (log.status === 'ERROR' || (log.status as string) === 'error') 
-                      ? (isMidnight 
-                          ? 'bg-rose-500/10 text-rose-400 border-rose-500/20 shadow-rose-500/10' 
-                          : 'bg-gradient-to-r from-rose-50 to-pink-50 text-rose-600 border-rose-100 shadow-rose-100'
-                        ) :
-                      ((log.status as string) === 'warning' || (log.status as string) === 'WARNING') 
-                      ? (isMidnight 
-                          ? 'bg-amber-500/10 text-amber-500 border-amber-500/20 shadow-amber-500/10' 
-                          : 'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-600 border-amber-100 shadow-amber-100'
-                        ) :
-                      (isMidnight 
-                          ? 'bg-blue-500/10 text-blue-400 border-blue-500/20 shadow-blue-500/10' 
-                          : 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 border-blue-100 shadow-blue-100'
-                      )
-                    }`}>
-                      {(log.status === 'SUCCESS' || (log.status as string) === 'success') ? (
-                          <>
-                            <i className="fa-solid fa-circle-check text-[9px] opacity-70"></i> Thành công
-                          </>
-                       ) :
-                       (log.status === 'ERROR' || (log.status as string) === 'error') ? (
-                          <>
-                            <i className="fa-solid fa-circle-xmark text-[9px] opacity-70"></i> Lỗi
-                          </>
-                       ) :
-                       ((log.status as string) === 'warning' || (log.status as string) === 'WARNING') ? (
-                          <>
-                            <i className="fa-solid fa-triangle-exclamation text-[9px] opacity-70"></i> Cảnh báo
-                          </>
-                       ) : (
-                          <>
-                             <i className="fa-solid fa-circle-info text-[9px] opacity-70"></i> Thông tin
-                          </>
-                       )}
-                    </span>
+                    <div className="flex flex-col items-center gap-2">
+                      {/* Level Badge */}
+                      {log.level && (
+                        <span className={`text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${
+                          log.level === 'ERROR' ? 'bg-red-500 text-white' :
+                          log.level === 'WARN' ? 'bg-amber-500 text-white' :
+                          log.level === 'DEBUG' ? 'bg-emerald-500 text-white' :
+                          'bg-slate-500 text-white'
+                        }`}>
+                          {log.level}
+                        </span>
+                      )}
+                      
+                      {/* Status Badge */}
+                      <span className={`px-2.5 py-1 rounded-lg text-micro font-black uppercase tracking-widest shadow-lg backdrop-blur-md flex items-center justify-center gap-1.5 w-fit mx-auto border ${
+                        (log.status === 'SUCCESS' || (log.status as string) === 'success') 
+                        ? (isMidnight 
+                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-emerald-500/10' 
+                            : 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-600 border-emerald-100 shadow-emerald-100'
+                          ) :
+                        (log.status === 'ERROR' || (log.status as string) === 'error') 
+                        ? (isMidnight 
+                            ? 'bg-rose-500/10 text-rose-400 border-rose-500/20 shadow-rose-500/10' 
+                            : 'bg-gradient-to-r from-rose-50 to-pink-50 text-rose-600 border-rose-100 shadow-rose-100'
+                          ) :
+                        ((log.status as string) === 'warning' || (log.status as string) === 'WARNING') 
+                        ? (isMidnight 
+                            ? 'bg-amber-500/10 text-amber-500 border-amber-500/20 shadow-amber-500/10' 
+                            : 'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-600 border-amber-100 shadow-amber-100'
+                          ) :
+                        (isMidnight 
+                            ? 'bg-blue-500/10 text-blue-400 border-blue-500/20 shadow-blue-500/10' 
+                            : 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 border-blue-100 shadow-blue-100'
+                        )
+                      }`}>
+                        {(log.status === 'SUCCESS' || (log.status as string) === 'success') ? (
+                            <>
+                              <i className="fa-solid fa-circle-check text-[9px] opacity-70"></i> Thành công
+                            </>
+                         ) :
+                         (log.status === 'ERROR' || (log.status as string) === 'error') ? (
+                            <>
+                              <i className="fa-solid fa-circle-xmark text-[9px] opacity-70"></i> Lỗi
+                            </>
+                         ) :
+                         ((log.status as string) === 'warning' || (log.status as string) === 'WARNING') ? (
+                            <>
+                              <i className="fa-solid fa-triangle-exclamation text-[9px] opacity-70"></i> Cảnh báo
+                            </>
+                         ) : (
+                            <>
+                               <i className="fa-solid fa-circle-info text-[9px] opacity-70"></i> Thông tin
+                            </>
+                         )}
+                      </span>
+                    </div>
                   </td>
                 </tr>
               ))}

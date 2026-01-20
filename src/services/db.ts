@@ -32,7 +32,9 @@ import {
   Review,
   OrderItem,
   SystemLog,
-  Order 
+  Order,
+  LogLevel,
+  LogCategory
 } from '../types';
 import { INITIAL_CATEGORIES } from '../constants/categories';
 
@@ -82,36 +84,68 @@ class DataService {
     }
   }
 
-  // Hệ thống Logging tối ưu: Đơn giản & Hiệu quả
-  async logActivity(action: string, detail: string, status: 'SUCCESS' | 'ERROR' = 'SUCCESS') {
+  // Hệ thống Logging tối ưu: Phân cấp & Hiệu quả
+  async logActivity(
+    action: string, 
+    detail: string, 
+    status: 'SUCCESS' | 'ERROR' = 'SUCCESS',
+    level: LogLevel = 'INFO',
+    category: LogCategory = 'SYSTEM',
+    metadata?: any
+  ) {
     const time = new Date().toLocaleTimeString('en-US', { hour12: true });
-    const user = auth?.currentUser?.email?.split('@')[0] || 'Guest';
-    const badgeColor = status === 'SUCCESS' ? 'background: #10b981; color: #fff;' : 'background: #f43f5e; color: #fff;';
+    const userEmail = auth?.currentUser?.email || 'Anonymous';
+    const userShort = userEmail.split('@')[0] || 'Guest';
     
+    // Chọn màu cho Console dựa trên Level
+    let levelColor = 'background: #64748b; color: #fff;'; // INFO
+    if (level === 'ERROR' || status === 'ERROR') levelColor = 'background: #ef4444; color: #fff;';
+    else if (level === 'WARN') levelColor = 'background: #f59e0b; color: #fff;';
+    else if (level === 'DEBUG') levelColor = 'background: #10b981; color: #fff;';
+
     console.log(
-      `%c ${status} %c ${time} | %c${user}%c | %c${action}%c ${detail}`,
-      `${badgeColor} border-radius: 4px; font-size: 14px; font-weight: bold; padding: 2px 4px;`,
+      `%c ${level} %c ${status} %c ${time} | %c${userShort}%c | [%s] %c${action}%c ${detail}`,
+      `${levelColor} border-radius: 4px; font-size: 11px; font-weight: bold; padding: 1px 4px;`,
+      `${status === 'SUCCESS' ? 'color: #10b981;' : 'color: #ef4444;'} font-weight: bold;`,
       'color: #94a3b8; font-family: monospace;',
       'color: #6366f1; font-weight: 800;',
       'color: #e2e8f0;',
+      category,
       'color: #1e293b; font-weight: bold;',
       'color: #64748b;'
     );
 
-    if (db_fs) {
+    if (metadata) {
+      console.log('   Metadata:', metadata);
+    }
+
+    // Logic quyết định ghi vào Firestore để tối ưu chi phí
+    const criticalCategories: LogCategory[] = ['ADMIN', 'AUTH', 'ORDER', 'AI'];
+    const shouldSaveToDb = 
+      level === 'ERROR' || 
+      level === 'WARN' || 
+      status === 'ERROR' ||
+      criticalCategories.includes(category);
+
+    if (db_fs && shouldSaveToDb) {
       try {
         await addDoc(collection(db_fs, 'system_logs'), {
           action,
-          detail,
+          detail: detail.length > 500 ? detail.substring(0, 500) + '...' : detail,
           status,
-          user: auth?.currentUser?.email || 'Anonymous',
+          level,
+          category,
+          user: userEmail,
+          metadata: metadata ? JSON.stringify(metadata) : null,
           createdAt: serverTimestamp()
         });
-      } catch (e) {}
+      } catch (e) {
+        console.warn("Failed to save log to Firestore", e);
+      }
     }
   }
 
-  private async wrap<T>(promise: Promise<T>, fallback: T, actionName?: string, detail?: string): Promise<T> {
+  private async wrap<T>(promise: Promise<T>, fallback: T, actionName?: string, detail?: string, category: LogCategory = 'DATABASE'): Promise<T> {
     // Wait for connection test if not completed
     if (!this.connectionTested) {
       await this.testConnection();
@@ -119,11 +153,12 @@ class DataService {
     
     try {
       const result = await promise;
-      if (actionName) this.logActivity(actionName, detail || 'Done');
+      // Thành công trong wrap mặc định là DEBUG để không làm rác DB logs
+      if (actionName) this.logActivity(actionName, detail || 'Done', 'SUCCESS', 'DEBUG', category);
       return result;
     } catch (e: any) {
-      if (actionName) this.logActivity(actionName, e.message, 'ERROR');
-      console.error("Database Error:", e);
+      if (actionName) this.logActivity(actionName, e.message, 'ERROR', 'ERROR', category);
+      console.error(`[${category}] Database Error:`, e);
       return fallback;
     }
   }
@@ -141,10 +176,10 @@ class DataService {
       // To add books, use the Admin "Auto Sync from Internet" feature
       
       await batch.commit();
-      this.logActivity('SEED_DATA', `Seeded ${INITIAL_CATEGORIES.length} categories. Remember to register/login with admin@gmail.com for full admin access.`);
+      this.logActivity('SEED_DATA', `Seeded ${INITIAL_CATEGORIES.length} categories. Remember to register/login with admin@gmail.com for full admin access.`, 'SUCCESS', 'INFO', 'ADMIN');
       return { success: true, count: INITIAL_CATEGORIES.length };
     } catch (error: any) {
-      this.logActivity('SEED_DATA', error.message, 'ERROR');
+      this.logActivity('SEED_DATA', error.message, 'ERROR', 'ERROR', 'ADMIN');
       return { success: false, count: 0, error: error.message };
     }
   }
@@ -292,13 +327,13 @@ class DataService {
 
       await batch.commit();
 
-      this.logActivity('ORDER_CREATED', orderId);
+      this.logActivity('ORDER_CREATED', orderId, 'SUCCESS', 'INFO', 'ORDER');
       return { id: orderId };
     } catch (e: any) {
       if (e.code === 'OUT_OF_STOCK') {
-        this.logActivity('ORDER_FAILED', e.message, 'ERROR');
+        this.logActivity('ORDER_FAILED', e.message, 'ERROR', 'WARN', 'ORDER');
       } else {
-        this.logActivity('ORDER_CREATED', e.message, 'ERROR');
+        this.logActivity('ORDER_CREATED', e.message, 'ERROR', 'ERROR', 'ORDER');
       }
       throw e;
     }
@@ -553,7 +588,7 @@ class DataService {
     );
   }
 
-  async updateUserProfile(profile: Partial<UserProfile> & { id: string }): Promise<void> {
+  async updateUserProfile(profile: Partial<UserProfile> & { id: string }, actionName: string = 'UPDATE_USER_PROFILE', detail?: string): Promise<void> {
     const userRef = doc(db_fs, 'users', profile.id);
     const snap = await getDoc(userRef);
     
@@ -564,14 +599,17 @@ class DataService {
         ...(!snap.exists() ? { createdAt: serverTimestamp(), status: 'active' } : {})
       }, { merge: true }),
       undefined,
-      'UPDATE_USER_PROFILE',
-      profile.id
+      actionName,
+      detail || profile.id
     );
   }
 
   async updateWishlist(userId: string, bookIds: string[]): Promise<void> {
-    await this.updateUserProfile({ id: userId, wishlistIds: bookIds });
-    this.logActivity('UPDATE_WISHLIST', `User: ${userId} | Items: ${bookIds.length}`, 'SUCCESS');
+    await this.updateUserProfile(
+      { id: userId, wishlistIds: bookIds }, 
+      'UPDATE_WISHLIST',
+      `Items: ${bookIds.length}`
+    );
   }
 
   // --- AUTO-GENERATOR FUNCTIONS ---
@@ -807,7 +845,7 @@ class DataService {
         const data = await response.json();
         const text = data.choices?.[0]?.message?.content;
         if (text) {
-          this.logActivity(actionName, `Generated using OpenRouter (${modelId})`);
+          this.logActivity(actionName, `Generated using OpenRouter (${modelId})`, 'SUCCESS', 'INFO', 'AI');
           return text.trim();
         }
       }
@@ -828,7 +866,7 @@ class DataService {
         const data = await response.json();
         const text = data.choices?.[0]?.message?.content;
         if (text) {
-          this.logActivity(actionName, `Generated using Groq (${modelId})`);
+          this.logActivity(actionName, `Generated using Groq (${modelId})`, 'SUCCESS', 'INFO', 'AI');
           return text.trim();
         }
       }
@@ -850,7 +888,7 @@ class DataService {
         const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text;
         
         if (textOutput) {
-          this.logActivity(actionName, `Generated using Gemini (${geminiModel})`);
+          this.logActivity(actionName, `Generated using Gemini (${geminiModel})`, 'SUCCESS', 'INFO', 'AI');
           return textOutput.trim();
         }
       }
@@ -858,7 +896,7 @@ class DataService {
       throw new Error("Không có API Key khả dụng cho Model đã chọn.");
     } catch (error: any) {
       console.error("AI Service Error:", error);
-      this.logActivity(`${actionName}_ERROR`, error.message, 'ERROR');
+      this.logActivity(`${actionName}_ERROR`, error.message, 'ERROR', 'ERROR', 'AI');
       return "AI đang bận một chút, bạn hãy quay lại sau nhé! Lỗi: " + error.message;
     }
   }

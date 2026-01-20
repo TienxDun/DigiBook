@@ -117,7 +117,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                   </div>
                   <button 
                     onClick={onClose} 
-                    className="w-9 h-9 rounded-full bg-white shadow-sm border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all hover:rotate-90 active:scale-90"
+                    className="w-9 h-9 rounded-full bg-white shadow-sm border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors"
                   >
                     <i className="fa-solid fa-xmark text-sm"></i>
                   </button>
@@ -133,7 +133,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                         ) : (
                           <span className="text-emerald-500 italic">Đã được Freeship!</span>
                         )}
-                        <i className={`fa-solid ${remainingForFreeShipping > 0 ? 'fa-truck-fast text-indigo-500 animate-pulse' : 'fa-circle-check text-emerald-500'}`}></i>
+                        <i className={`fa-solid ${remainingForFreeShipping > 0 ? 'fa-truck-fast text-indigo-500' : 'fa-circle-check text-emerald-500'}`}></i>
                       </div>
                       <div className="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
                         <motion.div 
@@ -194,7 +194,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                       </p>
                       <button 
                         onClick={onClose}
-                        className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-indigo-600 transition-all shadow-xl shadow-slate-200 active:scale-95"
+                        className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-indigo-600 transition-all shadow-xl shadow-slate-200"
                       >
                         Khám phá ngay
                       </button>
@@ -204,78 +204,97 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                       <motion.div 
                         layout
                         key={item.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0, transition: { delay: idx * 0.05 } }}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ 
+                          opacity: 1, 
+                          scale: 1,
+                          transition: { delay: idx * 0.03 } 
+                        }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className="group relative flex gap-4 bg-white hover:bg-slate-50/50 p-2 rounded-2xl transition-all duration-300"
+                        className={`group relative flex gap-3 p-2 rounded-2xl transition-all duration-300 border cursor-pointer ${
+                          selectedIds.includes(item.id) 
+                            ? 'bg-indigo-50/40 border-indigo-200 shadow-sm' 
+                            : 'bg-white border-transparent hover:border-slate-100'
+                        }`}
+                        onClick={() => onToggleSelection(item.id)}
                       >
-                        {/* Compact Image with Checkbox Overlay */}
-                        <div className="relative w-16 h-24 shrink-0">
-                          <div className="w-full h-full rounded-xl overflow-hidden shadow-sm border border-slate-100 bg-slate-50">
+                        {/* More Compact Image */}
+                        <div className="relative w-14 h-20 shrink-0">
+                          <div className={`w-full h-full rounded-xl overflow-hidden shadow-sm transition-all ${
+                            selectedIds.includes(item.id) ? 'ring-2 ring-indigo-500 ring-offset-2 scale-90' : 'border border-slate-100'
+                          }`}>
                             <img 
                               src={item.cover} 
                               alt={item.title} 
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                              className={`w-full h-full object-cover ${
+                                selectedIds.includes(item.id) ? 'scale-110' : ''
+                              }`}
                             />
                           </div>
-                          <button 
-                            onClick={() => onToggleSelection(item.id)}
-                            className={`absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full border-2 border-white shadow-sm flex items-center justify-center transition-all ${
-                              selectedIds.includes(item.id) ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-transparent'
-                            }`}
-                          >
-                            <i className="fa-solid fa-check text-[7px]"></i>
-                          </button>
+                          
+                          <div className={`absolute -top-1 -left-1 w-5 h-5 rounded-full border-2 border-white shadow-md flex items-center justify-center transition-all duration-300 ${
+                            selectedIds.includes(item.id) ? 'bg-indigo-600 scale-110' : 'bg-white'
+                          }`}>
+                            <i className={`fa-solid fa-check text-[7px] ${selectedIds.includes(item.id) ? 'text-white' : 'text-slate-200'}`}></i>
+                          </div>
                         </div>
 
-                        {/* Clean Content Area */}
-                        <div className="flex-1 flex flex-col min-w-0 py-0.5">
-                          <div className="flex justify-between items-start mb-1">
+                        {/* Leaner Content Area */}
+                        <div className="flex-1 flex flex-col min-w-0" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex justify-between items-start mb-1" onClick={() => onToggleSelection(item.id)}>
                             <div className="min-w-0 flex-1">
-                              <h4 className="font-bold text-slate-800 text-[13px] leading-snug line-clamp-1 group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{item.title}</h4>
-                              <p className="text-[10px] text-slate-400 font-medium truncate italic">{item.author}</p>
+                              <h4 className={`font-bold text-[12px] leading-tight line-clamp-1 transition-colors uppercase tracking-tight ${
+                                selectedIds.includes(item.id) ? 'text-indigo-900' : 'text-slate-800'
+                              }`}>
+                                {item.title}
+                              </h4>
+                              <p className="text-[9px] text-slate-400 font-medium truncate italic">{item.author}</p>
                             </div>
                             <button 
-                              onClick={() => onRemove(item.id)}
-                              className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-rose-50 text-slate-300 hover:text-rose-500 transition-all ml-2"
+                              onClick={(e) => { e.stopPropagation(); onRemove(item.id); }}
+                              className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-rose-50 text-slate-300 hover:text-rose-500 transition-all ml-1"
                             >
-                              <i className="fa-solid fa-trash-can text-[10px]"></i>
+                              <i className="fa-solid fa-trash-can text-[9px]"></i>
                             </button>
                           </div>
 
-                          {/* Price & Badges Spacer */}
-                          <div className="flex items-center gap-2 mb-2">
+                          {/* Dynamic Info Line - Smaller */}
+                          <div className="flex items-center gap-1.5 mb-2" onClick={() => onToggleSelection(item.id)}>
                              {item.badge && (
-                               <span className="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 text-[7px] font-black uppercase tracking-tighter rounded">
+                               <span className="px-1 py-0.5 bg-indigo-100/50 text-indigo-600 text-[6.5px] font-black uppercase tracking-tighter rounded">
                                  {item.badge}
                                </span>
                              )}
                              {item.stockQuantity <= 5 && (
-                               <span className="px-1.5 py-0.5 bg-rose-50 text-rose-600 text-[7px] font-black uppercase tracking-tighter rounded">
+                               <span className="px-1 py-0.5 bg-rose-50 text-rose-600 text-[6.5px] font-black uppercase tracking-tighter rounded animate-pulse">
                                  Chỉ còn {item.stockQuantity}
                                </span>
                              )}
                           </div>
 
-                          {/* Action Bar: Simplified */}
+                          {/* Small Action Bar */}
                           <div className="mt-auto flex items-center justify-between">
-                            <div className="flex items-center bg-slate-100/50 rounded-lg p-0.5 border border-slate-100">
+                            <div className="flex items-center bg-slate-50 rounded-lg p-0.5 border border-slate-100">
                               <button 
-                                onClick={() => onUpdateQty(item.id, -1)} 
-                                className="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-slate-900"
+                                onClick={(e) => { e.stopPropagation(); onUpdateQty(item.id, -1); }} 
+                                className="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-white rounded-md transition-all"
                               >
                                 <i className="fa-solid fa-minus text-[7px]"></i>
                               </button>
-                              <span className="text-[11px] font-black text-slate-700 w-5 text-center">{item.quantity}</span>
+                              <span className="text-[10px] font-black text-slate-700 w-5 text-center">{item.quantity}</span>
                               <button 
-                                onClick={() => onUpdateQty(item.id, 1)} 
-                                className="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-slate-900"
+                                onClick={(e) => { e.stopPropagation(); onUpdateQty(item.id, 1); }} 
+                                className="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-white rounded-md transition-all"
                               >
                                 <i className="fa-solid fa-plus text-[7px]"></i>
                               </button>
                             </div>
-                            <div className="text-right">
-                              <p className="font-black text-slate-900 text-sm tracking-tight">{formatPrice(item.price * item.quantity)}</p>
+                            <div className="text-right" onClick={() => onToggleSelection(item.id)}>
+                              <p className={`font-black text-[13px] tracking-tighter ${
+                                selectedIds.includes(item.id) ? 'text-indigo-600' : 'text-slate-900'
+                              }`}>
+                                {formatPrice(item.price * item.quantity)}
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -305,7 +324,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                   <button 
                     onClick={handleCheckoutClick}
                     disabled={selectedItems.length === 0}
-                    className="w-full group relative h-14 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-[0.15em] text-[11px] hover:bg-indigo-600 transition-all duration-300 shadow-xl shadow-slate-200 flex items-center justify-between px-6 active:scale-95 disabled:bg-slate-50 disabled:text-slate-200 disabled:shadow-none overflow-hidden"
+                    className="w-full group relative h-14 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-[0.15em] text-[11px] hover:bg-indigo-600 transition-all duration-300 shadow-xl shadow-slate-200 flex items-center justify-between px-6 disabled:bg-slate-50 disabled:text-slate-200 disabled:shadow-none overflow-hidden"
                   >
                     <div className="absolute inset-0 bg-white/5 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></div>
                     <span>

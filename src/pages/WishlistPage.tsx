@@ -171,7 +171,9 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart, onQuickView })
         {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="animate-pulse bg-white rounded-3xl h-80 border border-slate-100 shadow-sm"></div>
+              <div key={i} className="bg-slate-100/50 rounded-3xl h-80 border border-slate-100 shadow-sm relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full"></div>
+              </div>
             ))}
           </div>
         ) : filteredAndSortedWishlist.length > 0 ? (

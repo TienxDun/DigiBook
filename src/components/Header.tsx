@@ -238,7 +238,7 @@ const Header: React.FC<HeaderProps> = ({
             />
             <div className={`absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center transition-all duration-500 ${isSearchFocused ? 'text-indigo-600 scale-110' : 'text-slate-400'}`}>
               {isSearchFocused ? (
-                <i className="fa-solid fa-wand-magic-sparkles text-sm animate-pulse"></i>
+                <i className="fa-solid fa-wand-magic-sparkles text-sm"></i>
               ) : (
                 <i className="fa-solid fa-magnifying-glass text-sm"></i>
               )}
@@ -468,7 +468,7 @@ const Header: React.FC<HeaderProps> = ({
           ) : (
             <button 
               onClick={() => setShowLoginModal(true)}
-              className="group relative px-6 py-3 bg-slate-900 text-white rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-600 transition-all shadow-xl shadow-slate-900/10 active:scale-95 overflow-hidden"
+              className="group relative px-6 py-3 bg-slate-900 text-white rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-600 transition-all shadow-xl shadow-slate-900/10 overflow-hidden"
             >
               <span className="relative z-10">Đăng nhập</span>
               <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>

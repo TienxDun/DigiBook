@@ -74,12 +74,18 @@ export interface OrderItem {
   cover: string;
 }
 
+export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
+export type LogCategory = 'AUTH' | 'DATABASE' | 'ADMIN' | 'SYSTEM' | 'AI' | 'ORDER';
+
 export interface SystemLog {
-  id: string;
+  id?: string;
   action: string;
   detail: string;
   status: 'SUCCESS' | 'ERROR';
+  level: LogLevel;
+  category?: LogCategory;
   user: string;
+  metadata?: any;
   createdAt: any;
 }
 
