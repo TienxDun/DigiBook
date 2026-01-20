@@ -289,216 +289,246 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData }) => {
               initial={{ opacity: 0, scale: 0.9, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 30 }}
-              className="bg-card border border-border w-full max-w-6xl h-full max-h-[90vh] overflow-hidden flex flex-col relative z-20 rounded-[3.5rem] shadow-3xl shadow-primary/10"
+              className="bg-card border border-border w-full max-w-4xl h-full max-h-[85vh] overflow-hidden flex flex-col relative z-20 rounded-[2.5rem] shadow-3xl"
             >
                 {/* Header */}
-                <div className="px-10 py-8 flex items-center justify-between border-b border-border bg-muted/20">
-                  <div>
-                    <h2 className="text-2xl font-black text-foreground tracking-tight flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/30">
-                        <i className="fa-solid fa-file-invoice"></i>
-                      </div>
-                      Đơn hàng #{selectedOrder.id.slice(-8).toUpperCase()}
-                    </h2>
-                    <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-1 ml-[60px]">
-                      Khởi tạo: {selectedOrder.createdAt?.toDate ? selectedOrder.createdAt.toDate().toLocaleString('vi-VN') : selectedOrder.date}
-                    </p>
+                <div className="px-8 py-6 flex items-center justify-between border-b border-border bg-muted/20">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
+                      <i className="fa-solid fa-file-invoice text-sm"></i>
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-black text-foreground tracking-tight">
+                        Đơn #{selectedOrder.id.slice(-8).toUpperCase()}
+                      </h2>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-premium mt-0.5">
+                        Ngày đặt: {selectedOrder.createdAt?.toDate ? selectedOrder.createdAt.toDate().toLocaleString('vi-VN') : selectedOrder.date}
+                      </p>
+                    </div>
                   </div>
                   <button 
                     onClick={() => setIsOrderModalOpen(false)} 
-                    className="w-12 h-12 flex items-center justify-center rounded-full bg-muted text-muted-foreground transition-all hover:bg-destructive/10 hover:text-destructive active:scale-95"
+                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-secondary text-muted-foreground transition-all hover:bg-destructive/10 hover:text-destructive active:scale-95"
                   >
-                    <i className="fa-solid fa-xmark text-lg"></i>
+                    <i className="fa-solid fa-xmark text-base"></i>
                   </button>
                 </div>
                 
-                <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
-                  <div className="max-w-5xl mx-auto space-y-12">
+                <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                  <div className="space-y-6">
                     {/* Status Steps Bar */}
-                    <div className="bg-card/40 backdrop-blur-md p-8 rounded-[2.5rem] border border-border shadow-sm">
-                      <h4 className="text-micro font-black uppercase tracking-premium text-muted-foreground mb-6 flex items-center gap-2">
-                         <i className="fa-solid fa-signal text-xs"></i>
-                         Quy trình xử lý vận đơn
-                      </h4>
-                      <div className="flex flex-wrap gap-4">
+                    <div className="bg-gradient-to-r from-muted/5 to-muted/10 p-5 rounded-2xl border border-border/50">
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="text-[11px] font-black uppercase tracking-premium text-muted-foreground flex items-center gap-2">
+                           <i className="fa-solid fa-signal text-[9px]"></i>
+                           Trạng thái đơn hàng
+                        </h4>
+                        <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded-full">
+                          {orderStatusOptions.find(s => s.step === selectedOrder.statusStep)?.label || 'Chưa xác định'}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
                         {orderStatusOptions.map(status => (
                           <button
                             key={status.step}
                             disabled={updatingOrderStatus}
                             onClick={() => handleUpdateOrderStatus(selectedOrder.id, status.step)}
-                            className={`px-8 h-14 rounded-2xl text-micro font-black uppercase tracking-premium transition-all whitespace-nowrap border-2 flex items-center gap-3 ${
+                            className={`px-4 h-9 rounded-lg text-[10px] font-black uppercase tracking-premium transition-all whitespace-nowrap border flex items-center gap-2 ${
                               selectedOrder.statusStep === status.step
-                              ? 'bg-primary border-primary text-primary-foreground shadow-xl shadow-primary/20 scale-105'
-                              : 'bg-muted/50 border-border text-muted-foreground hover:border-primary/30 hover:text-primary'
+                              ? 'bg-primary border-primary text-primary-foreground shadow-md shadow-primary/10'
+                              : 'bg-card/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:text-primary'
                             }`}
                           >
-                            <span className={`w-2 h-2 rounded-full ${selectedOrder.statusStep === status.step ? 'bg-primary-foreground animate-pulse' : 'bg-current opacity-30'}`}></span>
+                            <span className={`w-1 h-1 rounded-full ${selectedOrder.statusStep === status.step ? 'bg-primary-foreground' : 'bg-current opacity-30'}`}></span>
                             {status.label}
                           </button>
                         ))}
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-12 gap-8">
+                    {/* Main Info Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                       {/* Customer Info Card */}
-                      <div className="col-span-12 lg:col-span-6">
-                        <div className="p-8 rounded-[2.5rem] bg-muted/20 border border-border h-full relative group">
-                          <div className="flex items-center gap-3 mb-8">
-                            <div className="w-10 h-10 rounded-2xl bg-card border border-border flex items-center justify-center text-primary shadow-sm">
-                              <i className="fa-solid fa-user-tag text-sm"></i>
-                            </div>
-                            <h4 className="text-micro font-black uppercase tracking-premium text-foreground">Người thụ hưởng</h4>
+                      <div className="lg:col-span-1 p-5 rounded-2xl bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 space-y-4">
+                        <div className="flex items-center gap-2.5 mb-3">
+                          <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+                            <i className="fa-solid fa-user text-primary text-xs"></i>
                           </div>
-                          
-                          <div className="space-y-6">
-                            <div className="flex items-center justify-between">
-                              <span className="text-micro font-bold uppercase tracking-premium text-muted-foreground">Khách hàng</span>
-                              <span className="text-sm font-black text-foreground">{selectedOrder.customer.name}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-micro font-bold uppercase tracking-premium text-muted-foreground">Liên lạc</span>
-                              <span className="text-sm font-black text-primary">{selectedOrder.customer.phone}</span>
-                            </div>
-                            <div className="pt-6 border-t border-border">
-                              <span className="text-micro font-bold uppercase tracking-premium text-muted-foreground block mb-2">Địa chỉ giao hàng</span>
-                              <p className="text-xs font-bold leading-relaxed text-foreground bg-card/50 p-4 rounded-2xl border border-border/50">
-                                {selectedOrder.customer.address}
-                              </p>
-                            </div>
+                          <h4 className="text-[11px] font-black uppercase tracking-premium text-foreground">Người nhận</h4>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="flex flex-col gap-1">
+                            <span className="text-[9px] font-black uppercase text-muted-foreground">Tên khách hàng</span>
+                            <span className="text-sm font-black text-foreground">{selectedOrder.customer.name}</span>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <span className="text-[9px] font-black uppercase text-muted-foreground">Số điện thoại</span>
+                            <span className="text-sm font-black text-primary">{selectedOrder.customer.phone}</span>
+                          </div>
+                          <div className="pt-3 border-t border-border/50">
+                            <span className="text-[9px] font-black uppercase text-muted-foreground block mb-2">Địa chỉ giao hàng</span>
+                            <p className="text-[11px] font-bold leading-relaxed text-foreground/80 bg-card/50 p-3 rounded-lg border border-border/30">
+                              {selectedOrder.customer.address}
+                            </p>
                           </div>
                         </div>
                       </div>
 
                       {/* Payment Info Card */}
-                      <div className="col-span-12 lg:col-span-6">
-                        <div className="p-8 rounded-[2.5rem] bg-muted/20 border border-border h-full">
-                          <div className="flex items-center gap-3 mb-8">
-                            <div className="w-10 h-10 rounded-2xl bg-card border border-border flex items-center justify-center text-chart-1 shadow-sm">
-                              <i className="fa-solid fa-wallet text-sm"></i>
-                            </div>
-                            <h4 className="text-micro font-black uppercase tracking-premium text-foreground">Thông tin thanh toán</h4>
+                      <div className="lg:col-span-1 p-5 rounded-2xl bg-gradient-to-br from-chart-1/5 to-chart-1/10 border border-chart-1/20 space-y-4">
+                        <div className="flex items-center gap-2.5 mb-3">
+                          <div className="w-8 h-8 rounded-lg bg-chart-1/20 flex items-center justify-center">
+                            <i className="fa-solid fa-wallet text-chart-1 text-xs"></i>
                           </div>
-                          
-                          <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                              <span className="text-micro font-bold uppercase tracking-premium text-muted-foreground">Phương thức</span>
-                              <div className="flex gap-2">
-                                {selectedOrder.payment.couponDiscount > 0 && (
-                                  <span className="px-3 py-1 bg-destructive/10 text-destructive border border-destructive/20 rounded-full text-micro font-black uppercase tracking-premium">
-                                    Voucher
-                                  </span>
-                                )}
-                                <span className="px-3 py-1 bg-card text-foreground border border-border shadow-sm rounded-full text-micro font-black uppercase tracking-premium">
-                                  {selectedOrder.payment.method}
-                                </span>
-                              </div>
+                          <h4 className="text-[11px] font-black uppercase tracking-premium text-foreground">Thanh toán</h4>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[9px] font-black uppercase text-muted-foreground">Phương thức</span>
+                            <span className="px-2 py-1 bg-card text-foreground border border-border rounded text-[9px] font-black uppercase tracking-premium">
+                              {selectedOrder.payment.method}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-[9px] font-black uppercase text-muted-foreground">Tiền hàng</span>
+                            <span className="text-sm font-bold text-foreground">{formatPrice(selectedOrder.payment.subtotal)}</span>
+                          </div>
+                          {selectedOrder.payment.couponDiscount > 0 && (
+                            <div className="flex items-center justify-between text-destructive">
+                              <span className="text-[9px] font-black uppercase">Coupon</span>
+                              <span className="text-sm font-black">-{formatPrice(selectedOrder.payment.couponDiscount)}</span>
                             </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-micro font-bold uppercase tracking-premium text-muted-foreground">Giá trị hàng</span>
-                              <span className="text-sm font-bold text-foreground">{formatPrice(selectedOrder.payment.subtotal)}</span>
-                            </div>
-                            {selectedOrder.payment.couponDiscount > 0 && (
-                              <div className="flex items-center justify-between text-destructive">
-                                <span className="text-micro font-black uppercase tracking-premium">Ưu đãi giảm giá</span>
-                                <span className="text-sm font-black">-{formatPrice(selectedOrder.payment.couponDiscount)}</span>
-                              </div>
-                            )}
-                            <div className="flex items-center justify-between pb-6 border-b border-border">
-                              <span className="text-micro font-bold uppercase tracking-premium text-muted-foreground">Phí vận chuyển</span>
-                              <span className="text-sm font-bold text-foreground">+{formatPrice(selectedOrder.payment.shipping)}</span>
-                            </div>
-                            <div className="pt-2 flex items-center justify-between">
-                              <span className="text-micro font-black uppercase tracking-premium text-foreground italic">Tổng thanh toán</span>
-                              <span className="text-2xl font-black text-primary">{formatPrice(selectedOrder.payment.total)}</span>
-                            </div>
+                          )}
+                          <div className="flex items-center justify-between pb-3 border-b border-border/50">
+                            <span className="text-[9px] font-black uppercase text-muted-foreground">Vận chuyển</span>
+                            <span className="text-sm font-bold text-foreground">+{formatPrice(selectedOrder.payment.shipping)}</span>
+                          </div>
+                          <div className="pt-1 flex items-center justify-between">
+                            <span className="text-[9px] font-black uppercase text-foreground">Tổng cộng</span>
+                            <span className="text-lg font-black text-primary">{formatPrice(selectedOrder.payment.total)}</span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Order Items List */}
-                      <div className="col-span-12">
-                        <div className="flex items-center justify-between mb-6 px-4">
-                          <div className="flex items-center gap-3">
-                            <h4 className="text-micro font-black uppercase tracking-premium text-muted-foreground flex items-center gap-2">
-                               <i className="fa-solid fa-boxes-stacked text-xs"></i>
-                               Chi tiết kiện hàng
-                            </h4>
-                            <span className="px-3 py-1 rounded-full text-micro font-black uppercase tracking-premium bg-primary/10 text-primary border border-primary/20">
-                              {selectedOrder.items.reduce((acc, item) => acc + item.quantity, 0)} sản phẩm
-                            </span>
+                      {/* Order Summary Card */}
+                      <div className="lg:col-span-1 p-5 rounded-2xl bg-gradient-to-br from-muted/5 to-muted/10 border border-border/50 space-y-4">
+                        <div className="flex items-center gap-2.5 mb-3">
+                          <div className="w-8 h-8 rounded-lg bg-muted/20 flex items-center justify-center">
+                            <i className="fa-solid fa-chart-line text-muted-foreground text-xs"></i>
                           </div>
+                          <h4 className="text-[11px] font-black uppercase tracking-premium text-foreground">Tóm tắt</h4>
                         </div>
                         
-                        <div className="rounded-[2.5rem] border border-border overflow-hidden bg-card/30 backdrop-blur-md shadow-sm">
-                          <table className="w-full text-left border-collapse">
-                            <thead>
-                              <tr className="bg-muted/30 border-b border-border">
-                                <th className="px-8 py-5 text-micro font-black uppercase tracking-premium text-muted-foreground">Sản phẩm</th>
-                                <th className="px-8 py-5 text-micro font-black uppercase tracking-premium text-muted-foreground text-center">SL</th>
-                                <th className="px-8 py-5 text-micro font-black uppercase tracking-premium text-muted-foreground text-right">Đơn giá</th>
-                                <th className="px-8 py-5 text-micro font-black uppercase tracking-premium text-muted-foreground text-right">Thành tiền</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-border">
-                              {selectedOrder.items.map((item, index) => (
-                                <tr key={index} className="group hover:bg-primary/5 transition-all">
-                                  <td className="px-8 py-5">
-                                    <div className="flex items-center gap-6">
-                                      <div className="w-12 h-16 rounded-xl overflow-hidden flex-shrink-0 group-hover:scale-110 transition-transform shadow-md border border-border">
-                                        {item.cover ? (
-                                          <img src={item.cover} alt={item.title} className="w-full h-full object-cover" />
-                                        ) : (
-                                          <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground">
-                                            <i className="fa-solid fa-book text-sm"></i>
-                                          </div>
-                                        )}
-                                      </div>
-                                      <div className="min-w-0">
-                                        <p className="text-sm font-black text-foreground truncate max-w-[300px] mb-1">{item.title}</p>
-                                        <div className="flex items-center gap-2">
-                                           <span className="text-[10px] font-black uppercase tracking-widest text-primary bg-primary/5 px-2 py-0.5 rounded">#{item.bookId.slice(-6).toUpperCase()}</span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </td>
-                                  <td className="px-8 py-5 text-center">
-                                    <span className="text-sm font-black text-foreground antialiased opacity-60">× {item.quantity}</span>
-                                  </td>
-                                  <td className="px-8 py-5 text-right">
-                                    <span className="text-sm font-bold text-muted-foreground tracking-tight">{formatPrice(item.priceAtPurchase)}</span>
-                                  </td>
-                                  <td className="px-8 py-5 text-right">
-                                    <span className="text-base font-black text-primary tracking-tight italic">{formatPrice(item.priceAtPurchase * item.quantity)}</span>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[9px] font-black uppercase text-muted-foreground">Mã đơn</span>
+                            <span className="text-[10px] font-black text-primary">#{selectedOrder.id.slice(-8).toUpperCase()}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-[9px] font-black uppercase text-muted-foreground">Ngày đặt</span>
+                            <span className="text-[10px] font-bold text-foreground">
+                              {selectedOrder.createdAt?.toDate ? selectedOrder.createdAt.toDate().toLocaleDateString('vi-VN') : selectedOrder.date}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-[9px] font-black uppercase text-muted-foreground">Số lượng</span>
+                            <span className="text-sm font-black text-chart-2">{selectedOrder.items.reduce((acc, item) => acc + item.quantity, 0)} sp</span>
+                          </div>
+                          <div className="pt-3 border-t border-border/50">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[9px] font-black uppercase text-muted-foreground">Trạng thái</span>
+                              <div className="flex items-center gap-1.5">
+                                <span className={`w-2 h-2 rounded-full ${
+                                  selectedOrder.statusStep >= 3 ? 'bg-green-500' : 
+                                  selectedOrder.statusStep >= 2 ? 'bg-yellow-500' : 'bg-red-500'
+                                }`}></span>
+                                <span className="text-[10px] font-bold text-foreground capitalize">
+                                  {orderStatusOptions.find(s => s.step === selectedOrder.statusStep)?.label || 'Chưa xác định'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Order Items Table */}
+                    <div className="bg-gradient-to-br from-card/50 to-card/30 p-6 rounded-2xl border border-border/50 space-y-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="text-[11px] font-black uppercase tracking-premium text-foreground flex items-center gap-2">
+                          <i className="fa-solid fa-boxes-stacked text-[9px]"></i>
+                          Chi tiết sản phẩm
+                        </h4>
+                        <span className="text-[11px] font-bold text-primary bg-primary/10 px-2 py-1 rounded-full">
+                          {selectedOrder.items.reduce((acc, item) => acc + item.quantity, 0)} món
+                        </span>
+                      </div>
+                      
+                      <div className="rounded-xl border border-border/30 overflow-hidden bg-card/20">
+                        <table className="w-full text-left border-collapse">
+                          <thead>
+                            <tr className="bg-muted/10 border-b border-border/30">
+                              <th className="px-5 py-3 text-[10px] font-black uppercase tracking-premium text-muted-foreground">Sản phẩm</th>
+                              <th className="px-5 py-3 text-[10px] font-black uppercase tracking-premium text-muted-foreground text-center">SL</th>
+                              <th className="px-5 py-3 text-[10px] font-black uppercase tracking-premium text-muted-foreground text-right">Tổng</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-border/20">
+                            {selectedOrder.items.map((item, index) => (
+                              <tr key={index} className="hover:bg-primary/5 transition-all">
+                                <td className="px-5 py-3">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-8 h-10 rounded-md overflow-hidden flex-shrink-0 border border-border/30 bg-card">
+                                      {item.cover ? (
+                                        <img src={item.cover} alt={item.title} className="w-full h-full object-cover" />
+                                      ) : (
+                                        <div className="w-full h-full bg-muted/20 flex items-center justify-center text-muted-foreground">
+                                          <i className="fa-solid fa-book text-[9px]"></i>
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="min-w-0">
+                                      <p className="text-[11px] font-bold text-foreground truncate max-w-[180px]">{item.title}</p>
+                                      <p className="text-[9px] text-muted-foreground font-medium mt-0.5">{formatPrice(item.priceAtPurchase)}</p>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="px-5 py-3 text-center">
+                                  <span className="text-[11px] font-black text-foreground">×{item.quantity}</span>
+                                </td>
+                                <td className="px-5 py-3 text-right">
+                                  <span className="text-[11px] font-black text-primary">{formatPrice(item.priceAtPurchase * item.quantity)}</span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Footer / Actions */}
-                <div className="px-10 py-8 flex items-center justify-between border-t border-border bg-muted/10">
-                  <p className="text-micro font-bold text-muted-foreground italic flex items-center gap-2">
-                     <i className="fa-solid fa-keyboard text-xs"></i>
-                     Nhấn Esc để đóng nhanh
+                <div className="px-8 py-6 flex items-center justify-between border-t border-border bg-muted/5">
+                  <p className="text-[11px] font-bold text-muted-foreground flex items-center gap-2">
+                     <i className="fa-keyboard fa-solid text-[10px]"></i>
+                     ESC để đóng
                   </p>
-                  <div className="flex gap-4">
+                  <div className="flex gap-3">
                     <button
                       onClick={() => window.print()}
-                      className="px-8 h-12 rounded-2xl bg-card border border-border text-foreground text-micro font-black uppercase tracking-premium transition-all flex items-center gap-3 hover:bg-muted active:scale-95 shadow-sm"
+                      className="px-6 h-11 rounded-xl bg-card border border-border text-foreground text-micro font-black uppercase tracking-premium transition-all flex items-center gap-2.5 hover:bg-muted active:scale-95 shadow-sm"
                     >
-                      <i className="fa-solid fa-print"></i>
-                      <span>In hóa đơn</span>
+                      <i className="fa-solid fa-print text-[11px]"></i>
+                      <span>In đơn</span>
                     </button>
                     <button
                       onClick={() => setIsOrderModalOpen(false)}
-                      className="px-12 h-14 bg-primary text-primary-foreground rounded-2xl text-micro font-black uppercase tracking-premium hover:bg-primary/90 transition-all shadow-xl shadow-primary/30 active:scale-95"
+                      className="px-6 h-11 rounded-xl bg-primary text-primary-foreground text-micro font-black uppercase tracking-premium transition-all hover:opacity-90 active:scale-95 shadow-lg shadow-primary/10"
                     >
-                      Xác nhận & Đóng
+                      Hoàn thành
                     </button>
                   </div>
                 </div>
