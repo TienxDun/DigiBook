@@ -7,6 +7,12 @@ import { toast } from 'react-hot-toast';
 import { ErrorHandler } from '../../services/errorHandler';
 import Pagination from '../Pagination';
 
+// Portal component for rendering modals outside DOM structure
+const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  if (typeof document === 'undefined') return null;
+  return createPortal(children, document.body);
+};
+
 interface AdminAuthorsProps {
   authors: Author[];
   refreshData: () => void;
@@ -302,122 +308,125 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
 
       {/* Author Modal */}
       <AnimatePresence>
-        {isAuthorModalOpen && createPortal(
-          <div className="fixed inset-0 z-[300] flex items-center justify-center p-6">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsAuthorModalOpen(false)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
-            />
-            
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              className="relative w-full max-w-xl bg-card border border-border shadow-3xl rounded-[3.5rem] overflow-hidden flex flex-col"
-            >
-              {/* Modal Header */}
-              <div className="px-10 py-8 border-b border-border/50 flex items-center justify-between bg-card/50 backdrop-blur-xl">
-                <div>
-                  <h2 className="text-xl font-black uppercase tracking-tight text-foreground">
-                    {editingAuthor ? 'Cập nhật tác giả' : 'Thêm tác giả mới'}
-                  </h2>
-                  <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-1">Thông tin định danh tác giả</p>
-                </div>
-                <button 
-                  onClick={() => setIsAuthorModalOpen(false)} 
-                  className="w-12 h-12 flex items-center justify-center rounded-2xl bg-secondary text-muted-foreground hover:bg-primary hover:text-white transition-all shadow-sm"
-                >
-                  <i className="fa-solid fa-times text-lg"></i>
-                </button>
-              </div>
+        {isAuthorModalOpen && (
+          <Portal>
+            <div className="fixed inset-0 z-[500] flex items-center justify-center p-6">
+              <motion.div 
+                key="author-modal-overlay"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsAuthorModalOpen(false)}
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+              />
               
-              <form onSubmit={handleSaveAuthor} className="p-10 space-y-8 overflow-y-auto custom-scrollbar max-h-[70vh]">
-                <div className="grid grid-cols-1 gap-8">
-                  <div className="space-y-3">
-                    <label className="text-micro font-black text-muted-foreground uppercase tracking-widest ml-1">Tên tác giả *</label>
-                    <div className="relative group">
-                      <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-muted-foreground/50 group-focus-within:text-primary transition-colors">
-                        <i className="fa-solid fa-user-tag"></i>
-                      </div>
-                      <input
-                        type="text"
-                        required
-                        value={authorFormData.name || ''}
-                        onChange={(e) => setAuthorFormData({...authorFormData, name: e.target.value})}
-                        className="w-full pl-12 pr-6 py-4 rounded-[1.5rem] border border-border bg-secondary/30 text-foreground font-bold outline-none focus:border-primary focus:bg-card transition-all"
-                        placeholder="Nhập họ và tên tác giả..."
-                      />
-                    </div>
+              <motion.div 
+                key="author-modal-content"
+                initial={{ opacity: 0, scale: 0.95, y: 30 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 30 }}
+                className="relative w-full max-w-lg bg-card border border-border shadow-3xl rounded-[2.5rem] overflow-hidden flex flex-col"
+              >
+                {/* Modal Header */}
+                <div className="px-8 py-6 border-b border-border/50 flex items-center justify-between bg-card/50 backdrop-blur-xl">
+                  <div>
+                    <h2 className="text-xl font-black uppercase tracking-tight text-foreground">
+                      {editingAuthor ? 'Cập nhật tác giả' : 'Thêm tác giả mới'}
+                    </h2>
+                    <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-0.5">Thông tin định danh tác giả</p>
                   </div>
-                  
-                  <div className="space-y-3">
-                    <label className="text-micro font-black text-muted-foreground uppercase tracking-widest ml-1 flex justify-between">
-                      <span>Tiểu sử tác giả</span>
-                      <span className="text-[10px] text-muted-foreground/40 font-bold lowercase italic">(tùy chọn)</span>
-                    </label>
-                    <textarea
-                      value={authorFormData.bio || ''}
-                      onChange={(e) => setAuthorFormData({...authorFormData, bio: e.target.value})}
-                      rows={4}
-                      className="w-full px-6 py-5 rounded-[1.5rem] border border-border bg-secondary/30 text-foreground font-semibold resize-none outline-none focus:border-primary focus:bg-card transition-all leading-relaxed"
-                      placeholder="Viết một vài dòng giới thiệu về tác giả này..."
-                    />
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <label className="text-micro font-black text-muted-foreground uppercase tracking-widest ml-1">Ảnh đại diện</label>
-                    <div className="flex gap-4 items-start">
-                      <div className="flex-1 relative group">
-                        <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-muted-foreground/50 group-focus-within:text-primary">
-                          <i className="fa-solid fa-link"></i>
-                        </div>
-                        <input
-                          type="url"
-                          value={authorFormData.avatar || ''}
-                          onChange={(e) => setAuthorFormData({...authorFormData, avatar: e.target.value})}
-                          className="w-full pl-12 pr-6 py-4 rounded-[1.5rem] border border-border bg-secondary/30 text-foreground font-bold outline-none focus:border-primary focus:bg-card transition-all"
-                          placeholder="URL hình ảnh (https://...)"
-                        />
-                      </div>
-                      <div className="w-14 h-14 shrink-0 rounded-2xl bg-secondary border border-border overflow-hidden shadow-inner flex items-center justify-center">
-                        {authorFormData.avatar ? (
-                          <img 
-                            src={authorFormData.avatar} 
-                            className="w-full h-full object-cover" 
-                            alt="Preview"
-                            onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=tac+gia&background=7033ff&color=fff'; }}
-                          />
-                        ) : (
-                          <i className="fa-solid fa-image text-muted-foreground/20 text-xl"></i>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                  <button 
+                    onClick={() => setIsAuthorModalOpen(false)} 
+                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-secondary text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all"
+                  >
+                    <i className="fa-solid fa-times text-base"></i>
+                  </button>
                 </div>
                 
-                <div className="flex gap-4 pt-6">
-                  <button
-                    type="button"
-                    onClick={() => setIsAuthorModalOpen(false)}
-                    className="flex-1 py-5 rounded-[1.5rem] text-micro font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary transition-all"
-                  >
-                    Hủy bỏ
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-[1.5] bg-primary text-primary-foreground py-5 rounded-[1.5rem] text-micro font-black uppercase tracking-widest hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3"
-                  >
-                    <i className="fa-solid fa-save"></i>
-                    <span>{editingAuthor ? 'Cập nhật ngay' : 'Thêm tác giả'}</span>
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>,
-          document.body
+                <form onSubmit={handleSaveAuthor} className="p-8 space-y-6 overflow-y-auto custom-scrollbar max-h-[75vh]">
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-1">Tên tác giả *</label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-muted-foreground/30">
+                          <i className="fa-solid fa-user-tag text-xs"></i>
+                        </div>
+                        <input
+                          type="text"
+                          required
+                          value={authorFormData.name || ''}
+                          onChange={(e) => setAuthorFormData({...authorFormData, name: e.target.value})}
+                          className="w-full pl-12 pr-6 py-3.5 rounded-2xl border border-border bg-secondary/20 text-foreground font-bold outline-none focus:border-primary focus:bg-card transition-all text-sm"
+                          placeholder="Nhập tên..."
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-1 flex justify-between">
+                        <span>Tiểu sử</span>
+                        <span className="text-[9px] text-muted-foreground/40 font-bold lowercase italic">tùy chọn</span>
+                      </label>
+                      <textarea
+                        value={authorFormData.bio || ''}
+                        onChange={(e) => setAuthorFormData({...authorFormData, bio: e.target.value})}
+                        rows={3}
+                        className="w-full px-5 py-4 rounded-2xl border border-border bg-secondary/20 text-foreground font-semibold resize-none outline-none focus:border-primary focus:bg-card transition-all leading-relaxed text-sm"
+                        placeholder="Giới thiệu về tác giả..."
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-1">Ảnh đại diện</label>
+                      <div className="flex gap-4">
+                        <div className="w-16 h-16 shrink-0 rounded-2xl bg-secondary border border-border overflow-hidden shadow-inner flex items-center justify-center bg-muted/30">
+                          {authorFormData.avatar ? (
+                            <img 
+                              src={authorFormData.avatar} 
+                              className="w-full h-full object-cover" 
+                              alt="Preview"
+                              onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=tac+gia&background=7033ff&color=fff'; }}
+                            />
+                          ) : (
+                            <i className="fa-solid fa-image text-muted-foreground/10 text-xl"></i>
+                          )}
+                        </div>
+                        <div className="flex-1 relative">
+                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-muted-foreground/30">
+                            <i className="fa-solid fa-link text-xs"></i>
+                          </div>
+                          <input
+                            type="url"
+                            value={authorFormData.avatar || ''}
+                            onChange={(e) => setAuthorFormData({...authorFormData, avatar: e.target.value})}
+                            className="w-full h-full pl-11 pr-4 py-3.5 rounded-2xl border border-border bg-secondary/20 text-foreground font-bold outline-none focus:border-primary focus:bg-card transition-all text-sm"
+                            placeholder="URL hình ảnh..."
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setIsAuthorModalOpen(false)}
+                      className="flex-1 py-4 rounded-2xl text-micro font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary transition-all active:scale-95"
+                    >
+                      Hủy bỏ
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-[1.5] bg-primary text-primary-foreground py-4 rounded-2xl text-micro font-black uppercase tracking-widest hover:shadow-lg hover:shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
+                    >
+                      <i className="fa-solid fa-save text-xs"></i>
+                      <span>{editingAuthor ? 'Cập nhật' : 'Thêm mới'}</span>
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </div>
+          </Portal>
         )}
       </AnimatePresence>
     </div>

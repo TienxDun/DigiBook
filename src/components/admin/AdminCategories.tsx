@@ -301,98 +301,99 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
                 initial={{ opacity: 0, scale: 0.95, y: 30 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 30 }}
-                className="relative w-full max-w-xl bg-card border border-border shadow-3xl rounded-[3.5rem] overflow-hidden flex flex-col"
+                className="relative w-full max-w-lg bg-card border border-border shadow-3xl rounded-[2.5rem] overflow-hidden flex flex-col"
               >
                 {/* Modal Header */}
-                <div className="px-10 py-8 border-b border-border/50 flex items-center justify-between bg-card/50 backdrop-blur-xl">
+                <div className="px-8 py-6 border-b border-border/50 flex items-center justify-between bg-card/50 backdrop-blur-xl">
                   <div>
                     <h2 className="text-xl font-black uppercase tracking-tight text-foreground">
-                      {editingCategory ? 'Sửa danh mục' : 'Thêm danh mục mới'}
+                      {editingCategory ? 'Sửa danh mục' : 'Thêm mới'}
                     </h2>
-                    <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-1">Thông tin phân loại đầu sách</p>
+                    <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-0.5">Phân loại sách hệ thống</p>
                   </div>
                   <button 
                     onClick={() => setIsCategoryModalOpen(false)} 
-                    className="w-12 h-12 flex items-center justify-center rounded-2xl bg-secondary text-muted-foreground hover:bg-primary hover:text-white transition-all shadow-sm"
+                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-secondary text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all shadow-sm"
                   >
-                    <i className="fa-solid fa-times text-lg"></i>
+                    <i className="fa-solid fa-times text-base"></i>
                   </button>
                 </div>
                 
-                <form onSubmit={handleSaveCategory} className="p-10 space-y-8 overflow-y-auto custom-scrollbar max-h-[70vh]">
-                  <div className="grid grid-cols-1 gap-8">
-                    <div className="space-y-3">
-                      <label className="text-micro font-black text-muted-foreground uppercase tracking-widest ml-1">Tên danh mục *</label>
+                <form onSubmit={handleSaveCategory} className="p-8 space-y-6 overflow-y-auto custom-scrollbar max-h-[75vh]">
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-1">Tên danh mục *</label>
                       <div className="relative group">
-                        <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-muted-foreground/50 group-focus-within:text-primary transition-colors">
-                          <i className="fa-solid fa-tag"></i>
+                        <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-muted-foreground/30 group-focus-within:text-primary transition-colors">
+                          <i className="fa-solid fa-tag text-xs"></i>
                         </div>
                         <input
                           type="text"
                           required
                           value={categoryFormData.name || ''}
                           onChange={(e) => setCategoryFormData({...categoryFormData, name: e.target.value})}
-                          className="w-full pl-12 pr-6 py-4 rounded-[1.5rem] border border-border bg-secondary/30 text-foreground font-bold outline-none focus:border-primary focus:bg-card transition-all"
-                          placeholder="VD: Văn học Việt Nam, Kỹ năng sống..."
+                          className="w-full pl-11 pr-6 py-3.5 rounded-2xl border border-border bg-secondary/20 text-foreground font-bold outline-none focus:border-primary focus:bg-card transition-all text-sm"
+                          placeholder="VD: Kinh tế, Văn học..."
                           readOnly={!!editingCategory}
                         />
                       </div>
                       {editingCategory && (
-                        <p className="text-[10px] text-amber-500 font-bold uppercase ml-1">Không thể thay đổi tên danh mục đã tồn tại</p>
+                        <p className="text-[9px] text-amber-500 font-bold uppercase ml-1 opacity-80 tracking-tighter">Tên danh mục cố định không thể sửa</p>
                       )}
                     </div>
                     
-                    <div className="space-y-4">
-                      <label className="text-micro font-black text-muted-foreground uppercase tracking-widest ml-1">Chọn biểu tượng hiển thị</label>
-                      <div className="grid grid-cols-6 sm:grid-cols-8 gap-3 max-h-40 overflow-y-auto p-4 bg-secondary/30 rounded-[2rem] border border-border/50 custom-scrollbar">
-                        {AVAILABLE_ICONS.map((icon) => (
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-1">Icon đại diện</label>
+                      <div className="grid grid-cols-6 sm:grid-cols-8 gap-2.5 p-4 bg-secondary/20 rounded-[1.5rem] border border-border/50">
+                        {AVAILABLE_ICONS.slice(0, 16).map((icon) => (
                           <button
                             key={icon}
                             type="button"
                             onClick={() => setCategoryFormData({...categoryFormData, icon})}
-                            className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
+                            className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${
                               categoryFormData.icon === icon 
                               ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-110' 
-                              : 'bg-background text-muted-foreground border border-border hover:border-primary/50'
+                              : 'bg-background text-muted-foreground/40 border border-border/50 hover:border-primary/40'
                             }`}
+                            title={icon}
                           >
-                            <i className={`fa-solid ${icon} text-sm`}></i>
+                            <i className={`fa-solid ${icon} text-xs`}></i>
                           </button>
                         ))}
                       </div>
                     </div>
                     
-                    <div className="space-y-3">
-                      <label className="text-micro font-black text-muted-foreground uppercase tracking-widest ml-1">Mô tả danh mục</label>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-1">Mô tả tóm tắt</label>
                       <textarea
                         value={categoryFormData.description || ''}
                         onChange={(e) => setCategoryFormData({...categoryFormData, description: e.target.value})}
                         rows={3}
-                        className="w-full px-6 py-5 rounded-[1.5rem] border border-border bg-secondary/30 text-foreground font-semibold resize-none outline-none focus:border-primary focus:bg-card transition-all leading-relaxed"
-                        placeholder="Mô tả ngắn gọn về nhóm sách này..."
+                        className="w-full px-5 py-4 rounded-2xl border border-border bg-secondary/20 text-foreground font-semibold resize-none outline-none focus:border-primary focus:bg-card transition-all leading-relaxed text-sm"
+                        placeholder="Nội dung danh mục..."
                       />
                     </div>
                   </div>
                   
-                  <div className="flex gap-4 pt-6">
+                  <div className="flex gap-3 pt-4">
                     <button
                       type="button"
                       onClick={() => setIsCategoryModalOpen(false)}
-                      className="flex-1 py-5 rounded-[1.5rem] text-micro font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary transition-all"
+                      className="flex-1 py-4 rounded-2xl text-micro font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary transition-all active:scale-95"
                     >
                       Bỏ qua
                     </button>
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="flex-[1.5] bg-primary text-primary-foreground py-5 rounded-[1.5rem] text-micro font-black uppercase tracking-widest hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3 disabled:opacity-50"
+                      className="flex-[1.5] bg-primary text-primary-foreground py-4 rounded-2xl text-micro font-black uppercase tracking-widest hover:shadow-lg hover:shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 disabled:opacity-50"
                     >
                       {isSubmitting ? (
-                        <i className="fa-solid fa-spinner fa-spin"></i>
+                        <i className="fa-solid fa-spinner fa-spin text-xs"></i>
                       ) : (
-                        <i className="fa-solid fa-save"></i>
+                        <i className="fa-solid fa-check-circle text-xs"></i>
                       )}
-                      <span>Lưu danh mục</span>
+                      <span>Lưu thay đổi</span>
                     </button>
                   </div>
                 </form>
