@@ -245,7 +245,7 @@ const BookDetails: React.FC<{
               <Link to="/" className="hover:text-indigo-600 transition-all flex items-center gap-1">
                 TRANG CHỦ
               </Link>
-              <i className="fa-solid fa-chevron-right text-[10px] opacity-30"></i>
+              <i className="fa-solid fa-chevron-right text-xs opacity-30"></i>
               <Link to={`/category/${book.category}`} className="hover:text-indigo-600 transition-all">
                 {book.category}
               </Link>
@@ -264,10 +264,10 @@ const BookDetails: React.FC<{
             <div className="flex flex-col items-end border-r border-slate-200 pr-3">
               <div className="flex gap-0.5 text-amber-400 mb-0.5">
                 {[...Array(5)].map((_, i) => (
-                  <i key={i} className={`fa-solid fa-star text-[10px] ${i < Math.floor(book.rating) ? '' : 'text-slate-200'}`}></i>
+                  <i key={i} className={`fa-solid fa-star text-xs ${i < Math.floor(book.rating) ? '' : 'text-slate-200'}`}></i>
                 ))}
               </div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Phản hồi</p>
+              <p className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none">Phản hồi</p>
             </div>
             <div className="scale-90 origin-left">
                <SocialShare title={book.title} />
@@ -296,13 +296,13 @@ const BookDetails: React.FC<{
                    {/* Badge Overlays - Tightened */}
                    <div className="absolute top-3 left-3 flex flex-col gap-1">
                       {book.badge && (
-                        <span className="px-1.5 py-0.5 bg-rose-600 text-white text-[10px] font-black uppercase tracking-widest rounded shadow-md flex items-center gap-1 w-fit">
-                          <i className="fa-solid fa-crown text-[9px] text-yellow-200"></i>
+                        <span className="px-1.5 py-0.5 bg-rose-600 text-white text-xs font-black uppercase tracking-widest rounded shadow-md flex items-center gap-1 w-fit">
+                          <i className="fa-solid fa-crown text-xs text-yellow-200"></i>
                           {book.badge}
                         </span>
                       )}
                       {book.stockQuantity <= 5 && book.stockQuantity > 0 && (
-                        <span className="px-1.5 py-0.5 bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest rounded shadow-md flex items-center gap-1 w-fit">
+                        <span className="px-1.5 py-0.5 bg-amber-500 text-white text-xs font-black uppercase tracking-widest rounded shadow-md flex items-center gap-1 w-fit">
                            <i className="fa-solid fa-clock text-[9px]"></i>
                           Gần hết
                         </span>
@@ -318,8 +318,8 @@ const BookDetails: React.FC<{
                      { l: 'Nặng', v: '450g', i: 'fa-weight' }
                    ].map((p, i) => (
                      <div key={i} className="text-center p-1 rounded-lg hover:bg-slate-50 transition-all">
-                        <i className={`fa-solid ${p.i} text-slate-300 text-[10px] mb-0.5`}></i>
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-tight mb-0">{p.l}</p>
+                        <i className={`fa-solid ${p.i} text-slate-300 text-xs mb-0.5`}></i>
+                        <p className="text-xs font-black text-slate-400 uppercase tracking-tight mb-0">{p.l}</p>
                         <p className="text-xs font-extrabold text-slate-800 leading-tight">{p.v}</p>
                      </div>
                    ))}
@@ -332,7 +332,7 @@ const BookDetails: React.FC<{
              >
                 <div className="flex items-center gap-2 mb-3">
                    <div className="w-1 h-3.5 bg-slate-900 rounded-full"></div>
-                   <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Giới thiệu sách</h3>
+                   <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Giới thiệu sách</h3>
                 </div>
 
                 <motion.div 
@@ -410,7 +410,7 @@ const BookDetails: React.FC<{
 
                     <div className="flex flex-col gap-1.5">
                        <div className="flex items-center gap-1.5 text-emerald-600 font-bold text-xs uppercase tracking-widest bg-emerald-50 w-fit px-2 py-1 rounded-lg border border-emerald-100">
-                          <i className="fa-solid fa-check-circle text-[10px]"></i>
+                          <i className="fa-solid fa-check-circle text-xs"></i>
                           Sẵn hàng
                        </div>
                        <p className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Kho: <span className="text-emerald-600 font-bold">{book.stockQuantity}</span></p>
@@ -447,7 +447,7 @@ const BookDetails: React.FC<{
                     <button 
                       onClick={handleToggleWishlist}
                       className={`shrink-0 h-12 w-12 rounded-xl font-black transition-all flex items-center justify-center border-2 shadow-sm active:scale-95 ${
-                        isWishlisted ? 'bg-rose-50 border-rose-100 text-rose-500' : 'bg-white border-slate-100 text-slate-400 hover:border-indigo-100 hover:text-indigo-600'
+                        isWishlisted ? 'bg-rose-50 border-rose-100 text-rose-500' : 'bg-white border-slate-100 text-slate-400 hover:border-rose-100 hover:text-rose-500'
                       }`}
                       aria-label={isWishlisted ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
                     >
@@ -473,7 +473,7 @@ const BookDetails: React.FC<{
                     <div className={`w-8 h-8 ${m.color} rounded-lg flex items-center justify-center mb-1.5 shadow-sm`}>
                        <i className={`fa-solid ${m.i} text-xs`}></i>
                     </div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0">{m.l}</p>
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-0">{m.l}</p>
                     <p className="text-sm font-black text-slate-800 truncate w-full px-1">{m.v}</p>
                  </motion.div>
                ))}
@@ -490,8 +490,8 @@ const BookDetails: React.FC<{
                            <i className="fa-solid fa-wand-magic-sparkles text-white text-xs"></i>
                         </div>
                         <div>
-                           <h4 className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-0.5">AI INSIGHTS</h4>
-                           <span className="text-[9px] font-bold text-indigo-300 uppercase tracking-widest">{activeModelName}</span>
+                           <h4 className="text-xs font-black text-white uppercase tracking-widest leading-none mb-0.5">AI INSIGHTS</h4>
+                           <span className="text-xs font-bold text-indigo-300 uppercase tracking-widest">{activeModelName}</span>
                         </div>
                      </div>
 
@@ -510,7 +510,7 @@ const BookDetails: React.FC<{
                           </motion.div>
                         ) : (
                           <div className="text-center py-2">
-                             <p className="text-indigo-200/50 text-[10px] font-black uppercase tracking-widest leading-relaxed mb-3 px-2">
+                             <p className="text-indigo-200/50 text-xs font-black uppercase tracking-widest leading-relaxed mb-3 px-2">
                                Phân tích nội dung bằng AI
                              </p>
                              <button 
@@ -531,12 +531,12 @@ const BookDetails: React.FC<{
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                         <div className="w-0.5 h-4 bg-amber-400 rounded-full"></div>
-                        <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Đánh giá</h3>
+                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Đánh giá</h3>
                     </div>
                     <div className="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-lg">
                         <span className="text-lg font-black text-amber-600 leading-none">{book.rating}</span>
                         <div className="flex gap-0.5">
-                           {[1,2,3,4,5].map(s => <i key={s} className={`fa-solid fa-star text-[9px] ${s <= Math.floor(book.rating) ? 'text-amber-500' : 'text-amber-200'}`}></i>)}
+                           {[1,2,3,4,5].map(s => <i key={s} className={`fa-solid fa-star text-xs ${s <= Math.floor(book.rating) ? 'text-amber-500' : 'text-amber-200'}`}></i>)}
                         </div>
                     </div>
                   </div>
@@ -555,7 +555,7 @@ const BookDetails: React.FC<{
                             </div>
                           ))
                         ) : (
-                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center py-2">Chưa có đánh giá</p>
+                          <p className="text-xs text-slate-400 font-bold uppercase tracking-widest text-center py-2">Chưa có đánh giá</p>
                         )}
                   </div>
                   <button className="w-full py-2 bg-slate-50 text-xs font-black text-slate-600 uppercase tracking-widest rounded-lg border border-slate-200 hover:bg-slate-900 hover:text-white transition-all">
@@ -661,7 +661,7 @@ const BookDetails: React.FC<{
                 <div className="flex items-center gap-2">
                     <p className="text-rose-600 font-black text-base tracking-tighter leading-none">{formatPrice(book.price)}</p>
                     {book.originalPrice && book.originalPrice > book.price && (
-                      <p className="text-slate-400 text-[10px] font-bold line-through opacity-50 leading-none">{formatPrice(book.originalPrice)}</p>
+                      <p className="text-slate-400 text-xs font-bold line-through opacity-50 leading-none">{formatPrice(book.originalPrice)}</p>
                     )}
                 </div>
               </div>
@@ -670,7 +670,7 @@ const BookDetails: React.FC<{
                     <button 
                       onClick={handleToggleWishlist}
                       className={`h-9 w-9 rounded-lg flex items-center justify-center transition-all border border-slate-200 ${
-                        isWishlisted ? 'bg-rose-50 border-rose-100 text-rose-500' : 'bg-white text-slate-400'
+                        isWishlisted ? 'bg-rose-50 border-rose-100 text-rose-500' : 'bg-white text-slate-400 hover:text-rose-500 hover:bg-rose-50 hover:border-rose-100'
                       }`}
                       aria-label={isWishlisted ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
                     >

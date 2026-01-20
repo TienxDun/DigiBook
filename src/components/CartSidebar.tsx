@@ -314,7 +314,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
 
               {/* Convenient Consolidated Footer */}
               {items.length > 0 && (
-                <div className="p-6 bg-white border-t border-slate-100 shrink-0 z-20">
+                <div className="p-6 bg-white border-t border-slate-100 shrink-0 z-20 pb-20 lg:pb-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex flex-col">
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Tổng cộng</span>

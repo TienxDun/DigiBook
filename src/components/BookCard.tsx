@@ -217,8 +217,8 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
                 onClick={handleToggleWishlist}
                 className={`w-10 h-10 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${
                   isWishlisted 
-                    ? 'bg-primary/5 text-primary border-primary/10 shadow-sm' 
-                    : 'bg-secondary text-slate-400 border-secondary hover:text-primary hover:bg-primary/5'
+                    ? 'bg-rose-50 text-rose-500 border-rose-100 shadow-sm' 
+                    : 'bg-secondary text-slate-400 border-secondary hover:text-rose-500 hover:bg-rose-50'
                 }`}
               >
                 <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-sm`}></i>

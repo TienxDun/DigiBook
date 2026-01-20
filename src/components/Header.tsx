@@ -303,13 +303,17 @@ const Header: React.FC<HeaderProps> = ({
             {/* Wishlist Icon */}
             <Link 
               to="/wishlist" 
-              className="w-11 h-11 rounded-xl text-muted-foreground hover:bg-white hover:text-destructive hover:shadow-sm transition-all flex items-center justify-center relative group active:scale-90"
+              className={`w-11 h-11 rounded-xl transition-all flex items-center justify-center relative group active:scale-90 ${
+                wishlist.length > 0 
+                  ? 'bg-rose-50 text-rose-500 shadow-sm' 
+                  : 'text-muted-foreground hover:bg-white hover:text-rose-500 hover:shadow-sm'
+              }`}
             >
-              <i className="fa-regular fa-heart text-lg group-hover:scale-110 transition-transform"></i>
+              <i className={`${wishlist.length > 0 ? 'fa-solid' : 'fa-regular'} fa-heart text-lg group-hover:scale-110 transition-transform`}></i>
               {wishlist.length > 0 && (
                 <span className="absolute top-2.5 right-2.5 flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive/40 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive border border-white"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500 border border-white"></span>
                 </span>
               )}
             </Link>

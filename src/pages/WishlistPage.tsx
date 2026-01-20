@@ -143,27 +143,34 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onAddToCart, onQuickView })
           >
              {wishlist.length > 0 && (
                <motion.button 
+                 whileHover={{ scale: 1.02 }}
                  whileTap={{ scale: 0.95 }}
                  onClick={handleClearWishlist}
-                 className="group flex items-center justify-center gap-2 px-4 py-3 bg-white border border-rose-100 text-rose-500 rounded-xl font-bold text-sm uppercase tracking-premium shadow-sm hover:bg-rose-50 transition-all"
+                 className="group flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-xl font-bold text-sm uppercase tracking-premium shadow-lg shadow-rose-500/25 hover:shadow-rose-500/40 transition-all whitespace-nowrap"
                >
                   <i className="fa-solid fa-trash-can"></i>
                   Xóa tất cả
                </motion.button>
              )}
              <motion.button 
+               whileHover={{ scale: 1.02 }}
                whileTap={{ scale: 0.95 }}
                onClick={handleAddAllToCart}
-               className="group flex items-center justify-center gap-3 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm uppercase tracking-premium shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+               className="group flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold text-sm uppercase tracking-premium shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                disabled={syncedWishlist.filter(b => b.isAvailable && b.stockQuantity > 0).length === 0}
              >
                 <i className="fa-solid fa-cart-plus"></i>
                 Thêm tất cả vào giỏ
              </motion.button>
-             <Link to="/category/Tất cả sách" className="group flex items-center justify-center gap-3 px-6 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl font-bold text-sm uppercase tracking-premium shadow-sm hover:shadow-md transition-all block active:scale-95">
-                <i className="fa-solid fa-plus-circle text-indigo-500"></i>
-                Thêm sách mới
-             </Link>
+             <motion.div
+               whileHover={{ scale: 1.02 }}
+               whileTap={{ scale: 0.95 }}
+             >
+               <Link to="/category/Tất cả sách" className="group flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-slate-100 to-slate-200 text-slate-900 rounded-xl font-bold text-sm uppercase tracking-premium shadow-lg shadow-slate-300/25 hover:shadow-slate-300/40 transition-all block border border-slate-300/50 whitespace-nowrap">
+                  <i className="fa-solid fa-plus-circle text-indigo-500"></i>
+                  Thêm sách mới
+               </Link>
+             </motion.div>
           </motion.div>
         </motion.div>
 
