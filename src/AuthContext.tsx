@@ -37,6 +37,8 @@ export interface AuthContextType {
   logout: () => Promise<void>;
   showLoginModal: boolean;
   setShowLoginModal: (show: boolean) => void;
+  authMode: 'login' | 'register';
+  setAuthMode: (mode: 'login' | 'register') => void;
   wishlist: Book[];
   toggleWishlist: (book: Book) => void;
   clearWishlist: () => void;
@@ -52,6 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [wishlist, setWishlist] = useState<Book[]>(() => JSON.parse(localStorage.getItem('digibook_wishlist') || '[]'));
   const [loading, setLoading] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [authError, setAuthError] = useState('');
 
   const syncUser = useCallback(async (firebaseUser: any, forceName?: string) => {
@@ -259,6 +262,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logout,
       showLoginModal,
       setShowLoginModal,
+      authMode,
+      setAuthMode,
       wishlist,
       toggleWishlist,
       clearWishlist,

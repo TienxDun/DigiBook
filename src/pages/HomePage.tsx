@@ -18,6 +18,7 @@ interface HomePageProps {
 
 const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categories, allBooks }) => {
   const { user, wishlist } = useAuth();
+  const { setShowLoginModal, setAuthMode } = useAuth();
 
   return (
     <div className="space-y-0 fade-in">
@@ -264,7 +265,12 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
                     vũ trụ tri thức <span className="text-primary">DigiBook</span>.
                  </h2>
                  <p className="text-slate-400 text-xs mb-8 max-w-lg mx-auto lg:mx-0">Sử dụng mã <strong>WELCOME5</strong> cho đơn hàng từ 200k. Chỉ áp dụng cho tài khoản mới đăng ký.</p>
-                 <button className="w-full sm:w-auto px-8 py-4 bg-primary text-white rounded-xl font-bold uppercase tracking-premium hover:bg-white hover:text-foreground transition-all active:scale-95 text-xs">
+                 <button 
+                   onClick={() => {
+                     setAuthMode('register');
+                     setShowLoginModal(true);
+                   }}
+                   className="w-full sm:w-auto px-8 py-4 bg-primary text-white rounded-xl font-bold uppercase tracking-premium hover:bg-white hover:text-foreground transition-all active:scale-95 text-xs">
                     Đăng ký thành viên
                  </button>
               </div>

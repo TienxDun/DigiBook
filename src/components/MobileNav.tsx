@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 
@@ -11,76 +11,93 @@ const MobileNav: React.FC<{ cartCount: number; onOpenCart: () => void; onRefresh
   onCloseCart
 }) => {
   const location = useLocation();
+  const currentPath = decodeURIComponent(location.pathname);
   const { user, setShowLoginModal } = useAuth();
+  const [ripples, setRipples] = useState<{[key: string]: boolean}>({});
 
   if (location.pathname.startsWith('/admin')) return null;
 
+  const handleRipple = (key: string) => {
+    setRipples(prev => ({ ...prev, [key]: true }));
+    setTimeout(() => setRipples(prev => ({ ...prev, [key]: false })), 600);
+  };
+
   const navItems = [
-    { path: '/', label: 'Trang chủ', icon: 'fa-house', color: 'text-indigo-600', bg: 'bg-indigo-50' },
-    { path: '/category/Tất cả sách', label: 'Khám phá', icon: 'fa-compass', color: 'text-cyan-600', bg: 'bg-cyan-50' },
-    { path: '/wishlist', label: 'Yêu thích', icon: 'fa-heart', color: 'text-rose-500', bg: 'bg-rose-50' },
+    { path: '/', icon: 'fa-house', color: 'text-indigo-400', glow: 'bg-indigo-400/20', dropShadow: 'drop-shadow-[0_0_8px_rgba(129,140,248,0.5)]' },
+    { path: '/category/Tất cả sách', icon: 'fa-compass', color: 'text-cyan-400', glow: 'bg-cyan-400/20', dropShadow: 'drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]' },
+    { path: '/wishlist', icon: 'fa-heart', color: 'text-rose-400', glow: 'bg-rose-400/20', dropShadow: 'drop-shadow-[0_0_8px_rgba(251,113,133,0.5)]' },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-2xl border-t border-slate-100 z-[100] lg:hidden safe-bottom shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
-      <div className="flex justify-around items-center h-[5rem] px-2">
+    <nav className="fixed bottom-6 left-6 right-6 bg-slate-900/40 backdrop-blur-2xl border border-white/5 rounded-[2rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] z-[100] lg:hidden safe-bottom px-2 py-2">
+      <div className="flex justify-around items-center h-14 relative">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
+          const isActive = currentPath === item.path;
           return (
             <Link 
               key={item.path} 
               to={item.path} 
               onClick={() => {
+                handleRipple(item.path);
                 if (item.path === '/') onRefreshData?.();
                 if (isCartOpen) onCloseCart();
               }}
-              className={`flex flex-col items-center justify-center w-full h-full transition-all relative active:scale-95 ${isActive ? item.color : 'text-slate-400'}`}
+              className="flex-1 flex flex-col items-center justify-center h-full relative group"
             >
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 ${isActive ? `${item.bg} shadow-sm scale-110` : 'hover:bg-slate-50'}`}>
-                <i className={`fa-solid ${item.icon} ${isActive ? 'text-lg' : 'text-base opacity-60'}`}></i>
+              <div className={`flex flex-col items-center justify-center w-11 h-11 rounded-2xl transition-all duration-500 relative ${
+                isActive ? `${item.glow} scale-110 shadow-[0_0_20px_rgba(0,0,0,0.2)]` : 'hover:bg-white/5'
+              }`}>
+                <i className={`fa-solid ${item.icon} text-xl transition-all duration-500 ${isActive ? `${item.color} ${item.dropShadow}` : 'text-slate-400 opacity-60'}`}></i>
+                {ripples[item.path] && <span className="absolute inset-0 bg-white/10 rounded-2xl animate-ping opacity-0"></span>}
               </div>
-              <span className={`text-[9px] font-black uppercase tracking-widest mt-1 transition-all duration-300 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-40 translate-y-0.5'}`}>{item.label}</span>
-              {isActive && (
-                <span className={`absolute -top-px left-1/2 -translate-x-1/2 w-8 h-1 ${item.color.replace('text', 'bg')} rounded-b-full shadow-lg`}></span>
-              )}
             </Link>
           );
         })}
         
         <button 
-          onClick={onOpenCart}
-          className="flex flex-col items-center justify-center w-full h-full transition-all relative group active:scale-95"
+          onClick={() => {
+            handleRipple('cart');
+            onOpenCart();
+          }}
+          className="flex-1 flex flex-col items-center justify-center h-full relative group"
         >
-          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 ${cartCount > 0 ? 'bg-amber-50 shadow-sm' : 'bg-slate-50 opacity-60'}`}>
+          <div className={`flex flex-col items-center justify-center w-11 h-11 rounded-2xl transition-all duration-500 relative ${
+            cartCount > 0 ? 'bg-amber-400/20 scale-110 shadow-[0_0_20px_rgba(0,0,0,0.3)]' : 'hover:bg-white/5'
+          }`}>
             <div className="relative">
-              <i className={`fa-solid fa-bag-shopping text-base ${cartCount > 0 ? 'text-amber-500' : 'text-slate-400'}`}></i>
+              <i className={`fa-solid fa-bag-shopping text-xl transition-all duration-500 ${cartCount > 0 ? 'text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]' : 'text-slate-400 opacity-60'}`}></i>
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 w-4 h-4 bg-amber-500 text-white text-[8px] flex items-center justify-center rounded-full font-bold border-2 border-white shadow-md">
+                <span className="absolute -top-2 -right-2 w-4 h-4 bg-amber-400 text-[9px] text-slate-900 flex items-center justify-center rounded-full font-black shadow-lg border-2 border-slate-900/20 animate-bounce">
                   {cartCount}
                 </span>
               )}
             </div>
+            {ripples['cart'] && <span className="absolute inset-0 bg-white/10 rounded-2xl animate-ping opacity-0"></span>}
           </div>
-          <span className={`text-[9px] font-black uppercase tracking-widest mt-1 transition-all ${cartCount > 0 ? 'text-amber-600 opacity-100' : 'text-slate-400 opacity-40'}`}>Giỏ hàng</span>
         </button>
 
         <button 
-          onClick={() => user ? null : setShowLoginModal(true)}
-          className={`flex flex-col items-center justify-center w-full h-full transition-all active:scale-95`}
+          onClick={() => {
+            if (!user) {
+              handleRipple('user');
+              setShowLoginModal(true);
+            }
+            if (isCartOpen) onCloseCart();
+          }}
+          className="flex-1 flex flex-col items-center justify-center h-full relative group"
         >
           {user ? (
-            <Link to="/profile" onClick={() => { if (isCartOpen) onCloseCart(); }} className="flex flex-col items-center">
-              <div className="w-12 h-12 rounded-2xl p-0.5 border-2 border-indigo-100 overflow-hidden shadow-sm hover:border-indigo-500 transition-all">
-                <img src={user.avatar} className="w-full h-full object-cover rounded-xl" alt="" />
+            <Link to="/profile" onClick={() => { if (isCartOpen) onCloseCart(); }} className="flex flex-col items-center relative h-full justify-center w-full">
+              <div className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-500 ${location.pathname === '/profile' ? 'bg-indigo-400/20 scale-110 shadow-[0_0_20px_rgba(0,0,0,0.3)]' : 'hover:bg-white/5'}`}>
+                <div className={`w-6 h-6 rounded-full overflow-hidden border-2 transition-all duration-500 ${location.pathname === '/profile' ? 'border-indigo-400 shadow-[0_0_10px_rgba(129,140,248,0.5)]' : 'border-white/20 opacity-60'}`}>
+                  <img src={user.avatar} className="w-full h-full object-cover" alt="" />
+                </div>
               </div>
-              <span className="text-[9px] font-black uppercase tracking-widest mt-1 text-indigo-600">Tôi</span>
             </Link>
           ) : (
-            <div className="flex flex-col items-center group" onClick={() => { setShowLoginModal(true); if (isCartOpen) onCloseCart(); }}>
-              <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center group-hover:bg-indigo-50 transition-all">
-                <i className="fa-solid fa-user text-base text-slate-400 group-hover:text-indigo-600 opacity-60 group-hover:opacity-100 transition-all"></i>
-              </div>
-              <span className="text-[9px] font-black uppercase tracking-widest mt-1 text-slate-400 opacity-40 group-hover:opacity-100 transition-all">Tài khoản</span>
+            <div className="flex flex-col items-center justify-center w-11 h-11 rounded-2xl hover:bg-white/5 transition-all duration-500" onClick={() => { setShowLoginModal(true); if (isCartOpen) onCloseCart(); }}>
+              <i className="fa-solid fa-user text-xl text-slate-400 opacity-60"></i>
+              {ripples['user'] && <span className="absolute inset-0 bg-white/10 rounded-2xl animate-ping opacity-0"></span>}
             </div>
           )}
         </button>

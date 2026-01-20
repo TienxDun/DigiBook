@@ -5,6 +5,8 @@ const LoginModal: React.FC = () => {
   const { 
     showLoginModal, 
     setShowLoginModal, 
+    authMode,
+    setAuthMode,
     authError, 
     setAuthError,
     loginWithEmail,
@@ -12,8 +14,6 @@ const LoginModal: React.FC = () => {
     loginWithGoogle,
     sendPasswordReset
   } = useAuth();
-  
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
