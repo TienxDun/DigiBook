@@ -11,6 +11,7 @@ const ProfilePage: React.FC = () => {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [stats, setStats] = useState({ orders: 0, wishlist: 0 });
 
     // Password change state
     const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -32,23 +33,36 @@ const ProfilePage: React.FC = () => {
         const fetchProfile = async () => {
             if (!user) return;
             try {
-                const data = await db.getUserProfile(user.id);
-                if (data) {
-                    setProfile(data);
+                // Fetch profile and stats in parallel
+                const [profileData, ordersData] = await Promise.all([
+                    db.getUserProfile(user.id),
+                    db.getOrdersByUserId(user.id)
+                ]);
+
+                if (profileData) {
+                    setProfile(profileData);
                     setFormData({
-                        name: data.name || user.name || '',
-                        phone: data.phone || '',
-                        address: data.address || '',
-                        bio: data.bio || '',
-                        gender: data.gender || 'Nam',
-                        birthday: data.birthday || ''
+                        name: profileData.name || user.name || '',
+                        phone: profileData.phone || '',
+                        address: profileData.address || '',
+                        bio: profileData.bio || '',
+                        gender: profileData.gender || 'Nam',
+                        birthday: profileData.birthday || ''
+                    });
+                    setStats({
+                        orders: ordersData.length,
+                        wishlist: profileData.wishlistIds?.length || 0
                     });
                 } else {
                     // Initialize with auth data if no profile in DB
                     setFormData(prev => ({ ...prev, name: user.name }));
+                    setStats({
+                        orders: ordersData.length,
+                        wishlist: 0
+                    });
                 }
             } catch (error) {
-                console.error("Error fetching profile:", error);
+                console.error("Error fetching profile data:", error);
             } finally {
                 setLoading(false);
             }
@@ -132,8 +146,8 @@ const ProfilePage: React.FC = () => {
 
     return (
         <div className="bg-slate-50 min-h-screen py-10 lg:py-12">
-            <div className="w-[92%] xl:w-[60%] mx-auto px-4">
-                <div className="max-w-4xl mx-auto">
+            <div className="w-[94%] xl:w-[75%] 2xl:w-[65%] mx-auto px-4">
+                <div className="max-w-6xl mx-auto">
                     {/* Header */}
                     <div className="flex flex-col md:flex-row items-center gap-8 mb-12">
                         <div className="relative group">
@@ -160,14 +174,58 @@ const ProfilePage: React.FC = () => {
                                 <span className="px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-micro font-bold uppercase tracking-premium">
                                     ID: {user.id.substring(0, 8)}...
                                 </span>
+                                <button 
+                                    onClick={() => setShowPasswordModal(true)}
+                                    className="px-4 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-full text-micro font-bold uppercase tracking-premium transition-all flex items-center gap-2 group/btn"
+                                >
+                                    <i className="fa-solid fa-key text-[10px] group-hover/btn:rotate-12 transition-transform"></i>
+                                    Đổi mật khẩu
+                                </button>
                             </div>
                         </div>
                     </div>
 
                     {/* Main Content */}
-                    <div className="grid lg:grid-cols-3 gap-8">
+                    <div className="grid lg:grid-cols-4 gap-8">
                         {/* Sidebar */}
-                        <div className="space-y-6">
+                        <div className="space-y-6 lg:col-span-1">
+                            {/* Stats Card */}
+                            <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-200/60 shadow-slate-200/20 overflow-hidden relative group">
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-50 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-110"></div>
+                                <h2 className="text-lg font-extrabold text-slate-900 mb-6 flex items-center gap-3 uppercase tracking-tight relative z-10">
+                                    <i className="fa-solid fa-chart-simple text-indigo-600"></i>
+                                    Thống kê
+                                </h2>
+                                <div className="space-y-6 relative z-10">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                                                <i className="fa-solid fa-box"></i>
+                                            </div>
+                                            <span className="text-slate-500 font-bold text-xs uppercase tracking-wider">Đơn hàng</span>
+                                        </div>
+                                        <span className="text-xl font-black text-slate-900">{stats.orders}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600">
+                                                <i className="fa-solid fa-heart"></i>
+                                            </div>
+                                            <span className="text-slate-500 font-bold text-xs uppercase tracking-wider">Yêu thích</span>
+                                        </div>
+                                        <span className="text-xl font-black text-slate-900">{stats.wishlist}</span>
+                                    </div>
+                                    <div className="pt-4 border-t border-slate-100 flex flex-col gap-1">
+                                        <span className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em]">Tham gia từ</span>
+                                        <span className="text-sm font-extrabold text-slate-600">
+                                            {profile?.createdAt 
+                                                ? new Date(profile.createdAt.seconds * 1000).toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' })
+                                                : 'Tháng 1, 2024'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-200/60 shadow-slate-200/20 transition-all hover:border-slate-300">
                                 <h1 className="sr-only">Hồ sơ cá nhân</h1>
                                 <h2 className="text-lg font-extrabold text-slate-900 mb-6 flex items-center gap-3 uppercase tracking-tight">
@@ -180,18 +238,6 @@ const ProfilePage: React.FC = () => {
                                     placeholder="Viết vài dòng giới thiệu về bản thân..."
                                     className="w-full h-32 p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 font-medium text-sm transition-all resize-none text-slate-600 shadow-inner"
                                 />
-                            </div>
-                            
-                            <div className="bg-gradient-to-br from-slate-900 to-indigo-900 rounded-[2.5rem] p-8 text-white shadow-2xl">
-                                <i className="fa-solid fa-shield-halved text-3xl mb-6 text-indigo-400"></i>
-                                <h2 className="text-xl font-extrabold mb-2 tracking-tight uppercase">Bảo mật tài khoản</h2>
-                                <p className="text-slate-400 text-xs mb-6 font-medium leading-relaxed">Thông tin cá nhân của bạn được mã hóa và bảo mật tuyệt đối theo tiêu chuẩn quốc tế.</p>
-                                <button 
-                                    onClick={() => setShowPasswordModal(true)}
-                                    className="w-full py-3 bg-white/10 hover:bg-white/20 rounded-xl text-micro font-bold uppercase tracking-premium transition-all"
-                                >
-                                    Đổi mật khẩu
-                                </button>
                             </div>
                         </div>
 
@@ -279,9 +325,10 @@ const ProfilePage: React.FC = () => {
                         )}
 
                         {/* Form */}
-                        <div className="lg:col-span-2">
-                            <div className="bg-white rounded-[3rem] p-8 lg:p-12 shadow-sm border border-slate-200/60 shadow-slate-200/20 transition-all hover:border-slate-300 relative overflow-hidden">
-                                <form onSubmit={handleSave} className="space-y-8">
+                        <div className="lg:col-span-3">
+                            <div className="bg-white rounded-[2.5rem] p-8 lg:p-12 shadow-sm border border-slate-200/60 shadow-slate-200/20 transition-all hover:border-slate-300 relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/50 rounded-full -mr-32 -mt-32 blur-3xl transition-all group-hover:bg-indigo-100/50"></div>
+                                <form onSubmit={handleSave} className="space-y-8 relative z-10">
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Họ và tên</label>
