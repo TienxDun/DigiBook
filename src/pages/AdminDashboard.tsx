@@ -240,7 +240,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className={`flex min-h-screen ${adminTheme === 'midnight' ? 'bg-[#020617]' : 'bg-slate-50'}`}>
+    <div className="flex min-h-screen bg-background">
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div 
@@ -249,25 +249,25 @@ const AdminDashboard: React.FC = () => {
         ></div>
       )}
 
-      {/* Sidebar - Cố định bên trái - Nâng cấp màu Midnight Premium (Luôn luôn tối) */}
-      <aside className={`${isSidebarCollapsed ? 'w-24' : 'w-80'} flex flex-col fixed inset-y-0 z-[100] shadow-2xl transition-all duration-500 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} bg-[#0f172a] border-r border-white/5`}>
-        <div className={`p-6 border-b border-white/[0.03] flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between'} gap-4 h-24 bg-[#0f172a] relative z-20`}>
+      {/* Sidebar - Cố định bên trái - Nâng cấp màu Sidebar Premium */}
+      <aside className={`${isSidebarCollapsed ? 'w-24' : 'w-80'} flex flex-col fixed inset-y-0 z-[100] shadow-xl transition-all duration-500 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} bg-sidebar border-r border-sidebar-border`}>
+        <div className={`p-6 border-b border-sidebar-border flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between'} gap-4 h-24 bg-sidebar relative z-20`}>
           {!isSidebarCollapsed ? (
             <div className="flex items-center gap-4 animate-fadeIn">
-              <Link to="/" className="w-11 h-11 bg-gradient-to-tr from-indigo-600 to-indigo-400 rounded-xl flex items-center justify-center text-white hover:scale-105 shadow-xl shadow-indigo-500/20 transition-all active:scale-95 group">
+              <Link to="/" className="w-11 h-11 bg-primary rounded-xl flex items-center justify-center text-primary-foreground hover:scale-105 shadow-xl shadow-primary/20 transition-all active:scale-95 group">
                 <i className="fa-solid fa-bolt-lightning group-hover:rotate-12 transition-transform"></i>
               </Link>
               <div>
-                <h1 className="text-base font-black tracking-tighter uppercase text-white leading-none">DigiBook</h1>
-                <p className="text-xs font-black text-indigo-400/80 uppercase tracking-[0.3em] mt-1.5 shadow-indigo-500/10">Architecture</p>
+                <h1 className="text-base font-black tracking-tighter uppercase text-sidebar-foreground leading-none">DigiBook</h1>
+                <p className="text-xs font-black text-primary/80 uppercase tracking-[0.3em] mt-1.5">Architecture</p>
               </div>
             </div>
           ) : (
-            <Link to="/" className="w-12 h-12 bg-gradient-to-tr from-indigo-600 to-indigo-400 rounded-2xl flex items-center justify-center text-white hover:scale-105 shadow-xl shadow-indigo-500/20 transition-all active:scale-95 group">
+            <Link to="/" className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-primary-foreground hover:scale-105 shadow-xl shadow-primary/20 transition-all active:scale-95 group">
               <i className="fa-solid fa-bolt-lightning group-hover:rotate-12 transition-transform"></i>
             </Link>
           )}
-          <button onClick={() => setIsMobileMenuOpen(false)} className="lg:hidden text-slate-500 hover:text-white p-2 transition-colors">
+          <button onClick={() => setIsMobileMenuOpen(false)} className="lg:hidden text-sidebar-foreground/50 hover:text-sidebar-foreground p-2 transition-colors">
             <i className="fa-solid fa-xmark text-xl"></i>
           </button>
         </div>
@@ -276,7 +276,7 @@ const AdminDashboard: React.FC = () => {
           {menuGroups.map((group, gIdx) => (
             <div key={gIdx} className="space-y-2">
               {!isSidebarCollapsed && (
-                <h3 className="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-4 animate-fadeIn">
+                <h3 className="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-sidebar-foreground/40 mb-4 animate-fadeIn">
                   {group.title}
                 </h3>
               )}
@@ -291,11 +291,11 @@ const AdminDashboard: React.FC = () => {
                     title={isSidebarCollapsed ? tab.label : ""}
                     className={`flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-4 px-5'} w-full py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 group relative
                       ${activeTab === tab.id 
-                        ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/20" 
-                        : "text-slate-500 hover:text-slate-200 hover:bg-white/[0.03] hover:translate-x-1"
+                        ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-xl shadow-sidebar-primary/20" 
+                        : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent hover:translate-x-1"
                       }`}
                   >
-                    <i className={`fa-solid ${tab.icon} ${isSidebarCollapsed ? 'text-lg' : 'text-sm w-5 text-center'} ${activeTab === tab.id ? 'text-white' : 'text-slate-600 group-hover:text-indigo-400'}`}></i>
+                    <i className={`fa-solid ${tab.icon} ${isSidebarCollapsed ? 'text-lg' : 'text-sm w-5 text-center'} ${activeTab === tab.id ? 'text-sidebar-primary-foreground' : 'text-sidebar-foreground/40 group-hover:text-primary'}`}></i>
                     {!isSidebarCollapsed && <span className="animate-fadeIn">{tab.label}</span>}
                     
                     {activeTab === tab.id && !isSidebarCollapsed && (
@@ -324,19 +324,17 @@ const AdminDashboard: React.FC = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className={`flex-1 min-w-0 ${isSidebarCollapsed ? 'lg:ml-24' : 'lg:ml-80'} min-h-screen flex flex-col transition-all duration-500 ${adminTheme === 'midnight' ? 'bg-[#020617]' : 'bg-slate-50'}`}>
-        <header className={`backdrop-blur-xl border-b sticky top-0 z-40 h-24 flex items-center justify-between px-6 lg:px-10 transition-all ${adminTheme === 'midnight' ? 'bg-[#0f172a]/80 border-white/5' : 'bg-white/80 border-slate-200/60'}`}>
+      <main className={`flex-1 min-w-0 ${isSidebarCollapsed ? 'lg:ml-24' : 'lg:ml-80'} min-h-screen flex flex-col transition-all duration-500 bg-background`}>
+        <header className="backdrop-blur-xl border-b border-border sticky top-0 z-40 h-24 flex items-center justify-between px-6 lg:px-10 transition-all bg-background/80">
            <div className="flex items-center gap-4">
               <button 
                 onClick={() => setIsMobileMenuOpen(true)}
-                className={`lg:hidden w-12 h-12 rounded-2xl flex items-center justify-center transition-all active:scale-95 ${
-                  adminTheme === 'midnight' ? 'bg-white/5 text-white border border-white/10' : 'bg-white text-slate-900 border border-slate-200'
-                }`}
+                className="lg:hidden w-12 h-12 rounded-2xl flex items-center justify-center transition-all active:scale-95 bg-card text-foreground border border-border"
               >
                 <i className="fa-solid fa-bars-staggered"></i>
               </button>
               <div className="animate-fadeIn">
-                <h2 className={`text-xl lg:text-2xl font-black uppercase tracking-tight ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>
+                <h2 className="text-xl lg:text-2xl font-black uppercase tracking-tight text-foreground">
                   {activeTab === 'overview' ? 'Báo cáo tổng quan' : 
                    activeTab === 'books' ? 'Quản lý kho sách' :
                    activeTab === 'orders' ? 'Đơn hàng & Giao nhận' :
@@ -347,21 +345,21 @@ const AdminDashboard: React.FC = () => {
                    activeTab === 'logs' ? 'Lịch sử hệ thống' : 'Cấu hình AI Assistant'}
                 </h2>
                 <div className="flex items-center gap-2 mt-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></div>
-                  <p className="text-xs lg:text-micro font-bold text-indigo-400/60 uppercase tracking-[0.2em] hidden sm:block">Cloud Management System v2.5</p>
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
+                  <p className="text-xs lg:text-micro font-bold text-primary/60 uppercase tracking-[0.2em] hidden sm:block">Cloud Management System v2.5</p>
                 </div>
               </div>
            </div>
            
            <div className="flex items-center gap-3 lg:gap-6">
               {/* System Stats - NEW */}
-              <div className="hidden xl:flex items-center gap-6 px-6 border-r border-white/5 mr-2">
+              <div className="hidden xl:flex items-center gap-6 px-6 border-r border-border mr-2">
                  <div className="text-right">
-                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Dung lượng</p>
-                    <p className={`text-[11px] font-black ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>1.2 GB / 5GB</p>
+                    <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">Dung lượng</p>
+                    <p className="text-[11px] font-black text-foreground">1.2 GB / 5GB</p>
                  </div>
-                 <div className="w-12 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full w-[24%] bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
+                 <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full w-[24%] bg-primary shadow-[0_0_10px_rgba(112,51,255,0.5)]"></div>
                  </div>
               </div>
 
@@ -369,34 +367,18 @@ const AdminDashboard: React.FC = () => {
               <button 
                 onClick={handleSeedData}
                 disabled={isSeeding}
-                className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center transition-all active:scale-95 shadow-lg ${
-                  adminTheme === 'midnight' 
-                    ? 'bg-white/5 text-amber-500 border border-white/10 hover:bg-white/10 shadow-[0_0_15px_rgba(245,158,11,0.1)]' 
-                    : 'bg-white text-amber-600 border border-slate-200 shadow-slate-200/50 hover:bg-slate-50'
-                } ${isSeeding ? 'opacity-50' : ''}`}
+                className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center transition-all active:scale-95 shadow-lg bg-card text-amber-600 border border-border shadow-slate-200/50 hover:bg-slate-50 ${isSeeding ? 'opacity-50' : ''}`}
                 title="Khởi tạo dữ liệu hệ thống"
               >
                 <i className={`fa-solid ${isSeeding ? 'fa-circle-notch animate-spin' : 'fa-database'}`}></i>
               </button>
 
-              {/* Theme Toggle Button */}
-              <button 
-                onClick={toggleTheme}
-                className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center transition-all active:scale-95 shadow-lg ${
-                  adminTheme === 'midnight' 
-                    ? 'bg-indigo-600 text-white shadow-indigo-500/20' 
-                    : 'bg-white text-slate-600 border border-slate-200 shadow-slate-200/50'
-                }`}
-              >
-                <i className={`fa-solid ${adminTheme === 'midnight' ? 'fa-sun' : 'fa-moon'}`}></i>
-              </button>
-
               <div className="hidden md:flex flex-col items-end">
-                <span className="text-micro font-black text-slate-500 uppercase tracking-widest">{new Date().toLocaleDateString('vi-VN', { weekday: 'long' })}</span>
-                <span className={`text-sm font-black ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>{new Date().toLocaleDateString('vi-VN')}</span>
+                <span className="text-micro font-black text-muted-foreground uppercase tracking-widest">{new Date().toLocaleDateString('vi-VN', { weekday: 'long' })}</span>
+                <span className="text-sm font-black text-foreground">{new Date().toLocaleDateString('vi-VN')}</span>
               </div>
-              <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center border shadow-inner ${adminTheme === 'midnight' ? 'bg-white/5 text-slate-400 border-white/5' : 'bg-white text-slate-500 border-slate-200'}`}>
-                 <i className="fa-solid fa-calendar-check text-indigo-400"></i>
+              <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center border border-border shadow-inner bg-card text-muted-foreground">
+                 <i className="fa-solid fa-calendar-check text-primary"></i>
               </div>
            </div>
         </header>
@@ -405,10 +387,10 @@ const AdminDashboard: React.FC = () => {
           <div className="px-6 lg:px-10 py-4 animate-slideDown">
             <div className={`p-4 rounded-2xl border flex items-center justify-between shadow-xl ${
               seedStatus.type === 'success' 
-              ? (adminTheme === 'midnight' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-green-50 border-green-200 text-green-700')
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
               : seedStatus.type === 'error'
-              ? (adminTheme === 'midnight' ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' : 'bg-rose-50 border-rose-200 text-rose-700')
-              : (adminTheme === 'midnight' ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' : 'bg-blue-50 border-blue-200 text-blue-700')
+              ? 'bg-rose-50 border-rose-200 text-rose-700'
+              : 'bg-primary/10 border-primary/20 text-primary'
             }`}>
                <div className="flex items-center gap-3">
                   <i className={`fa-solid ${seedStatus.type === 'success' ? 'fa-circle-check' : seedStatus.type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-info'}`}></i>
@@ -427,30 +409,30 @@ const AdminDashboard: React.FC = () => {
               {/* Stats Grid - Premium Glassmorphism */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
                 {[
-                  { label: "Doanh thu", value: formatPrice(stats.totalRevenue), icon: "fa-sack-dollar", bgColor: "bg-emerald-500/10", iconColor: "text-emerald-400", sub: `Chiếm ${((stats.totalRevenue/1000000)*100).toFixed(1)}% mục tiêu tuần`, growth: "+12.5%", trend: "up" },
-                  { label: "Đơn hàng", value: stats.totalOrders, icon: "fa-cart-shopping", bgColor: "bg-indigo-500/10", iconColor: "text-indigo-400", sub: `${stats.todayOrders} đơn trong hôm nay`, growth: stats.todayOrders > 0 ? "+25%" : "0%", trend: "up" },
-                  { label: "Sách tồn", value: stats.totalBooks, icon: "fa-book-open-reader", bgColor: "bg-violet-500/10", iconColor: "text-violet-400", sub: `${stats.outOfStock} đầu sách đã hết`, growth: stats.lowStock > 0 ? `-${stats.lowStock}` : "ổn định", trend: stats.lowStock > 0 ? "down" : "neutral" },
-                  { label: "Đang xử lý", value: stats.pendingOrders, icon: "fa-clock", bgColor: "bg-amber-500/10", iconColor: "text-amber-400", sub: `${stats.completedOrders} đơn đã hoàn thành`, growth: "Ưu tiên cao", trend: "neutral" }
+                  { label: "Doanh thu", value: formatPrice(stats.totalRevenue), icon: "fa-sack-dollar", bgColor: "bg-chart-1/10", iconColor: "text-chart-1", sub: `Chiếm ${((stats.totalRevenue/1000000)*100).toFixed(1)}% mục tiêu tuần`, growth: "+12.5%", trend: "up" },
+                  { label: "Đơn hàng", value: stats.totalOrders, icon: "fa-cart-shopping", bgColor: "bg-primary/10", iconColor: "text-primary", sub: `${stats.todayOrders} đơn trong hôm nay`, growth: stats.todayOrders > 0 ? "+25%" : "0%", trend: "up" },
+                  { label: "Sách tồn", value: stats.totalBooks, icon: "fa-book-open-reader", bgColor: "bg-chart-2/10", iconColor: "text-chart-2", sub: `${stats.outOfStock} đầu sách đã hết`, growth: stats.lowStock > 0 ? `-${stats.lowStock}` : "ổn định", trend: stats.lowStock > 0 ? "down" : "neutral" },
+                  { label: "Đang xử lý", value: stats.pendingOrders, icon: "fa-clock", bgColor: "bg-chart-3/10", iconColor: "text-chart-3", sub: `${stats.completedOrders} đơn đã hoàn thành`, growth: "Ưu tiên cao", trend: "neutral" }
                 ].map((stat, i) => (
-                  <div key={i} className={`p-5 lg:p-7 rounded-[2rem] lg:rounded-[2.5rem] border shadow-2xl transition-all duration-500 group relative overflow-hidden ${adminTheme === 'midnight' ? 'bg-[#0f172a]/40 border-white/[0.03] hover:bg-[#0f172a]/60' : 'bg-white border-slate-200/50 hover:shadow-indigo-500/5 hover:border-indigo-200'}`}>
+                  <div key={i} className="p-5 lg:p-7 rounded-[2rem] lg:rounded-[2.5rem] border border-border shadow-2xl transition-all duration-500 group relative overflow-hidden bg-card hover:shadow-primary/5 hover:border-primary">
                     <div className="flex items-start justify-between mb-6 relative z-10">
-                      <div className={`w-12 h-12 lg:w-14 lg:h-14 ${stat.bgColor} ${stat.iconColor} rounded-2xl lg:rounded-[1.2rem] flex items-center justify-center text-lg lg:text-xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-[0_0_30px_rgba(99,102,241,0.2)]`}>
+                      <div className={`w-12 h-12 lg:w-14 lg:h-14 ${stat.bgColor} ${stat.iconColor} rounded-2xl lg:rounded-[1.2rem] flex items-center justify-center text-lg lg:text-xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-[0_0_30px_rgba(112,51,255,0.2)]`}>
                         <i className={`fa-solid ${stat.icon}`}></i>
                       </div>
                       <div className="flex flex-col items-end">
                         <div className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${
                           stat.trend === 'up' ? 'text-emerald-400 bg-emerald-500/10' : 
                           stat.trend === 'down' ? 'text-rose-400 bg-rose-500/10' : 
-                          'text-slate-400 bg-white/5'
+                          'text-muted-foreground bg-muted'
                         }`}>
                           {stat.growth}
                         </div>
                       </div>
                     </div>
-                    <p className="text-xs lg:text-micro font-black text-slate-500 uppercase tracking-premium mb-1 relative z-10">{stat.label}</p>
-                    <h3 className={`text-xl lg:text-2xl font-black tracking-tighter relative z-10 ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>{stat.value}</h3>
+                    <p className="text-xs lg:text-micro font-black text-muted-foreground uppercase tracking-premium mb-1 relative z-10">{stat.label}</p>
+                    <h3 className="text-xl lg:text-2xl font-black tracking-tighter relative z-10 text-foreground">{stat.value}</h3>
                     <div className={`h-1.5 w-12 rounded-full mt-3 mb-2 transition-all duration-500 group-hover:w-20 ${stat.bgColor.replace('/10', '/30')}`}></div>
-                    <p className="text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-2 relative z-10">
+                    <p className="text-[10px] lg:text-xs font-bold text-muted-foreground uppercase tracking-wide flex items-center gap-2 relative z-10">
                       <span className={`w-1.5 h-1.5 rounded-full ${stat.iconColor} animate-pulse`}></span>
                       {stat.sub}
                     </p>
@@ -462,23 +444,23 @@ const AdminDashboard: React.FC = () => {
 
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
                 {/* Revenue Chart - chiếm 3 cột */}
-                <div className={`lg:col-span-3 p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] border shadow-2xl relative overflow-hidden transition-all ${adminTheme === 'midnight' ? 'bg-[#0f172a]/50 border-white/5' : 'bg-white border-slate-200/60 shadow-slate-200/50'}`}>
+                <div className="lg:col-span-3 p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] border border-border shadow-2xl relative overflow-hidden transition-all bg-card shadow-slate-200/50">
                   <div className="flex items-center justify-between mb-12">
                     <div>
-                      <h3 className={`text-lg lg:text-xl font-black uppercase tracking-tight ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>Hiệu quả kinh doanh</h3>
-                      <p className="text-xs lg:text-micro font-bold text-indigo-400/60 uppercase tracking-premium mt-1">Chu kỳ {chartView === 'week' ? '7 ngày' : '30 ngày'} gần nhất • VNĐ</p>
+                      <h3 className="text-lg lg:text-xl font-black uppercase tracking-tight text-foreground">Hiệu quả kinh doanh</h3>
+                      <p className="text-xs lg:text-micro font-bold text-primary/60 uppercase tracking-premium mt-1">Chu kỳ {chartView === 'week' ? '7 ngày' : '30 ngày'} gần nhất • VNĐ</p>
                     </div>
                     <div className="flex items-center gap-4">
-                       <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
+                       <div className="flex bg-muted p-1 rounded-xl border border-border">
                           <button 
                             onClick={() => setChartView("week")}
-                            className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${chartView === 'week' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                            className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${chartView === 'week' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:text-foreground'}`}
                           >
                             Tuần
                           </button>
                           <button 
                             onClick={() => setChartView("month")}
-                            className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${chartView === 'month' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                            className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${chartView === 'month' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:text-foreground'}`}
                           >
                             Tháng
                           </button>
@@ -489,7 +471,7 @@ const AdminDashboard: React.FC = () => {
                   {/* Revenue Chart Visualization */}
                   <div className="flex gap-4 h-80 mt-10 relative">
                     {/* Y-Axis Labels */}
-                    <div className="hidden sm:flex flex-col justify-between h-[75%] text-[9px] font-black text-slate-500 uppercase tracking-tighter w-14 pb-2">
+                    <div className="hidden sm:flex flex-col justify-between h-[75%] text-[9px] font-black text-muted-foreground uppercase tracking-tighter w-14 pb-2">
                        {stats.yAxisLabels.map((val, idx) => (
                          <span key={idx} className="text-right">
                            {val >= 1000000 ? `${(val/1000000).toFixed(1)}M` : val >= 1000 ? `${(val/1000).toFixed(0)}K` : val}
@@ -513,22 +495,20 @@ const AdminDashboard: React.FC = () => {
                             {/* Bar Area - Fixed to 75% height to match Y-Axis and Grid */}
                             <div className="relative w-full flex justify-center items-end h-[75%]">
                                {/* Highlight line on hover */}
-                               <div className="absolute inset-x-0 bottom-0 top-0 bg-indigo-500/0 group-hover:bg-indigo-500/5 rounded-2xl transition-all duration-500 -z-10"></div>
+                               <div className="absolute inset-x-0 bottom-0 top-0 bg-primary/0 group-hover:bg-primary/5 rounded-2xl transition-all duration-500 -z-10"></div>
                                
                                {/* Bar */}
                                <div 
-                                 className={`w-full ${chartView === 'week' ? 'max-w-[50px]' : 'max-w-[15px]'} rounded-t-2xl transition-all duration-1000 relative group-hover:shadow-[0_0_40px_rgba(99,102,241,0.5)] ${
+                                 className={`w-full ${chartView === 'week' ? 'max-w-[50px]' : 'max-w-[15px]'} rounded-t-2xl transition-all duration-1000 relative group-hover:shadow-[0_0_40px_rgba(112,51,255,0.5)] ${
                                    isPeak 
-                                   ? 'bg-gradient-to-t from-indigo-600 via-indigo-400 to-indigo-300 shadow-[0_0_20px_rgba(99,102,241,0.3)]' 
-                                   : adminTheme === 'midnight' 
-                                     ? 'bg-gradient-to-t from-indigo-900/40 via-indigo-600 to-indigo-400 opacity-80 group-hover:opacity-100' 
-                                     : 'bg-gradient-to-t from-indigo-100 via-indigo-500 to-indigo-400 shadow-lg shadow-indigo-500/10'
+                                   ? 'bg-gradient-to-t from-primary via-primary/80 to-primary/60 shadow-[0_0_20px_rgba(112,51,255,0.3)]' 
+                                   : 'bg-gradient-to-t from-primary/10 via-primary/50 to-primary/40 shadow-lg shadow-primary/10'
                                  }`}
                                  style={{ height: `${(day.total / stats.maxRevenue) * 100}%`, minHeight: '8px' }}
                                >
                                   {/* Value label on top (visible on small screens or hover) */}
                                   <div className={`absolute -top-10 left-1/2 -translate-x-1/2 transition-all duration-300 transform group-hover:-translate-y-2 whitespace-nowrap z-20 ${isPeak ? 'opacity-100 -translate-y-1' : 'opacity-0 group-hover:opacity-100'}`}>
-                                     <span className={`${isPeak ? 'bg-indigo-600' : 'bg-slate-900'} text-white px-3 py-1.5 rounded-xl text-[10px] font-black shadow-2xl border border-white/10`}>
+                                     <span className={`${isPeak ? 'bg-primary text-primary-foreground' : 'bg-foreground text-background'} px-3 py-1.5 rounded-xl text-[10px] font-black shadow-2xl border border-border`}>
                                         {formatPrice(day.total)}
                                      </span>
                                   </div>
@@ -547,11 +527,11 @@ const AdminDashboard: React.FC = () => {
 
                             {/* Label Area - Occupies the remaining 25% height */}
                             <div className="flex-1 flex flex-col items-center justify-center gap-0.5">
-                              <span className={`${chartView === 'week' ? 'text-[10px]' : 'text-[8px]'} font-black uppercase tracking-widest transition-colors ${adminTheme === 'midnight' ? 'text-slate-500 group-hover:text-indigo-400' : 'text-slate-400 group-hover:text-indigo-600'} ${chartView === 'month' && i % 5 !== 0 ? 'hidden' : ''}`}>
+                              <span className={`${chartView === 'week' ? 'text-[10px]' : 'text-[8px]'} font-black uppercase tracking-widest transition-colors text-muted-foreground group-hover:text-primary ${chartView === 'month' && i % 5 !== 0 ? 'hidden' : ''}`}>
                                 {day.day}
                               </span>
                               {chartView === 'week' && (
-                                 <span className="text-[8px] font-bold text-slate-600 uppercase">Th.{day.month}</span>
+                                 <span className="text-[8px] font-bold text-muted-foreground uppercase">Th.{day.month}</span>
                               )}
                             </div>
                           </div>
@@ -562,18 +542,18 @@ const AdminDashboard: React.FC = () => {
                     {/* Horizontal Grid Lines */}
                     <div className="absolute left-14 right-4 top-0 bottom-[25%] flex flex-col justify-between pointer-events-none">
                       {[...Array(5)].map((_, i) => (
-                        <div key={i} className={`w-full h-px ${adminTheme === 'midnight' ? 'bg-white/[0.03]' : 'bg-slate-200/50'}`}></div>
+                        <div key={i} className="w-full h-px bg-border/50"></div>
                       ))}
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 lg:gap-8">
-                  <div className={`p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl border transition-all ${adminTheme === 'midnight' ? 'bg-[#0f172a]/50 border-white/5' : 'bg-white border-slate-200/60 shadow-slate-200/50'}`}>
+                  <div className="p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl border border-border transition-all bg-card shadow-slate-200/50">
                     <div className="flex items-center justify-between mb-8">
-                      <h3 className={`text-xs font-black uppercase tracking-premium ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>Thống kê kho</h3>
-                      <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
-                        <i className="fa-solid fa-cube text-indigo-400 text-xs"></i>
+                      <h3 className="text-xs font-black uppercase tracking-premium text-foreground">Thống kê kho</h3>
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <i className="fa-solid fa-cube text-primary text-xs"></i>
                       </div>
                     </div>
                     <div className="space-y-5">
@@ -582,14 +562,14 @@ const AdminDashboard: React.FC = () => {
                         { label: "Danh mục", value: stats.totalCategories, color: "indigo", icon: "fa-shapes" },
                         { label: "Mã KM", value: stats.totalCoupons, color: "amber", icon: "fa-ticket" }
                       ].map((item, id) => (
-                        <div key={id} className={`flex items-center justify-between p-4 rounded-2xl border group transition-all duration-300 ${adminTheme === 'midnight' ? 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10' : 'bg-slate-50 border-slate-100 hover:bg-white hover:shadow-xl hover:shadow-slate-100 hover:border-transparent'}`}>
+                        <div key={id} className="flex items-center justify-between p-4 rounded-2xl border border-border group transition-all duration-300 bg-muted hover:bg-card hover:shadow-xl hover:shadow-slate-100 hover:border-transparent">
                           <div className="flex items-center gap-4">
-                             <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-xs transition-transform group-hover:rotate-12 ${adminTheme === 'midnight' ? `bg-${item.color}-500/20 text-${item.color}-400` : `bg-${item.color}-50 text-${item.color}-600`}`}>
+                             <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-xs transition-transform group-hover:rotate-12 bg-primary/10 text-primary`}>
                                 <i className={`fa-solid ${item.icon}`}></i>
                              </div>
-                             <span className="text-xs font-black text-slate-500 uppercase tracking-tight">{item.label}</span>
+                             <span className="text-xs font-black text-muted-foreground uppercase tracking-tight">{item.label}</span>
                           </div>
-                          <span className={`text-sm font-black transition-all group-hover:text-indigo-400 group-hover:scale-125 ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>
+                          <span className="text-sm font-black transition-all group-hover:text-primary group-hover:scale-125 text-foreground">
                             {item.value}
                           </span>
                         </div>
@@ -597,7 +577,7 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="bg-indigo-600 p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl shadow-indigo-600/30 text-white relative overflow-hidden group flex flex-col justify-between border border-white/10">
+                  <div className="bg-primary p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl shadow-primary/30 text-primary-foreground relative overflow-hidden group flex flex-col justify-between border border-white/10">
                     <div className="absolute -top-10 -right-10 w-44 h-44 bg-white/10 rounded-full blur-[60px] group-hover:bg-white/20 transition-all duration-1000"></div>
                     <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-black/10 rounded-full blur-[40px]"></div>
                     
@@ -611,7 +591,7 @@ const AdminDashboard: React.FC = () => {
                       <div className="grid grid-cols-1 gap-4">
                         <button
                           onClick={() => setActiveTab("books")}
-                          className="w-full bg-white/10 hover:bg-white text-white hover:text-indigo-600 backdrop-blur-md px-6 py-4 rounded-2xl text-[10px] font-black transition-all text-left flex items-center justify-between uppercase tracking-[0.15em] border border-white/10 shadow-lg group/btn"
+                          className="w-full bg-white/10 hover:bg-white text-white hover:text-primary backdrop-blur-md px-6 py-4 rounded-2xl text-[10px] font-black transition-all text-left flex items-center justify-between uppercase tracking-[0.15em] border border-white/10 shadow-lg group/btn"
                         >
                           <div className="flex items-center gap-4">
                             <i className="fa-solid fa-plus-circle text-sm"></i>
@@ -621,7 +601,7 @@ const AdminDashboard: React.FC = () => {
                         </button>
                         <button
                           onClick={() => setActiveTab("orders")}
-                          className="w-full bg-white/10 hover:bg-white text-white hover:text-indigo-600 backdrop-blur-md px-6 py-4 rounded-2xl text-[10px] font-black transition-all text-left flex items-center justify-between uppercase tracking-[0.15em] border border-white/10 shadow-lg group/btn"
+                          className="w-full bg-white/10 hover:bg-white text-white hover:text-primary backdrop-blur-md px-6 py-4 rounded-2xl text-[10px] font-black transition-all text-left flex items-center justify-between uppercase tracking-[0.15em] border border-white/10 shadow-lg group/btn"
                         >
                           <div className="flex items-center gap-4">
                             <i className="fa-solid fa-truck-fast text-sm"></i>
@@ -638,33 +618,33 @@ const AdminDashboard: React.FC = () => {
               {/* Activity Section - NEW */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                 {/* Recent Orders */}
-                <div className={`p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border shadow-2xl transition-all ${adminTheme === 'midnight' ? 'bg-[#0f172a]/50 border-white/5' : 'bg-white border-slate-200/60'}`}>
+                <div className="p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border border-border shadow-2xl transition-all bg-card">
                    <div className="flex items-center justify-between mb-8">
                      <div>
-                       <h3 className={`text-lg font-black uppercase tracking-tight ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>Đơn hàng mới nhất</h3>
-                       <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Hoạt động mua hàng gần đây nhất</p>
+                       <h3 className="text-lg font-black uppercase tracking-tight text-foreground">Đơn hàng mới nhất</h3>
+                       <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-1">Hoạt động mua hàng gần đây nhất</p>
                      </div>
-                     <button onClick={() => setActiveTab('orders')} className="text-xs font-black uppercase tracking-premium text-indigo-400 hover:text-indigo-300 transition-colors">Xem tất cả</button>
+                     <button onClick={() => setActiveTab('orders')} className="text-xs font-black uppercase tracking-premium text-primary hover:text-primary/80 transition-colors">Xem tất cả</button>
                    </div>
                    
                    <div className="space-y-4">
                      {stats.recentOrders.length > 0 ? stats.recentOrders.map((order: any) => (
-                       <div key={order.id} className={`flex items-center justify-between p-5 rounded-3xl transition-all ${adminTheme === 'midnight' ? 'bg-white/5 border border-white/5 hover:bg-white/[0.08]' : 'bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl hover:shadow-slate-100'}`}>
+                       <div key={order.id} className="flex items-center justify-between p-5 rounded-3xl transition-all bg-muted border border-border hover:bg-card hover:shadow-xl hover:shadow-slate-100">
                          <div className="flex items-center gap-4">
                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-lg ${
-                             order.statusStep === 3 ? 'bg-emerald-500/10 text-emerald-400' : 
-                             order.statusStep === 0 ? 'bg-amber-500/10 text-amber-400' : 'bg-indigo-500/10 text-indigo-400'
+                             order.statusStep === 3 ? 'bg-chart-1/10 text-chart-1' : 
+                             order.statusStep === 0 ? 'bg-chart-3/10 text-chart-3' : 'bg-primary/10 text-primary'
                            }`}>
                              <i className={`fa-solid ${order.statusStep === 3 ? 'fa-check' : 'fa-clock'}`}></i>
                            </div>
                            <div>
-                             <h4 className={`text-xs font-black uppercase tracking-tight ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>#{order.id.slice(-6)}</h4>
-                             <p className="text-xs font-bold text-slate-500 uppercase">{order.customer?.name || 'Ẩn danh'}</p>
+                             <h4 className="text-xs font-black uppercase tracking-tight text-foreground">#{order.id.slice(-6)}</h4>
+                             <p className="text-xs font-bold text-muted-foreground uppercase">{order.customer?.name || 'Ẩn danh'}</p>
                            </div>
                          </div>
                          <div className="text-right">
-                           <p className={`text-xs font-black ${adminTheme === 'midnight' ? 'text-indigo-400' : 'text-indigo-600'}`}>{formatPrice(order.payment?.total || 0)}</p>
-                           <p className="text-xs font-bold text-slate-500 uppercase mt-1">
+                           <p className="text-xs font-black text-primary">{formatPrice(order.payment?.total || 0)}</p>
+                           <p className="text-xs font-bold text-muted-foreground uppercase mt-1">
                              {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : 'Hôm nay'}
                            </p>
                          </div>
@@ -679,36 +659,36 @@ const AdminDashboard: React.FC = () => {
                 </div>
 
                 {/* Top Selling Books */}
-                <div className={`p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border shadow-2xl transition-all ${adminTheme === 'midnight' ? 'bg-[#0f172a]/50 border-white/5' : 'bg-white border-slate-200/60'}`}>
+                <div className="p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border border-border shadow-2xl transition-all bg-card">
                    <div className="flex items-center justify-between mb-8">
                      <div>
-                       <h3 className={`text-lg font-black uppercase tracking-tight ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>Sản phẩm bán chạy</h3>
-                       <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Thống kê theo số lượng đã bán</p>
+                       <h3 className="text-lg font-black uppercase tracking-tight text-foreground">Sản phẩm bán chạy</h3>
+                       <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-1">Thống kê theo số lượng đã bán</p>
                      </div>
-                     <button onClick={() => setActiveTab('books')} className="text-xs font-black uppercase tracking-premium text-indigo-400 hover:text-indigo-300 transition-colors">Quản lý kho</button>
+                     <button onClick={() => setActiveTab('books')} className="text-xs font-black uppercase tracking-premium text-primary hover:text-primary/80 transition-colors">Quản lý kho</button>
                    </div>
 
                    <div className="space-y-4">
                      {stats.topSellingBooks.length > 0 ? stats.topSellingBooks.map((book: any, idx: number) => (
-                       <div key={idx} className={`flex items-center justify-between p-4 rounded-3xl transition-all ${adminTheme === 'midnight' ? 'bg-white/5 border border-white/5 hover:bg-white/[0.08]' : 'bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl hover:shadow-slate-100'}`}>
+                       <div key={idx} className="flex items-center justify-between p-4 rounded-3xl transition-all bg-muted border border-border hover:bg-card hover:shadow-xl hover:shadow-slate-100">
                          <div className="flex items-center gap-4">
                            <div className="relative">
-                             <img src={book.cover} alt={book.title} className="w-12 h-16 object-cover rounded-xl shadow-lg border border-white/10" />
-                             <div className="absolute -top-2 -left-2 w-6 h-6 bg-indigo-600 rounded-lg flex items-center justify-center text-xs font-black text-white shadow-lg">
+                             <img src={book.cover} alt={book.title} className="w-12 h-16 object-cover rounded-xl shadow-lg border border-border" />
+                             <div className="absolute -top-2 -left-2 w-6 h-6 bg-primary rounded-lg flex items-center justify-center text-xs font-black text-primary-foreground shadow-lg">
                                {idx + 1}
                              </div>
                            </div>
                            <div className="max-w-[180px]">
-                             <h4 className={`text-xs font-black uppercase tracking-tight line-clamp-1 ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>{book.title}</h4>
-                             <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">{book.category}</p>
+                             <h4 className="text-xs font-black uppercase tracking-tight line-clamp-1 text-foreground">{book.title}</h4>
+                             <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-1">{book.category}</p>
                            </div>
                          </div>
                          <div className="text-right">
                            <div className="flex flex-col items-end">
-                              <span className={`px-2 py-1 rounded-lg text-micro font-black uppercase border ${adminTheme === 'midnight' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'bg-indigo-50 text-indigo-600 border-indigo-100'}`}>
+                              <span className="px-2 py-1 rounded-lg text-micro font-black uppercase border bg-primary/10 text-primary border-primary/20">
                                 Đã bán: {book.salesCount}
                               </span>
-                              <p className={`text-xs font-bold uppercase mt-2 ${book.stockQuantity < 10 ? 'text-rose-400' : 'text-slate-500'}`}>
+                              <p className={`text-xs font-bold uppercase mt-2 ${book.stockQuantity < 10 ? 'text-destructive' : 'text-muted-foreground'}`}>
                                 Tồn: {book.stockQuantity}
                               </p>
                            </div>
@@ -721,44 +701,6 @@ const AdminDashboard: React.FC = () => {
                        </div>
                      )}
                    </div>
-                </div>
-              </div>
-
-              {/* System Audit Preview - NEW */}
-              <div className={`p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border shadow-2xl transition-all ${adminTheme === 'midnight' ? 'bg-[#0f172a]/50 border-white/5' : 'bg-white border-slate-200/60'}`}>
-                <div className="flex items-center justify-between mb-8">
-                  <div>
-                    <h3 className={`text-lg font-black uppercase tracking-tight ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>Nhật ký hệ thống</h3>
-                    <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Các thao tác quản trị gần đây</p>
-                  </div>
-                  <button onClick={() => setActiveTab('logs')} className="text-xs font-black uppercase tracking-premium text-indigo-400 hover:text-indigo-300 transition-colors">Xem toàn bộ log</button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {logs.slice(0, 3).map((log, idx) => (
-                    <div key={idx} className={`p-5 rounded-[2rem] border transition-all flex flex-col gap-4 ${adminTheme === 'midnight' ? 'bg-white/5 border-white/5 hover:bg-white/[0.08]' : 'bg-slate-50 border-slate-100 hover:bg-white hover:shadow-xl hover:shadow-slate-100'}`}>
-                       <div className="flex items-center justify-between">
-                          <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${
-                            log.status === 'success' ? 'bg-emerald-500/10 text-emerald-400' : 
-                            log.status === 'error' ? 'bg-rose-500/10 text-rose-400' : 
-                            'bg-indigo-500/10 text-indigo-400'
-                          }`}>
-                            {log.status}
-                          </span>
-                          <span className="text-[10px] font-bold text-slate-500">{log.timestamp?.toDate ? log.timestamp.toDate().toLocaleTimeString('vi-VN') : 'Vừa xong'}</span>
-                       </div>
-                       <div>
-                          <h4 className={`text-xs font-black uppercase tracking-tight mb-1 ${adminTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}>{log.action}</h4>
-                          <p className="text-[11px] font-medium text-slate-500 line-clamp-2">{log.details}</p>
-                       </div>
-                       <div className="mt-auto pt-4 border-t border-white/5 flex items-center gap-2">
-                          <div className="w-5 h-5 rounded-full bg-indigo-500/20 flex items-center justify-center text-[8px] text-indigo-400">
-                             <i className="fa-solid fa-user-shield"></i>
-                          </div>
-                          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 italic">System Admin</span>
-                       </div>
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>

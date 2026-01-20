@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Author } from '../../types';
 import { db } from '../../services/db';
 import { toast } from 'react-hot-toast';
@@ -13,7 +14,6 @@ interface AdminAuthorsProps {
 }
 
 const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme = 'light' }) => {
-  const isMidnight = theme === 'midnight';
   const [isAuthorModalOpen, setIsAuthorModalOpen] = useState(false);
   const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);
   const [authorFormData, setAuthorFormData] = useState<Partial<Author>>({});
@@ -111,169 +111,182 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn text-foreground">
-      <div className={`${
-        isMidnight 
-        ? 'bg-[#1e293b]/50 backdrop-blur-xl border-white/5 shadow-2xl' 
-        : 'bg-card border-border shadow-sm shadow-slate-200/40'
-        } flex flex-wrap items-center justify-between gap-6 p-6 rounded-[2rem] border transition-all hover:border-primary/30`}>
-        <div>
-          <h3 className={`text-lg font-extrabold uppercase tracking-tight ${isMidnight ? 'text-slate-100' : 'text-foreground'}`}>Quản lý tác giả</h3>
-          <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-1">Tổng cộng {authors.length} tác giả trong hệ thống</p>
+    <div className="space-y-8 animate-fadeIn text-foreground">
+      {/* Header Card */}
+      <div className="bg-card/40 backdrop-blur-md border border-border shadow-3xl flex flex-wrap items-center justify-between gap-6 p-8 rounded-[2.5rem] transition-all hover:border-primary/20">
+        <div className="flex items-center gap-5">
+          <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-inner">
+            <i className="fa-solid fa-user-pen text-2xl"></i>
+          </div>
+          <div>
+            <h3 className="text-xl font-black uppercase tracking-tight text-foreground">Quản lý tác giả</h3>
+            <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-1.5 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+              {authors.length} tác giả trong hệ thống
+            </p>
+          </div>
         </div>
         <button 
           onClick={handleOpenAddAuthor}
-          className="bg-primary text-primary-foreground px-6 py-3 rounded-2xl text-micro font-bold uppercase tracking-premium hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2"
+          className="bg-primary text-primary-foreground px-8 py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/25 flex items-center gap-3 group"
         >
-          <i className="fa-solid fa-plus"></i>
+          <i className="fa-solid fa-plus group-hover:rotate-90 transition-transform"></i>
           <span>Thêm tác giả mới</span>
         </button>
       </div>
 
-      {/* Bulk Actions for Authors */}
-      {authors.length > 0 && (
-        <div className={`${
-          isMidnight 
-          ? 'bg-[#1e293b]/30 backdrop-blur-md border-white/5 shadow-xl' 
-          : 'bg-card border-border shadow-sm shadow-slate-200/30'
-          } flex items-center justify-between p-4 rounded-2xl border`}>
-          <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 cursor-pointer group">
-              <div 
-                onClick={toggleSelectAllAuthors}
-                className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
-                  selectedAuthors.length === authors.length && authors.length > 0
-                  ? 'bg-primary border-primary text-primary-foreground' 
-                  : `${isMidnight ? 'border-white/10 group-hover:border-primary/50' : 'border-border group-hover:border-primary'}`
-                }`}
-              >
-                {selectedAuthors.length === authors.length && authors.length > 0 && <i className="fa-solid fa-check text-xs"></i>}
+      {/* Bulk Actions Bar */}
+      <AnimatePresence>
+        {selectedAuthors.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="bg-card/40 backdrop-blur-md border border-primary/20 shadow-xl flex items-center justify-between p-5 rounded-[2rem]"
+          >
+            <div className="flex items-center gap-5 ml-2">
+              <div className="flex items-center gap-3">
+                <span className="flex h-3 w-3 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+                </span>
+                <span className="text-micro font-black text-primary uppercase tracking-premium">Đã chọn {selectedAuthors.length} tác giả</span>
               </div>
-              <span className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-400' : 'text-muted-foreground'}`}>Chọn tất cả ({authors.length})</span>
-            </label>
-            {selectedAuthors.length > 0 && (
-              <div className={`h-4 w-px ${isMidnight ? 'bg-white/10' : 'bg-border'}`}></div>
-            )}
-            {selectedAuthors.length > 0 && (
-              <span className="text-micro font-bold text-primary uppercase tracking-premium">Đã chọn {selectedAuthors.length} tác giả</span>
-            )}
-          </div>
-          {selectedAuthors.length > 0 && (
+              <div className="h-4 w-px bg-border/60"></div>
+              <button 
+                onClick={toggleSelectAllAuthors}
+                className="text-micro font-bold text-muted-foreground hover:text-primary uppercase tracking-premium transition-colors"
+              >
+                Bỏ chọn tất cả
+              </button>
+            </div>
             <button 
               onClick={handleBulkDeleteAuthors}
               disabled={isDeletingBulk}
-              className={`${
-                isMidnight ? 'bg-destructive/10 text-destructive hover:bg-destructive/20' : 'bg-destructive/10 text-destructive hover:bg-destructive-foreground'
-              } px-4 py-2 rounded-xl text-micro font-bold uppercase tracking-premium transition-all flex items-center gap-2`}
+              className="bg-destructive/10 text-destructive hover:bg-destructive hover:text-white px-6 py-3 rounded-xl text-micro font-bold uppercase tracking-premium transition-all shadow-sm flex items-center gap-2"
             >
               <i className={isDeletingBulk ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-trash-can"}></i>
               <span>Xóa hàng loạt</span>
             </button>
-          )}
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div className={`${
-        isMidnight 
-        ? 'bg-[#1e293b]/50 backdrop-blur-xl border-white/5 shadow-2xl' 
-        : 'bg-card border-border shadow-sm shadow-slate-200/20'
-        } rounded-[2rem] border overflow-hidden`}>
+      {/* Main Content Table */}
+      <div className="bg-card/40 backdrop-blur-md border border-border shadow-3xl rounded-[2.5rem] overflow-hidden">
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse min-w-[800px]">
-          <thead>
-            <tr className={`${isMidnight ? 'bg-white/5 border-white/5' : 'bg-secondary/50 border-border'} border-b`}>
-              <th className="p-6 text-micro font-bold text-muted-foreground uppercase tracking-premium w-12 text-center">
-                <div 
-                  onClick={toggleSelectAllAuthors}
-                  className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
-                    selectedAuthors.length === authors.length && authors.length > 0
-                    ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20' 
-                    : `${isMidnight ? 'border-white/10 bg-white/5 shadow-inner' : 'border-border bg-card shadow-inner'}`
-                  }`}
-                >
-                  {selectedAuthors.length === authors.length && authors.length > 0 && <i className="fa-solid fa-check text-xs"></i>}
-                </div>
-              </th>
-              <th className="p-6 text-micro font-bold text-muted-foreground uppercase tracking-premium">Thông tin tác giả</th>
-              <th className="p-6 text-micro font-bold text-muted-foreground uppercase tracking-premium hidden md:table-cell">Tiểu sử tóm tắt</th>
-              <th className="p-6 text-micro font-bold text-muted-foreground uppercase tracking-premium text-right">Thao tác</th>
-            </tr>
-          </thead>
-          <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-border'}`}>
-            {paginatedAuthors.map(author => (
-              <tr key={author.id} className={`group transition-all ${
-                selectedAuthors.includes(author.id) 
-                ? (isMidnight ? 'bg-primary/10' : 'bg-primary/5') 
-                : (isMidnight ? 'hover:bg-white/5' : 'hover:bg-secondary/20')
-              }`}>
-                <td className="p-6 text-center">
+            <thead>
+              <tr className="border-b border-border/50">
+                <th className="p-8 w-20 text-center">
                   <div 
-                    onClick={() => toggleSelectAuthor(author.id)}
-                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
-                      selectedAuthors.includes(author.id)
-                      ? 'bg-primary border-primary text-primary-foreground'
-                      : `${isMidnight ? 'border-white/10 bg-white/5' : 'border-border bg-card group-hover:border-primary shadow-inner'}`
+                    onClick={toggleSelectAllAuthors}
+                    className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
+                      selectedAuthors.length === authors.length && authors.length > 0
+                      ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/30' 
+                      : 'border-border bg-background shadow-inner'
                     }`}
                   >
-                    {selectedAuthors.includes(author.id) && <i className="fa-solid fa-check text-xs"></i>}
+                    {selectedAuthors.length === authors.length && authors.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
                   </div>
-                </td>
-                <td className="p-6">
-                  <div className="flex items-center gap-4">
-                    <img 
-                      src={author.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(author.name) + '&background=7033ff&color=fff'} 
-                      alt={author.name} 
-                      className="w-12 h-12 object-cover rounded-full shadow-md border-2 border-white/10"
-                      onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(author.name) + '&background=7033ff&color=fff'; }}
-                    />
-                    <div>
-                      <h4 className={`font-bold text-sm mb-0.5 ${isMidnight ? 'text-slate-100' : 'text-foreground'}`}>{author.name}</h4>
-                      <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium">Tác giả DigiBook</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="p-6 hidden md:table-cell max-w-xs xl:max-w-md">
-                  <p className={`text-xs line-clamp-2 leading-relaxed font-medium ${isMidnight ? 'text-slate-400' : 'text-muted-foreground'}`}>{author.bio || 'Chưa có tiểu sử'}</p>
-                </td>
-                <td className="p-6">
-                  <div className="flex items-center justify-end gap-2">
-                    <button 
-                      onClick={() => handleEditAuthor(author)}
-                      className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm ${
-                        isMidnight ? 'bg-white/5 text-slate-400 hover:text-white' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
-                      }`}
-                      title="Chỉnh sửa"
-                    >
-                      <i className="fa-solid fa-edit text-xs"></i>
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteAuthor(author)}
-                      className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm ${
-                        isMidnight ? 'bg-destructive/10 text-destructive hover:bg-destructive hover:text-white' : 'bg-destructive/10 text-destructive hover:bg-destructive-foreground'
-                      }`}
-                      title="Xóa"
-                    >
-                      <i className="fa-solid fa-trash-can text-xs"></i>
-                    </button>
-                  </div>
-                </td>
+                </th>
+                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium">Thông tin tác giả</th>
+                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium hidden md:table-cell">Tiểu sử tóm tắt</th>
+                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium text-right">Thao tác</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {authors.length === 0 && (
-          <div className="p-16 text-center">
-            <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 ${isMidnight ? 'bg-white/5' : 'bg-secondary/50'}`}>
-              <i className={`fa-solid fa-user-pen text-3xl ${isMidnight ? 'text-slate-700' : 'text-muted-foreground/20'}`}></i>
+            </thead>
+            <tbody className="divide-y divide-border/30">
+              {paginatedAuthors.map((author, idx) => (
+                <motion.tr 
+                  key={author.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className={`group transition-all duration-300 ${
+                    selectedAuthors.includes(author.id) 
+                    ? 'bg-primary/[0.04]' 
+                    : 'hover:bg-secondary/30'
+                  }`}
+                >
+                  <td className="p-8 text-center">
+                    <div 
+                      onClick={() => toggleSelectAuthor(author.id)}
+                      className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
+                        selectedAuthors.includes(author.id)
+                        ? 'bg-primary border-primary text-primary-foreground shadow-md shadow-primary/20'
+                        : 'border-border bg-background group-hover:border-primary/50 shadow-inner'
+                      }`}
+                    >
+                      {selectedAuthors.includes(author.id) && <i className="fa-solid fa-check text-[10px]"></i>}
+                    </div>
+                  </td>
+                  <td className="p-8">
+                    <div className="flex items-center gap-5">
+                      <div className="relative group/avatar">
+                        <img 
+                          src={author.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(author.name) + '&background=7033ff&color=fff'} 
+                          alt={author.name} 
+                          className="w-14 h-14 object-cover rounded-2xl shadow-lg border-2 border-white transition-transform group-hover/avatar:scale-105"
+                          onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(author.name) + '&background=7033ff&color=fff'; }}
+                        />
+                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-background border border-border rounded-full flex items-center justify-center shadow-sm">
+                          <i className="fa-solid fa-check text-[8px] text-green-500"></i>
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-base text-foreground mb-1 group-hover:text-primary transition-colors">{author.name}</h4>
+                        <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium">ID: {author.id.substring(0, 8)}...</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-8 hidden md:table-cell max-w-xs xl:max-w-md">
+                    <p className="text-sm line-clamp-2 leading-relaxed font-semibold text-muted-foreground italic">
+                      {author.bio || 'Chưa có thông tin tiểu sử chi tiết.'}
+                    </p>
+                  </td>
+                  <td className="p-8">
+                    <div className="flex items-center justify-end gap-3">
+                      <button 
+                        onClick={() => handleEditAuthor(author)}
+                        className="w-11 h-11 flex items-center justify-center rounded-2xl bg-background border border-border text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/5 transition-all shadow-sm active:scale-95"
+                        title="Chỉnh sửa"
+                      >
+                        <i className="fa-solid fa-pen-to-square text-sm"></i>
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteAuthor(author)}
+                        className="w-11 h-11 flex items-center justify-center rounded-2xl bg-background border border-border text-muted-foreground hover:border-destructive hover:text-destructive hover:bg-destructive/5 transition-all shadow-sm active:scale-95"
+                        title="Xóa"
+                      >
+                        <i className="fa-solid fa-trash-can text-sm"></i>
+                      </button>
+                    </div>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+          
+          {authors.length === 0 && (
+            <div className="p-24 text-center">
+              <div className="w-24 h-24 rounded-[2rem] bg-secondary/50 flex items-center justify-center mx-auto mb-8 shadow-inner border border-border/50">
+                <i className="fa-solid fa-user-pen text-4xl text-muted-foreground/30"></i>
+              </div>
+              <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground">Chưa có tác giả nào</h3>
+              <p className="text-xs font-semibold text-muted-foreground/60 mt-2">Bắt đầu bằng cách thêm tác giả đầu tiên của bạn.</p>
+              <button 
+                onClick={handleOpenAddAuthor}
+                className="mt-8 text-primary font-black uppercase tracking-premium text-micro border-b-2 border-primary/20 hover:border-primary transition-all pb-1"
+              >
+                Thêm tác giả ngay
+              </button>
             </div>
-            <h3 className={`font-bold uppercase tracking-premium text-micro ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Chưa có tác giả nào</h3>
-          </div>
-        )}
+          )}
         </div>
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className={`p-6 border-t ${isMidnight ? 'border-white/5 bg-white/[0.02]' : 'border-border bg-secondary/30'}`}>
+          <div className="p-8 border-t border-border/50 bg-secondary/20">
             <Pagination 
               currentPage={currentPage}
               totalPages={totalPages}
@@ -288,112 +301,125 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
       </div>
 
       {/* Author Modal */}
-      {isAuthorModalOpen && createPortal(
-        <div 
-          onClick={() => setIsAuthorModalOpen(false)}
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[300] p-4 animate-fadeIn text-foreground"
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()}
-            className={`${
-              isMidnight ? 'bg-[#1e293b] border-white/10 shadow-2xl' : 'bg-card border-border shadow-xl'
-            } rounded-3xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col border`}
-          >
-            <div className={`px-6 py-5 border-b flex items-center justify-between sticky top-0 z-10 ${
-              isMidnight ? 'border-white/5 bg-[#1e293b]' : 'border-border bg-card'
-            }`}>
-              <h2 className={`text-lg font-bold uppercase tracking-widest ${isMidnight ? 'text-slate-200' : 'text-foreground'}`}>
-                {editingAuthor ? 'Sửa tác giả' : 'Thêm tác giả'}
-              </h2>
-              <button 
-                onClick={() => setIsAuthorModalOpen(false)} 
-                className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all ${
-                  isMidnight ? 'bg-white/5 text-slate-500 hover:text-white' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
-                }`}
-              >
-                <i className="fa-solid fa-times text-sm"></i>
-              </button>
-            </div>
+      <AnimatePresence>
+        {isAuthorModalOpen && createPortal(
+          <div className="fixed inset-0 z-[300] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsAuthorModalOpen(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
             
-            <form onSubmit={handleSaveAuthor} className="p-6 space-y-5 overflow-y-auto custom-scrollbar">
-              <div>
-                <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1.5 ml-1">Tên tác giả *</label>
-                <input
-                  type="text"
-                  required
-                  value={authorFormData.name || ''}
-                  onChange={(e) => setAuthorFormData({...authorFormData, name: e.target.value})}
-                  className={`w-full px-4 py-3 rounded-xl border transition-all text-sm font-medium outline-none ${
-                    isMidnight 
-                    ? 'bg-white/5 border-white/5 text-slate-200 focus:border-primary/50' 
-                    : 'bg-secondary/50 border-border text-foreground focus:bg-card focus:border-primary'
-                  }`}
-                  placeholder="Nhập họ tên..."
-                />
-              </div>
-              
-              <div>
-                <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1.5 ml-1">Tiểu sử</label>
-                <textarea
-                  value={authorFormData.bio || ''}
-                  onChange={(e) => setAuthorFormData({...authorFormData, bio: e.target.value})}
-                  rows={3}
-                  className={`w-full px-4 py-3 rounded-xl border transition-all text-sm font-medium resize-none outline-none ${
-                    isMidnight 
-                    ? 'bg-white/5 border-white/5 text-slate-200 focus:border-primary/50 shadow-inner' 
-                    : 'bg-secondary/50 border-border text-foreground focus:bg-card focus:border-primary shadow-inner'
-                  }`}
-                  placeholder="Mô tả tóm tắt..."
-                />
-              </div>
-              
-              <div>
-                <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1.5 ml-1">Ảnh đại diện (URL)</label>
-                <div className="flex gap-3 items-center">
-                  <input
-                    type="url"
-                    value={authorFormData.avatar || ''}
-                    onChange={(e) => setAuthorFormData({...authorFormData, avatar: e.target.value})}
-                    className={`flex-1 px-4 py-3 rounded-xl border transition-all text-sm font-medium outline-none ${
-                      isMidnight 
-                      ? 'bg-white/5 border-white/5 text-slate-200 focus:border-primary/50' 
-                      : 'bg-secondary/50 border-border text-foreground focus:bg-card focus:border-primary'
-                    }`}
-                    placeholder="https://..."
-                  />
-                  {authorFormData.avatar && (
-                    <img 
-                      src={authorFormData.avatar} 
-                      className="w-10 h-10 object-cover rounded-full border border-white/10 shadow-sm" 
-                      alt="Preview"
-                      onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=tac+gia&background=7033ff&color=fff'; }}
-                    />
-                  )}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 30 }}
+              className="relative w-full max-w-xl bg-card border border-border shadow-3xl rounded-[3.5rem] overflow-hidden flex flex-col"
+            >
+              {/* Modal Header */}
+              <div className="px-10 py-8 border-b border-border/50 flex items-center justify-between bg-card/50 backdrop-blur-xl">
+                <div>
+                  <h2 className="text-xl font-black uppercase tracking-tight text-foreground">
+                    {editingAuthor ? 'Cập nhật tác giả' : 'Thêm tác giả mới'}
+                  </h2>
+                  <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-1">Thông tin định danh tác giả</p>
                 </div>
+                <button 
+                  onClick={() => setIsAuthorModalOpen(false)} 
+                  className="w-12 h-12 flex items-center justify-center rounded-2xl bg-secondary text-muted-foreground hover:bg-primary hover:text-white transition-all shadow-sm"
+                >
+                  <i className="fa-solid fa-times text-lg"></i>
+                </button>
               </div>
               
-              <div className={`flex gap-3 pt-4 border-t ${isMidnight ? 'border-white/5' : 'border-border'}`}>
-                <button
-                  type="button"
-                  onClick={() => setIsAuthorModalOpen(false)}
-                  className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                    isMidnight ? 'bg-white/5 text-slate-400 hover:bg-white/10' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
-                  }`}
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-primary text-primary-foreground py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-primary/10"
-                >
-                  {editingAuthor ? 'Cập nhật' : 'Thêm mới'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>,
-        document.body
-      )}
+              <form onSubmit={handleSaveAuthor} className="p-10 space-y-8 overflow-y-auto custom-scrollbar max-h-[70vh]">
+                <div className="grid grid-cols-1 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-micro font-black text-muted-foreground uppercase tracking-widest ml-1">Tên tác giả *</label>
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-muted-foreground/50 group-focus-within:text-primary transition-colors">
+                        <i className="fa-solid fa-user-tag"></i>
+                      </div>
+                      <input
+                        type="text"
+                        required
+                        value={authorFormData.name || ''}
+                        onChange={(e) => setAuthorFormData({...authorFormData, name: e.target.value})}
+                        className="w-full pl-12 pr-6 py-4 rounded-[1.5rem] border border-border bg-secondary/30 text-foreground font-bold outline-none focus:border-primary focus:bg-card transition-all"
+                        placeholder="Nhập họ và tên tác giả..."
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <label className="text-micro font-black text-muted-foreground uppercase tracking-widest ml-1 flex justify-between">
+                      <span>Tiểu sử tác giả</span>
+                      <span className="text-[10px] text-muted-foreground/40 font-bold lowercase italic">(tùy chọn)</span>
+                    </label>
+                    <textarea
+                      value={authorFormData.bio || ''}
+                      onChange={(e) => setAuthorFormData({...authorFormData, bio: e.target.value})}
+                      rows={4}
+                      className="w-full px-6 py-5 rounded-[1.5rem] border border-border bg-secondary/30 text-foreground font-semibold resize-none outline-none focus:border-primary focus:bg-card transition-all leading-relaxed"
+                      placeholder="Viết một vài dòng giới thiệu về tác giả này..."
+                    />
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <label className="text-micro font-black text-muted-foreground uppercase tracking-widest ml-1">Ảnh đại diện</label>
+                    <div className="flex gap-4 items-start">
+                      <div className="flex-1 relative group">
+                        <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-muted-foreground/50 group-focus-within:text-primary">
+                          <i className="fa-solid fa-link"></i>
+                        </div>
+                        <input
+                          type="url"
+                          value={authorFormData.avatar || ''}
+                          onChange={(e) => setAuthorFormData({...authorFormData, avatar: e.target.value})}
+                          className="w-full pl-12 pr-6 py-4 rounded-[1.5rem] border border-border bg-secondary/30 text-foreground font-bold outline-none focus:border-primary focus:bg-card transition-all"
+                          placeholder="URL hình ảnh (https://...)"
+                        />
+                      </div>
+                      <div className="w-14 h-14 shrink-0 rounded-2xl bg-secondary border border-border overflow-hidden shadow-inner flex items-center justify-center">
+                        {authorFormData.avatar ? (
+                          <img 
+                            src={authorFormData.avatar} 
+                            className="w-full h-full object-cover" 
+                            alt="Preview"
+                            onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=tac+gia&background=7033ff&color=fff'; }}
+                          />
+                        ) : (
+                          <i className="fa-solid fa-image text-muted-foreground/20 text-xl"></i>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex gap-4 pt-6">
+                  <button
+                    type="button"
+                    onClick={() => setIsAuthorModalOpen(false)}
+                    className="flex-1 py-5 rounded-[1.5rem] text-micro font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary transition-all"
+                  >
+                    Hủy bỏ
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-[1.5] bg-primary text-primary-foreground py-5 rounded-[1.5rem] text-micro font-black uppercase tracking-widest hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3"
+                  >
+                    <i className="fa-solid fa-save"></i>
+                    <span>{editingAuthor ? 'Cập nhật ngay' : 'Thêm tác giả'}</span>
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>,
+          document.body
+        )}
+      </AnimatePresence>
     </div>
   );
 };

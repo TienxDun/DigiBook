@@ -19,7 +19,6 @@ interface AdminCategoriesProps {
 }
 
 const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshData, theme = 'light' }) => {
-  const isMidnight = theme === 'midnight';
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<CategoryInfo | null>(null);
   const [categoryFormData, setCategoryFormData] = useState<Partial<CategoryInfo>>({});
@@ -115,168 +114,298 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn">
-      <div className={`${
-        isMidnight 
-        ? 'bg-[#1e293b]/50 backdrop-blur-xl border-white/5 shadow-2xl' 
-        : 'bg-white border-slate-200/60 shadow-sm shadow-slate-200/40'
-        } flex flex-wrap items-center justify-between gap-6 p-6 rounded-[2rem] border transition-all hover:border-indigo-500/30`}>
-        <div>
-          <h3 className={`text-lg font-extrabold uppercase tracking-tight ${isMidnight ? 'text-slate-100' : 'text-slate-900'}`}>Quản lý danh mục</h3>
-          <p className="text-micro font-bold text-slate-400 uppercase tracking-premium mt-1">Tổng cộng {categories.length} danh mục trong hệ thống</p>
+    <div className="space-y-8 animate-fadeIn text-foreground">
+      {/* Header Card */}
+      <div className="bg-card/40 backdrop-blur-md border border-border shadow-3xl flex flex-wrap items-center justify-between gap-6 p-8 rounded-[2.5rem] transition-all hover:border-primary/20">
+        <div className="flex items-center gap-5">
+          <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-inner">
+            <i className="fa-solid fa-tags text-2xl"></i>
+          </div>
+          <div>
+            <h3 className="text-xl font-black uppercase tracking-tight text-foreground">Quản lý danh mục</h3>
+            <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-1.5 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+              {categories.length} danh mục hiện có
+            </p>
+          </div>
         </div>
         <button 
           onClick={handleOpenAddCategory}
-          className="bg-indigo-600 text-white px-6 py-3 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 flex items-center gap-2"
+          className="bg-primary text-primary-foreground px-8 py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/25 flex items-center gap-3 group"
         >
-          <i className="fa-solid fa-plus"></i>
+          <i className="fa-solid fa-plus group-hover:rotate-90 transition-transform"></i>
           <span>Thêm danh mục mới</span>
         </button>
       </div>
 
-      {/* Bulk Actions for Categories */}
-      {categories.length > 0 && (
-        <div className={`${
-          isMidnight 
-          ? 'bg-[#1e293b]/30 backdrop-blur-md border-white/5 shadow-xl' 
-          : 'bg-white border-slate-200/60 shadow-sm shadow-slate-200/30'
-          } flex items-center justify-between p-4 rounded-2xl border`}>
-          <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 cursor-pointer group">
-              <div 
-                onClick={toggleSelectAllCategories}
-                className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
-                  selectedCategories.length === categories.length && categories.length > 0
-                  ? 'bg-indigo-600 border-indigo-600 text-white' 
-                  : `${isMidnight ? 'border-slate-700' : 'border-slate-300'} group-hover:border-indigo-400`
-                }`}
-              >
-                {selectedCategories.length === categories.length && categories.length > 0 && <i className="fa-solid fa-check text-xs"></i>}
+      {/* Bulk Actions Bar */}
+      <AnimatePresence>
+        {selectedCategories.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="bg-card/40 backdrop-blur-md border border-primary/20 shadow-xl flex items-center justify-between p-5 rounded-[2rem]"
+          >
+            <div className="flex items-center gap-5 ml-2">
+              <div className="flex items-center gap-3">
+                <span className="flex h-3 w-3 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+                </span>
+                <span className="text-micro font-black text-primary uppercase tracking-premium">Đã chọn {selectedCategories.length} danh mục</span>
               </div>
-              <span className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-400' : 'text-slate-600'}`}>Chọn tất cả ({categories.length})</span>
-            </label>
-            {selectedCategories.length > 0 && (
-              <div className={`h-4 w-px ${isMidnight ? 'bg-slate-700' : 'bg-slate-200'}`}></div>
-            )}
-            {selectedCategories.length > 0 && (
-              <span className="text-micro font-bold text-indigo-500 uppercase tracking-premium">Đã chọn {selectedCategories.length} danh mục</span>
-            )}
-          </div>
-          {selectedCategories.length > 0 && (
+              <div className="h-4 w-px bg-border/60"></div>
+              <button 
+                onClick={toggleSelectAllCategories}
+                className="text-micro font-bold text-muted-foreground hover:text-primary uppercase tracking-premium transition-colors"
+              >
+                Bỏ chọn tất cả
+              </button>
+            </div>
             <button 
               onClick={handleBulkDeleteCategories}
               disabled={isDeletingBulk}
-              className={`${
-                isMidnight ? 'bg-rose-500/10 text-rose-400 hover:bg-rose-500/20' : 'bg-rose-50 text-rose-600 hover:bg-rose-100'
-              } px-4 py-2 rounded-xl text-micro font-bold uppercase tracking-premium transition-all flex items-center gap-2`}
+              className="bg-destructive/10 text-destructive hover:bg-destructive hover:text-white px-6 py-3 rounded-xl text-micro font-bold uppercase tracking-premium transition-all shadow-sm flex items-center gap-2"
             >
               <i className={isDeletingBulk ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-trash-can"}></i>
               <span>Xóa hàng loạt</span>
             </button>
-          )}
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Categories Table */}
-      <div className={`${
-        isMidnight 
-        ? 'bg-[#1e293b]/50 backdrop-blur-xl border-white/5 shadow-2xl' 
-        : 'bg-white border-slate-200/60 shadow-sm shadow-slate-200/20'
-        } rounded-[2rem] border overflow-hidden`}>
+      {/* Categories Grid Table */}
+      <div className="bg-card/40 backdrop-blur-md border border-border shadow-3xl rounded-[2.5rem] overflow-hidden">
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse min-w-[800px]">
-          <thead>
-            <tr className={`${isMidnight ? 'bg-white/5 border-white/5' : 'bg-slate-50/50 border-slate-100'} border-b`}>
-              <th className="p-6 text-micro font-bold text-slate-400 uppercase tracking-premium w-12 text-center">
-                <div 
-                  onClick={toggleSelectAllCategories}
-                  className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
-                    selectedCategories.length === categories.length && categories.length > 0
-                    ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100' 
-                    : `${isMidnight ? 'border-slate-700 bg-slate-800/50' : 'border-slate-300 bg-white shadow-inner'}`
-                  }`}
-                >
-                  {selectedCategories.length === categories.length && categories.length > 0 && <i className="fa-solid fa-check text-xs"></i>}
-                </div>
-              </th>
-              <th className={`p-6 text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-400' : 'text-slate-400'}`}>Danh mục</th>
-              <th className={`p-6 text-micro font-bold uppercase tracking-premium hidden md:table-cell ${isMidnight ? 'text-slate-400' : 'text-slate-400'}`}>Mô tả</th>
-              <th className={`p-6 text-micro font-bold uppercase tracking-premium text-right ${isMidnight ? 'text-slate-400' : 'text-slate-400'}`}>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-slate-100'}`}>
-            {categories.map(category => (
-              <tr key={category.name} className={`group transition-all ${
-                selectedCategories.includes(category.name) 
-                ? (isMidnight ? 'bg-indigo-500/10' : 'bg-indigo-50/30') 
-                : (isMidnight ? 'hover:bg-white/5' : 'hover:bg-slate-50/50')
-              }`}>
-                <td className="p-6 text-center">
+            <thead>
+              <tr className="border-b border-border/50">
+                <th className="p-8 w-20 text-center">
                   <div 
-                    onClick={() => toggleSelectCategory(category.name)}
-                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
-                      selectedCategories.includes(category.name)
-                      ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg'
-                      : `${isMidnight ? 'border-slate-700 bg-slate-800/50' : 'border-slate-300 bg-white shadow-inner'} group-hover:border-indigo-400`
+                    onClick={toggleSelectAllCategories}
+                    className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
+                      selectedCategories.length === categories.length && categories.length > 0
+                      ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/30' 
+                      : 'border-border bg-background shadow-inner'
                     }`}
                   >
-                    {selectedCategories.includes(category.name) && <i className="fa-solid fa-check text-xs"></i>}
+                    {selectedCategories.length === categories.length && categories.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
                   </div>
-                </td>
-                <td className="p-6">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
-                      isMidnight ? 'bg-indigo-500/10 text-indigo-400' : 'bg-indigo-50 text-indigo-600 shadow-sm'
-                    } group-hover:bg-indigo-600 group-hover:text-white`}>
-                      <i className={`fa-solid ${category.icon}`}></i>
-                    </div>
-                    <div>
-                      <h4 className={`font-bold text-sm mb-0.5 ${isMidnight ? 'text-white' : 'text-slate-900'}`}>{category.name}</h4>
-                      <p className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Danh mục sách</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="p-6 hidden md:table-cell max-w-xs lg:max-w-md">
-                  <p className={`text-xs line-clamp-1 leading-relaxed font-medium ${isMidnight ? 'text-slate-400' : 'text-slate-500'}`}>
-                    {category.description || 'Chưa có mô tả'}
-                  </p>
-                </td>
-                <td className="p-6">
-                  <div className="flex items-center justify-end gap-2">
-                    <button 
-                      onClick={() => handleEditCategory(category)}
-                      className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm ${
-                        isMidnight ? 'bg-white/5 text-slate-300 hover:bg-indigo-500 hover:text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                      title="Chỉnh sửa"
-                    >
-                      <i className="fa-solid fa-edit text-xs"></i>
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteCategory(category)}
-                      className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm ${
-                        isMidnight ? 'bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white' : 'bg-rose-50 text-rose-600 hover:bg-rose-100'
-                      }`}
-                      title="Xóa"
-                    >
-                      <i className="fa-solid fa-trash-can text-xs"></i>
-                    </button>
-                  </div>
-                </td>
+                </th>
+                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium">Danh mục phân loại</th>
+                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium hidden md:table-cell">Mô tả tóm tắt</th>
+                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium text-right">Thao tác</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {categories.length === 0 && (
-          <div className="p-12 text-center">
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 ${isMidnight ? 'bg-white/5' : 'bg-slate-50'}`}>
-              <i className={`fa-solid fa-tags text-2xl ${isMidnight ? 'text-slate-700' : 'text-slate-300'}`}></i>
+            </thead>
+            <tbody className="divide-y divide-border/30">
+              {categories.map((category, idx) => (
+                <motion.tr 
+                  key={category.name}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className={`group transition-all duration-300 ${
+                    selectedCategories.includes(category.name) 
+                    ? 'bg-primary/[0.04]' 
+                    : 'hover:bg-secondary/30'
+                  }`}
+                >
+                  <td className="p-8 text-center">
+                    <div 
+                      onClick={() => toggleSelectCategory(category.name)}
+                      className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
+                        selectedCategories.includes(category.name)
+                        ? 'bg-primary border-primary text-primary-foreground shadow-md shadow-primary/20'
+                        : 'border-border bg-background group-hover:border-primary/50 shadow-inner'
+                      }`}
+                    >
+                      {selectedCategories.includes(category.name) && <i className="fa-solid fa-check text-[10px]"></i>}
+                    </div>
+                  </td>
+                  <td className="p-8">
+                    <div className="flex items-center gap-5">
+                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${
+                        selectedCategories.includes(category.name)
+                        ? 'bg-primary text-white scale-110 rotate-3 shadow-xl shadow-primary/20'
+                        : 'bg-secondary text-primary border border-border/50 group-hover:scale-110 group-hover:-rotate-3 group-hover:bg-primary group-hover:text-white'
+                      }`}>
+                        <i className={`fa-solid ${category.icon} text-xl`}></i>
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-base text-foreground mb-1 group-hover:text-primary transition-colors">{category.name}</h4>
+                        <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium italic">ID: {category.name.toLowerCase().replace(/\s+/g, '-')}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-8 hidden md:table-cell max-w-xs lg:max-w-md">
+                    <p className="text-sm line-clamp-2 leading-relaxed font-semibold text-muted-foreground italic">
+                      {category.description || 'Không có mô tả chi tiết cho danh mục này.'}
+                    </p>
+                  </td>
+                  <td className="p-8">
+                    <div className="flex items-center justify-end gap-3">
+                      <button 
+                        onClick={() => handleEditCategory(category)}
+                        className="w-11 h-11 flex items-center justify-center rounded-2xl bg-background border border-border text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/5 transition-all shadow-sm active:scale-95"
+                        title="Chỉnh sửa"
+                      >
+                        <i className="fa-solid fa-pen-to-square text-sm"></i>
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteCategory(category)}
+                        className="w-11 h-11 flex items-center justify-center rounded-2xl bg-background border border-border text-muted-foreground hover:border-destructive hover:text-destructive hover:bg-destructive/5 transition-all shadow-sm active:scale-95"
+                        title="Xóa"
+                      >
+                        <i className="fa-solid fa-trash-can text-sm"></i>
+                      </button>
+                    </div>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+          
+          {categories.length === 0 && (
+            <div className="p-24 text-center">
+              <div className="w-24 h-24 rounded-[2rem] bg-secondary/50 flex items-center justify-center mx-auto mb-8 shadow-inner border border-border/50">
+                <i className="fa-solid fa-tags text-4xl text-muted-foreground/30"></i>
+              </div>
+              <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground">Chưa có danh mục nào</h3>
+              <p className="text-xs font-semibold text-muted-foreground/60 mt-2">Vui lòng khởi tạo danh mục để phân loại các đầu sách.</p>
+              <button 
+                onClick={handleOpenAddCategory}
+                className="mt-8 text-primary font-black uppercase tracking-premium text-micro border-b-2 border-primary/20 hover:border-primary transition-all pb-1"
+              >
+                Khởi tạo danh mục
+              </button>
             </div>
-            <h3 className={`font-bold uppercase tracking-premium text-micro ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Chưa có danh mục nào</h3>
-          </div>
-        )}
+          )}
         </div>
       </div>
+
+      {/* Category Modal */}
+      <AnimatePresence>
+        {isCategoryModalOpen && (
+          <Portal>
+            <div className="fixed inset-0 z-[300] flex items-center justify-center p-6">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsCategoryModalOpen(false)}
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+              />
+              
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 30 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 30 }}
+                className="relative w-full max-w-xl bg-card border border-border shadow-3xl rounded-[3.5rem] overflow-hidden flex flex-col"
+              >
+                {/* Modal Header */}
+                <div className="px-10 py-8 border-b border-border/50 flex items-center justify-between bg-card/50 backdrop-blur-xl">
+                  <div>
+                    <h2 className="text-xl font-black uppercase tracking-tight text-foreground">
+                      {editingCategory ? 'Sửa danh mục' : 'Thêm danh mục mới'}
+                    </h2>
+                    <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-1">Thông tin phân loại đầu sách</p>
+                  </div>
+                  <button 
+                    onClick={() => setIsCategoryModalOpen(false)} 
+                    className="w-12 h-12 flex items-center justify-center rounded-2xl bg-secondary text-muted-foreground hover:bg-primary hover:text-white transition-all shadow-sm"
+                  >
+                    <i className="fa-solid fa-times text-lg"></i>
+                  </button>
+                </div>
+                
+                <form onSubmit={handleSaveCategory} className="p-10 space-y-8 overflow-y-auto custom-scrollbar max-h-[70vh]">
+                  <div className="grid grid-cols-1 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-micro font-black text-muted-foreground uppercase tracking-widest ml-1">Tên danh mục *</label>
+                      <div className="relative group">
+                        <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-muted-foreground/50 group-focus-within:text-primary transition-colors">
+                          <i className="fa-solid fa-tag"></i>
+                        </div>
+                        <input
+                          type="text"
+                          required
+                          value={categoryFormData.name || ''}
+                          onChange={(e) => setCategoryFormData({...categoryFormData, name: e.target.value})}
+                          className="w-full pl-12 pr-6 py-4 rounded-[1.5rem] border border-border bg-secondary/30 text-foreground font-bold outline-none focus:border-primary focus:bg-card transition-all"
+                          placeholder="VD: Văn học Việt Nam, Kỹ năng sống..."
+                          readOnly={!!editingCategory}
+                        />
+                      </div>
+                      {editingCategory && (
+                        <p className="text-[10px] text-amber-500 font-bold uppercase ml-1">Không thể thay đổi tên danh mục đã tồn tại</p>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <label className="text-micro font-black text-muted-foreground uppercase tracking-widest ml-1">Chọn biểu tượng hiển thị</label>
+                      <div className="grid grid-cols-6 sm:grid-cols-8 gap-3 max-h-40 overflow-y-auto p-4 bg-secondary/30 rounded-[2rem] border border-border/50 custom-scrollbar">
+                        {AVAILABLE_ICONS.map((icon) => (
+                          <button
+                            key={icon}
+                            type="button"
+                            onClick={() => setCategoryFormData({...categoryFormData, icon})}
+                            className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
+                              categoryFormData.icon === icon 
+                              ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-110' 
+                              : 'bg-background text-muted-foreground border border-border hover:border-primary/50'
+                            }`}
+                          >
+                            <i className={`fa-solid ${icon} text-sm`}></i>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <label className="text-micro font-black text-muted-foreground uppercase tracking-widest ml-1">Mô tả danh mục</label>
+                      <textarea
+                        value={categoryFormData.description || ''}
+                        onChange={(e) => setCategoryFormData({...categoryFormData, description: e.target.value})}
+                        rows={3}
+                        className="w-full px-6 py-5 rounded-[1.5rem] border border-border bg-secondary/30 text-foreground font-semibold resize-none outline-none focus:border-primary focus:bg-card transition-all leading-relaxed"
+                        placeholder="Mô tả ngắn gọn về nhóm sách này..."
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-4 pt-6">
+                    <button
+                      type="button"
+                      onClick={() => setIsCategoryModalOpen(false)}
+                      className="flex-1 py-5 rounded-[1.5rem] text-micro font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary transition-all"
+                    >
+                      Bỏ qua
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="flex-[1.5] bg-primary text-primary-foreground py-5 rounded-[1.5rem] text-micro font-black uppercase tracking-widest hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3 disabled:opacity-50"
+                    >
+                      {isSubmitting ? (
+                        <i className="fa-solid fa-spinner fa-spin"></i>
+                      ) : (
+                        <i className="fa-solid fa-save"></i>
+                      )}
+                      <span>Lưu danh mục</span>
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </div>
+          </Portal>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default AdminCategories;
 
       {/* Category Modal */}
       <AnimatePresence>

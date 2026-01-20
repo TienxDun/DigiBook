@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { db } from '../../services/db';
 import Pagination from '../Pagination';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface User {
   id: string;
@@ -24,7 +25,6 @@ interface AdminUsersProps {
 }
 
 const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'light' }) => {
-  const isMidnight = theme === 'midnight';
   const [userRoleFilter, setUserRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
   const [userStatusFilter, setUserStatusFilter] = useState<'all' | 'active' | 'banned'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -87,229 +87,224 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
   const paginatedUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
-    <div className="space-y-6 animate-fadeIn">
-      {/* User Filters Bar */}
-      <div className={`${
-        isMidnight 
-        ? 'bg-[#1e293b]/50 backdrop-blur-xl border-white/5 shadow-2xl hover:border-indigo-500/30' 
-        : 'bg-white border-slate-200/60 shadow-sm shadow-slate-200/40 hover:border-slate-300'
-        } flex flex-wrap items-center justify-between gap-6 p-6 rounded-[2rem] border transition-all`}>
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3">
-            <span className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Vai trò:</span>
-            <div className={`flex gap-2 p-1 rounded-xl ${isMidnight ? 'bg-white/5' : 'bg-slate-100'}`}>
+    <div className="space-y-8 animate-fadeIn text-foreground">
+      {/* Filters Bar */}
+      <div className="bg-card/40 backdrop-blur-md border border-border shadow-3xl flex flex-wrap items-center justify-between gap-6 p-8 rounded-[2.5rem] transition-all hover:border-primary/20">
+        <div className="flex items-center gap-8">
+          <div className="space-y-3">
+            <span className="text-micro font-black uppercase tracking-premium text-muted-foreground ml-1">Phân loại vai trò</span>
+            <div className="flex gap-2 p-1.5 rounded-2xl bg-secondary/30 border border-border/50">
               {(['all', 'admin', 'user'] as const).map(role => (
                 <button
                   key={role}
                   onClick={() => { setUserRoleFilter(role); setCurrentPage(1); }}
-                  className={`px-4 py-1.5 rounded-lg text-micro font-bold uppercase tracking-premium transition-all ${
+                  className={`px-5 py-2.5 rounded-xl text-micro font-black uppercase tracking-premium transition-all ${
                     userRoleFilter === role 
-                    ? 'bg-indigo-600 text-white shadow-lg' 
-                    : `${isMidnight ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`
+                    ? 'bg-primary text-white shadow-lg shadow-primary/20' 
+                    : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
                   }`}
                 >
-                  {role === 'all' ? 'Tất cả' : role === 'admin' ? 'Quản trị' : 'Khách'}
+                  {role === 'all' ? 'Tất cả' : role === 'admin' ? 'Quản trị' : 'Khách hàng'}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Trạng thái:</span>
-            <div className={`flex gap-2 p-1 rounded-xl ${isMidnight ? 'bg-white/5' : 'bg-slate-100'}`}>
+          <div className="space-y-3">
+            <span className="text-micro font-black uppercase tracking-premium text-muted-foreground ml-1">Trạng thái tài khoản</span>
+            <div className="flex gap-2 p-1.5 rounded-2xl bg-secondary/30 border border-border/50">
               {(['all', 'active', 'banned'] as const).map(status => (
                 <button
                   key={status}
                   onClick={() => { setUserStatusFilter(status); setCurrentPage(1); }}
-                  className={`px-4 py-1.5 rounded-lg text-micro font-bold uppercase tracking-premium transition-all ${
+                  className={`px-5 py-2.5 rounded-xl text-micro font-black uppercase tracking-premium transition-all ${
                     userStatusFilter === status 
-                    ? (status === 'banned' ? 'bg-rose-500 text-white shadow-lg shadow-rose-100' : 'bg-emerald-600 text-white shadow-lg shadow-emerald-100')
-                    : `${isMidnight ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`
+                    ? (status === 'banned' ? 'bg-destructive text-white shadow-lg shadow-destructive/20' : 'bg-green-500 text-white shadow-lg shadow-green-500/20')
+                    : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
                   }`}
                 >
-                  {status === 'all' ? 'Tất cả' : status === 'active' ? 'Hoạt động' : 'Đã khóa'}
+                  {status === 'all' ? 'Tất cả' : status === 'active' ? 'Đang chạy' : 'Bị khóa'}
                 </button>
               ))}
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-4 w-full sm:w-auto">
-          <div className="relative flex-1 sm:w-64 group">
-            <i className={`fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isMidnight ? 'text-slate-600 group-focus-within:text-indigo-400' : 'text-slate-400 group-focus-within:text-indigo-600'} text-xs`}></i>
+        <div className="flex items-center gap-5 w-full sm:w-auto mt-2">
+          <div className="relative group flex-1 sm:w-80">
+            <i className="fa-solid fa-search absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/50 group-focus-within:text-primary transition-colors"></i>
             <input 
               type="text"
-              placeholder="Tìm theo tên, email, SĐT..."
+              placeholder="Họ tên, email hoặc SĐT..."
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-              className={`pl-10 pr-4 py-2.5 rounded-2xl text-xs font-bold w-full outline-none transition-all ${
-                isMidnight 
-                ? 'bg-white/5 border-white/5 text-white focus:border-indigo-500 focus:bg-white/10' 
-                : 'bg-slate-50 border-none focus:ring-4 ring-indigo-50 focus:bg-white'
-              }`}
+              className="w-full pl-12 pr-6 py-4 rounded-[1.5rem] border border-border bg-secondary/30 text-foreground font-bold outline-none focus:border-primary focus:bg-card transition-all"
             />
           </div>
           <button 
             onClick={refreshData}
-            className={`w-10 h-10 rounded-xl transition-all border ${
-              isMidnight 
-              ? 'bg-white/5 text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 border-white/5' 
-              : 'bg-slate-50 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 border-slate-100'
-            }`}
-            title="Làm mới danh sách"
+            className="w-14 h-14 flex items-center justify-center rounded-2xl bg-secondary text-muted-foreground hover:bg-primary hover:text-white transition-all shadow-sm group active:scale-95"
+            title="Làm mới"
           >
-            <i className="fa-solid fa-rotate"></i>
+            <i className="fa-solid fa-rotate-right group-hover:rotate-180 transition-transform duration-500"></i>
           </button>
         </div>
       </div>
 
-      {/* Users Table */}
-      <div className={`${
-        isMidnight 
-        ? 'bg-[#1e293b]/50 backdrop-blur-xl border-white/5 shadow-2xl' 
-        : 'bg-white border-slate-200/60 shadow-sm shadow-slate-200/20'
-        } rounded-[2rem] border overflow-hidden min-h-[500px]`}>
+      {/* Users List Card */}
+      <div className="bg-card/40 backdrop-blur-md border border-border shadow-3xl rounded-[2.5rem] overflow-hidden min-h-[550px]">
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse min-w-[1100px]">
             <thead>
-              <tr className={`${isMidnight ? 'bg-white/5 border-white/5' : 'bg-slate-50 border-slate-100'} border-b`}>
-                <th className={`px-8 py-5 text-micro font-extrabold uppercase tracking-widest ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Người dùng</th>
-                <th className={`px-8 py-5 text-micro font-extrabold uppercase tracking-widest ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Liên hệ</th>
-                <th className={`px-8 py-5 text-micro font-extrabold uppercase tracking-widest ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Thông tin thêm</th>
-                <th className={`px-8 py-5 text-micro font-extrabold uppercase tracking-widest text-center ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Vai trò</th>
-                <th className={`px-8 py-5 text-micro font-extrabold uppercase tracking-widest text-center ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Trạng thái</th>
-                <th className={`px-8 py-5 text-micro font-extrabold uppercase tracking-widest text-right ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Thao tác</th>
+              <tr className="border-b border-border/50">
+                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium">Hội viên DigiBook</th>
+                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium">Thông tin liên hệ</th>
+                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium">Hồ sơ cá nhân</th>
+                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium text-center">Vai trò</th>
+                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium text-center">Trạng thái</th>
+                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium text-right">Thao tác</th>
               </tr>
             </thead>
-          <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-slate-50'}`}>
-            {paginatedUsers.length > 0 ? paginatedUsers.map(user => (
-              <tr key={user.id} className={`group transition-all ${isMidnight ? 'hover:bg-white/5' : 'hover:bg-slate-50/50'}`}>
-                <td className="px-8 py-6">
-                  <div className="flex items-center gap-4">
-                    <div className="relative">
-                      <img 
-                        src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=random&bold=true`} 
-                        alt={user.name} 
-                        className={`w-12 h-12 rounded-2xl object-cover shadow-sm group-hover:scale-110 transition-transform ${isMidnight ? 'border-white/10' : 'border-white'} border-2 ring-1 ${isMidnight ? 'ring-white/5' : 'ring-slate-200'}`}
-                      />
-                      <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 ${isMidnight ? 'border-[#1e1e2d]' : 'border-white'} ${user.status === 'active' ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
-                    </div>
-                    <div>
-                      <h4 className={`font-bold text-sm mb-0.5 ${isMidnight ? 'text-white' : 'text-slate-900'}`}>{user.name || 'Hội viên DigiBook'}</h4>
-                      <p className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>{user.email}</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-8 py-6">
-                  <div className="space-y-1.5">
-                    <p className={`text-micro font-bold flex items-center gap-2 ${isMidnight ? 'text-slate-300' : 'text-slate-700'}`}>
-                      <i className="fa-solid fa-phone text-indigo-400 text-xs"></i>
-                      {user.phone || 'Chưa có SĐT'}
-                    </p>
-                    <p className={`text-micro font-medium flex items-start gap-2 max-w-[180px] ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>
-                      <i className="fa-solid fa-location-dot text-slate-300 mt-0.5"></i>
-                      <span className="leading-relaxed">{user.address || 'Địa chỉ trống'}</span>
-                    </p>
-                  </div>
-                </td>
-                <td className="px-8 py-6">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-0.5 rounded-lg text-micro font-bold uppercase tracking-premium ${
-                        user.gender === 'Nữ' 
-                        ? (isMidnight ? 'bg-rose-500/10 text-rose-400' : 'bg-rose-50 text-rose-600')
-                        : (isMidnight ? 'bg-blue-500/10 text-blue-400' : 'bg-blue-50 text-blue-600')
-                      }`}>
-                        {user.gender || 'N/A'}
-                      </span>
-                      <span className={`text-micro font-bold px-2 py-0.5 rounded-lg ${
-                        isMidnight ? 'bg-white/5 text-slate-500' : 'bg-slate-100 text-slate-500'
-                      }`}>
-                        {user.birthday || '--/--/----'}
-                      </span>
-                    </div>
-                    {user.bio ? (
-                      <p className={`text-xs italic font-medium line-clamp-1 max-w-[150px] ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`} title={user.bio}>
-                        "{user.bio}"
-                      </p>
-                    ) : (
-                      <p className={`text-xs italic ${isMidnight ? 'text-slate-700' : 'text-slate-300'}`}>Chưa có giới thiệu</p>
-                    )}
-                  </div>
-                </td>
-                <td className="px-8 py-6 text-center">
-                  <button 
-                    onClick={() => handleUpdateUserRole(user.id, user.role || 'user')}
-                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-micro font-extrabold uppercase tracking-widest transition-all ${
-                      user.role === 'admin' 
-                      ? (isMidnight ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-amber-50 text-amber-600')
-                      : (isMidnight ? 'bg-slate-500/10 text-slate-400 border border-slate-500/20 hover:text-white' : 'bg-slate-100 text-slate-500')
-                    }`}
+            <tbody className="divide-y divide-border/30">
+              <AnimatePresence mode="popLayout">
+                {paginatedUsers.length > 0 ? paginatedUsers.map((user, idx) => (
+                  <motion.tr 
+                    key={user.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="group transition-all duration-300 hover:bg-secondary/30"
                   >
-                    <i className={user.role === 'admin' ? "fa-solid fa-shield-halved text-xs" : "fa-solid fa-user text-xs"}></i>
-                    {user.role === 'admin' ? 'Quản trị' : 'Khách'}
-                  </button>
-                </td>
-                <td className="px-8 py-6 text-center">
-                  <div className="flex flex-col items-center gap-1">
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-micro font-extrabold uppercase tracking-widest shadow-sm ${
-                      (user.status || 'active') === 'active'
-                      ? (isMidnight ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-emerald-50 text-emerald-600')
-                      : (isMidnight ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-rose-50 text-rose-600')
-                    }`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${ (user.status || 'active') === 'active' ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`}></span>
-                      {(user.status || 'active') === 'active' ? 'Hoạt động' : 'Đã khóa'}
-                    </span>
-                    <span className={`text-xs font-bold uppercase tracking-wider ${isMidnight ? 'text-slate-600' : 'text-slate-300'}`}>
-                      {user.updatedAt?.toDate ? user.updatedAt.toDate().toLocaleDateString('vi-VN') : ''}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-8 py-6 text-right">
-                  <div className="flex justify-end gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all transform sm:translate-x-2 sm:group-hover:translate-x-0">
-                     <button 
-                      onClick={() => handleUpdateUserStatus(user.id, user.status || 'active')}
-                      className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all shadow-sm ${
-                        (user.status || 'active') === 'active'
-                        ? (isMidnight ? 'bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white' : 'bg-rose-50 text-rose-600 hover:bg-rose-100')
-                        : (isMidnight ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100')
-                      }`}
-                      title={(user.status || 'active') === 'active' ? 'Khóa tài khoản' : 'Mở khóa'}
-                    >
-                      <i className={`fa-solid ${(user.status || 'active') === 'active' ? 'fa-user-lock' : 'fa-user-check'} text-xs`}></i>
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteUser(user.id)}
-                      className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all shadow-sm ${
-                        isMidnight ? 'bg-white/5 text-slate-500 hover:bg-rose-600 hover:text-white' : 'bg-slate-100 text-slate-400 hover:bg-rose-500 hover:text-white'
-                      }`}
-                      title="Xóa vĩnh viễn"
-                    >
-                      <i className="fa-solid fa-trash-can text-xs"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            )) : (
-              <tr>
-                <td colSpan={6} className="px-8 py-24 text-center">
-                    <div className="flex flex-col items-center gap-4">
-                      <div className={`w-20 h-20 rounded-full flex items-center justify-center ${isMidnight ? 'bg-white/5 text-slate-700' : 'bg-slate-50 text-slate-200'}`}>
-                        <i className="fa-solid fa-users-slash text-3xl opacity-20"></i>
+                    <td className="p-8">
+                      <div className="flex items-center gap-5">
+                        <div className="relative group/avatar">
+                          <img 
+                            src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=7033ff&color=fff&bold=true`} 
+                            alt={user.name} 
+                            className="w-14 h-14 rounded-2xl object-cover shadow-lg border-2 border-white transition-transform group-hover/avatar:scale-110"
+                            onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=7033ff&color=fff&bold=true`; }}
+                          />
+                          <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-white shadow-sm transition-colors ${user.status === 'banned' ? 'bg-destructive' : 'bg-green-500 shadow-green-500/20'}`}></div>
+                        </div>
+                        <div>
+                          <h4 className="font-extrabold text-base text-foreground mb-1 group-hover:text-primary transition-colors">{user.name || 'Khách hàng DigiBook'}</h4>
+                          <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium">{user.email}</p>
+                        </div>
                       </div>
-                      <p className={`text-sm font-bold ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Không tìm thấy người dùng nào phù hợp</p>
-                    </div>
-                  </td>
-                </tr>
-              )}
+                    </td>
+                    <td className="p-8">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2.5 text-sm font-black text-foreground">
+                          <i className="fa-solid fa-phone-volume text-primary text-[10px]"></i>
+                          {user.phone || 'N/A'}
+                        </div>
+                        <div className="flex items-start gap-2.5 text-xs font-semibold text-muted-foreground max-w-[200px]">
+                          <i className="fa-solid fa-location-dot text-muted-foreground/40 mt-0.5"></i>
+                          <span className="leading-relaxed line-clamp-2">{user.address || 'Chưa cập nhật địa chỉ'}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-8">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                          <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${
+                            user.gender === 'Nữ' 
+                            ? 'bg-rose-500/10 text-rose-500'
+                            : 'bg-blue-500/10 text-blue-500'
+                          }`}>
+                            {user.gender || 'Bí mật'}
+                          </span>
+                          <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest bg-secondary/50 px-3 py-1.5 rounded-xl border border-border/50">
+                            {user.birthday || '--/--/----'}
+                          </span>
+                        </div>
+                        <p className="text-xs italic font-medium text-muted-foreground line-clamp-1 max-w-[150px]" title={user.bio}>
+                          {user.bio ? `"${user.bio}"` : 'Tài khoản chưa có tiểu sử.'}
+                        </p>
+                      </div>
+                    </td>
+                    <td className="p-8 text-center">
+                      <button 
+                        onClick={() => handleUpdateUserRole(user.id, user.role || 'user')}
+                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-micro font-black uppercase tracking-widest transition-all shadow-sm ${
+                          user.role === 'admin' 
+                          ? 'bg-amber-500 text-white shadow-amber-500/20'
+                          : 'bg-secondary text-muted-foreground hover:bg-primary/10 hover:text-primary border border-border/50'
+                        }`}
+                      >
+                        <i className={user.role === 'admin' ? "fa-solid fa-shield-halved" : "fa-solid fa-user-circle"}></i>
+                        {user.role === 'admin' ? 'Quản trị' : 'Thành viên'}
+                      </button>
+                    </td>
+                    <td className="p-8 text-center">
+                      <div className="flex flex-col items-center gap-2">
+                        <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-micro font-black uppercase tracking-widest border transition-all ${
+                          (user.status || 'active') === 'active'
+                          ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                          : 'bg-destructive/10 text-destructive border-destructive/20 shadow-lg shadow-destructive/10'
+                        }`}>
+                          <span className={`w-2 h-2 rounded-full ${ (user.status || 'active') === 'active' ? 'bg-green-500' : 'bg-destructive animate-pulse'}`}></span>
+                          {(user.status || 'active') === 'active' ? 'Đang mở' : 'Đã khóa'}
+                        </span>
+                        <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-tighter">
+                          CN: {user.updatedAt?.toDate ? user.updatedAt.toDate().toLocaleDateString('vi-VN') : 'Mới'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="p-8 text-right">
+                      <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
+                         <button 
+                          onClick={() => handleUpdateUserStatus(user.id, user.status || 'active')}
+                          className={`w-11 h-11 flex items-center justify-center rounded-2xl transition-all shadow-sm ${
+                            (user.status || 'active') === 'active'
+                            ? 'bg-destructive/10 text-destructive hover:bg-destructive hover:text-white'
+                            : 'bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white'
+                          }`}
+                          title={(user.status || 'active') === 'active' ? 'Khóa tài khoản ngay' : 'Mở khóa truy cập'}
+                        >
+                          <i className={`fa-solid ${(user.status || 'active') === 'active' ? 'fa-user-lock' : 'fa-user-check'} text-sm`}></i>
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteUser(user.id)}
+                          className="w-11 h-11 flex items-center justify-center rounded-2xl bg-secondary text-muted-foreground hover:bg-destructive hover:text-white transition-all shadow-sm active:scale-90"
+                          title="Xóa vĩnh viễn"
+                        >
+                          <i className="fa-solid fa-trash-can text-sm"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                )) : (
+                  <tr>
+                    <td colSpan={6} className="p-24 text-center">
+                        <div className="flex flex-col items-center gap-6">
+                          <div className="w-24 h-24 rounded-[2rem] bg-secondary/50 flex items-center justify-center border border-border/50 shadow-inner">
+                            <i className="fa-solid fa-users-slash text-4xl text-muted-foreground/20"></i>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm font-black uppercase tracking-widest text-muted-foreground">Không tìm thấy hội viên</p>
+                            <p className="text-xs font-semibold text-muted-foreground/60">Vui lòng thử lại với từ khóa hoặc bộ lọc khác.</p>
+                          </div>
+                          <button 
+                            onClick={() => { setUserRoleFilter('all'); setUserStatusFilter('all'); setSearchQuery(''); }}
+                            className="mt-4 text-primary font-black uppercase tracking-premium text-micro border-b-2 border-primary/20 hover:border-primary transition-all pb-1"
+                          >
+                            Xóa bộ lọc tìm kiếm
+                          </button>
+                        </div>
+                    </td>
+                  </tr>
+                )}
+              </AnimatePresence>
             </tbody>
           </table>
         </div>
 
-        {/* Pagination Integration */}
-        {filteredUsers.length > itemsPerPage && (
-          <div className={`px-8 py-6 border-t ${isMidnight ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/30'}`}>
-            <Pagination
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="p-8 border-t border-border/50 bg-secondary/20">
+            <Pagination 
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={(page) => {
@@ -326,4 +321,3 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
 };
 
 export default AdminUsers;
-

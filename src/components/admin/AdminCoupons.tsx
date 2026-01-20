@@ -16,7 +16,6 @@ interface AdminCouponsProps {
 }
 
 const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme = 'light' }) => {
-  const isMidnight = theme === 'midnight';
   const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState<any | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -90,91 +89,275 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn text-foreground">
-      <div className={`${
-        isMidnight 
-        ? 'bg-[#1e293b]/50 backdrop-blur-xl border-white/5 shadow-2xl hover:border-primary/30' 
-        : 'bg-card border-border shadow-sm shadow-slate-200/40 hover:border-primary/30'
-        } flex flex-wrap items-center justify-between gap-6 p-6 rounded-[2rem] border transition-all`}>
-        <div>
-          <h3 className={`text-lg font-extrabold uppercase tracking-tight ${isMidnight ? 'text-white' : 'text-foreground'}`}>Mã khuyến mãi (Coupons)</h3>
-          <p className={`text-micro font-bold uppercase tracking-premium mt-1 ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Quản lý các chương trình ưu đãi của cửa hàng</p>
+    <div className="space-y-8 animate-fadeIn text-foreground">
+      {/* Header Card */}
+      <div className="bg-card/40 backdrop-blur-md border border-border shadow-3xl flex flex-wrap items-center justify-between gap-6 p-8 rounded-[2.5rem] transition-all hover:border-primary/20">
+        <div className="flex items-center gap-5">
+          <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-inner">
+            <i className="fa-solid fa-ticket text-2xl"></i>
+          </div>
+          <div>
+            <h3 className="text-xl font-black uppercase tracking-tight text-foreground">Mã ưu đãi (Coupons)</h3>
+            <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-1.5 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+              Quản lý các chương trình Marketing
+            </p>
+          </div>
         </div>
         <button 
           onClick={handleOpenAddCoupon}
-          className="bg-primary text-primary-foreground px-6 py-3 rounded-2xl text-micro font-bold uppercase tracking-premium hover:opacity-90 transition-all shadow-lg shadow-primary/20"
+          className="bg-primary text-primary-foreground px-8 py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/25 flex items-center gap-3 group"
         >
-          <i className="fa-solid fa-plus mr-2"></i>Tạo mã mới
+          <i className="fa-solid fa-plus group-hover:rotate-90 transition-transform"></i>
+          <span>Tạo mã mới</span>
         </button>
       </div>
 
-      <div className={`${
-        isMidnight 
-        ? 'bg-[#1e293b]/50 backdrop-blur-xl border-white/5 shadow-2xl' 
-        : 'bg-card border-border shadow-sm shadow-slate-200/20'
-        } rounded-[2rem] border overflow-hidden`}>
+      {/* Coupons Table */}
+      <div className="bg-card/40 backdrop-blur-md border border-border shadow-3xl rounded-[2.5rem] overflow-hidden">
         <div className="overflow-x-auto custom-scrollbar">
-          <table className="w-full text-left min-w-[800px]">
-          <thead className={`${isMidnight ? 'bg-white/5' : 'bg-secondary/50'}`}>
-            <tr className={`border-b ${isMidnight ? 'border-white/5' : 'border-border'}`}>
-              <th className={`px-8 py-5 text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Mã code</th>
-              <th className={`px-8 py-5 text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Loại giảm giá</th>
-              <th className={`px-8 py-5 text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Giá trị</th>
-              <th className={`px-8 py-5 text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Trạng thái</th>
-              <th className={`px-8 py-5 text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Hết hạn</th>
-              <th className={`px-8 py-5 text-micro font-bold uppercase tracking-premium text-center ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-border'}`}>
-            {coupons.map(coupon => (
-              <tr key={coupon.id} className={`transition-all ${isMidnight ? 'hover:bg-white/5' : 'hover:bg-secondary/20'}`}>
-                <td className="px-8 py-5">
-                  <span className={`font-extrabold tracking-premium uppercase ${isMidnight ? 'text-primary' : 'text-primary'}`}>{coupon.code}</span>
-                </td>
-                <td className="px-8 py-5 text-sm font-medium text-muted-foreground">
-                  {coupon.discountType === 'percentage' ? 'Phần trăm (%)' : 'Cố định (đ)'}
-                </td>
-                <td className="px-8 py-5 text-sm font-bold text-foreground">
-                  {coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `${coupon.discountValue.toLocaleString()}đ`}
-                </td>
-                <td className="px-8 py-5">
-                  <span className={`px-3 py-1 rounded-lg text-micro font-bold uppercase tracking-premium ${
-                    coupon.isActive ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'
-                  }`}>
-                    {coupon.isActive ? 'Đang chạy' : 'Đã dừng'}
-                  </span>
-                </td>
-                <td className="px-8 py-5 text-sm text-muted-foreground font-medium">
-                  {coupon.expiryDate}
-                </td>
-                <td className="px-8 py-5 text-center">
-                  <div className="flex items-center justify-center gap-2">
-                    <button 
-                      onClick={() => handleEditCoupon(coupon)}
-                      className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm ${
-                        isMidnight ? 'bg-white/5 text-slate-300 hover:bg-primary hover:text-white' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
-                      }`}
-                      title="Chỉnh sửa"
-                    >
-                      <i className="fa-solid fa-edit text-xs"></i>
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteCoupon(coupon.id)}
-                      className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm ${
-                        isMidnight ? 'bg-destructive/10 text-destructive hover:bg-destructive hover:text-white' : 'bg-destructive/10 text-destructive hover:bg-destructive-foreground'
-                      }`}
-                      title="Xóa"
-                    >
-                      <i className="fa-solid fa-trash-can text-xs"></i>
-                    </button>
-                  </div>
-                </td>
+          <table className="w-full text-left border-collapse min-w-[800px]">
+            <thead>
+              <tr className="border-b border-border/50">
+                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium">Mã định danh</th>
+                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium">Loại ưu đãi</th>
+                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium">Giá trị giảm</th>
+                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium">Đơn tối thiểu</th>
+                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium">Trạng thái</th>
+                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium text-right">Thao tác</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-border/30">
+              {coupons.map((coupon, idx) => (
+                <motion.tr 
+                  key={coupon.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="group transition-all duration-300 hover:bg-secondary/30"
+                >
+                  <td className="p-8">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-8 rounded-full bg-primary/20 group-hover:bg-primary transition-colors"></div>
+                      <span className="font-black tracking-widest uppercase text-primary text-base">{coupon.code}</span>
+                    </div>
+                  </td>
+                  <td className="p-8">
+                    <span className="text-sm font-bold text-muted-foreground">
+                      {coupon.discountType === 'percentage' ? 'Phần trăm (%)' : 'Cố định (đ)'}
+                    </span>
+                  </td>
+                  <td className="p-8 text-base font-black text-foreground">
+                    {coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `${coupon.discountValue.toLocaleString()}đ`}
+                  </td>
+                  <td className="p-8 text-sm font-semibold text-muted-foreground">
+                    {coupon.minOrderValue ? `${coupon.minOrderValue.toLocaleString()}đ` : 'Không yêu cầu'}
+                  </td>
+                  <td className="p-8">
+                    <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-micro font-black uppercase tracking-widest ${
+                      coupon.isActive 
+                      ? 'bg-green-500/10 text-green-500 border border-green-500/20' 
+                      : 'bg-destructive/10 text-destructive border border-destructive/20'
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${coupon.isActive ? 'bg-green-500 animate-pulse' : 'bg-destructive'}`}></span>
+                      {coupon.isActive ? 'Đang hoạt động' : 'Đã tạm dừng'}
+                    </span>
+                  </td>
+                  <td className="p-8 text-right">
+                    <div className="flex items-center justify-end gap-3">
+                      <button 
+                        onClick={() => handleEditCoupon(coupon)}
+                        className="w-11 h-11 flex items-center justify-center rounded-2xl bg-background border border-border text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/5 transition-all shadow-sm active:scale-95"
+                        title="Chỉnh sửa"
+                      >
+                        <i className="fa-solid fa-pen-to-square text-sm"></i>
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteCoupon(coupon.id)}
+                        className="w-11 h-11 flex items-center justify-center rounded-2xl bg-background border border-border text-muted-foreground hover:border-destructive hover:text-destructive hover:bg-destructive/5 transition-all shadow-sm active:scale-95"
+                        title="Xóa"
+                      >
+                        <i className="fa-solid fa-trash-can text-sm"></i>
+                      </button>
+                    </div>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+          
+          {coupons.length === 0 && (
+            <div className="p-24 text-center">
+              <div className="w-24 h-24 rounded-[2rem] bg-secondary/50 flex items-center justify-center mx-auto mb-8 shadow-inner border border-border/50">
+                <i className="fa-solid fa-ticket text-4xl text-muted-foreground/30"></i>
+              </div>
+              <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground">Chưa có mã ưu đãi nào</h3>
+              <p className="text-xs font-semibold text-muted-foreground/60 mt-2">Phát hành voucher để tăng tỷ lệ chuyển đổi đơn hàng.</p>
+              <button 
+                onClick={handleOpenAddCoupon}
+                className="mt-8 text-primary font-black uppercase tracking-premium text-micro border-b-2 border-primary/20 hover:border-primary transition-all pb-1"
+              >
+                Phát hành Voucher ngay
+              </button>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Coupon Modal */}
+      <AnimatePresence>
+        {isCouponModalOpen && (
+          <Portal>
+            <div className="fixed inset-0 z-[300] flex items-center justify-center p-6">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsCouponModalOpen(false)}
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+              />
+              
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 30 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 30 }}
+                className="relative w-full max-w-xl bg-card border border-border shadow-3xl rounded-[3.5rem] overflow-hidden flex flex-col"
+              >
+                {/* Modal Header */}
+                <div className="px-10 py-8 border-b border-border/50 flex items-center justify-between bg-card/50 backdrop-blur-xl">
+                  <div>
+                    <h2 className="text-xl font-black uppercase tracking-tight text-foreground">
+                      {editingCoupon ? 'Cập nhật Voucher' : 'Thiết lập ưu đãi mới'}
+                    </h2>
+                    <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-1">Chiến dịch ưu đãi bán hàng</p>
+                  </div>
+                  <button 
+                    onClick={() => setIsCouponModalOpen(false)} 
+                    className="w-12 h-12 flex items-center justify-center rounded-2xl bg-secondary text-muted-foreground hover:bg-primary hover:text-white transition-all shadow-sm"
+                  >
+                    <i className="fa-solid fa-times text-lg"></i>
+                  </button>
+                </div>
+                
+                <form onSubmit={handleSaveCoupon} className="p-10 space-y-8 overflow-y-auto custom-scrollbar max-h-[75vh]">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="col-span-full space-y-3">
+                      <label className="text-micro font-black text-muted-foreground uppercase tracking-widest ml-1">Mã định danh (CODE) *</label>
+                      <input
+                        type="text"
+                        required
+                        disabled={!!editingCoupon}
+                        value={couponFormData.code || ''}
+                        onChange={(e) => setCouponFormData({...couponFormData, code: e.target.value.toUpperCase()})}
+                        className="w-full px-6 py-4 rounded-[1.5rem] border border-border bg-secondary/30 text-primary font-black tracking-[0.2em] outline-none focus:border-primary focus:bg-card transition-all disabled:opacity-50 text-base"
+                        placeholder="VD: GIAMGIA2024"
+                      />
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="text-micro font-black text-muted-foreground uppercase tracking-widest ml-1">Loại hình giảm</label>
+                      <select
+                        value={couponFormData.discountType || 'percentage'}
+                        onChange={(e) => setCouponFormData({...couponFormData, discountType: e.target.value as 'percentage' | 'fixed'})}
+                        className="w-full px-6 py-4 rounded-[1.5rem] border border-border bg-secondary/30 text-foreground font-bold outline-none focus:border-primary focus:bg-card transition-all appearance-none cursor-pointer"
+                      >
+                        <option value="percentage">Phần trăm (%)</option>
+                        <option value="fixed">Số tiền (đ)</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="text-micro font-black text-muted-foreground uppercase tracking-widest ml-1">
+                        Giá trị giảm ({couponFormData.discountType === 'percentage' ? '%' : 'đ'})
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        min="0"
+                        value={couponFormData.discountValue || 0}
+                        onChange={(e) => setCouponFormData({...couponFormData, discountValue: Number(e.target.value)})}
+                        className="w-full px-6 py-4 rounded-[1.5rem] border border-border bg-secondary/30 text-foreground font-black outline-none focus:border-primary focus:bg-card transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="text-micro font-black text-muted-foreground uppercase tracking-widest ml-1">Đơn tối thiểu (đ)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={couponFormData.minOrderValue || 0}
+                        onChange={(e) => setCouponFormData({...couponFormData, minOrderValue: Number(e.target.value)})}
+                        className="w-full px-6 py-4 rounded-[1.5rem] border border-border bg-secondary/30 text-foreground font-bold outline-none focus:border-primary focus:bg-card transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="text-micro font-black text-muted-foreground uppercase tracking-widest ml-1">Giới hạn lượt dùng</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={couponFormData.usageLimit || 100}
+                        onChange={(e) => setCouponFormData({...couponFormData, usageLimit: Number(e.target.value)})}
+                        className="w-full px-6 py-4 rounded-[1.5rem] border border-border bg-secondary/30 text-foreground font-bold outline-none focus:border-primary focus:bg-card transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="text-micro font-black text-muted-foreground uppercase tracking-widest ml-1">Ngày hết hạn</label>
+                      <input
+                        type="date"
+                        value={couponFormData.expiryDate || ''}
+                        onChange={(e) => setCouponFormData({...couponFormData, expiryDate: e.target.value})}
+                        className="w-full px-6 py-4 rounded-[1.5rem] border border-border bg-secondary/30 text-foreground font-bold outline-none focus:border-primary focus:bg-card transition-all"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-4 pt-1 ml-1 col-span-full">
+                      <label className="relative inline-flex items-center cursor-pointer group">
+                        <input 
+                          type="checkbox" 
+                          checked={couponFormData.isActive}
+                          onChange={(e) => setCouponFormData({...couponFormData, isActive: e.target.checked})}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-secondary peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary border border-border"></div>
+                        <span className="ml-3 text-micro font-black text-muted-foreground uppercase tracking-widest group-hover:text-primary transition-colors">Kích hoạt mã khuyến mãi</span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-4 pt-6">
+                    <button
+                      type="button"
+                      onClick={() => setIsCouponModalOpen(false)}
+                      className="flex-1 py-5 rounded-[1.5rem] text-micro font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary transition-all"
+                    >
+                      Bỏ qua
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="flex-[1.5] bg-primary text-primary-foreground py-5 rounded-[1.5rem] text-micro font-black uppercase tracking-widest hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3 disabled:opacity-50"
+                    >
+                      {isSubmitting ? (
+                        <i className="fa-solid fa-spinner fa-spin"></i>
+                      ) : (
+                        <i className="fa-solid fa-save"></i>
+                      )}
+                      <span>{editingCoupon ? 'Cập nhật nâng cao' : 'Khởi tạo Voucher'}</span>
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </div>
+          </Portal>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default AdminCoupons;
 
       {/* Coupon Modal */}
       <AnimatePresence>

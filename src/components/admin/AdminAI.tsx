@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { db } from '../../services/db';
 import { toast } from 'react-hot-toast';
@@ -25,7 +25,6 @@ interface AdminAIProps {
 }
 
 const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light' }) => {
-  const isMidnight = theme === 'midnight';
   const [activeTab, setActiveTab] = useState<'models' | 'test'>('models');
   const [isUpdatingAI, setIsUpdatingAI] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -185,456 +184,376 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
     'OpenRouter': models.filter(m => m.category === 'OpenRouter'),
   };
 
-  if (isLoadingModels) return <div className="p-12 text-center animate-pulse font-bold text-muted-foreground uppercase tracking-widest">Đang khởi tạo AI Engine...</div>;
+  if (isLoadingModels) return <div className="p-12 text-center animate-pulse font-black text-primary/40 uppercase tracking-[0.2em] text-sm">Đang khởi tạo AI Engine...</div>;
 
   return (
     <div className="space-y-8 animate-fadeIn text-foreground">
       {/* AI Summary Header */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className={`rounded-[2rem] p-8 text-primary-foreground shadow-xl flex flex-col justify-between ${
-          isMidnight 
-          ? 'bg-primary/90 backdrop-blur-xl shadow-primary/20 border border-white/10' 
-          : 'bg-primary shadow-primary/20'
-        }`}>
-          <div className="flex items-center gap-4 mb-8">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
-              isMidnight ? 'bg-white/10' : 'bg-white/20'
-            }`}>
-              <i className="fa-solid fa-microchip text-xl text-white"></i>
-            </div>
-            <div>
-              <p className="text-micro font-bold uppercase tracking-premium opacity-60 text-white/80">Model Hiện tại</p>
-              <h3 className="text-xl font-extrabold line-clamp-1 text-white">{currentModel?.name || 'Đang cập nhật...'}</h3>
-            </div>
+        <div className="bg-primary shadow-3xl shadow-primary/20 rounded-[2.5rem] p-8 text-white flex flex-col justify-between relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
+            <i className="fa-solid fa-microchip text-8xl"></i>
           </div>
-          <div className="space-y-3 pt-6 border-t border-white/10">
-            <div className="flex justify-between items-center text-sm">
-              <span className="opacity-60 font-medium tracking-premium uppercase text-micro text-white/80">Trạng thái:</span>
-              <span className="font-extrabold uppercase tracking-widest text-micro bg-white/20 px-2 py-0.5 rounded-lg text-white">Hoạt động</span>
+          <div className="relative z-10">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-white/20 backdrop-blur-md">
+                <i className="fa-solid fa-brain text-xl text-white"></i>
+              </div>
+              <div>
+                <p className="text-micro font-black uppercase tracking-premium opacity-60">Model Hiện tại</p>
+                <h3 className="text-xl font-black line-clamp-1">{currentModel?.name || 'Đang cập nhật...'}</h3>
+              </div>
             </div>
-            <div className="flex justify-between items-center text-sm">
-              <span className="opacity-60 font-medium tracking-premium uppercase text-micro text-white/80">Nhà cung cấp:</span>
-              <span className="font-extrabold uppercase tracking-widest text-xs text-white">{currentModel?.category || 'N/A'}</span>
+            <div className="space-y-4 pt-6 border-t border-white/10">
+              <div className="flex justify-between items-center">
+                <span className="opacity-60 font-black uppercase text-micro tracking-premium">Trạng thái:</span>
+                <span className="font-black uppercase tracking-widest text-micro bg-white/20 px-3 py-1 rounded-xl">Hoạt động</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="opacity-60 font-black uppercase text-micro tracking-premium">Phân khúc:</span>
+                <span className="font-black uppercase tracking-widest text-micro text-white">{currentModel?.category || 'N/A'}</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className={`rounded-[2rem] p-8 border col-span-2 transition-all ${
-          isMidnight 
-          ? 'bg-[#1e293b]/50 backdrop-blur-xl border-white/5 shadow-2xl hover:border-primary/30' 
-          : 'bg-card border-border shadow-xl shadow-slate-200/40'
-        }`}>
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-            <div className="flex items-center gap-4">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
-                isMidnight ? 'bg-primary/10 text-primary' : 'bg-accent text-primary'
-              }`}>
-                <i className="fa-solid fa-circle-info"></i>
+        <div className="bg-card/40 backdrop-blur-md border border-border shadow-3xl rounded-[2.5rem] p-8 col-span-2 flex flex-col justify-center gap-6">
+          <div className="flex flex-wrap items-center justify-between gap-6 pb-6 border-b border-border/50">
+            <div className="flex items-center gap-5">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-primary/10 text-primary shadow-sm">
+                <i className="fa-solid fa-key text-xl"></i>
               </div>
               <div>
-                <h3 className={`font-extrabold uppercase tracking-tight ${isMidnight ? 'text-white' : 'text-foreground'}`}>Trạng thái API & Hạn mức</h3>
-                <p className={`text-micro font-bold uppercase tracking-premium ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Các nhà cung cấp đã cấu hình trong .env</p>
+                <h3 className="font-black uppercase tracking-tight text-foreground">Trạng thái Connector</h3>
+                <p className="text-micro font-black uppercase tracking-premium text-muted-foreground">Khởi tạo môi trường thông qua .env</p>
               </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <span className={`px-3 py-1.5 rounded-xl text-micro font-extrabold uppercase tracking-widest flex items-center gap-2 border transition-all ${
-                keysStatus.gemini 
-                ? (isMidnight ? 'bg-success/10 text-success border-success/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'bg-success/10 text-success border-success/20') 
-                : (isMidnight ? 'bg-destructive/10 text-destructive border-destructive/20 shadow-[0_0_15px_rgba(244,63,94,0.1)]' : 'bg-destructive/10 text-destructive border-destructive/20')
-              }`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${keysStatus.gemini ? 'bg-success shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-destructive'}`}></span>
-                Gemini
-              </span>
-              <span className={`px-3 py-1.5 rounded-xl text-micro font-extrabold uppercase tracking-widest flex items-center gap-2 border transition-all ${
-                keysStatus.groq 
-                ? (isMidnight ? 'bg-success/10 text-success border-success/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'bg-success/10 text-success border-success/20') 
-                : (isMidnight ? 'bg-destructive/10 text-destructive border-destructive/20 shadow-[0_0_15px_rgba(244,63,94,0.1)]' : 'bg-destructive/10 text-destructive border-destructive/20')
-              }`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${keysStatus.groq ? 'bg-success shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-destructive'}`}></span>
-                Groq
-              </span>
-              <span className={`px-3 py-1.5 rounded-xl text-micro font-extrabold uppercase tracking-widest flex items-center gap-2 border transition-all ${
-                keysStatus.openRouter 
-                ? (isMidnight ? 'bg-success/10 text-success border-success/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'bg-success/10 text-success border-success/20') 
-                : (isMidnight ? 'bg-destructive/10 text-destructive border-destructive/20 shadow-[0_0_15px_rgba(244,63,94,0.1)]' : 'bg-destructive/10 text-destructive border-destructive/20')
-              }`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${keysStatus.openRouter ? 'bg-success shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-destructive'}`}></span>
-                OpenRouter
-              </span>
+            <div className="flex flex-wrap gap-3">
+              {(Object.keys(keysStatus) as Array<keyof typeof keysStatus>).map((key) => (
+                <span key={key} className={`px-4 py-2 rounded-xl text-micro font-black uppercase tracking-widest flex items-center gap-2 border transition-all ${
+                  keysStatus[key] 
+                  ? 'bg-green-500/10 text-green-500 border-green-500/20' 
+                  : 'bg-destructive/10 text-destructive border-destructive/20'
+                }`}>
+                  <span className={`w-2 h-2 rounded-full ${keysStatus[key] ? 'bg-green-500' : 'bg-destructive animate-pulse'}`}></span>
+                  {key}
+                </span>
+              ))}
             </div>
           </div>
-          <p className={`text-sm leading-relaxed font-medium ${isMidnight ? 'text-slate-400' : 'text-muted-foreground'}`}>
-            Hệ thống DigiBook AI tự động điều phối yêu cầu dựa trên cấu hình model. Mọi dữ liệu phân tích, tạo bìa sách và tóm tắt đều được xử lý thông qua mã hóa bảo mật.
-          </p>
+          <div className="flex items-start gap-4">
+            <i className="fa-solid fa-shield-halved text-primary mt-1"></i>
+            <p className="text-sm leading-relaxed font-bold text-muted-foreground/80 italic">
+              "Toàn bộ yêu cầu phân tích từ mô hình được truyền tải qua cổng bảo mật gRPC/Lớp 7. DigiBook AI đảm bảo mọi kết quả trả về tuân thủ tiêu chuẩn an toàn dữ liệu và tối ưu hóa tài nguyên hệ thống."
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Main Controls Section */}
-      <div className={`rounded-[2.5rem] p-8 border transition-all ${
-        isMidnight 
-        ? 'bg-[#1e293b]/50 backdrop-blur-xl border-white/5 shadow-2xl' 
-        : 'bg-card border-border shadow-xl shadow-slate-200/40'
-      }`}>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 pb-6 border-b border-border/50 dark:border-white/5">
-          <div className="flex items-center gap-6">
+      <div className="bg-card/40 backdrop-blur-md border border-border shadow-3xl rounded-[2.5rem] p-8 min-h-[600px]">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-10 pb-6 border-b border-border/50">
+          <div className="flex items-center gap-10">
             <button
               onClick={() => setActiveTab('models')}
-              className={`pb-4 text-micro font-extrabold uppercase tracking-widest relative transition-all ${
-                activeTab === 'models' 
-                ? (isMidnight ? 'text-primary' : 'text-primary')
-                : (isMidnight ? 'text-slate-500 hover:text-slate-300' : 'text-muted-foreground hover:text-foreground')
+              className={`pb-4 text-micro font-black uppercase tracking-premium relative transition-all ${
+                activeTab === 'models' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Cấu hình Models
-              {activeTab === 'models' && <div className={`absolute bottom-0 left-0 w-full h-1 rounded-full bg-primary ${isMidnight ? 'shadow-[0_0_10px_rgba(112,51,255,0.5)]' : ''}`}></div>}
+              Models Registry
+              {activeTab === 'models' && <motion.div layoutId="activeTab" className="absolute bottom-[-1px] left-0 w-full h-1 rounded-full bg-primary" />}
             </button>
             <button
               onClick={() => setActiveTab('test')}
-              className={`pb-4 text-micro font-extrabold uppercase tracking-widest relative transition-all ${
-                activeTab === 'test' 
-                ? (isMidnight ? 'text-primary' : 'text-primary')
-                : (isMidnight ? 'text-slate-500 hover:text-slate-300' : 'text-muted-foreground hover:text-foreground')
+              className={`pb-4 text-micro font-black uppercase tracking-premium relative transition-all ${
+                activeTab === 'test' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Thử nghiệm AI
-              {activeTab === 'test' && <div className={`absolute bottom-0 left-0 w-full h-1 rounded-full bg-primary ${isMidnight ? 'shadow-[0_0_10px_rgba(112,51,255,0.5)]' : ''}`}></div>}
+              AI Laboratory
+              {activeTab === 'test' && <motion.div layoutId="activeTab" className="absolute bottom-[-1px] left-0 w-full h-1 rounded-full bg-primary" />}
             </button>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex items-center gap-4">
             <button
               onClick={handleSyncModels}
               disabled={isUpdatingAI}
-              className={`px-6 py-2.5 rounded-xl text-micro font-extrabold uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95 ${
-                isMidnight 
-                ? 'bg-slate-800 text-slate-300 border border-white/10 hover:bg-slate-700' 
-                : 'bg-secondary text-muted-foreground border border-border hover:bg-secondary/80 shadow-sm'
-              }`}
-              title="Đồng bộ danh sách model từ cấu hình hệ thống"
+              className="px-6 py-3.5 rounded-2xl bg-secondary text-muted-foreground font-black text-micro uppercase tracking-premium hover:bg-primary hover:text-white transition-all disabled:opacity-50 active:scale-95 flex items-center gap-2"
             >
               <i className={`fa-solid fa-rotate ${isUpdatingAI ? 'animate-spin' : ''}`}></i>
-              Đồng bộ
+              Sync Defaults
             </button>
-
             <button
               onClick={handleOpenAddModal}
-              className={`px-6 py-2.5 rounded-xl text-micro font-extrabold uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95 ${
-                isMidnight 
-                ? 'bg-primary text-white shadow-[0_0_20px_rgba(112,51,255,0.3)] hover:opacity-90' 
-                : 'bg-primary text-primary-foreground hover:opacity-90 shadow-lg shadow-primary/10'
-              }`}
+              className="px-6 py-3.5 rounded-2xl bg-primary text-white font-black text-micro uppercase tracking-premium shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
             >
-              <i className="fa-solid fa-plus text-xs"></i>
-              Thêm Model mới
+              <i className="fa-solid fa-plus"></i>
+              Register Model
             </button>
           </div>
         </div>
 
-        {activeTab === 'models' ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            {Object.entries(groupedModels).map(([category, items]) => (
-              <div key={category} className="space-y-6">
-                <div className="flex items-center gap-3">
-                  <div className={`w-1 h-6 rounded-full bg-primary ${isMidnight ? 'opacity-50' : ''}`}></div>
-                  <h4 className={`text-xs font-extrabold uppercase tracking-[0.2em] ${isMidnight ? 'text-slate-300' : 'text-foreground'}`}>{category}</h4>
-                </div>
-                <div className="space-y-3">
-                  {items.length > 0 ? items.map(model => (
-                    <div
-                      key={model.id}
-                      className={`w-full p-5 rounded-2xl flex items-center justify-between transition-all group border ${
-                        activeModelId === model.id
-                        ? (isMidnight ? 'bg-primary/10 border-primary/30' : 'bg-accent/50 border-primary/20')
-                        : (isMidnight ? 'bg-white/5 border-transparent hover:bg-white/10' : 'bg-secondary/30 border-transparent hover:bg-card hover:border-border hover:shadow-lg hover:shadow-slate-100')
-                      }`}
-                    >
-                      <div className="flex items-center gap-4 text-left">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
-                          activeModelId === model.id
-                          ? (isMidnight ? 'bg-primary text-white shadow-[0_0_15px_rgba(112,51,255,0.4)]' : 'bg-primary text-primary-foreground')
-                          : (isMidnight ? 'bg-slate-800 text-slate-400' : 'bg-card text-muted-foreground shadow-sm')
-                        }`}>
-                          <i className={`fa-solid ${category === 'Groq Cloud' || category === 'Groq LPU' ? 'fa-bolt' : category === 'OpenRouter' ? 'fa-globe' : 'fa-brain'}`}></i>
-                        </div>
-                        <div onClick={() => handleUpdateModel(model.id)} className="cursor-pointer">
-                          <p className={`font-extrabold text-sm ${activeModelId === model.id ? (isMidnight ? 'text-primary' : 'text-primary') : (isMidnight ? 'text-slate-200' : 'text-foreground')}`}>
-                            {model.name}
-                            {activeModelId === model.id && <i className="fa-solid fa-circle-check ml-2 text-xs"></i>}
-                          </p>
-                          <code className={`text-micro font-bold uppercase tracking-premium mt-0.5 ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>{model.id}</code>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button 
-                            onClick={() => handleOpenEditModal(model)}
-                            className={`p-2 rounded-lg transition-colors ${isMidnight ? 'hover:bg-amber-500/10 text-slate-500 hover:text-amber-400' : 'hover:bg-amber-50 text-muted-foreground hover:text-amber-600'}`}
-                          >
-                            <i className="fa-solid fa-pen-to-square"></i>
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteModel(model.id)}
-                            className={`p-2 rounded-lg transition-colors ${isMidnight ? 'hover:bg-destructive/10 text-slate-500 hover:text-destructive' : 'hover:bg-destructive/10 text-muted-foreground hover:text-destructive'}`}
-                          >
-                            <i className="fa-solid fa-trash-can"></i>
-                          </button>
-                        </div>
+        <AnimatePresence mode="wait">
+          {activeTab === 'models' ? (
+            <motion.div
+              key="models"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="space-y-10"
+            >
+              {Object.entries(groupedModels).map(([category, catModels]) => (
+                <div key={category} className="space-y-6">
+                  <div className="flex items-center gap-3">
+                    <div className="h-4 w-1 bg-primary rounded-full"></div>
+                    <h4 className="text-micro font-black uppercase tracking-[0.25em] text-muted-foreground">{category} Ecosystem</h4>
+                    <div className="flex-1 h-[1px] bg-border/40"></div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {catModels.length > 0 ? catModels.map((model) => (
+                      <div 
+                        key={model.id}
+                        className={`group p-6 rounded-3xl border transition-all duration-500 relative flex flex-col justify-between ${
+                          activeModelId === model.id 
+                          ? 'bg-primary/5 border-primary shadow-lg shadow-primary/5' 
+                          : 'bg-secondary/30 border-border hover:border-primary/40 hover:bg-card shadow-sm'
+                        }`}
+                      >
+                        {activeModelId === model.id && (
+                          <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-lg animate-bounce-slow">
+                            <i className="fa-solid fa-check text-xs"></i>
+                          </div>
+                        )}
                         
-                        <div className="grid grid-cols-1 gap-0.5 pointer-events-none">
-                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-tighter tabular-nums text-right">RPM: {model.rpm}</span>
-                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-tighter tabular-nums text-right">TPM: {model.tpm}</span>
+                        <div>
+                          <div className="flex items-center justify-between mb-4">
+                            <span className="text-micro font-black uppercase tracking-widest text-primary/60">{model.category}</span>
+                            <div className="flex gap-2">
+                                <button 
+                                  onClick={() => handleOpenEditModal(model)}
+                                  className="w-9 h-9 rounded-xl bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/30 transition-all shadow-sm active:scale-90"
+                                >
+                                  <i className="fa-solid fa-pen-nib text-[10px]"></i>
+                                </button>
+                                <button 
+                                  onClick={() => handleDeleteModel(model.id)}
+                                  className="w-9 h-9 rounded-xl bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-destructive hover:border-destructive/30 transition-all shadow-sm active:scale-90"
+                                >
+                                  <i className="fa-solid fa-trash-alt text-[10px]"></i>
+                                </button>
+                            </div>
+                          </div>
+                          
+                          <h5 className="text-base font-black text-foreground mb-4 group-hover:text-primary transition-colors">{model.name}</h5>
+                          
+                          <div className="grid grid-cols-3 gap-3">
+                            <div className="bg-card border border-border/50 p-2.5 rounded-2xl flex flex-col items-center">
+                              <span className="text-[9px] font-black uppercase tracking-tighter text-muted-foreground/60 mb-0.5">RPM</span>
+                              <span className="font-extrabold text-xs">{model.rpm || '∞'}</span>
+                            </div>
+                            <div className="bg-card border border-border/50 p-2.5 rounded-2xl flex flex-col items-center">
+                              <span className="text-[9px] font-black uppercase tracking-tighter text-muted-foreground/60 mb-0.5">TPM</span>
+                              <span className="font-extrabold text-xs">{model.tpm || '∞'}</span>
+                            </div>
+                            <div className="bg-card border border-border/50 p-2.5 rounded-2xl flex flex-col items-center">
+                              <span className="text-[9px] font-black uppercase tracking-tighter text-muted-foreground/60 mb-0.5">RPD</span>
+                              <span className="font-extrabold text-xs">{model.rpd || '∞'}</span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  )) : (
-                    <div className={`p-4 rounded-xl border-dashed border-2 text-center text-micro font-bold uppercase tracking-widest ${isMidnight ? 'border-white/5 text-slate-600' : 'border-border text-muted-foreground/30'}`}>
-                        Chưa có model
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-8 max-w-4xl mx-auto py-4">
-            <div className={`rounded-3xl p-8 border transition-all ${isMidnight ? 'bg-black/20 border-white/5' : 'bg-secondary/30 border-border'}`}>
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isMidnight ? 'bg-primary/10 text-primary' : 'bg-primary text-primary-foreground'}`}>
-                        <i className="fa-solid fa-terminal text-xs"></i>
-                    </div>
-                    <span className={`text-micro font-extrabold uppercase tracking-widest ${isMidnight ? 'text-slate-400' : 'text-muted-foreground'}`}>AI Playground Console</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full animate-pulse bg-success`}></span>
-                    <span className="text-xs font-extrabold text-success uppercase tracking-widest">Connected</span>
-                </div>
-              </div>
 
-              <div className="relative group">
-                <textarea
-                  value={testPrompt}
-                  onChange={(e) => setTestPrompt(e.target.value)}
-                  placeholder="Nhập câu hỏi để thử nghiệm khả năng phân tích của AI..."
-                  className={`w-full min-h-[160px] p-6 rounded-2xl border transition-all resize-none outline-none font-medium text-sm leading-relaxed ${
-                    isMidnight 
-                    ? 'bg-slate-800/50 border-white/5 text-slate-200 focus:border-primary/50 focus:bg-slate-800' 
-                    : 'bg-card border-border focus:border-primary focus:ring-4 focus:ring-primary/5'
-                  }`}
-                />
+                        <button
+                          disabled={activeModelId === model.id || isUpdatingAI}
+                          onClick={() => handleUpdateModel(model.id)}
+                          className={`mt-6 w-full py-3.5 rounded-2xl text-micro font-black uppercase tracking-[0.15em] transition-all disabled:opacity-100 ${
+                            activeModelId === model.id 
+                            ? 'bg-primary text-white shadow-md shadow-primary/20' 
+                            : 'bg-secondary text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                          }`}
+                        >
+                          {activeModelId === model.id ? 'Core Engine Active' : 'Switch to this model'}
+                        </button>
+                      </div>
+                    )) : (
+                      <p className="text-xs font-semibold text-muted-foreground italic py-4">No registered models found in this category.</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="test"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              className="grid grid-cols-1 xl:grid-cols-2 gap-10"
+            >
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <label className="text-micro font-black uppercase tracking-premium text-muted-foreground ml-1">AI Instruction Console</label>
+                  <textarea
+                    value={testPrompt}
+                    onChange={(e) => setTestPrompt(e.target.value)}
+                    placeholder="Enter system instruction or prompt here..."
+                    className="w-full h-80 p-8 rounded-[2rem] bg-secondary/30 border border-border text-foreground font-bold text-sm outline-none focus:border-primary focus:bg-card focus:shadow-3xl focus:shadow-primary/5 transition-all resize-none leading-relaxed"
+                  />
+                </div>
                 <button
                   onClick={handleTestAI}
-                  disabled={isTesting || !testPrompt.trim()}
-                  className={`absolute bottom-6 right-6 px-8 py-3 rounded-xl text-micro font-extrabold uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95 ${
-                    isTesting || !testPrompt.trim()
-                    ? 'opacity-50 cursor-not-allowed bg-slate-400 text-white'
-                    : (isMidnight ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:opacity-90' : 'bg-primary text-primary-foreground hover:opacity-90 shadow-xl shadow-primary/10')
-                  }`}
+                  disabled={isTesting}
+                  className="w-full py-5 rounded-[1.5rem] bg-primary text-white font-black text-micro uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-3"
                 >
                   {isTesting ? (
-                    <><i className="fa-solid fa-circle-notch animate-spin"></i> Processing...</>
+                    <><i className="fa-solid fa-spinner animate-spin"></i> Processing Request...</>
                   ) : (
-                    <><i className="fa-solid fa-bolt"></i> Execute Prompt</>
+                    <><i className="fa-solid fa-bolt"></i> Execute AI Test Pulse</>
                   )}
                 </button>
               </div>
-            </div>
 
-            {testResult && (
-              <div className={`p-8 rounded-3xl border animate-slideUp relative overflow-hidden ${
-                isMidnight ? 'bg-success/[0.03] border-success/20 shadow-lg shadow-success/5' : 'bg-success/[0.02] border-success/20 shadow-sm'
-              }`}>
-                <div className={`absolute top-0 left-0 w-1 h-full bg-success/50`}></div>
-                <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2 text-success">
-                        <i className="fa-solid fa-square-poll-vertical"></i>
-                        <span className="text-micro font-extrabold uppercase tracking-widest">AI Output Response</span>
-                    </div>
-                    <button onClick={() => setTestResult('')} className="text-micro font-bold uppercase text-muted-foreground hover:text-destructive transition-colors">Clear</button>
-                </div>
-                <div className={`prose prose-sm max-w-none ${isMidnight ? 'prose-invert text-slate-300' : 'text-foreground'}`}>
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {testResult}
-                  </ReactMarkdown>
+              <div className="space-y-3 flex flex-col">
+                <label className="text-micro font-black uppercase tracking-premium text-muted-foreground ml-1">AI Output Stream</label>
+                <div className={`flex-1 rounded-[2rem] border overflow-hidden relative flex flex-col bg-card shadow-3xl`}>
+                  <div className="flex-1 p-8 overflow-y-auto custom-scrollbar prose prose-primary prose-xs max-w-none text-foreground/80">
+                    {testResult ? (
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {testResult}
+                      </ReactMarkdown>
+                    ) : (
+                      <div className="h-full flex flex-col items-center justify-center text-center py-20 opacity-30">
+                        <i className="fa-solid fa-terminal text-5xl mb-6"></i>
+                        <p className="text-micro font-black uppercase tracking-widest">Waiting for output...</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* CRUD Modal */}
+      {/* Register/Edit Model Modal */}
       <AnimatePresence>
         {showModal && (
           <Portal>
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-md"
+            >
               <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-slate-900/50 backdrop-blur-md"
-                onClick={() => setShowModal(false)}
-              />
-
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className={`${
-                  isMidnight 
-                    ? 'bg-[#1e293b] border-white/10 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.7)]' 
-                    : 'bg-card border-border shadow-[0_32px_128px_-16px_rgba(0,0,0,0.1)]'
-                } w-full max-w-[600px] max-h-[90vh] overflow-hidden flex flex-col border relative z-10 rounded-3xl`}
+                initial={{ scale: 0.9, y: 20, opacity: 0 }}
+                animate={{ scale: 1, y: 0, opacity: 1 }}
+                exit={{ scale: 0.9, y: 20, opacity: 0 }}
+                className="bg-card w-full max-w-xl rounded-[3rem] shadow-3xl overflow-hidden border border-border"
               >
-                <div className={`px-8 py-5 border-b flex justify-between items-center ${
-                  isMidnight ? 'bg-white/5 border-white/5' : 'bg-secondary/50 border-border'
-                }`}>
-                  <div>
-                    <h3 className={`font-black text-lg uppercase tracking-tight ${isMidnight ? 'text-white' : 'text-foreground'}`}>
-                      {isEditing ? 'Cấu hình Model' : 'Khởi tạo Model'}
-                    </h3>
-                    <p className={`text-xs font-black uppercase tracking-widest mt-0.5 ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Hệ thống AI DigiBook</p>
+                 <div className="p-10 pb-0 flex justify-between items-start">
+                  <div className="space-y-1">
+                    <span className="text-micro font-black text-primary uppercase tracking-[0.2em]">{isEditing ? 'Administration' : 'Creation'}</span>
+                    <h2 className="text-3xl font-black tracking-tight text-foreground">{isEditing ? 'Modify AI Model' : 'Register New Model'}</h2>
                   </div>
-                  <button onClick={() => setShowModal(false)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
-                    isMidnight ? 'hover:bg-white/10 text-slate-400' : 'hover:bg-secondary text-muted-foreground'
-                  }`}>
-                    <i className="fa-solid fa-xmark"></i>
+                  <button 
+                    onClick={() => setShowModal(false)}
+                    className="w-12 h-12 rounded-2xl bg-secondary text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all active:scale-90 flex items-center justify-center"
+                  >
+                    <i className="fa-solid fa-xmark text-lg"></i>
                   </button>
                 </div>
-                
-                <form onSubmit={handleSaveModel} className="flex-1 flex flex-col overflow-hidden">
-                  <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar">
-                    <div className="grid grid-cols-12 gap-5">
-                      <div className="col-span-12">
-                        <label className={`text-xs font-black uppercase tracking-[0.2em] mb-2.5 block ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Model ID (API Identifier) *</label>
+
+                <form onSubmit={handleSaveModel} className="p-10 space-y-8">
+                   <div className="grid grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <label className="text-micro font-black uppercase tracking-premium text-muted-foreground ml-1">Ecosystem Provider</label>
+                        <select
+                          value={formData.category}
+                          onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
+                          className="w-full px-6 py-4 rounded-2xl bg-secondary/50 border border-border font-bold text-sm outline-none focus:border-primary focus:bg-card transition-all"
+                        >
+                          <option value="Google Gemini">Google Gemini</option>
+                          <option value="Groq Cloud">Groq Cloud</option>
+                          <option value="OpenRouter">OpenRouter</option>
+                        </select>
+                      </div>
+                      <div className="space-y-3">
+                        <label className="text-micro font-black uppercase tracking-premium text-muted-foreground ml-1">Model ID (System Name)</label>
                         <input
                           type="text"
-                          required
-                          disabled={isEditing}
                           value={formData.id}
                           onChange={(e) => setFormData({ ...formData, id: e.target.value })}
-                          className={`w-full h-11 px-6 rounded-2xl border transition-all font-black text-sm outline-none ${
-                            isMidnight 
-                            ? 'bg-white/5 border-white/5 text-primary focus:border-primary' 
-                            : 'bg-secondary/50 border-border focus:bg-card focus:border-primary'
-                          } ${isEditing ? 'opacity-50 cursor-not-allowed border-dashed' : ''}`}
-                          placeholder="e.g. gemini-3-flash"
+                          placeholder="e.g. gemini-1.5-pro"
+                          className="w-full px-6 py-4 rounded-2xl bg-secondary/50 border border-border font-bold text-sm outline-none focus:border-primary focus:bg-card transition-all"
                         />
                       </div>
+                   </div>
 
-                      <div className="col-span-12">
-                        <label className={`text-xs font-black uppercase tracking-[0.2em] mb-2.5 block ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Tên hiển thị nội bộ *</label>
-                        <input
-                          type="text"
-                          required
-                          value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          className={`w-full h-11 px-6 rounded-2xl border transition-all font-black text-sm outline-none ${
-                            isMidnight 
-                            ? 'bg-white/5 border-white/5 text-white focus:border-primary' 
-                            : 'bg-secondary/50 border-border focus:bg-card focus:border-primary shadow-sm'
-                          }`}
-                          placeholder="e.g. Gemini Pro High Performance"
-                        />
-                      </div>
+                   <div className="space-y-3">
+                    <label className="text-micro font-black uppercase tracking-premium text-muted-foreground ml-1">Friendly Display Name</label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="e.g. Gemini 1.5 Pro (Premium AI)"
+                      className="w-full px-6 py-4 rounded-2xl bg-secondary/50 border border-border font-bold text-sm outline-none focus:border-primary focus:bg-card transition-all"
+                    />
+                  </div>
 
-                      <div className="col-span-12">
-                        <label className={`text-xs font-black uppercase tracking-[0.2em] mb-2.5 block ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>Nhà cung cấp / Nền tảng</label>
-                        <div className="relative">
-                          <select
-                            value={formData.category}
-                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                            className={`w-full h-11 px-5 rounded-2xl border transition-all font-black text-xs outline-none appearance-none cursor-pointer ${
-                              isMidnight 
-                              ? 'bg-white/5 border-white/5 text-white focus:border-primary' 
-                              : 'bg-secondary/50 border-border focus:bg-card focus:border-primary shadow-sm'
-                            }`}
-                          >
-                            <option value="Google Gemini">Google Gemini</option>
-                            <option value="Groq Cloud">Groq Cloud</option>
-                            <option value="OpenRouter">OpenRouter</option>
-                          </select>
-                          <i className="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground text-xs pointer-events-none"></i>
-                        </div>
-                      </div>
-
-                      <div className="col-span-4">
-                        <label className={`text-xs font-black uppercase tracking-[0.2em] mb-2.5 block text-center ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>RPM</label>
-                        <input
-                          type="text"
-                          value={formData.rpm}
-                          onChange={(e) => setFormData({ ...formData, rpm: e.target.value })}
-                          className={`w-full h-11 px-4 rounded-2xl border transition-all font-black text-xs text-center outline-none ${
-                            isMidnight 
-                            ? 'bg-white/5 border-white/5 text-white focus:border-primary' 
-                            : 'bg-secondary/50 border-border focus:bg-card focus:border-primary'
-                          }`}
-                          placeholder="15"
-                        />
-                      </div>
-                      <div className="col-span-4">
-                        <label className={`text-xs font-black uppercase tracking-[0.2em] mb-2.5 block text-center ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>TPM</label>
-                        <input
-                          type="text"
-                          value={formData.tpm}
-                          onChange={(e) => setFormData({ ...formData, tpm: e.target.value })}
-                          className={`w-full h-11 px-4 rounded-2xl border transition-all font-black text-xs text-center outline-none ${
-                            isMidnight 
-                            ? 'bg-white/5 border-white/5 text-white focus:border-primary' 
-                            : 'bg-secondary/50 border-border focus:bg-card focus:border-primary'
-                          }`}
-                          placeholder="1M"
-                        />
-                      </div>
-                      <div className="col-span-4">
-                        <label className={`text-xs font-black uppercase tracking-[0.2em] mb-2.5 block text-center ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>RPD</label>
-                        <input
-                          type="text"
-                          value={formData.rpd}
-                          onChange={(e) => setFormData({ ...formData, rpd: e.target.value })}
-                          className={`w-full h-11 px-4 rounded-2xl border transition-all font-black text-xs text-center outline-none ${
-                            isMidnight 
-                            ? 'bg-white/5 border-white/5 text-white focus:border-primary' 
-                            : 'bg-secondary/50 border-border focus:bg-card focus:border-primary'
-                          }`}
-                          placeholder="1.5K"
-                        />
-                      </div>
+                  <div className="grid grid-cols-3 gap-6">
+                    <div className="space-y-3">
+                      <label className="text-micro font-black uppercase tracking-premium text-muted-foreground ml-1">RPM Limit</label>
+                      <input
+                        type="text"
+                        value={formData.rpm}
+                        onChange={(e) => setFormData({ ...formData, rpm: e.target.value })}
+                        placeholder="e.g. 15"
+                        className="w-full px-6 py-4 rounded-2xl bg-secondary/50 border border-border font-bold text-sm outline-none focus:border-primary focus:bg-card transition-all text-center"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-micro font-black uppercase tracking-premium text-muted-foreground ml-1">TPM Limit</label>
+                      <input
+                        type="text"
+                        value={formData.tpm}
+                        onChange={(e) => setFormData({ ...formData, tpm: e.target.value })}
+                        placeholder="e.g. 1M"
+                        className="w-full px-6 py-4 rounded-2xl bg-secondary/50 border border-border font-bold text-sm outline-none focus:border-primary focus:bg-card transition-all text-center"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-micro font-black uppercase tracking-premium text-muted-foreground ml-1">RPD Limit</label>
+                      <input
+                        type="text"
+                        value={formData.rpd}
+                        onChange={(e) => setFormData({ ...formData, rpd: e.target.value })}
+                        placeholder="e.g. 1500"
+                        className="w-full px-6 py-4 rounded-2xl bg-secondary/50 border border-border font-bold text-sm outline-none focus:border-primary focus:bg-card transition-all text-center"
+                      />
                     </div>
                   </div>
 
-                  <div className={`px-8 py-5 flex items-center justify-end gap-3 border-t ${isMidnight ? 'bg-white/5 border-white/10' : 'bg-secondary/80 border-border'}`}>
+                  <div className="flex gap-4 pt-4">
                     <button
                       type="button"
                       onClick={() => setShowModal(false)}
-                      className={`px-6 h-11 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
-                        isMidnight ? 'bg-white/5 text-slate-400 hover:bg-white/10' : 'bg-card text-muted-foreground border border-border hover:bg-secondary shadow-sm'
-                      }`}
+                      className="flex-1 py-4 rounded-2xl bg-secondary text-muted-foreground font-black text-micro uppercase tracking-widest hover:bg-border transition-all active:scale-95"
                     >
-                      Hủy bỏ
+                      Bỏ qua
                     </button>
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="px-8 h-11 bg-primary text-primary-foreground rounded-2xl font-black text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-xl hover:shadow-none active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                      className="flex-[2] py-4 rounded-2xl bg-primary text-white font-black text-micro uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
                     >
-                      {isSubmitting ? (
-                        <>
-                          <i className="fa-solid fa-circle-notch fa-spin mr-2"></i>
-                          Đang xử lý...
-                        </>
-                      ) : (
-                        <>
-                          <i className={`fa-solid ${isEditing ? 'fa-floppy-disk' : 'fa-plus'} mr-2`}></i>
-                          {isEditing ? 'Cập nhật' : 'Tạo mới'}
-                        </>
-                      )}
+                      {isSubmitting ? <i className="fa-solid fa-spinner animate-spin mr-2"></i> : <i className="fa-solid fa-save mr-2"></i>}
+                      {isEditing ? 'Lưu cấu hình' : 'Tạo mới'}
                     </button>
                   </div>
                 </form>
               </motion.div>
-            </div>
+            </motion.div>
           </Portal>
         )}
       </AnimatePresence>
@@ -643,4 +562,3 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
 };
 
 export default AdminAI;
-
