@@ -89,7 +89,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
   const currentCategory = categories.find(c => c.name.toLowerCase() === categoryName?.toLowerCase()) || categories[0] || { name: categoryName || 'Danh mục', icon: 'fa-book', description: 'Khám phá thế giới tri thức' };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 pb-10 fade-in" ref={topRef}>
+    <div className="min-h-screen bg-slate-50/50 pb-10 fade-in">
       <SEO 
         title={categoryName}
         description={`Khám phá danh mục ${categoryName} tại DigiBook. ${currentCategory.description}`}
@@ -139,7 +139,10 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
         </section>
       )}
 
-      <div className={`max-w-7xl mx-auto px-4 relative z-20 ${isPromotionPage ? '-mt-8' : 'mt-2'}`}>
+      <div 
+        ref={topRef}
+        className={`max-w-7xl mx-auto px-4 relative z-20 scroll-mt-20 lg:scroll-mt-24 ${isPromotionPage ? '-mt-8' : 'mt-2'}`}
+      >
         <div className="sticky top-[64px] lg:top-[80px] z-40 mb-4 p-2.5 bg-white/80 backdrop-blur-lg rounded-[2rem] border border-white/50 shadow-xl shadow-slate-200/50 flex items-center gap-3 overflow-hidden group transition-all duration-300">
           <div className="flex-shrink-0 flex items-center gap-2 px-5 py-3 border-r border-slate-200 mr-2">
             <i className="fa-solid fa-layer-group text-indigo-500"></i>
@@ -188,69 +191,69 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
 
         <div className="bg-white p-3 sm:p-4 rounded-3xl shadow-lg shadow-slate-200/50 border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 mb-4">
           <div className="flex flex-wrap items-center gap-3">
-             {!isPromotionPage && (
-               <div className="flex items-center gap-3.5 mr-4">
-                 <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-inner">
-                   <i className={`fa-solid ${currentCategory.icon} text-xl`}></i>
-                 </div>
-                 <div>
-                   <div className="flex items-center gap-2 mb-0.5">
-                     <p className="text-micro font-bold uppercase tracking-premium text-indigo-500">Danh mục</p>
-                     <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                     <p className="text-micro font-bold uppercase tracking-premium text-slate-400">
-                        {filteredBooks.length} sản phẩm
-                     </p>
+               {!isPromotionPage && (
+                 <div className="flex items-center gap-3.5 mr-4">
+                   <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-inner">
+                     <i className={`fa-solid ${currentCategory.icon} text-xl`}></i>
                    </div>
-                   <h1 className="text-xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">{categoryName || 'Tất cả sách'}</h1>
+                   <div>
+                     <div className="flex items-center gap-2 mb-0.5">
+                       <p className="text-micro font-bold uppercase tracking-premium text-indigo-500">Danh mục</p>
+                       <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                       <p className="text-micro font-bold uppercase tracking-premium text-slate-400">
+                          {filteredBooks.length} sản phẩm
+                       </p>
+                     </div>
+                     <h1 className="text-xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">{categoryName || 'Tất cả sách'}</h1>
+                   </div>
                  </div>
-               </div>
-             )}
-             {isPromotionPage && (
-               <div className="flex flex-col gap-1 mr-4">
-                 <div className="flex items-center gap-2">
-                    <p className="text-micro font-bold uppercase tracking-premium text-rose-500">Chương trình</p>
-                    <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                    <p className="text-micro font-bold uppercase tracking-premium text-slate-400">
-                      {filteredBooks.length} ưu đãi
-                    </p>
+               )}
+               {isPromotionPage && (
+                 <div className="flex flex-col gap-1 mr-4">
+                   <div className="flex items-center gap-2">
+                      <p className="text-micro font-bold uppercase tracking-premium text-rose-500">Chương trình</p>
+                      <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                      <p className="text-micro font-bold uppercase tracking-premium text-slate-400">
+                        {filteredBooks.length} ưu đãi
+                      </p>
+                   </div>
+                   <div className="flex gap-2">
+                     <button className="px-4 py-2 bg-rose-50 text-rose-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-rose-100">Sale 50%</button>
+                     <button className="px-4 py-2 bg-amber-50 text-amber-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-amber-100">Hot</button>
+                     <button className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-emerald-100">Freeship</button>
+                   </div>
                  </div>
-                 <div className="flex gap-2">
-                   <button className="px-4 py-2 bg-rose-50 text-rose-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-rose-100">Sale 50%</button>
-                   <button className="px-4 py-2 bg-amber-50 text-amber-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-amber-100">Hot</button>
-                   <button className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-emerald-100">Freeship</button>
-                 </div>
-               </div>
-             )}
-          </div>
-          <div className="flex items-center gap-2 bg-slate-100/50 p-1.5 rounded-2xl border border-slate-200 w-full md:w-auto overflow-x-auto no-scrollbar shadow-inner">
-            <div className="flex items-center gap-2 px-3 py-1.5 border-r border-slate-200 mr-1 hidden lg:flex">
-              <i className="fa-solid fa-sort-amount-down text-xs text-slate-400"></i>
-              <span className="text-xs font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Sắp xếp</span>
+               )}
             </div>
-            
-            <div className="flex items-center gap-1.5">
-              {[
-                { id: 'newest', label: 'Mới nhất', icon: 'fa-clock' },
-                { id: 'price-low', label: 'Giá thấp', icon: 'fa-chevron-up' },
-                { id: 'price-high', label: 'Giá cao', icon: 'fa-chevron-down' },
-                { id: 'rating', label: 'Đánh giá', icon: 'fa-star' }
-              ].map((option) => (
-                <button
-                  key={option.id}
-                  onClick={() => setSortBy(option.id)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${
-                    sortBy === option.id 
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
-                    : 'bg-white text-slate-500 hover:text-indigo-600 hover:bg-slate-50 border border-slate-100 shadow-sm'
-                  }`}
-                >
-                  <i className={`fa-solid ${option.icon} ${sortBy === option.id ? 'text-white' : 'text-slate-300 group-hover:text-indigo-400'}`}></i>
-                  {option.label}
-                </button>
-              ))}
+            <div className="flex items-center gap-2 bg-slate-100/50 p-1.5 rounded-2xl border border-slate-200 w-full md:w-auto overflow-x-auto no-scrollbar shadow-inner">
+              <div className="flex items-center gap-2 px-3 py-1.5 border-r border-slate-200 mr-1 hidden lg:flex">
+                <i className="fa-solid fa-sort-amount-down text-xs text-slate-400"></i>
+                <span className="text-xs font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Sắp xếp</span>
+              </div>
+              
+              <div className="flex items-center gap-1.5">
+                {[
+                  { id: 'newest', label: 'Mới nhất', icon: 'fa-clock' },
+                  { id: 'price-low', label: 'Giá thấp', icon: 'fa-chevron-up' },
+                  { id: 'price-high', label: 'Giá cao', icon: 'fa-chevron-down' },
+                  { id: 'rating', label: 'Đánh giá', icon: 'fa-star' }
+                ].map((option) => (
+                  <button
+                    key={option.id}
+                    onClick={() => setSortBy(option.id)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${
+                      sortBy === option.id 
+                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
+                      : 'bg-white text-slate-500 hover:text-indigo-600 hover:bg-slate-50 border border-slate-100 shadow-sm'
+                    }`}
+                  >
+                    <i className={`fa-solid ${option.icon} ${sortBy === option.id ? 'text-white' : 'text-slate-300 group-hover:text-indigo-400'}`}></i>
+                    {option.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
         {isLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5 mb-8">

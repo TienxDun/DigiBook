@@ -341,7 +341,7 @@ const BookDetails: React.FC<{
                   animate={{ height: showFullDescription ? 'auto' : '80px' }}
                   style={{ overflow: 'hidden' }}
                 >
-                  <div className="text-slate-600 text-xs leading-relaxed font-medium whitespace-pre-line text-justify italic">
+                  <div className="text-slate-600 text-sm leading-relaxed font-medium whitespace-pre-line text-justify italic">
                     {book.description}
                   </div>
                   {!showFullDescription && (
@@ -474,7 +474,7 @@ const BookDetails: React.FC<{
                        <i className={`fa-solid ${m.i} text-xs`}></i>
                     </div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0">{m.l}</p>
-                    <p className="text-xs font-black text-slate-800 truncate w-full px-1">{m.v}</p>
+                    <p className="text-sm font-black text-slate-800 truncate w-full px-1">{m.v}</p>
                  </motion.div>
                ))}
             </div>
@@ -502,7 +502,7 @@ const BookDetails: React.FC<{
                             animate={{ opacity: 1 }}
                             className="bg-white/5 backdrop-blur-xl rounded-lg p-3 border border-white/10 h-full overflow-y-auto custom-scrollbar"
                           >
-                             <div className="prose prose-sm prose-invert max-w-none text-[11px] text-indigo-50 font-medium leading-relaxed italic">
+                             <div className="prose prose-sm prose-invert max-w-none text-sm text-indigo-50 font-medium leading-relaxed italic">
                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                  {aiInsight}
                                </ReactMarkdown>
@@ -551,7 +551,7 @@ const BookDetails: React.FC<{
                                     {[...Array(5)].map((_, i) => <i key={i} className={`fa-solid fa-star text-[8px] ${i < r.rating ? 'text-amber-400' : 'text-slate-200'}`}></i>)}
                                   </div>
                                </div>
-                               <p className="text-xs text-slate-600 line-clamp-2 leading-tight italic">"{r.content}"</p>
+                               <p className="text-sm text-slate-600 line-clamp-2 leading-tight italic">"{r.content}"</p>
                             </div>
                           ))
                         ) : (

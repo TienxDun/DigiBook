@@ -3,10 +3,12 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 
-const MobileNav: React.FC<{ cartCount: number; onOpenCart: () => void; onRefreshData?: () => void }> = ({ 
+const MobileNav: React.FC<{ cartCount: number; onOpenCart: () => void; onRefreshData?: () => void; isCartOpen: boolean; onCloseCart: () => void }> = ({ 
   cartCount, 
   onOpenCart, 
-  onRefreshData 
+  onRefreshData,
+  isCartOpen,
+  onCloseCart
 }) => {
   const location = useLocation();
   const { user, setShowLoginModal } = useAuth();
@@ -30,6 +32,7 @@ const MobileNav: React.FC<{ cartCount: number; onOpenCart: () => void; onRefresh
               to={item.path} 
               onClick={() => {
                 if (item.path === '/') onRefreshData?.();
+                if (isCartOpen) onCloseCart();
               }}
               className={`flex flex-col items-center justify-center w-full h-full transition-all relative active:scale-95 ${isActive ? item.color : 'text-slate-400'}`}
             >
@@ -66,14 +69,14 @@ const MobileNav: React.FC<{ cartCount: number; onOpenCart: () => void; onRefresh
           className={`flex flex-col items-center justify-center w-full h-full transition-all active:scale-95`}
         >
           {user ? (
-            <Link to="/profile" className="flex flex-col items-center">
+            <Link to="/profile" onClick={() => { if (isCartOpen) onCloseCart(); }} className="flex flex-col items-center">
               <div className="w-12 h-12 rounded-2xl p-0.5 border-2 border-indigo-100 overflow-hidden shadow-sm hover:border-indigo-500 transition-all">
                 <img src={user.avatar} className="w-full h-full object-cover rounded-xl" alt="" />
               </div>
               <span className="text-[9px] font-black uppercase tracking-widest mt-1 text-indigo-600">Tôi</span>
             </Link>
           ) : (
-            <div className="flex flex-col items-center group">
+            <div className="flex flex-col items-center group" onClick={() => { setShowLoginModal(true); if (isCartOpen) onCloseCart(); }}>
               <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center group-hover:bg-indigo-50 transition-all">
                 <i className="fa-solid fa-user text-base text-slate-400 group-hover:text-indigo-600 opacity-60 group-hover:opacity-100 transition-all"></i>
               </div>

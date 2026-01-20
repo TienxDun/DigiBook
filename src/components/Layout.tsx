@@ -80,7 +80,7 @@ export const LayoutWrapper: React.FC<{
       <MainContent>{children}</MainContent>
       
       {!isAdmin && <Footer />}
-      {!isAdmin && <MobileNav cartCount={cartCount} onOpenCart={onOpenCart} onRefreshData={onRefreshData} />}
+      {!isAdmin && <MobileNav cartCount={cartCount} onOpenCart={onOpenCart} onRefreshData={onRefreshData} isCartOpen={isCartOpen} onCloseCart={onCloseCart} />}
       
       <CartSidebar 
         isOpen={isCartOpen} 

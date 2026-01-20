@@ -124,7 +124,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                 )}
               </div>
 
-              <h2 className="text-3xl lg:text-4xl font-black text-slate-900 mb-2 leading-[1.1] tracking-tighter">{book.title}</h2>
+              <h2 className="text-2xl lg:text-3xl font-black text-slate-900 mb-2 leading-[1.1] tracking-tighter">{book.title}</h2>
               <div className="flex items-center gap-2 mb-6">
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tác giả</p>
                 <div className="w-1.5 h-1.5 rounded-full bg-slate-200"></div>
@@ -152,7 +152,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                     )}
                   </div>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-black text-rose-600 tracking-tighter">
+                    <span className="text-3xl font-black text-rose-600 tracking-tighter">
                       {book.price.toLocaleString()}đ
                     </span>
                     {book.originalPrice && (
@@ -188,7 +188,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                     onAddToCart(book, quantity, { x: e.clientX, y: e.clientY });
                     onClose();
                   }}
-                  className={`w-full py-4 rounded-xl text-xs font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-xl relative overflow-hidden group/btn ${
+                  className={`w-full py-4 rounded-xl text-sm font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-xl relative overflow-hidden group/btn ${
                     book.stockQuantity > 0 && isAvailable
                     ? 'bg-slate-900 text-white hover:bg-indigo-600 shadow-indigo-100'
                     : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
@@ -204,7 +204,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                 <div className="grid grid-cols-2 gap-3">
                   <button 
                     onClick={handleToggleWishlist}
-                    className={`py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all border-2 active:scale-95 text-[10px] font-black uppercase tracking-widest ${
+                    className={`py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all border-2 active:scale-95 text-xs font-black uppercase tracking-widest ${
                       isWishlisted 
                         ? 'bg-rose-50 border-rose-200 text-rose-500' 
                         : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200 hover:text-rose-500'
@@ -218,7 +218,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                       onClose();
                       navigate(`/book/${book.id}`);
                     }}
-                    className="py-3.5 rounded-xl border-2 border-slate-100 text-slate-400 flex items-center justify-center gap-2 hover:bg-slate-50 hover:border-slate-200 transition-all active:scale-95 text-[10px] font-black uppercase tracking-widest"
+                    className="py-3.5 rounded-xl border-2 border-slate-100 text-slate-400 flex items-center justify-center gap-2 hover:bg-slate-50 hover:border-slate-200 transition-all active:scale-95 text-xs font-black uppercase tracking-widest"
                   >
                     <i className="fa-solid fa-circle-info text-sm"></i>
                     Chi tiết
@@ -235,7 +235,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                     <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs shadow-sm group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
                        <i className="fa-solid fa-shield-halved"></i>
                     </div>
-                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none group-hover:text-slate-900 transition-colors">Chính hãng 100%</span>
+                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none group-hover:text-slate-900 transition-colors">Chính hãng 100%</span>
                  </motion.div>
                  <motion.div 
                    whileHover={{ y: -3 }}
@@ -244,7 +244,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                     <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xs shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
                        <i className="fa-solid fa-rotate"></i>
                     </div>
-                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none group-hover:text-slate-900 transition-colors">Đổi trả 30 ngày</span>
+                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none group-hover:text-slate-900 transition-colors">Đổi trả 30 ngày</span>
                  </motion.div>
               </div>
             </div>
