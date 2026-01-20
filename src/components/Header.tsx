@@ -128,8 +128,8 @@ const Header: React.FC<HeaderProps> = ({
     <header 
       className={`fixed top-0 w-full z-50 transition-all duration-500 ease-in-out ${
         scrolled 
-          ? 'h-16 bg-background/80 backdrop-blur-xl border-b border-border shadow-sm px-4' 
-          : 'h-24 bg-transparent border-b border-transparent px-6'
+          ? 'h-16 bg-background/80 backdrop-blur-xl border-b border-border shadow-sm px-3 sm:px-4' 
+          : 'h-20 sm:h-24 bg-transparent border-b border-transparent px-4 sm:px-6'
       }`}
     >
       {/* Scroll Progress Bar */}
@@ -137,20 +137,20 @@ const Header: React.FC<HeaderProps> = ({
         <div className="absolute top-0 left-0 h-1 bg-primary z-[60] transition-all duration-300 ease-out" style={{ width: `${scrollProgress}%` }} />
       )}
 
-      <div className="max-w-[1400px] mx-auto h-full flex items-center justify-between gap-4">
+      <div className="max-w-[1400px] mx-auto h-full flex items-center justify-between gap-2 sm:gap-4">
         
         {/* Left: Logo & Navigation */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-2 sm:gap-6">
           <Link 
             to="/" 
-            className="flex items-center gap-3 group" 
+            className="flex items-center gap-2 sm:gap-3 group" 
             onClick={() => { 
               setSearchValue('');
               onRefreshData?.(); 
             }}
           >
-            <div className={`transition-all duration-700 bg-foreground group-hover:bg-primary rounded-2xl flex items-center justify-center text-primary-foreground shadow-2xl shadow-primary/20 ${scrolled ? 'w-10 h-10 rotate-0' : 'w-11 h-11 -rotate-3 group-hover:rotate-0'}`}>
-              <i className={`fa-solid fa-book-bookmark ${scrolled ? 'text-xs' : 'text-lg'}`}></i>
+            <div className={`transition-all duration-700 bg-foreground group-hover:bg-primary rounded-xl sm:rounded-2xl flex items-center justify-center text-primary-foreground shadow-2xl shadow-primary/20 ${scrolled ? 'w-9 h-9 sm:w-10 sm:h-10 rotate-0' : 'w-10 h-10 sm:w-11 sm:h-11 -rotate-3 group-hover:rotate-0'}`}>
+              <i className={`fa-solid fa-book-bookmark ${scrolled ? 'text-[10px] sm:text-xs' : 'text-base sm:text-lg'}`}></i>
             </div>
             <span className={`font-extrabold tracking-tighter text-foreground hidden sm:block transition-all duration-500 ${scrolled ? 'text-lg' : 'text-xl'}`}>
               Digi<span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">Book</span>
@@ -294,26 +294,26 @@ const Header: React.FC<HeaderProps> = ({
           {/* Mobile Search Toggle */}
           <button 
             onClick={() => setIsMobileSearchOpen(true)}
-            className="md:hidden w-12 h-12 rounded-xl text-muted-foreground hover:bg-secondary transition-all flex items-center justify-center active:scale-90"
+            className="md:hidden w-10 h-10 sm:w-12 sm:h-12 rounded-xl text-muted-foreground hover:bg-secondary transition-all flex items-center justify-center active:scale-90"
           >
-            <i className="fa-solid fa-magnifying-glass text-lg"></i>
+            <i className="fa-solid fa-magnifying-glass text-base sm:text-lg"></i>
           </button>
 
-          <div className="flex items-center p-1 bg-secondary/50 rounded-2xl relative">
+          <div className="flex items-center p-0.5 sm:p-1 bg-secondary/50 rounded-xl sm:rounded-2xl relative">
             {/* Wishlist Icon */}
             <Link 
               to="/wishlist" 
-              className={`w-11 h-11 rounded-xl transition-all flex items-center justify-center relative group active:scale-90 ${
+              className={`w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl transition-all flex items-center justify-center relative group active:scale-90 ${
                 wishlist.length > 0 
                   ? 'bg-rose-50 text-rose-500 shadow-sm' 
                   : 'text-muted-foreground hover:bg-white hover:text-rose-500 hover:shadow-sm'
               }`}
             >
-              <i className={`${wishlist.length > 0 ? 'fa-solid' : 'fa-regular'} fa-heart text-lg group-hover:scale-110 transition-transform`}></i>
+              <i className={`${wishlist.length > 0 ? 'fa-solid' : 'fa-regular'} fa-heart text-base sm:text-lg group-hover:scale-110 transition-transform`}></i>
               {wishlist.length > 0 && (
-                <span className="absolute top-2.5 right-2.5 flex h-2 w-2">
+                <span className="absolute top-1.5 right-1.5 sm:top-2.5 sm:right-2.5 flex h-1.5 w-1.5 sm:h-2 sm:w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500 border border-white"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-rose-500 border border-white"></span>
                 </span>
               )}
             </Link>
@@ -326,11 +326,11 @@ const Header: React.FC<HeaderProps> = ({
             >
               <button 
                 onClick={onOpenCart} 
-                className="w-11 h-11 rounded-xl bg-white text-muted-foreground hover:text-primary shadow-sm transition-all relative flex items-center justify-center group active:scale-90"
+                className="w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-white text-muted-foreground hover:text-primary shadow-sm transition-all relative flex items-center justify-center group active:scale-90"
               >
-                <i className="fa-solid fa-bag-shopping text-lg group-hover:scale-110 transition-transform"></i>
+                <i className="fa-solid fa-bag-shopping text-base sm:text-lg group-hover:scale-110 transition-transform"></i>
                 {cartCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] bg-primary text-primary-foreground text-micro font-bold rounded-full flex items-center justify-center border-2 border-white px-1 shadow-md">
+                  <span className="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 min-w-[16px] sm:min-w-[20px] h-[16px] sm:h-[20px] bg-primary text-primary-foreground text-[8px] sm:text-micro font-bold rounded-full flex items-center justify-center border-2 border-white px-0.5 sm:px-1 shadow-md">
                     {cartCount}
                   </span>
                 )}
@@ -408,7 +408,7 @@ const Header: React.FC<HeaderProps> = ({
             <div className="relative">
               <button 
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-3 p-1.5 rounded-2xl transition-all hover:bg-secondary active:scale-95"
+                className="flex items-center gap-2 sm:gap-3 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl transition-all hover:bg-secondary active:scale-95"
               >
                 <div className="text-right hidden xl:block">
                   <p className="text-label font-extrabold text-foreground leading-none mb-1">{user.name}</p>
@@ -417,11 +417,11 @@ const Header: React.FC<HeaderProps> = ({
                 <div className="relative">
                   <img 
                     src={user.avatar} 
-                    className="w-11 h-11 rounded-xl shadow-md object-cover border-2 border-background ring-1 ring-border" 
+                    className="w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl shadow-md object-cover border-2 border-background ring-1 ring-border" 
                     alt={user.name} 
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-chart-1 rounded-full border-2 border-background shadow-sm"></div>
+                  <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-3 h-3 sm:w-4 sm:h-4 bg-chart-1 rounded-full border-2 border-background shadow-sm"></div>
                 </div>
               </button>
 
@@ -472,9 +472,9 @@ const Header: React.FC<HeaderProps> = ({
           ) : (
             <button 
               onClick={() => setShowLoginModal(true)}
-              className="group relative px-6 py-3 bg-foreground text-primary-foreground rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-primary transition-all shadow-xl shadow-foreground/10 overflow-hidden"
+              className="group relative px-4 py-2.5 sm:px-6 sm:py-3 bg-foreground text-primary-foreground rounded-xl sm:rounded-2xl text-[9px] sm:text-micro font-bold uppercase tracking-premium hover:bg-primary transition-all shadow-xl shadow-foreground/10 overflow-hidden"
             >
-              <span className="relative z-10">Đăng nhập</span>
+              <span className="relative z-10 whitespace-nowrap">Đăng nhập</span>
               <div className="absolute inset-0 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </button>
           )}
