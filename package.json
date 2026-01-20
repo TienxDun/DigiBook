@@ -15,7 +15,9 @@
     "react-dom": "^19.2.3",
     "react-helmet-async": "^2.0.5",
     "react-hot-toast": "^2.6.0",
-    "react-router-dom": "6.22.3"
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "6.22.3",
+    "remark-gfm": "^4.0.1"
   },
   "overrides": {
     "react-helmet-async": {
@@ -24,6 +26,7 @@
   },
   "devDependencies": {
     "@tailwindcss/container-queries": "^0.1.1",
+    "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
     "autoprefixer": "^10.4.23",

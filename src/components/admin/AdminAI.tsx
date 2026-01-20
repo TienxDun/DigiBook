@@ -3,7 +3,10 @@ import { db } from '../../services/db';
 import { toast } from 'react-hot-toast';
 import { ErrorHandler } from '../../services/errorHandler';
 import { AIModelConfig } from '../../types';
+import { AVAILABLE_AI_MODELS } from '../../constants/ai-models';
 import { motion, AnimatePresence } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface AIConfig {
   activeModelId: string;
@@ -137,6 +140,21 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
       ErrorHandler.handle(error, 'lưu model AI');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleSyncModels = async () => {
+    if (!window.confirm('Bạn có muốn làm mới danh sách model từ hệ thống? Tất cả dữ liệu hiện tại sẽ bị xóa và thay thế bằng cấu hình mặc định.')) return;
+    
+    setIsUpdatingAI(true);
+    try {
+      const count = await db.syncAIModels(AVAILABLE_AI_MODELS);
+      toast.success(`Đã làm mới hoàn toàn ${count} model hệ thống`);
+      loadModels();
+    } catch (error) {
+      ErrorHandler.handle(error, 'đồng bộ model AI');
+    } finally {
+      setIsUpdatingAI(false);
     }
   };
 
@@ -277,17 +295,33 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
             </button>
           </div>
 
-          <button
-            onClick={handleOpenAddModal}
-            className={`px-6 py-2.5 rounded-xl text-micro font-extrabold uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95 ${
-              isMidnight 
-              ? 'bg-indigo-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:bg-indigo-400' 
-              : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100'
-            }`}
-          >
-            <i className="fa-solid fa-plus text-xs"></i>
-            Thêm Model mới
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={handleSyncModels}
+              disabled={isUpdatingAI}
+              className={`px-6 py-2.5 rounded-xl text-micro font-extrabold uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95 ${
+                isMidnight 
+                ? 'bg-slate-800 text-slate-300 border border-white/10 hover:bg-slate-700' 
+                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 shadow-sm'
+              }`}
+              title="Đồng bộ danh sách model từ cấu hình hệ thống"
+            >
+              <i className={`fa-solid fa-rotate ${isUpdatingAI ? 'animate-spin' : ''}`}></i>
+              Đồng bộ
+            </button>
+
+            <button
+              onClick={handleOpenAddModal}
+              className={`px-6 py-2.5 rounded-xl text-micro font-extrabold uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95 ${
+                isMidnight 
+                ? 'bg-indigo-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:bg-indigo-400' 
+                : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100'
+              }`}
+            >
+              <i className="fa-solid fa-plus text-xs"></i>
+              Thêm Model mới
+            </button>
+          </div>
         </div>
 
         {activeTab === 'models' ? (
@@ -413,8 +447,10 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                     </div>
                     <button onClick={() => setTestResult('')} className="text-micro font-bold uppercase text-slate-400 hover:text-rose-500 transition-colors">Clear</button>
                 </div>
-                <div className={`text-sm leading-relaxed whitespace-pre-wrap font-medium ${isMidnight ? 'text-slate-300' : 'text-slate-700'}`}>
-                  {testResult}
+                <div className={`prose prose-sm max-w-none ${isMidnight ? 'prose-invert text-slate-300' : 'text-slate-700'}`}>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {testResult}
+                  </ReactMarkdown>
                 </div>
               </div>
             )}
@@ -482,7 +518,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                           ? 'bg-white/5 border-white/5 text-indigo-400 focus:border-indigo-500' 
                           : 'bg-slate-50 border-slate-100 focus:bg-white focus:border-indigo-500 shadow-sm'
                         } ${isEditing ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        placeholder="e.g. gemini-1.5-pro"
+                        placeholder="e.g. gemini-3-flash"
                       />
                     </div>
 

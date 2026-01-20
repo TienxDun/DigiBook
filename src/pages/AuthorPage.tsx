@@ -8,6 +8,8 @@ import { Book, Author } from '../types';
 import { BookCardSkeleton, Skeleton } from '../components/Skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../AuthContext';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface AuthorPageProps {
   onAddToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => void;
@@ -389,9 +391,11 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
                   <div className="animate-fadeIn">
                     <div className="relative">
                       <i className="fa-solid fa-quote-left absolute -top-3 -left-3 text-indigo-500/20 text-2xl"></i>
-                      <p className="text-sm text-indigo-50/90 leading-relaxed font-medium italic relative z-10">
-                        {aiInsight}
-                      </p>
+                      <div className="prose prose-sm prose-invert max-w-none text-sm text-indigo-50/90 leading-relaxed font-medium italic relative z-10">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {aiInsight}
+                        </ReactMarkdown>
+                      </div>
                     </div>
                     <div className="mt-6 pt-6 border-t border-white/5 space-y-4">
                        <div>

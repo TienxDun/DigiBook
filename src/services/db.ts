@@ -874,7 +874,7 @@ class DataService {
       // 3. GEMINI (Mặc định cho các model gemini-* hoặc fallback cuối)
       if (geminiKey) {
         // Fallback model nếu modelId không hợp lệ cho Gemini trực tiếp
-        const geminiModel = modelId.startsWith('gemini-') ? modelId : 'gemini-2.5-flash-lite';
+        const geminiModel = modelId.startsWith('gemini-') ? modelId : 'gemini-3-flash';
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiKey}`;
         const response = await fetch(url, {
           method: 'POST',
@@ -902,12 +902,13 @@ class DataService {
   }
 
   async getAIInsight(bookTitle: string, author: string, description: string): Promise<string> {
-    const prompt = `Bạn là một chuyên gia phê bình sách kỳ cựu tại DigiBook. Hãy viết một đoạn tóm tắt ngắn gọn (khoảng 100-150 chữ) mang tính khơi gợi và phân tích giá trị cốt lõi của cuốn sách sau bằng tiếng Việt.
+    const prompt = `Bạn là một chuyên gia phê bình sách kỳ cựu tại DigiBook. Hãy viết một đoạn tóm tắt ngắn gọn mang tính khơi gợi và phân tích giá trị cốt lõi của cuốn sách sau bằng tiếng Việt.
     Tên sách: ${bookTitle}
     Tác giả: ${author}
     Mô tả cơ bản: ${description}
     
     Yêu cầu:
+    - Trả lời bằng định dạng Markdown (sử dụng in đậm, danh sách nếu cần để tăng tính dễ đọc).
     - Ngôn ngữ chuyên nghiệp, sang trọng, cuốn hút.
     - Nêu bật tại sao độc giả nên đọc cuốn sách này.
     - Không lặp lại nguyên văn mô tả cơ bản.
@@ -917,8 +918,12 @@ class DataService {
   }
 
   async getAuthorAIInsight(authorName: string): Promise<string> {
-    const prompt = `Bạn là một chuyên gia nghiên cứu văn học. Hãy viết một đoạn giới thiệu chuyên sâu và lôi cuốn (khoảng 150-200 chữ) về tác giả "${authorName}". 
-    Hãy nêu bật phong cách sáng tác đặc trưng, những chủ đề chính trong tác phẩm của họ và tầm ảnh hưởng của họ trong giới văn học. Trả lời bằng tiếng Việt, giọng văn trang trọng nhưng giàu cảm xúc.`;
+    const prompt = `Bạn là một chuyên gia nghiên cứu văn học. Hãy viết một đoạn giới thiệu chuyên sâu và lôi cuốn về tác giả "${authorName}". 
+    
+    Yêu cầu:
+    - Trả lời bằng định dạng Markdown (sử dụng các tiêu đề nhỏ, in đậm hoặc danh sách gạch đầu dòng để làm nổi bật thông tin).
+    - Nêu bật phong cách sáng tác đặc trưng, những chủ đề chính trong tác phẩm của họ và tầm ảnh hưởng của họ trong giới văn học. 
+    - Trả lời bằng tiếng Việt, giọng văn trang trọng nhưng giàu cảm xúc.`;
 
     return this.callAIService(prompt, 'AI_AUTHOR_INSIGHT');
   }
@@ -931,10 +936,10 @@ class DataService {
       if (snap.exists()) {
         return snap.data() as { activeModelId: string };
       }
-      return { activeModelId: 'gemini-2.5-flash-lite' };
+      return { activeModelId: 'gemini-3-flash' };
     } catch (error) {
       console.error("Error getting AI config:", error);
-      return { activeModelId: 'gemini-2.5-flash-lite' };
+      return { activeModelId: 'gemini-3-flash' };
     }
   }
 
@@ -954,12 +959,12 @@ class DataService {
   // --- AI Models CRUD ---
   async getAIModels(): Promise<AIModelConfig[]> {
     const defaultModel: AIModelConfig = { 
-      id: 'gemini-2.5-flash-lite', 
-      name: 'Gemini 2.5 Flash Lite', 
+      id: 'gemini-3-flash', 
+      name: 'Gemini 3 Flash', 
       category: 'Google Gemini', 
-      rpm: '20', 
-      tpm: '2M', 
-      rpd: '2K' 
+      rpm: '5', 
+      tpm: '250K', 
+      rpd: '20' 
     };
 
     try {
@@ -974,8 +979,9 @@ class DataService {
   }
 
   async addAIModel(model: AIModelConfig): Promise<void> {
+    const docId = model.id.replace(/\//g, '_');
     await this.wrap(
-      setDoc(doc(db_fs, 'ai_models', model.id), {
+      setDoc(doc(db_fs, 'ai_models', docId), {
         ...model,
         createdAt: serverTimestamp()
       }),
@@ -986,8 +992,9 @@ class DataService {
   }
 
   async updateAIModelInfo(model: AIModelConfig): Promise<void> {
+    const docId = model.id.replace(/\//g, '_');
     await this.wrap(
-      updateDoc(doc(db_fs, 'ai_models', model.id), {
+      updateDoc(doc(db_fs, 'ai_models', docId), {
         ...model,
         updatedAt: serverTimestamp()
       }),
@@ -998,12 +1005,55 @@ class DataService {
   }
 
   async deleteAIModel(modelId: string): Promise<void> {
+    const docId = modelId.replace(/\//g, '_');
     await this.wrap(
-      deleteDoc(doc(db_fs, 'ai_models', modelId)),
+      deleteDoc(doc(db_fs, 'ai_models', docId)),
       undefined,
       'DELETE_AI_MODEL',
       `Model: ${modelId}`
     );
+  }
+
+  async syncAIModels(models: AIModelConfig[]): Promise<number> {
+    if (!db_fs) return 0;
+    try {
+      // 1. Lấy toàn bộ model hiện có trên Firestore để xóa sạch
+      const colRef = collection(db_fs, 'ai_models');
+      const snapshot = await getDocs(colRef);
+      
+      const batch = writeBatch(db_fs);
+      
+      // 2. Xóa sạch dữ liệu cũ
+      snapshot.docs.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
+      
+      // 3. Ghi đè dữ liệu mới hoàn toàn từ danh sách AVAILABLE_AI_MODELS
+      models.forEach(model => {
+        const docId = model.id.replace(/\//g, '_');
+        const ref = doc(db_fs, 'ai_models', docId);
+        batch.set(ref, {
+          ...model,
+          updatedAt: serverTimestamp()
+        });
+      });
+      
+      await batch.commit();
+      
+      // 4. Ghi log hệ thống
+      this.logActivity(
+        'SYNC_AI_MODELS', 
+        `Đã làm mới danh mục AI models (${models.length} mục) từ cấu hình hệ thống.`,
+        'SUCCESS',
+        'INFO',
+        'ADMIN'
+      );
+      
+      return models.length;
+    } catch (error) {
+      console.error("Error syncing AI models:", error);
+      throw error;
+    }
   }
 
   async getAIInsights(book: Book | null, customPrompt: string): Promise<string> {

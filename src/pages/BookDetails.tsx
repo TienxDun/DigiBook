@@ -9,6 +9,8 @@ import { AVAILABLE_AI_MODELS } from '../constants/ai-models';
 import BookCard from '../components/BookCard';
 import SEO from '../components/SEO';
 import { BookDetailsSkeleton } from '../components/Skeleton';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -490,9 +492,11 @@ const BookDetails: React.FC<{
                             animate={{ opacity: 1 }}
                             className="bg-white/5 backdrop-blur-xl rounded-lg p-3 border border-white/10 h-full overflow-y-auto custom-scrollbar"
                           >
-                             <p className="text-xs text-indigo-50 font-medium leading-relaxed italic">
-                               "{aiInsight}"
-                             </p>
+                             <div className="prose prose-sm prose-invert max-w-none text-[11px] text-indigo-50 font-medium leading-relaxed italic">
+                               <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                 {aiInsight}
+                               </ReactMarkdown>
+                             </div>
                           </motion.div>
                         ) : (
                           <div className="text-center py-2">
