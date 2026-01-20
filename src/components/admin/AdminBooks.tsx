@@ -30,6 +30,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
   const [isSyncing, setIsSyncing] = useState(false);
   const [isFetchingISBN, setIsFetchingISBN] = useState(false);
   const [seedStatus, setSeedStatus] = useState<{msg: string, type: 'success' | 'error' | 'info'} | null>(null);
+  const [isFormProcessing, setIsFormProcessing] = useState(false);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -343,6 +344,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
 
   const handleSaveBook = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsFormProcessing(true);
     try {
       const selectedAuthor = authors.find(a => a.id === bookFormData.authorId);
       const finalBook = {
@@ -357,6 +359,8 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
       refreshData();
     } catch (error) {
       ErrorHandler.handle(error, 'lưu sách');
+    } finally {
+      setIsFormProcessing(false);
     }
   };
 
@@ -706,94 +710,94 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+                className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
                 onClick={() => setIsBookModalOpen(false)}
               />
 
               <motion.div 
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                initial={{ opacity: 0, scale: 0.98, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-white border-slate-200 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.15)] w-full max-w-[1200px] max-h-[90vh] overflow-hidden flex flex-col border relative z-10 rounded-[2.5rem]"
+                exit={{ opacity: 0, scale: 0.98, y: 10 }}
+                transition={{ type: "spring", damping: 28, stiffness: 350 }}
+                className="bg-white border-slate-200 shadow-2xl w-full max-w-6xl max-h-[85vh] overflow-hidden flex flex-col border relative z-10 rounded-3xl"
               >
-              <div className="px-10 py-6 border-b border-slate-100 flex items-center justify-between bg-white relative">
-                <div className="flex items-center gap-5">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-lg shadow-sm border ${editingBook ? 'bg-indigo-50 text-indigo-600 border-indigo-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'}`}>
+              <div className="px-8 py-5 border-b border-slate-100 flex items-center justify-between bg-white relative">
+                <div className="flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-base shadow-sm border ${editingBook ? 'bg-indigo-50 text-indigo-600 border-indigo-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'}`}>
                     <i className={`fa-solid ${editingBook ? 'fa-pen-to-square' : 'fa-plus'}`}></i>
                   </div>
                   <div>
-                    <h2 className="text-xl font-black text-slate-900 tracking-tight">
-                      {editingBook ? 'Cấu hình sách' : 'Khởi tạo sách mới'}
+                    <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+                      {editingBook ? 'Cấu hình sách' : 'Thêm sách mới'}
                     </h2>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Thông tin chi tiết sản phẩm DigiBook</p>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Sản phẩm hệ thống DigiBook</p>
                   </div>
                 </div>
                 <button 
                   onClick={() => setIsBookModalOpen(false)} 
-                  className="w-10 h-10 flex items-center justify-center rounded-xl transition-all text-slate-400 hover:bg-slate-50 hover:text-slate-900"
+                  className="w-8 h-8 flex items-center justify-center rounded-lg transition-all text-slate-400 hover:bg-slate-50 hover:text-slate-900"
                 >
-                  <i className="fa-solid fa-xmark text-lg"></i>
+                  <i className="fa-solid fa-xmark text-base"></i>
                 </button>
               </div>
 
-              <form onSubmit={handleSaveBook} className="flex-1 flex flex-col overflow-hidden bg-slate-50/30">
+              <form onSubmit={handleSaveBook} className="flex-1 flex flex-col overflow-hidden bg-slate-50/20">
                 <div className="flex-1 overflow-hidden flex">
                   {/* Left Column - Form Inputs */}
-                  <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
-                    <div className="space-y-10">
+                  <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                    <div className="space-y-8">
                       {/* Section: Basic Info */}
                       <div>
-                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-indigo-600 mb-6 flex items-center gap-2">
+                        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 mb-5 flex items-center gap-2">
                           <span className="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
                           Thông tin cơ bản
                         </h3>
-                        <div className="grid grid-cols-12 gap-6">
+                        <div className="grid grid-cols-12 gap-5">
                           <div className="col-span-12">
-                            <label className="text-xs font-black uppercase tracking-widest mb-3 block text-slate-900">Tiêu đề sách *</label>
+                            <label className="text-[10px] font-black uppercase tracking-widest mb-2 block text-slate-500 ml-1">Tiêu đề sách *</label>
                             <input
                               type="text"
                               required
                               value={bookFormData.title || ''}
                               onChange={(e) => setBookFormData({...bookFormData, title: e.target.value})}
-                              className="w-full h-14 px-6 rounded-2xl border border-slate-200 transition-all font-bold text-slate-900 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 bg-white shadow-sm placeholder:text-slate-300"
-                              placeholder="Nhập tiêu đề sách..."
+                              className="w-full h-11 px-4 rounded-xl border border-slate-200 transition-all text-sm font-medium text-slate-900 outline-none focus:border-indigo-500 focus:bg-white bg-slate-50/50 shadow-sm placeholder:text-slate-300"
+                              placeholder="Nhập tiêu đề..."
                             />
                           </div>
                           
                           <div className="col-span-12 md:col-span-6">
-                            <label className="text-xs font-black uppercase tracking-widest mb-3 block text-slate-900">Tác giả *</label>
+                            <label className="text-[10px] font-black uppercase tracking-widest mb-2 block text-slate-500 ml-1">Tác giả *</label>
                             <div className="relative">
                               <select
                                 required
                                 value={bookFormData.authorId || ''}
                                 onChange={(e) => setBookFormData({...bookFormData, authorId: e.target.value})}
-                                className="w-full h-14 px-5 rounded-2xl border border-slate-200 transition-all font-bold text-slate-900 outline-none appearance-none cursor-pointer bg-white shadow-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5"
+                                className="w-full h-11 px-4 rounded-xl border border-slate-200 transition-all text-sm font-medium text-slate-900 outline-none appearance-none cursor-pointer bg-slate-50/50 shadow-sm focus:border-indigo-500 focus:bg-white"
                               >
                                 <option value="">-- Chọn tác giả --</option>
                                 {authors.sort((a,b) => a.name.localeCompare(b.name)).map(author => (
                                   <option key={author.id} value={author.id}>{author.name}</option>
                                 ))}
                               </select>
-                              <i className="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                              <i className="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none"></i>
                             </div>
                           </div>
 
                           <div className="col-span-12 md:col-span-6">
-                            <label className="text-xs font-black uppercase tracking-widest mb-3 block text-slate-900">Danh mục *</label>
+                            <label className="text-[10px] font-black uppercase tracking-widest mb-2 block text-slate-500 ml-1">Danh mục *</label>
                             <div className="relative">
                               <select
                                 required
                                 value={bookFormData.category || ''}
                                 onChange={(e) => setBookFormData({...bookFormData, category: e.target.value})}
-                                className="w-full h-14 px-5 rounded-2xl border border-slate-200 transition-all font-bold text-slate-900 outline-none appearance-none cursor-pointer bg-white shadow-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5"
+                                className="w-full h-11 px-4 rounded-xl border border-slate-200 transition-all text-sm font-medium text-slate-900 outline-none appearance-none cursor-pointer bg-slate-50/50 shadow-sm focus:border-indigo-500 focus:bg-white"
                               >
                                 <option value="">-- Chọn danh mục --</option>
                                 {categories.sort((a,b) => a.name.localeCompare(b.name)).map(category => (
                                   <option key={category.name} value={category.name}>{category.name}</option>
                                 ))}
                               </select>
-                              <i className="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                              <i className="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none"></i>
                             </div>
                           </div>
                         </div>
@@ -801,44 +805,44 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
 
                       {/* Section: Pricing & Stock */}
                       <div>
-                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-emerald-600 mb-6 flex items-center gap-2">
+                        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600 mb-5 flex items-center gap-2">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
                           Giá & Kho hàng
                         </h3>
-                        <div className="grid grid-cols-12 gap-6">
+                        <div className="grid grid-cols-12 gap-5">
                           <div className="col-span-12 md:col-span-6">
-                            <label className="text-xs font-black uppercase tracking-widest mb-3 block text-slate-900">Giá bán hiện tại (VNĐ) *</label>
+                            <label className="text-[10px] font-black uppercase tracking-widest mb-2 block text-slate-500 ml-1">Giá bán hiện tại (VNĐ) *</label>
                             <input
                               type="number"
                               required
                               min="0"
                               value={bookFormData.price || ''}
                               onChange={(e) => setBookFormData({...bookFormData, price: Number(e.target.value)})}
-                              className="w-full h-14 px-6 rounded-2xl border border-slate-200 transition-all font-black text-emerald-600 text-lg outline-none bg-white shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5"
+                              className="w-full h-11 px-4 rounded-xl border border-slate-200 transition-all font-bold text-slate-900 text-sm outline-none focus:border-emerald-500 focus:bg-white bg-slate-50/50 shadow-sm"
                               placeholder="0"
                             />
                           </div>
                           
                           <div className="col-span-12 md:col-span-6">
-                            <label className="text-xs font-black uppercase tracking-widest mb-3 block text-slate-900">Số lượng tồn kho *</label>
+                            <label className="text-[10px] font-black uppercase tracking-widest mb-2 block text-slate-500 ml-1">Số lượng tồn kho *</label>
                             <input
                               type="number"
                               required
                               min="0"
                               value={bookFormData.stockQuantity || ''}
                               onChange={(e) => setBookFormData({...bookFormData, stockQuantity: Number(e.target.value)})}
-                              className="w-full h-14 px-6 rounded-2xl border border-slate-200 transition-all font-bold text-slate-900 outline-none bg-white shadow-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5"
+                              className="w-full h-11 px-4 rounded-xl border border-slate-200 transition-all font-bold text-slate-900 text-sm outline-none focus:border-indigo-500 focus:bg-white bg-slate-50/50 shadow-sm"
                               placeholder="0"
                             />
                           </div>
 
                           <div className="col-span-12">
-                            <label className="text-xs font-black uppercase tracking-widest mb-3 block text-slate-900">Phân loại nhãn hiệu (Badge)</label>
+                            <label className="text-[10px] font-black uppercase tracking-widest mb-2 block text-slate-500 ml-1">Nhãn quảng bá (Badge)</label>
                             <div className="relative">
                               <select
                                 value={bookFormData.badge || ''}
                                 onChange={(e) => setBookFormData({...bookFormData, badge: e.target.value})}
-                                className="w-full h-14 px-5 rounded-2xl border border-slate-200 transition-all font-bold text-slate-900 outline-none appearance-none cursor-pointer bg-white shadow-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5"
+                                className="w-full h-11 px-4 rounded-xl border border-slate-200 transition-all font-bold text-slate-900 text-sm outline-none appearance-none cursor-pointer focus:border-indigo-500 focus:bg-white bg-slate-50/50 shadow-sm"
                               >
                                 <option value="">Không có nhãn</option>
                                 <option value="Bán chạy">🔥 Bán chạy</option>
@@ -847,7 +851,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                                 <option value="Giảm giá">🏷️ Khuyến mãi</option>
                                 <option value="Limited">🌟 Limited</option>
                               </select>
-                              <i className="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                              <i className="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none"></i>
                             </div>
                           </div>
                         </div>
@@ -855,19 +859,19 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
 
                       {/* Section: Additional Details */}
                       <div>
-                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-amber-600 mb-6 flex items-center gap-2">
+                        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600 mb-5 flex items-center gap-2">
                           <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
                           Thông tin bổ sung
                         </h3>
-                        <div className="grid grid-cols-12 gap-6">
-                          <div className="col-span-12 md:col-span-4">
-                            <label className="text-xs font-black uppercase tracking-widest mb-3 block text-slate-900 flex items-center justify-between">
+                        <div className="grid grid-cols-12 gap-5">
+                          <div className="col-span-12 md:col-span-6">
+                            <label className="text-[10px] font-black uppercase tracking-widest mb-2 block text-slate-500 ml-1 flex items-center justify-between">
                               Mã ISBN
                               <button 
                                 type="button"
                                 onClick={handleFetchBookByISBN}
                                 disabled={isFetchingISBN}
-                                className="text-[9px] text-indigo-600 hover:text-indigo-800 font-black flex items-center gap-1 bg-indigo-50 px-2 py-0.5 rounded-md"
+                                className="text-[8px] text-indigo-600 hover:text-indigo-800 font-black flex items-center gap-1 bg-indigo-50 px-2 py-0.5 rounded-md transition-colors"
                               >
                                 {isFetchingISBN ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
                                 Tự động điền
@@ -877,47 +881,52 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                               type="text"
                               value={bookFormData.isbn || ''}
                               onChange={(e) => setBookFormData({...bookFormData, isbn: e.target.value})}
-                              className="w-full h-12 px-5 rounded-xl border border-slate-200 transition-all font-bold text-slate-900 outline-none bg-white shadow-sm focus:border-indigo-500"
+                              className="w-full h-11 px-4 rounded-xl border border-slate-200 transition-all font-bold text-slate-900 text-sm outline-none focus:border-indigo-500 focus:bg-white bg-slate-50/50 shadow-sm"
                               placeholder="ISBN..."
                             />
                           </div>
-                          <div className="col-span-12 md:col-span-4">
-                            <label className="text-xs font-black uppercase tracking-widest mb-3 block text-slate-900">Số trang</label>
+                          
+                          <div className="col-span-12 md:col-span-3">
+                            <label className="text-[10px] font-black uppercase tracking-widest mb-2 block text-slate-500 ml-1">Số trang</label>
                             <input
                               type="number"
                               value={bookFormData.pages || ''}
                               onChange={(e) => setBookFormData({...bookFormData, pages: Number(e.target.value)})}
-                              className="w-full h-12 px-5 rounded-xl border border-slate-200 transition-all font-bold text-slate-900 outline-none bg-white shadow-sm focus:border-indigo-500"
+                              className="w-full h-11 px-4 rounded-xl border border-slate-200 transition-all font-bold text-slate-900 text-sm outline-none focus:border-indigo-500 focus:bg-white bg-slate-50/50 shadow-sm"
                               placeholder="0"
                             />
                           </div>
-                          <div className="col-span-12 md:col-span-4">
-                            <label className="text-xs font-black uppercase tracking-widest mb-3 block text-slate-900">Năm tái bản</label>
+
+                          <div className="col-span-12 md:col-span-3">
+                            <label className="text-[10px] font-black uppercase tracking-widest mb-2 block text-slate-500 ml-1">Năm tái bản</label>
                             <input
                               type="number"
                               value={bookFormData.publishYear || ''}
                               onChange={(e) => setBookFormData({...bookFormData, publishYear: Number(e.target.value)})}
-                              className="w-full h-12 px-5 rounded-xl border border-slate-200 transition-all font-bold text-slate-900 outline-none bg-white shadow-sm focus:border-indigo-500"
+                              className="w-full h-11 px-4 rounded-xl border border-slate-200 transition-all font-bold text-slate-900 text-sm outline-none focus:border-indigo-500 focus:bg-white bg-slate-50/50 shadow-sm"
+                              placeholder="2024"
                             />
                           </div>
+
                           <div className="col-span-12">
-                            <label className="text-xs font-black uppercase tracking-widest mb-3 block text-slate-900">Đường dẫn ảnh bìa *</label>
+                            <label className="text-[10px] font-black uppercase tracking-widest mb-2 block text-slate-500 ml-1">Đường dẫn ảnh bìa *</label>
                             <input
                               type="url"
                               required
                               value={bookFormData.cover || ''}
                               onChange={(e) => setBookFormData({...bookFormData, cover: e.target.value})}
-                              className="w-full h-12 px-5 rounded-xl border border-slate-200 transition-all font-bold text-slate-900 outline-none bg-white shadow-sm focus:border-indigo-500 placeholder:text-slate-300"
+                              className="w-full h-11 px-4 rounded-xl border border-slate-200 transition-all font-bold text-slate-900 text-sm outline-none focus:border-indigo-500 focus:bg-white bg-slate-50/50 shadow-sm"
                               placeholder="https://..."
                             />
                           </div>
+
                           <div className="col-span-12">
-                            <label className="text-xs font-black uppercase tracking-widest mb-3 block text-slate-900">Mô tả tóm tắt</label>
+                            <label className="text-[10px] font-black uppercase tracking-widest mb-2 block text-slate-500 ml-1">Mô tả tóm tắt</label>
                             <textarea
                               value={bookFormData.description || ''}
                               onChange={(e) => setBookFormData({...bookFormData, description: e.target.value})}
-                              rows={4}
-                              className="w-full p-5 rounded-2xl border border-slate-200 transition-all font-medium text-slate-700 outline-none bg-white shadow-sm focus:border-indigo-500 resize-none leading-relaxed"
+                              rows={3}
+                              className="w-full px-4 py-3 rounded-xl border border-slate-200 transition-all font-medium text-slate-700 text-sm outline-none focus:border-indigo-500 focus:bg-white bg-slate-50/50 shadow-sm resize-none leading-relaxed"
                               placeholder="Nhập giới thiệu ngắn về sách..."
                             />
                           </div>
@@ -927,11 +936,14 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                   </div>
 
                   {/* Right Column - Visual Preview */}
-                  <div className="w-[320px] border-l border-slate-100 bg-white p-8 flex flex-col items-center overflow-y-auto custom-scrollbar">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-6 self-start">Xem trước trực quan</h3>
+                  <div className="w-[300px] border-l border-slate-100 bg-slate-50/30 p-8 flex flex-col items-center overflow-y-auto custom-scrollbar">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-6 self-start flex items-center gap-2">
+                       <i className="fa-solid fa-eye text-[8px]"></i>
+                       Xem trước
+                    </h3>
                     
                     <div className="w-full group">
-                      <div className="relative aspect-[3/4] bg-slate-100 rounded-[1.5rem] overflow-hidden shadow-xl ring-1 ring-slate-200 border-2 border-white transition-all duration-500 group-hover:translate-y-[-4px]">
+                      <div className="relative aspect-[3/4] bg-white rounded-2xl overflow-hidden shadow-md ring-1 ring-slate-200/50 transition-all duration-500 group-hover:shadow-xl group-hover:-translate-y-1">
                         {bookFormData.cover ? (
                           <img 
                             src={bookFormData.cover} 
@@ -940,36 +952,31 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                             onError={(e) => {(e.target as HTMLImageElement).src = 'https://placehold.co/600x800?text=Lỗi+Ảnh'}}
                           />
                         ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-3">
-                            <i className="fa-solid fa-image text-4xl"></i>
-                            <span className="text-[9px] font-black uppercase tracking-widest">Chưa có ảnh bìa</span>
+                          <div className="w-full h-full flex flex-col items-center justify-center text-slate-200 gap-3 border-2 border-dashed border-slate-100 rounded-2xl">
+                            <i className="fa-solid fa-image text-3xl"></i>
+                            <span className="text-[8px] font-black uppercase tracking-widest">Chưa có ảnh</span>
                           </div>
                         )}
                         
                         {/* Preview Badge */}
-                        <div className="absolute top-3 right-3 scale-110 origin-top-right">
+                        <div className="absolute top-2 right-2 scale-90 origin-top-right">
                           {renderBadge(bookFormData.badge || '', bookFormData.stockQuantity)}
                         </div>
                       </div>
 
-                      <div className="mt-5 text-center space-y-2">
-                        <h4 className="text-base font-black text-slate-900 line-clamp-2 leading-tight px-2">
+                      <div className="mt-5 text-center space-y-1.5">
+                        <h4 className="text-sm font-black text-slate-900 line-clamp-2 leading-tight px-2">
                           {bookFormData.title || 'Tiêu đề sách'}
                         </h4>
                         <div className="flex items-center justify-center gap-2">
-                          <span className="text-lg font-black text-indigo-600">
+                          <span className="text-base font-black text-indigo-600">
                             {bookFormData.price ? formatPrice(bookFormData.price) : '0 ₫'}
                           </span>
-                          {bookFormData.originalPrice && bookFormData.originalPrice > (bookFormData.price || 0) && (
-                            <span className="text-xs font-bold text-slate-300 line-through">
-                              {formatPrice(bookFormData.originalPrice)}
-                            </span>
-                          )}
                         </div>
-                        <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${
                           (bookFormData.stockQuantity || 0) > 0 
-                            ? 'bg-emerald-50 text-emerald-600' 
-                            : 'bg-rose-50 text-rose-600'
+                            ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
+                            : 'bg-rose-50 text-rose-600 border border-rose-100'
                         }`}>
                           <span className={`w-1 h-1 rounded-full ${(bookFormData.stockQuantity || 0) > 0 ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
                           {(bookFormData.stockQuantity || 0) > 0 ? 'Còn hàng' : 'Hết hàng'}
@@ -977,37 +984,44 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                       </div>
                     </div>
 
-                    <div className="mt-8 w-full p-5 bg-slate-50/80 rounded-2xl border border-slate-100">
-                      <div className="flex items-center gap-2 mb-2 text-indigo-600">
-                        <i className="fa-solid fa-circle-info text-xs"></i>
-                        <span className="text-[9px] font-black uppercase tracking-widest">Ghi chú vận hành</span>
-                      </div>
-                      <p className="text-[10px] text-slate-500 font-medium leading-relaxed">
-                        Thông tin xem trước này phản ánh trung thực cách sản phẩm sẽ hiển thị.
-                      </p>
+                    <div className="mt-auto pt-8 w-full">
+                       <div className="p-4 bg-white rounded-xl border border-slate-200/60 shadow-sm">
+                          <div className="flex items-center gap-2 mb-1.5 text-slate-400 uppercase tracking-widest text-[8px] font-black">
+                            <i className="fa-solid fa-circle-info"></i>
+                            <span>Lưu ý</span>
+                          </div>
+                          <p className="text-[10px] text-slate-500 font-medium leading-relaxed">
+                            Bản xem trước này phản ánh thông tin cơ bản của sách. Hãy kiểm tra kỹ trước khi xuất bản.
+                          </p>
+                       </div>
                     </div>
                   </div>
                 </div>
                 
-                {/* Simplified Footer Actions */}
-                <div className="px-10 py-8 border-t border-slate-100 bg-white flex items-center justify-between">
-                  <p className="text-[11px] font-bold text-slate-400 italic">
-                    * Các trường có dấu sao là bắt buộc phải nhập liệu.
+                {/* Footer Actions */}
+                <div className="px-8 py-5 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
+                  <p className="text-[10px] font-bold text-slate-400 italic">
+                    * Bấm bên ngoài để đóng cửa số và hủy bỏ thay đổi.
                   </p>
-                  <div className="flex gap-4">
+                  <div className="flex gap-3">
                     <button
                       type="button"
                       onClick={() => setIsBookModalOpen(false)}
-                      className="px-8 py-4 bg-slate-100 text-slate-600 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-all active:scale-95"
+                      className="px-6 h-11 bg-slate-50 text-slate-500 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-200 shadow-sm"
                     >
-                      Đóng
+                      Hủy bỏ
                     </button>
                     <button
                       type="submit"
-                      className="px-12 py-4 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-200 flex items-center justify-center gap-3 group active:scale-95"
+                      disabled={isFormProcessing}
+                      className="px-10 h-11 bg-slate-900 text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg shadow-slate-200 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
                     >
-                      <i className={`fa-solid ${editingBook ? 'fa-check-circle' : 'fa-plus-circle'} text-sm`}></i>
-                      <span>{editingBook ? 'Lưu thay đổi' : 'Tạo sản phẩm'}</span>
+                      {isFormProcessing ? (
+                        <i className="fa-solid fa-circle-notch fa-spin"></i>
+                      ) : (
+                        <i className={`fa-solid ${editingBook ? 'fa-check-circle' : 'fa-plus-circle'}`}></i>
+                      )}
+                      <span>{editingBook ? 'Cập nhật' : 'Tạo mới'}</span>
                     </button>
                   </div>
                 </div>

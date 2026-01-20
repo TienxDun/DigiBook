@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Author } from '../../types';
 import { db } from '../../services/db';
 import { toast } from 'react-hot-toast';
@@ -18,6 +19,18 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
   const [authorFormData, setAuthorFormData] = useState<Partial<Author>>({});
   const [selectedAuthors, setSelectedAuthors] = useState<string[]>([]);
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
+
+  // Lock scroll when modal is open
+  useEffect(() => {
+    if (isAuthorModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isAuthorModalOpen]);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -274,71 +287,83 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
       </div>
 
       {/* Author Modal */}
-      {isAuthorModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[300] p-4 animate-fadeIn">
-          <div className={`${
-            isMidnight ? 'bg-[#1e293b] border-white/10 shadow-2xl shadow-black/60' : 'bg-white border-slate-100 shadow-2xl shadow-slate-200'
-            } rounded-[2.5rem] w-full max-w-xl max-h-[90vh] overflow-hidden flex flex-col border`}>
-            <div className={`p-8 border-b flex items-center justify-between sticky top-0 z-10 ${
-              isMidnight ? 'border-white/5 bg-[#1e293b]' : 'border-slate-100 bg-white'
+      {isAuthorModalOpen && createPortal(
+        <div 
+          onClick={() => setIsAuthorModalOpen(false)}
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[300] p-4 animate-fadeIn"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className={`${
+              isMidnight ? 'bg-slate-900 border-white/10 shadow-2xl' : 'bg-white border-slate-200 shadow-xl'
+            } rounded-3xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col border`}
+          >
+            <div className={`px-6 py-5 border-b flex items-center justify-between sticky top-0 z-10 ${
+              isMidnight ? 'border-white/5 bg-slate-900' : 'border-slate-100 bg-white'
             }`}>
-              <h2 className={`text-xl font-extrabold uppercase tracking-tight ${isMidnight ? 'text-slate-100' : 'text-slate-900'}`}>
-                {editingAuthor ? 'Chỉnh sửa tác giả' : 'Thêm tác giả mới'}
+              <h2 className={`text-lg font-bold uppercase tracking-widest ${isMidnight ? 'text-slate-200' : 'text-slate-800'}`}>
+                {editingAuthor ? 'Sửa tác giả' : 'Thêm tác giả'}
               </h2>
               <button 
                 onClick={() => setIsAuthorModalOpen(false)} 
-                className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
-                  isMidnight ? 'bg-slate-800 text-slate-500 hover:bg-slate-700 hover:text-slate-300' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+                className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all ${
+                  isMidnight ? 'bg-white/5 text-slate-500 hover:text-white' : 'bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600'
                 }`}
               >
-                <i className="fa-solid fa-times"></i>
+                <i className="fa-solid fa-times text-sm"></i>
               </button>
             </div>
             
-            <form onSubmit={handleSaveAuthor} className="p-8 space-y-6 overflow-y-auto custom-scrollbar">
+            <form onSubmit={handleSaveAuthor} className="p-6 space-y-5 overflow-y-auto custom-scrollbar">
               <div>
-                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Họ & Tên tác giả *</label>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Tên tác giả *</label>
                 <input
                   type="text"
                   required
                   value={authorFormData.name || ''}
                   onChange={(e) => setAuthorFormData({...authorFormData, name: e.target.value})}
-                  className={`w-full px-5 py-3.5 border rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium ${
-                    isMidnight ? 'bg-slate-800/50 border-white/5 text-slate-200' : 'bg-white border-slate-200 text-slate-900'
+                  className={`w-full px-4 py-3 rounded-xl border transition-all text-sm font-medium outline-none ${
+                    isMidnight 
+                    ? 'bg-white/5 border-white/5 text-slate-200 focus:border-indigo-500/50' 
+                    : 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white focus:border-indigo-500'
                   }`}
-                  placeholder="Nhập tên đầy đủ của tác giả"
+                  placeholder="Nhập họ tên..."
                 />
               </div>
               
               <div>
-                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Tiểu sử tóm tắt</label>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Tiểu sử</label>
                 <textarea
                   value={authorFormData.bio || ''}
                   onChange={(e) => setAuthorFormData({...authorFormData, bio: e.target.value})}
-                  rows={4}
-                  className={`w-full px-5 py-3.5 border rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium resize-none ${
-                    isMidnight ? 'bg-slate-800/50 border-white/5 text-slate-200 shadow-inner' : 'bg-white border-slate-200 text-slate-900 shadow-inner'
+                  rows={3}
+                  className={`w-full px-4 py-3 rounded-xl border transition-all text-sm font-medium resize-none outline-none ${
+                    isMidnight 
+                    ? 'bg-white/5 border-white/5 text-slate-200 focus:border-indigo-500/50 shadow-inner' 
+                    : 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white focus:border-indigo-500 shadow-inner'
                   }`}
-                  placeholder="Hành trình sáng tác, giải thưởng..."
+                  placeholder="Mô tả tóm tắt..."
                 />
               </div>
               
               <div>
-                <label className="block text-micro font-bold text-slate-400 uppercase tracking-premium mb-2">Đường dẫn ảnh chân dung (URL)</label>
-                <div className="flex gap-4 items-center">
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Ảnh đại diện (URL)</label>
+                <div className="flex gap-3 items-center">
                   <input
                     type="url"
                     value={authorFormData.avatar || ''}
                     onChange={(e) => setAuthorFormData({...authorFormData, avatar: e.target.value})}
-                    className={`flex-1 px-5 py-3.5 border rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium ${
-                      isMidnight ? 'bg-slate-800/50 border-white/5 text-slate-200' : 'bg-white border-slate-200 text-slate-900'
+                    className={`flex-1 px-4 py-3 rounded-xl border transition-all text-sm font-medium outline-none ${
+                      isMidnight 
+                      ? 'bg-white/5 border-white/5 text-slate-200 focus:border-indigo-500/50' 
+                      : 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white focus:border-indigo-500'
                     }`}
-                    placeholder="https://link-anh.com/tac-gia.jpg"
+                    placeholder="https://..."
                   />
                   {authorFormData.avatar && (
                     <img 
                       src={authorFormData.avatar} 
-                      className="w-12 h-12 object-cover rounded-full shadow-lg border-2 border-white/10" 
+                      className="w-10 h-10 object-cover rounded-full border border-white/10 shadow-sm" 
                       alt="Preview"
                       onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=tac+gia&background=6366f1&color=fff'; }}
                     />
@@ -346,26 +371,27 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
                 </div>
               </div>
               
-              <div className={`flex gap-4 pt-6 border-t ${isMidnight ? 'border-white/5' : 'border-slate-100'}`}>
+              <div className={`flex gap-3 pt-4 border-t ${isMidnight ? 'border-white/5' : 'border-slate-100'}`}>
                 <button
                   type="button"
                   onClick={() => setIsAuthorModalOpen(false)}
-                  className={`flex-1 py-4 rounded-2xl text-micro font-bold uppercase tracking-premium transition-all ${
-                    isMidnight ? 'bg-slate-800 text-slate-400 hover:bg-slate-700' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
+                  className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                    isMidnight ? 'bg-white/5 text-slate-400 hover:bg-white/10' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                   }`}
                 >
-                  Đóng lại
+                  Hủy
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-indigo-600 text-white py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
+                  className="flex-1 bg-indigo-600 text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/10"
                 >
-                  {editingAuthor ? 'Cập nhật' : 'Lưu tác giả'}
+                  {editingAuthor ? 'Cập nhật' : 'Thêm mới'}
                 </button>
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

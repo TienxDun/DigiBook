@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { CategoryInfo } from '../../types';
 import { db } from '../../services/db';
 import { toast } from 'react-hot-toast';
 import { ErrorHandler } from '../../services/errorHandler';
 import { AVAILABLE_ICONS } from '../../constants/categories';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// Portal component for rendering modals outside DOM structure
+const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return createPortal(children, document.body);
+};
 
 interface AdminCategoriesProps {
   categories: CategoryInfo[];
@@ -275,148 +281,135 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
       {/* Category Modal */}
       <AnimatePresence>
         {isCategoryModalOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6"
-          >
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
-              onClick={() => setIsCategoryModalOpen(false)}
-            />
+          <Portal>
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-slate-900/50 backdrop-blur-md"
+                onClick={() => setIsCategoryModalOpen(false)}
+              />
 
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className={`${
-                isMidnight 
-                  ? 'bg-[#1e293b] border-white/10 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.7)]' 
-                  : 'bg-white border-slate-200 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.1)]'
-              } w-full max-w-[800px] max-h-[85vh] overflow-hidden flex flex-col border relative z-10 rounded-[2rem]`}
-            >
-              <div className={`px-8 py-5 flex items-center justify-between border-b ${isMidnight ? 'border-white/5' : 'border-slate-100'}`}>
-                <div>
-                  <h2 className={`text-lg font-black uppercase tracking-tight ${isMidnight ? 'text-slate-100' : 'text-slate-900'}`}>
-                    {editingCategory ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới'}
-                  </h2>
-                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-0.5">Phân loại kho tri thức DigiBook</p>
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className={`${
+                  isMidnight 
+                    ? 'bg-[#1e293b] border-white/10 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.7)]' 
+                    : 'bg-white border-slate-200 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.1)]'
+                } w-full max-w-[600px] max-h-[90vh] overflow-hidden flex flex-col border relative z-10 rounded-3xl`}
+              >
+                <div className={`px-8 py-5 flex items-center justify-between border-b ${isMidnight ? 'border-white/5' : 'border-slate-100'}`}>
+                  <div>
+                    <h2 className={`text-lg font-black uppercase tracking-tight ${isMidnight ? 'text-slate-100' : 'text-slate-900'}`}>
+                      {editingCategory ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới'}
+                    </h2>
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-0.5">Phân loại kho tri thức DigiBook</p>
+                  </div>
+                  <button 
+                    onClick={() => setIsCategoryModalOpen(false)} 
+                    className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
+                      isMidnight ? 'text-slate-500 hover:bg-white/5' : 'text-slate-400 hover:bg-slate-50'
+                    }`}
+                  >
+                    <i className="fa-solid fa-xmark"></i>
+                  </button>
                 </div>
-                <button 
-                  onClick={() => setIsCategoryModalOpen(false)} 
-                  className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
-                    isMidnight ? 'text-slate-500 hover:bg-white/5' : 'text-slate-400 hover:bg-slate-50'
-                  }`}
-                >
-                  <i className="fa-solid fa-xmark"></i>
-                </button>
-              </div>
-              
-              <form onSubmit={handleSaveCategory} className="flex-1 flex flex-col overflow-hidden">
-                <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-                  <div className="max-w-2xl mx-auto space-y-6">
-                    <div className="grid grid-cols-12 gap-5">
-                      <div className="col-span-12">
-                        <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>
-                          Tên hiển thị danh mục *
-                          {editingCategory && <span className="text-xs text-amber-500 ml-2 normal-case">(không thể thay đổi ID)</span>}
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          disabled={!!editingCategory}
-                          value={categoryFormData.name || ''}
-                          onChange={(e) => setCategoryFormData({...categoryFormData, name: e.target.value})}
-                          className={`w-full h-[54px] px-6 rounded-xl border transition-all font-black text-sm outline-none shadow-sm ${
-                            isMidnight 
-                            ? 'bg-white/5 border-white/5 text-white focus:border-indigo-500' 
-                            : 'bg-slate-50 border-slate-100 focus:bg-white focus:border-indigo-500'
-                          } ${editingCategory ? (isMidnight ? 'opacity-40 cursor-not-allowed border-dashed' : 'bg-slate-100 text-slate-400 cursor-not-allowed border-dashed') : ''}`}
-                          placeholder="Vd: Văn học cổ điển, Kinh tế tri thức..."
-                        />
-                      </div>
-                      
-                      <div className="col-span-12">
-                        <label className={`text-xs font-black uppercase tracking-[0.2em] mb-4 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Biểu tượng đại diện (Icon) *</label>
-                        <div className="grid grid-cols-6 sm:grid-cols-9 gap-3">
-                          {AVAILABLE_ICONS.map(icon => (
-                            <button
-                              key={icon}
-                              type="button"
-                              onClick={() => setCategoryFormData({...categoryFormData, icon})}
-                              className={`aspect-square rounded-xl border-2 transition-all flex items-center justify-center ${
-                                categoryFormData.icon === icon
-                                  ? (isMidnight ? 'border-indigo-500 bg-indigo-500/20 text-indigo-400 scale-110' : 'border-indigo-600 bg-indigo-50 text-indigo-600 shadow-md shadow-indigo-100 scale-110')
-                                  : (isMidnight ? 'border-white/5 text-slate-600 hover:border-white/20' : 'border-slate-50 text-slate-200 hover:border-indigo-200 hover:text-indigo-400')
-                              }`}
-                            >
-                              <i className={`fa-solid ${icon} text-lg`}></i>
-                            </button>
-                          ))}
+                
+                <form onSubmit={handleSaveCategory} className="flex-1 flex flex-col overflow-hidden">
+                  <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                    <div className="max-w-2xl mx-auto space-y-6">
+                      <div className="grid grid-cols-12 gap-5">
+                        <div className="col-span-12">
+                          <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>
+                            Tên hiển thị danh mục *
+                            {editingCategory && <span className="text-xs text-amber-500 ml-2 normal-case">(không thể thay đổi ID)</span>}
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            disabled={!!editingCategory}
+                            value={categoryFormData.name || ''}
+                            onChange={(e) => setCategoryFormData({...categoryFormData, name: e.target.value})}
+                            className={`w-full h-11 px-6 rounded-2xl border transition-all font-black text-sm outline-none shadow-sm ${
+                              isMidnight 
+                              ? 'bg-white/5 border-white/5 text-white focus:border-indigo-500' 
+                              : 'bg-slate-50/50 border-slate-100 focus:bg-white focus:border-indigo-500'
+                            } ${editingCategory ? (isMidnight ? 'opacity-40 cursor-not-allowed border-dashed' : 'bg-slate-100 text-slate-400 cursor-not-allowed border-dashed') : ''}`}
+                            placeholder="Vd: Văn học cổ điển, Kinh tế tri thức..."
+                          />
                         </div>
-                      </div>
-                      
-                      <div className="col-span-12">
-                        <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Kế hoạch mô tả danh mục</label>
-                        <textarea
-                          value={categoryFormData.description || ''}
-                          onChange={(e) => setCategoryFormData({...categoryFormData, description: e.target.value})}
-                          rows={3}
-                          className={`w-full px-6 py-4 rounded-xl border transition-all font-medium resize-none leading-relaxed text-xs outline-none shadow-sm ${
-                            isMidnight
-                            ? 'bg-white/5 border-white/5 text-white focus:border-indigo-500 shadow-inner'
-                            : 'bg-slate-50 border-slate-100 focus:bg-white focus:border-indigo-500 shadow-inner'
-                          }`}
-                          placeholder="Viết vài dòng mô tả đặc thù về kho sách này..."
-                        />
+                        
+                        <div className="col-span-12">
+                          <label className={`text-xs font-black uppercase tracking-[0.2em] mb-4 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Biểu tượng đại diện (Icon) *</label>
+                          <div className="grid grid-cols-6 sm:grid-cols-9 gap-3">
+                            {AVAILABLE_ICONS.map(icon => (
+                              <button
+                                key={icon}
+                                type="button"
+                                onClick={() => setCategoryFormData({...categoryFormData, icon})}
+                                className={`aspect-square rounded-2xl border-2 transition-all flex items-center justify-center ${
+                                  categoryFormData.icon === icon
+                                    ? (isMidnight ? 'border-indigo-500 bg-indigo-500/20 text-indigo-400 scale-110' : 'border-indigo-600 bg-indigo-50 text-indigo-600 shadow-md shadow-indigo-100 scale-110')
+                                    : (isMidnight ? 'border-white/5 text-slate-600 hover:border-white/20' : 'border-slate-50 text-slate-200 hover:border-indigo-200 hover:text-indigo-400')
+                                }`}
+                              >
+                                <i className={`fa-solid ${icon} text-lg`}></i>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <div className="col-span-12">
+                          <label className={`text-xs font-black uppercase tracking-[0.2em] mb-3 block ${isMidnight ? 'text-slate-500' : 'text-slate-400'}`}>Kế hoạch mô tả danh mục</label>
+                          <textarea
+                            value={categoryFormData.description || ''}
+                            onChange={(e) => setCategoryFormData({...categoryFormData, description: e.target.value})}
+                            rows={3}
+                            className={`w-full px-6 py-4 rounded-2xl border transition-all font-medium resize-none leading-relaxed text-xs outline-none shadow-sm ${
+                              isMidnight
+                              ? 'bg-white/5 border-white/5 text-white focus:border-indigo-500 shadow-inner'
+                              : 'bg-slate-50/50 border-slate-100 focus:bg-white focus:border-indigo-500 shadow-inner'
+                            }`}
+                            placeholder="Viết vài dòng mô tả đặc thù về kho sách này..."
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                
-                {/* Footer */}
-                <div className={`px-8 py-5 flex items-center justify-between border-t ${isMidnight ? 'bg-white/5 border-white/10' : 'bg-slate-50/80 border-slate-100'}`}>
-                  <div className="flex items-center gap-3">
-                    <div className={`w-2.5 h-2.5 rounded-full animate-pulse ${isMidnight ? 'bg-emerald-500' : 'bg-emerald-400'}`}></div>
-                    <span className={`text-xs font-black uppercase tracking-[0.2em] ${isMidnight ? 'text-slate-400' : 'text-slate-500'}`}>
-                      Trình quản lý thực thể
-                    </span>
-                  </div>
                   
-                  <div className="flex gap-3">
+                  {/* Footer */}
+                  <div className={`px-8 py-5 flex items-center justify-end gap-3 border-t ${isMidnight ? 'bg-white/5 border-white/10' : 'bg-slate-50/80 border-slate-100'}`}>
                     <button
                       type="button"
                       onClick={() => setIsCategoryModalOpen(false)}
-                      className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${
+                      className={`px-6 h-11 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
                         isMidnight 
                         ? 'bg-white/5 text-slate-400 hover:bg-white/10' 
                         : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 shadow-sm'
                       }`}
                     >
-                      Hủy thao tác
+                      Hủy bỏ
                     </button>
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="px-8 py-3 bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all shadow-xl hover:shadow-none hover:translate-y-1 active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                      className="px-8 h-11 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all shadow-xl hover:shadow-none active:scale-95 disabled:opacity-50 flex items-center gap-2"
                     >
                       {isSubmitting ? (
                         <i className="fas fa-spinner fa-spin"></i>
                       ) : (
                         <i className="fa-solid fa-floppy-disk"></i>
                       )}
-                      {editingCategory ? 'Lưu thay đổi' : 'Tạo danh mục'}
+                      {editingCategory ? 'Cập nhật' : 'Tạo mới'}
                     </button>
                   </div>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
+                </form>
+              </motion.div>
+            </div>
+          </Portal>
         )}
       </AnimatePresence>
     </div>
