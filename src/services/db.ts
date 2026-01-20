@@ -56,7 +56,12 @@ class DataService {
       // Try a simple query to test connection
       await getDocs(query(collection(db_fs, 'system_logs'), limit(1)));
       this.connectionTested = true;
-      console.log("✅ Firestore connection successful");
+
+      // Tránh log lặp lại trong môi trường Dev (HMR/Strict Mode)
+      if (!(window as any).__db_connected) {
+        console.log("✅ Firestore connection successful");
+        (window as any).__db_connected = true;
+      }
     } catch (error: any) {
       console.error("❌ Firestore connection failed:", error.message);
       

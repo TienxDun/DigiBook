@@ -65,11 +65,11 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
              <div className="absolute -inset-10 bg-indigo-500/10 blur-[80px] rounded-full group-hover:bg-indigo-500/20 transition-all duration-700"></div>
              <div className="relative grid grid-cols-2 gap-3">
                 <div className="space-y-3 pt-6">
-                   <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4] object-cover rounded-[1.2rem] shadow-xl transition-transform duration-700 hover:-translate-y-2" alt="" />
-                   <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4] object-cover rounded-[1.2rem] shadow-xl transition-transform duration-700 hover:-translate-y-2" alt="" />
+                   <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop" loading="eager" className="w-full aspect-[3/4] object-cover rounded-[1.2rem] shadow-xl transition-transform duration-700 hover:-translate-y-2" alt="Hero book 1" />
+                   <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=800&auto=format&fit=crop" loading="eager" className="w-full aspect-[3/4] object-cover rounded-[1.2rem] shadow-xl transition-transform duration-700 hover:-translate-y-2" alt="Hero book 2" />
                 </div>
                 <div className="space-y-3">
-                   <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=800&auto=format&fit=crop" className="w-full aspect-[3/4] object-cover rounded-[1.2rem] shadow-xl transition-transform duration-700 hover:-translate-y-2" alt="" />
+                   <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=800&auto=format&fit=crop" loading="eager" className="w-full aspect-[3/4] object-cover rounded-[1.2rem] shadow-xl transition-transform duration-700 hover:-translate-y-2" alt="Hero book 3" />
                    <div className="w-full aspect-[3/4] bg-indigo-600 rounded-[1.2rem] shadow-xl flex flex-col items-center justify-center p-4 text-center text-white">
                       <i className="fa-solid fa-star-half-stroke text-2xl mb-2 text-amber-300"></i>
                       <p className="text-lg font-extrabold">4.9/5</p>

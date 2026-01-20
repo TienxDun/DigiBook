@@ -333,48 +333,67 @@ const Header: React.FC<HeaderProps> = ({
               </button>
 
               {/* Quick Cart Preview Dropdown */}
-              {showCartPreview && cartItems.length > 0 && (
-                <div className="absolute top-full right-0 mt-4 w-80 bg-white/90 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] border border-white p-6 z-[100] transition-all animate-framer-in origin-top-right">
-                  <div className="flex items-center justify-between mb-6">
-                    <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Giỏ hàng ({cartCount})</p>
-                    <Link to="/category/Tất cả sách" onClick={() => setShowCartPreview(false)} className="text-[9px] font-black text-indigo-500 uppercase tracking-widest hover:text-indigo-600">Xem thêm</Link>
-                  </div>
-                  <div className="space-y-4 max-h-[280px] overflow-y-auto pr-2 custom-scrollbar -mr-1">
-                    {cartItems.slice(0, 3).map(item => (
-                      <div key={item.id} className="flex gap-4 group">
-                        <div className="w-14 h-18 rounded-xl overflow-hidden shadow-sm border border-slate-50 flex-shrink-0">
-                          <img src={item.cover} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                        </div>
-                        <div className="flex-1 min-w-0 pt-1">
-                          <p className="text-[10px] font-black text-slate-900 line-clamp-1 uppercase tracking-tight">{item.title}</p>
-                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">{item.author}</p>
-                          <div className="flex items-center gap-2">
-                             <span className="text-[10px] font-black text-slate-600 bg-slate-50 px-1.5 py-0.5 rounded-md border border-slate-100">{item.quantity}x</span>
-                             <p className="text-[11px] font-black text-rose-500 tracking-tight">{(item.price * item.quantity).toLocaleString()}đ</p>
+              <AnimatePresence>
+                {showCartPreview && cartItems.length > 0 && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95, y: 10, originX: '90%', originY: '0%' }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                    transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+                    className="absolute top-full right-0 mt-4 w-80 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-slate-100 rounded-[2rem] p-5 z-[100] overflow-hidden"
+                  >
+                    {/* Glassy Accent */}
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-3xl -z-10 rounded-full" />
+                    
+                    <div className="flex items-center justify-between mb-5 px-1">
+                      <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Túi đồ ({cartCount})</h3>
+                      <Link to="/category/Tất cả sách" onClick={() => setShowCartPreview(false)} className="text-[10px] font-bold text-indigo-500 hover:text-indigo-600 transition-colors">Xem tất cả</Link>
+                    </div>
+
+                    <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1 no-scrollbar">
+                      {cartItems.slice(0, 3).map(item => (
+                        <div key={item.id} className="flex gap-4 group cursor-default">
+                          <div className="w-12 h-16 rounded-lg overflow-hidden flex-shrink-0 shadow-sm border border-slate-50 bg-slate-50">
+                            <img src={item.cover} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                          </div>
+                          <div className="flex-1 min-w-0 flex flex-col justify-center">
+                            <h4 className="text-[12px] font-bold text-slate-800 line-clamp-1 leading-tight group-hover:text-indigo-600 transition-colors uppercase tracking-tight mb-0.5">{item.title}</h4>
+                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1.5">{item.quantity} x {item.price.toLocaleString()}đ</p>
+                            <div className="flex items-center gap-1.5">
+                               {item.badge && (
+                                 <span className="px-1 py-0.5 bg-indigo-50 text-indigo-500 text-[7px] font-black uppercase tracking-tighter rounded">{item.badge}</span>
+                               )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                    {cartItems.length > 3 && (
-                      <div className="py-2 bg-slate-50 rounded-xl text-center">
-                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">+{cartItems.length - 3} sản phẩm khác</p>
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-6 pt-6 border-t border-slate-100">
-                    <div className="flex items-end justify-between mb-6">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none pb-0.5">Tổng cộng</p>
-                      <p className="text-2xl font-black text-slate-900 tracking-tighter leading-none">{cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toLocaleString()}đ</p>
+                      ))}
+                      
+                      {cartItems.length > 3 && (
+                        <div className="pt-2 text-center">
+                          <p className="text-[9px] font-bold text-slate-300 uppercase tracking-[0.3em]">+{cartItems.length - 3} món khác</p>
+                        </div>
+                      )}
                     </div>
-                    <button 
-                      onClick={() => { onOpenCart(); setShowCartPreview(false); }}
-                      className="w-full py-4 bg-slate-900 text-white rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-xl shadow-slate-200 active:scale-95"
-                    >
-                      Mở giỏ hàng chi tiết
-                    </button>
-                  </div>
-                </div>
-              )}
+
+                    <div className="mt-5 pt-5 border-t border-slate-50">
+                      <div className="flex items-center justify-between mb-5 px-1">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tạm tính</span>
+                        <span className="text-xl font-black text-indigo-600 tracking-tighter">
+                          {cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toLocaleString()}đ
+                        </span>
+                      </div>
+                      
+                      <button 
+                        onClick={() => { onOpenCart(); setShowCartPreview(false); }}
+                        className="w-full py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-indigo-600 transition-all shadow-lg shadow-slate-100 flex items-center justify-center gap-2 active:scale-95 group/btn"
+                      >
+                        Mở túi hàng
+                        <i className="fa-solid fa-arrow-right-long text-[8px] group-hover/btn:translate-x-1 transition-transform"></i>
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 
