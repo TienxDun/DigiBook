@@ -16,13 +16,21 @@ const ITEMS_PER_PAGE = 10;
 
 const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickView }) => {
   const { addToCart } = useCart();
-  const { allBooks, categories, loading: isLoading } = useBooks();
+  const { categories } = useBooks(); // Only needed for category info
 
-  const { categoryName } = useParams<{ categoryName: string }>();
+  const { categoryName } = useParams();
+
+  // State
+  const [books, setBooks] = useState<Book[]>([]);
   const [sortBy, setSortBy] = useState('newest');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [lastDoc, setLastDoc] = useState<any>(null);
+
+  // Promotion Timer
   const [timeLeft, setTimeLeft] = useState({ hours: 12, minutes: 45, seconds: 30 });
   const topRef = useRef<HTMLDivElement>(null);
+  const observer = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -36,36 +44,57 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
     return () => clearInterval(timer);
   }, []);
 
-  const isPromotionPage = categoryName?.toLowerCase().includes('sale') || categoryName?.toLowerCase().includes('khuyến mãi');
+  // Infinite Scroll Observer
+  const lastBookElementRef = React.useCallback((node: HTMLDivElement) => {
+    if (loading) return;
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        loadMore();
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, [loading, hasMore]);
 
-  const filteredBooks = useMemo(() => {
-    let books = categoryName && categoryName !== 'Tất cả sách'
-      ? allBooks.filter(b => b.category.toLowerCase() === categoryName.toLowerCase())
-      : allBooks;
+  // Load Data Function
+  const loadBooks = async (isInitial = false) => {
+    setLoading(true);
+    try {
+      // Map UI sort to DB sort
+      let dbSort: 'newest' | 'price_asc' | 'price_desc' | 'rating' = 'newest';
+      if (sortBy === 'price-low') dbSort = 'price_asc';
+      else if (sortBy === 'price-high') dbSort = 'price_desc';
+      else if (sortBy === 'rating') dbSort = 'rating';
 
-    if (sortBy === 'price-low') books = [...books].sort((a, b) => a.price - b.price);
-    else if (sortBy === 'price-high') books = [...books].sort((a, b) => b.price - a.price);
-    else if (sortBy === 'rating') books = [...books].sort((a, b) => b.rating - a.rating);
+      const currentLastDoc = isInitial ? null : lastDoc;
+      const result = await db.getBooksPaginated(ITEMS_PER_PAGE, currentLastDoc, categoryName, dbSort);
 
-    return books;
-  }, [allBooks, categoryName, sortBy]);
+      setBooks(prev => isInitial ? result.books : [...prev, ...result.books]);
+      setLastDoc(result.lastDoc);
+      setHasMore(result.books.length === ITEMS_PER_PAGE);
+    } catch (error) {
+      console.error("Failed to load books:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const totalPages = Math.ceil(filteredBooks.length / ITEMS_PER_PAGE);
+  const loadMore = () => {
+    loadBooks(false);
+  };
 
+  // Trigger load on category/sort change
   useEffect(() => {
-    setCurrentPage(1);
+    setBooks([]);
+    setLastDoc(null);
+    setHasMore(true);
+    loadBooks(true);
     topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [categoryName, sortBy]);
 
-  const paginatedBooks = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredBooks.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredBooks, currentPage]);
+  const isPromotionPage = categoryName?.toLowerCase().includes('sale') || categoryName?.toLowerCase().includes('khuyến mãi');
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+  // Removed memoized client-side filtering logic
 
   const currentCategory = categories.find(c => c.name.toLowerCase() === categoryName?.toLowerCase()) || categories[0] || { name: categoryName || 'Danh mục', icon: 'fa-book', description: 'Khám phá thế giới tri thức' };
 
@@ -171,7 +200,7 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
                     <p className="text-micro font-bold uppercase tracking-premium text-indigo-500">Danh mục</p>
                     <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
                     <p className="text-micro font-bold uppercase tracking-premium text-slate-400">
-                      {filteredBooks.length} sản phẩm
+                      {books.length}{hasMore ? '+' : ''} sản phẩm
                     </p>
                   </div>
                   <h1 className="text-xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">{categoryName || 'Tất cả sách'}</h1>
@@ -184,7 +213,7 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
                   <p className="text-micro font-bold uppercase tracking-premium text-rose-500">Chương trình</p>
                   <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
                   <p className="text-micro font-bold uppercase tracking-premium text-slate-400">
-                    {filteredBooks.length} ưu đãi
+                    {books.length}{hasMore ? '+' : ''} ưu đãi
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -224,22 +253,36 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
           </div>
         </div>
 
-        {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5 mb-8">
-            {[...Array(ITEMS_PER_PAGE)].map((_, i) => (
-              <BookCardSkeleton key={i} />
-            ))}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5 mb-8">
+          {books.map((book, index) => {
+            if (books.length === index + 1) {
+              return (
+                <div ref={lastBookElementRef} key={book.id} className="fade-in-up">
+                  <BookCard book={book} onAddToCart={addToCart} onQuickView={onQuickView} />
+                </div>
+              );
+            } else {
+              return (
+                <div key={book.id} className="fade-in-up">
+                  <BookCard book={book} onAddToCart={addToCart} onQuickView={onQuickView} />
+                </div>
+              )
+            }
+          })}
+          {loading && (
+            [...Array(ITEMS_PER_PAGE)].map((_, i) => (
+              <BookCardSkeleton key={`skeleton-${i}`} />
+            ))
+          )}
+        </div>
+
+        {!hasMore && books.length > 0 && (
+          <div className="text-center mt-10 text-slate-400 text-sm pb-8">
+            Bạn đã xem hết danh sách.
           </div>
-        ) : paginatedBooks.length > 0 ? (
-          <>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5 mb-8">
-              {paginatedBooks.map(book => (
-                <BookCard key={book.id} book={book} onAddToCart={addToCart} onQuickView={onQuickView} />
-              ))}
-            </div>
-            {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
-          </>
-        ) : (
+        )}
+
+        {books.length === 0 && !loading && (
           <div className="col-span-full py-12 text-center bg-white rounded-3xl border-2 border-dashed border-slate-200">
             <i className="fa-solid fa-book-open-reader text-4xl text-slate-200 mb-5"></i>
             <h3 className="text-lg font-extrabold text-slate-900">Không tìm thấy sản phẩm nào</h3>

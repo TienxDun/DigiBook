@@ -11,6 +11,8 @@ interface BookContextType {
     refreshData: () => Promise<void>;
     loadMore: () => Promise<void>;
     hasMore: boolean;
+    viewingBook: Book | null;
+    setViewingBook: (book: Book | null) => void;
 }
 
 const BookContext = createContext<BookContextType | undefined>(undefined);
@@ -23,6 +25,7 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [error, setError] = useState<string | null>(null);
     const [lastVisible, setLastVisible] = useState<any>(null);
     const [hasMore, setHasMore] = useState(true);
+    const [viewingBook, setViewingBook] = useState<Book | null>(null);
 
     const fetchInitialData = useCallback(async () => {
         setLoading(true);
@@ -75,6 +78,8 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loadingMore,
         error,
         hasMore,
+        viewingBook,
+        setViewingBook,
         refreshData: fetchInitialData,
         loadMore
     };

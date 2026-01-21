@@ -26,6 +26,7 @@ export interface Book {
   language: string;
   badge?: string;
   isAvailable?: boolean;
+  createdAt?: any;
 }
 
 export interface CartItem extends Book {

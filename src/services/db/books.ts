@@ -27,15 +27,51 @@ export async function getBooks(): Promise<Book[]> {
   );
 }
 
-export async function getBooksPaginated(limitCount: number = 10, lastVisibleDoc?: QueryDocumentSnapshot): Promise<{ books: Book[], lastDoc: QueryDocumentSnapshot | null }> {
+export async function getBooksPaginated(
+  limitCount: number = 10,
+  lastVisibleDoc?: QueryDocumentSnapshot,
+  category?: string,
+  sortBy: 'newest' | 'price_asc' | 'price_desc' | 'rating' = 'newest'
+): Promise<{ books: Book[], lastDoc: QueryDocumentSnapshot | null }> {
   return wrap(
     (async () => {
       const booksRef = collection(db_fs, 'books');
-      let q = query(booksRef, orderBy('title'), limit(limitCount));
+      let q = query(booksRef, limit(limitCount));
+
+      // Build Order By
+      // Note: Firestore requires indexes for combined fields. 
+      // Ensure 'category' + sort field index exists.
+      let orderField = 'title';
+      let orderDir: 'asc' | 'desc' = 'asc';
+
+      switch (sortBy) {
+        case 'newest': orderField = 'updatedAt'; orderDir = 'desc'; break; // Use updatedAt as prompt fix since createdAt might be missing
+        case 'price_asc': orderField = 'price'; orderDir = 'asc'; break;
+        case 'price_desc': orderField = 'price'; orderDir = 'desc'; break;
+        case 'rating': orderField = 'rating'; orderDir = 'desc'; break;
+        default: orderField = 'title'; orderDir = 'asc';
+      }
+
+      // Base constraints
+      const constraints: any[] = [];
+
+      if (category && category !== 'Tất cả sách') {
+        constraints.push(where('category', '==', category));
+      }
+
+      // If sorting by something other than equality filter field, that field must be first in orderBy
+      constraints.push(orderBy(orderField, orderDir));
+
+      // If we have category filter (equality), and sort by specific field, 
+      // Firestore behaves well if index exists.
 
       if (lastVisibleDoc) {
-        q = query(booksRef, orderBy('title'), startAfter(lastVisibleDoc), limit(limitCount));
+        constraints.push(startAfter(lastVisibleDoc));
       }
+
+      constraints.push(limit(limitCount));
+
+      q = query(booksRef, ...constraints);
 
       const snap = await getDocs(q);
       const books = snap.docs.map(d => ({ id: d.id, ...d.data() } as Book));

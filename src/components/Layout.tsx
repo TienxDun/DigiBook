@@ -4,6 +4,7 @@ import Header from './Header';
 import Footer from './Footer';
 import MobileNav from './MobileNav';
 import CartSidebar from './CartSidebar';
+import AIAssistant from './AIAssistant';
 import { useAuth } from '../contexts/AuthContext';
 import { CartItem, CategoryInfo, Book } from '../types';
 
@@ -49,6 +50,7 @@ export const LayoutWrapper: React.FC<{
 
         {!isAdmin && <Footer />}
         {!isAdmin && <MobileNav />}
+        {!isAdmin && <AIAssistant />}
 
         <CartSidebar />
       </div>

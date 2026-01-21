@@ -11,24 +11,73 @@ import { useBooks } from '../contexts/BookContext';
 
 const SearchResults: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickView }) => {
   const { addToCart } = useCart();
-  const { allBooks, loading } = useBooks();
-  const { query } = useParams<{ query: string }>();
+  const { allBooks: contextBooks } = useBooks();
+  const { query } = useParams();
+
+  // State
+  const [allResults, setAllResults] = useState<Book[]>([]);
+  const [displayBooks, setDisplayBooks] = useState<Book[]>([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
+
+  const observer = React.useRef<IntersectionObserver | null>(null);
+  const ITEMS_PER_PAGE = 10;
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [query]);
 
+  // Fetch and Filter
+  useEffect(() => {
+    async function performSearch() {
+      if (!query) return;
+      setLoading(true);
+      setSearching(true);
+      try {
+        // Fetch ALL books to ensure accurate search
+        // Note: For large datasets, this should be replaced with server-side search (e.g., Algolia)
+        const allBooks = await db.getBooks();
 
-  const filteredBooks = useMemo(() => {
-    if (!query) return [];
-    const q = query.toLowerCase();
-    return allBooks.filter(book =>
-      book.title.toLowerCase().includes(q) ||
-      book.author.toLowerCase().includes(q) ||
-      book.isbn.toLowerCase().includes(q) ||
-      book.category.toLowerCase().includes(q)
-    );
-  }, [allBooks, query]);
+        const q = query.toLowerCase();
+        const results = allBooks.filter(book =>
+          book.title.toLowerCase().includes(q) ||
+          book.author.toLowerCase().includes(q) ||
+          book.isbn.toLowerCase().includes(q) ||
+          book.category.toLowerCase().includes(q)
+        );
+
+        setAllResults(results);
+        setDisplayBooks(results.slice(0, ITEMS_PER_PAGE));
+        setPage(1);
+      } catch (error) {
+        console.error("Search failed:", error);
+      } finally {
+        setLoading(false);
+        setSearching(false);
+      }
+    }
+
+    performSearch();
+  }, [query]);
+
+  // Infinite Scroll
+  const lastBookElementRef = React.useCallback((node: HTMLDivElement) => {
+    if (loading) return;
+    if (observer.current) observer.current.disconnect();
+
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && displayBooks.length < allResults.length) {
+        setPage(prev => {
+          const nextPage = prev + 1;
+          setDisplayBooks(allResults.slice(0, nextPage * ITEMS_PER_PAGE));
+          return nextPage;
+        });
+      }
+    });
+
+    if (node) observer.current.observe(node);
+  }, [loading, displayBooks.length, allResults.length]);
 
   return (
     <div className="min-h-screen bg-slate-50 pt-16 lg:pt-20 pb-16 px-4 overflow-hidden">
@@ -42,7 +91,7 @@ const SearchResults: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQui
             <h1 className="text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
               {loading ? 'Đang tìm kiếm...' : (
                 <>
-                  Tìm thấy <span className="text-indigo-600">{filteredBooks.length}</span> kết quả <br className="hidden lg:block" />
+                  Tìm thấy <span className="text-indigo-600">{allResults.length}</span> kết quả <br className="hidden lg:block" />
                   cho từ khóa "<span className="italic text-slate-400 font-medium">{query}</span>"
                 </>
               )}
@@ -57,20 +106,40 @@ const SearchResults: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQui
       </div>
 
       <div className="max-w-7xl mx-auto">
-        {loading ? (
+        {loading && allResults.length === 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5">
             {[...Array(10)].map((_, i) => (
               <BookCardSkeleton key={i} />
             ))}
           </div>
-        ) : filteredBooks.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5">
-            {filteredBooks.map((book) => (
-              <div key={book.id} className="fade-in-up">
-                <BookCard book={book} onAddToCart={addToCart} />
+        ) : allResults.length > 0 ? (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5">
+              {displayBooks.map((book, index) => {
+                if (displayBooks.length === index + 1) {
+                  return (
+                    <div ref={lastBookElementRef} key={book.id} className="fade-in-up">
+                      <BookCard book={book} onAddToCart={addToCart} onQuickView={onQuickView} />
+                    </div>
+                  )
+                } else {
+                  return (
+                    <div key={book.id} className="fade-in-up">
+                      <BookCard book={book} onAddToCart={addToCart} onQuickView={onQuickView} />
+                    </div>
+                  )
+                }
+              })}
+
+              {/* Show skeleton when loading more pages? No, it's instant from memory usually. */}
+            </div>
+
+            {displayBooks.length < allResults.length && (
+              <div className="flex justify-center mt-8">
+                <BookCardSkeleton />
               </div>
-            ))}
-          </div>
+            )}
+          </>
         ) : (
           <div className="bg-white rounded-[2.5rem] p-16 text-center border-2 border-dashed border-slate-100 shadow-sm overflow-hidden relative">
             <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/30 rounded-full blur-3xl -mr-32 -mt-32"></div>
@@ -95,7 +164,7 @@ const SearchResults: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQui
       </div>
 
       {/* Suggested Section if no results */}
-      {filteredBooks.length === 0 && (
+      {allResults.length === 0 && (
         <div className="max-w-7xl mx-auto mt-24">
           <div className="flex items-center gap-4 mb-10">
             <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white">
@@ -108,7 +177,7 @@ const SearchResults: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQui
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            {allBooks.slice(0, 6).map(book => (
+            {contextBooks.slice(0, 6).map(book => (
               <BookCard key={book.id} book={book} onAddToCart={addToCart} onQuickView={onQuickView} />
             ))}
           </div>

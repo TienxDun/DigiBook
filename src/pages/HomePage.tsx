@@ -26,6 +26,31 @@ const HomePage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickVie
   // Tạm thời tôi sẽ bỏ props và nếu cần QuickView thì sẽ tính sau (hoặc dùng prop nếu App vẫn truyền).
   // Nhìn vào App.tsx mới, AppContent vẫn truyền các hàm này.
 
+  // State for recommendations
+  const [recommendations, setRecommendations] = useState<Book[]>([]);
+  const [loadingRecs, setLoadingRecs] = useState(false);
+
+  useEffect(() => {
+    async function fetchRecommendations() {
+      if (user) {
+        setLoadingRecs(true);
+        try {
+          const recs = await db.getPersonalizedRecommendations(user.id);
+          setRecommendations(recs);
+        } catch (error) {
+          console.error("Failed to fetch recommendations", error);
+        } finally {
+          setLoadingRecs(false);
+        }
+      } else {
+        setRecommendations([]);
+      }
+    }
+
+    fetchRecommendations();
+  }, [user]);
+
+
 
   return (
     <div className="space-y-0 fade-in">
@@ -220,6 +245,35 @@ const HomePage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickVie
           </div>
         </div>
       </section>
+
+      {/* Recommended Section (AI) */}
+      {(user && (recommendations.length > 0 || loadingRecs)) && (
+        <section className="py-10 bg-indigo-50/50">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+                <i className="fa-solid fa-wand-magic-sparkles animate-pulse"></i>
+              </div>
+              <div>
+                <h2 className="text-xl font-extrabold text-foreground">Gợi ý dành riêng cho bạn <span className="text-indigo-600">AI Pick</span></h2>
+                <p className="text-xs text-slate-500 font-medium">Dựa trên sở thích và lịch sử đọc của bạn</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {loadingRecs ? (
+                [...Array(5)].map((_, i) => (
+                  <BookCardSkeleton key={i} />
+                ))
+              ) : (
+                recommendations.map(book => (
+                  <BookCard key={book.id} book={book} onAddToCart={addToCart} onQuickView={onQuickView} />
+                ))
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Books Section */}
       <section className="py-12 lg:py-16 bg-secondary/50 relative overflow-hidden">

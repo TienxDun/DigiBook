@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, PieChart, Pie, Legend } from 'recharts';
 import { db } from "../services/db";
 import { Book, CategoryInfo, Author, Coupon, UserProfile, Order, SystemLog } from "../types";
 import AdminBooks from "../components/admin/AdminBooks";
@@ -255,8 +256,8 @@ const AdminDashboard: React.FC = () => {
                 <i className="fa-solid fa-bolt-lightning group-hover:rotate-12 transition-transform"></i>
               </Link>
               <div>
-                <h1 className={`text-base font-black tracking-tighter uppercase leading-none ${isMidnight ? 'text-slate-100' : 'text-sidebar-foreground'}`}>DigiBook</h1>
-                <p className="text-xs font-black text-primary/80 uppercase tracking-[0.3em] mt-1.5">Architecture</p>
+                <h1 className={`text-xl font-black tracking-tighter uppercase leading-none ${isMidnight ? 'text-slate-100' : 'text-sidebar-foreground'}`}>DigiBook</h1>
+                <p className="text-[10px] font-black text-primary/80 uppercase tracking-[0.3em] mt-1.5">Architecture</p>
               </div>
             </div>
           ) : (
@@ -274,7 +275,7 @@ const AdminDashboard: React.FC = () => {
           {menuGroups.map((group, gIdx) => (
             <div key={gIdx} className="space-y-2">
               {!isSidebarCollapsed && (
-                <h3 className={`px-4 text-[10px] font-black uppercase tracking-[0.2em] mb-4 animate-fadeIn ${isMidnight ? 'text-slate-500' : 'text-sidebar-foreground/40'
+                <h3 className={`px-4 text-xs font-black uppercase tracking-[0.2em] mb-4 animate-fadeIn ${isMidnight ? 'text-slate-500' : 'text-sidebar-foreground/40'
                   }`}>
                   {group.title}
                 </h3>
@@ -288,7 +289,7 @@ const AdminDashboard: React.FC = () => {
                       setIsMobileMenuOpen(false);
                     }}
                     title={isSidebarCollapsed ? tab.label : ""}
-                    className={`flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-4 px-5'} w-full py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 group relative
+                    className={`flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-4 px-5'} w-full py-3.5 rounded-2xl text-xs font-black uppercase tracking-wide transition-all duration-300 group relative
                       ${activeTab === tab.id
                         ? (isMidnight ? "bg-primary text-white shadow-xl shadow-primary/20" : "bg-sidebar-primary text-sidebar-primary-foreground shadow-xl shadow-sidebar-primary/20")
                         : (isMidnight ? "text-slate-400 hover:text-white hover:bg-white/5 hover:translate-x-1" : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent hover:translate-x-1")
@@ -357,17 +358,6 @@ const AdminDashboard: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3 lg:gap-6">
-            {/* System Stats - NEW */}
-            <div className={`hidden xl:flex items-center gap-6 px-6 border-r mr-2 ${isMidnight ? 'border-white/5' : 'border-border'}`}>
-              <div className="text-right">
-                <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">Dung lượng</p>
-                <p className={`text-[11px] font-black ${isMidnight ? 'text-slate-200' : 'text-foreground'}`}>1.2 GB / 5GB</p>
-              </div>
-              <div className={`w-12 h-1.5 rounded-full overflow-hidden ${isMidnight ? 'bg-slate-800' : 'bg-muted'}`}>
-                <div className="h-full w-[24%] bg-primary shadow-[0_0_10px_rgba(112,51,255,0.5)]"></div>
-              </div>
-            </div>
-
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
@@ -380,15 +370,9 @@ const AdminDashboard: React.FC = () => {
               <i className={`fa-solid ${isMidnight ? 'fa-sun' : 'fa-moon'}`}></i>
             </button>
 
-
-
             <div className="hidden md:flex flex-col items-end">
               <span className="text-micro font-black text-muted-foreground uppercase tracking-widest">{new Date().toLocaleDateString('vi-VN', { weekday: 'long' })}</span>
               <span className={`text-sm font-black ${isMidnight ? 'text-slate-200' : 'text-foreground'}`}>{new Date().toLocaleDateString('vi-VN')}</span>
-            </div>
-            <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center border shadow-inner ${isMidnight ? 'bg-slate-800 border-white/5 text-slate-400' : 'bg-card border-border text-muted-foreground'
-              }`}>
-              <i className="fa-solid fa-calendar-check text-primary"></i>
             </div>
           </div>
         </header>
@@ -406,16 +390,16 @@ const AdminDashboard: React.FC = () => {
                   { label: "Sách tồn", value: stats.totalBooks, icon: "fa-book-open-reader", bgColor: "bg-chart-2/10", iconColor: "text-chart-2", sub: `${stats.outOfStock} đầu sách hết`, growth: stats.lowStock > 0 ? `-${stats.lowStock}` : "Ẩn danh", trend: stats.lowStock > 0 ? "down" : "neutral" },
                   { label: "Đang xử lý", value: stats.pendingOrders, icon: "fa-clock", bgColor: "bg-chart-3/10", iconColor: "text-chart-3", sub: `${stats.completedOrders} đơn hoàn thành`, growth: "Ưu tiên cao", trend: "neutral" }
                 ].map((stat, i) => (
-                  <div key={i} className={`p-5 lg:p-7 rounded-[2rem] lg:rounded-[2.5rem] border shadow-2xl transition-all duration-500 group relative overflow-hidden ${isMidnight
+                  <div key={i} className={`p-4 rounded-2xl lg:rounded-3xl border shadow-xl transition-all duration-500 group relative overflow-hidden ${isMidnight
                     ? 'bg-[#1e293b]/40 border-white/5 hover:border-primary/40 hover:bg-[#1e293b]/60'
                     : 'bg-card border-border hover:shadow-primary/5 hover:border-primary'
                     }`}>
-                    <div className="flex items-start justify-between mb-6 relative z-10">
-                      <div className={`w-12 h-12 lg:w-14 lg:h-14 ${stat.bgColor} ${stat.iconColor} rounded-2xl lg:rounded-[1.2rem] flex items-center justify-center text-lg lg:text-xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-[0_0_30px_rgba(112,51,255,0.2)]`}>
+                    <div className="flex items-start justify-between mb-4 relative z-10">
+                      <div className={`w-10 h-10 lg:w-12 lg:h-12 ${stat.bgColor} ${stat.iconColor} rounded-xl lg:rounded-2xl flex items-center justify-center text-base lg:text-lg transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-[0_0_30px_rgba(112,51,255,0.2)]`}>
                         <i className={`fa-solid ${stat.icon}`}></i>
                       </div>
                       <div className="flex flex-col items-end">
-                        <div className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${stat.trend === 'up' ? 'text-emerald-400 bg-emerald-500/10' :
+                        <div className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest ${stat.trend === 'up' ? 'text-emerald-400 bg-emerald-500/10' :
                           stat.trend === 'down' ? 'text-rose-400 bg-rose-500/10' :
                             'text-muted-foreground bg-muted'
                           }`}>
@@ -423,15 +407,15 @@ const AdminDashboard: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                    <p className="text-xs lg:text-micro font-black text-muted-foreground uppercase tracking-premium mb-1 relative z-10">{stat.label}</p>
-                    <h3 className="text-xl lg:text-2xl font-black tracking-tighter relative z-10 text-foreground">{stat.value}</h3>
-                    <div className={`h-1.5 w-12 rounded-full mt-3 mb-2 transition-all duration-500 group-hover:w-20 ${stat.bgColor.replace('/10', '/30')}`}></div>
-                    <p className="text-[10px] lg:text-xs font-bold text-muted-foreground uppercase tracking-wide flex items-center gap-2 relative z-10">
-                      <span className={`w-1.5 h-1.5 rounded-full ${stat.iconColor} animate-pulse`}></span>
+                    <p className="text-[10px] lg:text-[11px] font-black text-muted-foreground uppercase tracking-wider mb-1 relative z-10">{stat.label}</p>
+                    <h3 className="text-lg lg:text-xl font-black tracking-tighter relative z-10 text-foreground">{stat.value}</h3>
+                    <div className={`h-1 w-12 rounded-full mt-3 mb-2 transition-all duration-500 group-hover:w-20 ${stat.bgColor.replace('/10', '/30')}`}></div>
+                    <p className="text-[9px] lg:text-[10px] font-bold text-muted-foreground uppercase tracking-wide flex items-center gap-2 relative z-10">
+                      <span className={`w-1 h-1 rounded-full ${stat.iconColor} animate-pulse`}></span>
                       {stat.sub}
                     </p>
                     {/* Background Light Effect */}
-                    <div className={`absolute -right-10 -bottom-10 w-32 h-32 ${stat.bgColor.replace('/10', '/5')} rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000 blur-[80px]`}></div>
+                    <div className={`absolute -right-8 -bottom-8 w-24 h-24 ${stat.bgColor.replace('/10', '/5')} rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000 blur-[60px]`}></div>
                   </div>
                 ))}
               </div>
@@ -463,84 +447,56 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Revenue Chart Visualization */}
-                  <div className="flex gap-4 h-80 mt-10 relative">
-                    {/* Y-Axis Labels */}
-                    <div className={`hidden sm:flex flex-col justify-between h-[75%] text-[9px] font-black uppercase tracking-tighter w-14 pb-2 ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'
-                      }`}>
-                      {stats.yAxisLabels.map((val, idx) => (
-                        <span key={idx} className="text-right">
-                          {val >= 1000000 ? `${(val / 1000000).toFixed(1)}M` : val >= 1000 ? `${(val / 1000).toFixed(0)}K` : val}
-                        </span>
-                      ))}
-                    </div>
-
-                    <div className={`flex-1 flex items-end justify-between ${chartView === 'week' ? 'gap-3 lg:gap-8' : 'gap-1'} px-4 relative z-10 h-full`}>
-                      {stats.maxRevenue <= 1 && (
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
-                          <div className="text-center">
-                            <i className="fa-solid fa-chart-line text-4xl mb-2"></i>
-                            <p className={`text-[10px] font-black uppercase tracking-widest ${isMidnight ? 'text-slate-500' : 'text-foreground'}`}>Chưa có dữ liệu giao dịch</p>
-                          </div>
-                        </div>
-                      )}
-                      {stats.revenueByDay.map((day: any, i: number) => {
-                        const isPeak = day.total === stats.maxRevenue && day.total > 0;
-                        return (
-                          <div key={i} className="flex-1 flex flex-col items-center group cursor-pointer h-full">
-                            {/* Bar Area - Fixed to 75% height to match Y-Axis and Grid */}
-                            <div className="relative w-full flex justify-center items-end h-[75%]">
-                              {/* Highlight line on hover */}
-                              <div className="absolute inset-x-0 bottom-0 top-0 bg-primary/0 group-hover:bg-primary/5 rounded-2xl transition-all duration-500 -z-10"></div>
-
-                              {/* Bar */}
-                              <div
-                                className={`w-full ${chartView === 'week' ? 'max-w-[50px]' : 'max-w-[15px]'} rounded-t-2xl transition-all duration-1000 relative group-hover:shadow-[0_0_40px_rgba(112,51,255,0.5)] ${isPeak
-                                  ? 'bg-gradient-to-t from-primary via-primary/80 to-primary/60 shadow-[0_0_20px_rgba(112,51,255,0.3)]'
-                                  : 'bg-gradient-to-t from-primary/10 via-primary/50 to-primary/40 shadow-lg shadow-primary/10'
-                                  }`}
-                                style={{ height: `${(day.total / stats.maxRevenue) * 100}%`, minHeight: '8px' }}
-                              >
-                                {/* Value label on top (visible on small screens or hover) */}
-                                <div className={`absolute -top-10 left-1/2 -translate-x-1/2 transition-all duration-300 transform group-hover:-translate-y-2 whitespace-nowrap z-20 ${isPeak ? 'opacity-100 -translate-y-1' : 'opacity-0 group-hover:opacity-100'}`}>
-                                  <span className={`${isPeak ? 'bg-primary text-primary-foreground' : (isMidnight ? 'bg-slate-800 text-slate-200' : 'bg-foreground text-background')} px-3 py-1.5 rounded-xl text-[10px] font-black shadow-2xl border ${isMidnight ? 'border-white/10' : 'border-border'}`}>
-                                    {formatPrice(day.total)}
-                                  </span>
-                                </div>
-
-                                {/* Peak Indicator */}
-                                {isPeak && chartView === 'week' && (
-                                  <div className="absolute -top-16 left-1/2 -translate-x-1/2 animate-bounce">
-                                    <i className="fa-solid fa-crown text-amber-400 text-[10px]"></i>
-                                  </div>
-                                )}
-
-                                {/* Decorative Glow inner */}
-                                <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-t-2xl"></div>
-                              </div>
-                            </div>
-
-                            {/* Label Area - Occupies the remaining 25% height */}
-                            <div className="flex-1 flex flex-col items-center justify-center gap-0.5">
-                              <span className={`${chartView === 'week' ? 'text-[10px]' : 'text-[8px]'} font-black uppercase tracking-widest transition-colors ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'
-                                } group-hover:text-primary ${chartView === 'month' && i % 5 !== 0 ? 'hidden' : ''}`}>
-                                {day.day}
-                              </span>
-                              {chartView === 'week' && (
-                                <span className={`text-[8px] font-bold uppercase ${isMidnight ? 'text-slate-600' : 'text-muted-foreground'}`}>Th.{day.month}</span>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Horizontal Grid Lines */}
-                    <div className="absolute left-14 right-4 top-0 bottom-[25%] flex flex-col justify-between pointer-events-none">
-                      {[...Array(5)].map((_, i) => (
-                        <div key={i} className={`w-full h-px ${isMidnight ? 'bg-white/5' : 'bg-border/50'}`}></div>
-                      ))}
-                    </div>
+                  {/* Revenue Chart Visualization using Recharts */}
+                  <div className="h-80 mt-10 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        data={stats.revenueByDay}
+                        margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                      >
+                        <defs>
+                          <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
+                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke={isMidnight ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"} vertical={false} />
+                        <XAxis
+                          dataKey="day"
+                          stroke={isMidnight ? "#94a3b8" : "#64748b"}
+                          fontSize={10}
+                          tickLine={false}
+                          axisLine={false}
+                          tickFormatter={(value) => `Ngày ${value}`}
+                        />
+                        <YAxis
+                          stroke={isMidnight ? "#94a3b8" : "#64748b"}
+                          fontSize={10}
+                          tickLine={false}
+                          axisLine={false}
+                          tickFormatter={(value) => value >= 1000000 ? `${(value / 1000000).toFixed(1)}M` : value >= 1000 ? `${(value / 1000).toFixed(0)}K` : value}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: isMidnight ? '#1e293b' : '#fff',
+                            borderRadius: '12px',
+                            border: 'none',
+                            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                          }}
+                          labelStyle={{ color: isMidnight ? '#cbd5e1' : '#64748b', fontWeight: 'bold' }}
+                          formatter={(value: any) => [formatPrice(value), 'Doanh thu']}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="total"
+                          stroke="#8b5cf6"
+                          strokeWidth={3}
+                          fillOpacity={1}
+                          fill="url(#colorRevenue)"
+                          animationDuration={1500}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
                   </div>
                 </div>
 
@@ -695,7 +651,13 @@ const AdminDashboard: React.FC = () => {
                             <span className="px-2 py-1 rounded-lg text-micro font-black uppercase border bg-primary/10 text-primary border-primary/20">
                               Đã bán: {book.salesCount}
                             </span>
-                            <p className={`text-xs font-bold uppercase mt-2 ${book.stockQuantity < 10 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                            <div className="w-24 h-1.5 bg-muted rounded-full mt-2 overflow-hidden">
+                              <div
+                                className="h-full bg-primary rounded-full transition-all duration-1000"
+                                style={{ width: `${(book.salesCount / Math.max(stats.topSellingBooks[0]?.salesCount || 1, 1)) * 100}%` }}
+                              ></div>
+                            </div>
+                            <p className={`text-xs font-bold uppercase mt-1 ${book.stockQuantity < 10 ? 'text-destructive' : 'text-muted-foreground'}`}>
                               Tồn: {book.stockQuantity}
                             </p>
                           </div>

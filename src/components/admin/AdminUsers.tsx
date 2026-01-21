@@ -100,7 +100,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
                 <button
                   key={role}
                   onClick={() => { setUserRoleFilter(role); setCurrentPage(1); }}
-                  className={`px-4 py-2 rounded-lg text-[11px] font-black uppercase tracking-premium transition-all ${userRoleFilter === role
+                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all ${userRoleFilter === role
                     ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
                     : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
                     }`}
@@ -119,7 +119,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
                 <button
                   key={status}
                   onClick={() => { setUserStatusFilter(status); setCurrentPage(1); }}
-                  className={`px-4 py-2 rounded-lg text-[11px] font-black uppercase tracking-premium transition-all ${userStatusFilter === status
+                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all ${userStatusFilter === status
                     ? (status === 'banned' ? 'bg-destructive text-destructive-foreground shadow-lg shadow-destructive/20' : 'bg-green-500 text-white shadow-lg shadow-green-500/20')
                     : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
                     }`}
@@ -160,11 +160,11 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
           <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
               <tr className={`border-b ${isMidnight ? 'bg-slate-900/50 border-white/5' : 'border-border/50'}`}>
-                <th className="px-6 py-5 text-xs font-black text-muted-foreground uppercase tracking-premium">Người dùng</th>
-                <th className="px-6 py-5 text-xs font-black text-muted-foreground uppercase tracking-premium">Liên hệ</th>
-                <th className="px-6 py-5 text-xs font-black text-muted-foreground uppercase tracking-premium text-center">Vai trò</th>
-                <th className="px-6 py-5 text-xs font-black text-muted-foreground uppercase tracking-premium text-center">Trạng thái</th>
-                <th className="px-6 py-5 text-xs font-black text-muted-foreground uppercase tracking-premium text-right">Thao tác</th>
+                <th className="px-6 py-5 text-sm font-bold text-muted-foreground uppercase tracking-wide">Người dùng</th>
+                <th className="px-6 py-5 text-sm font-bold text-muted-foreground uppercase tracking-wide">Liên hệ</th>
+                <th className="px-6 py-5 text-sm font-bold text-muted-foreground uppercase tracking-wide text-center">Vai trò</th>
+                <th className="px-6 py-5 text-sm font-bold text-muted-foreground uppercase tracking-wide text-center">Trạng thái</th>
+                <th className="px-6 py-5 text-sm font-bold text-muted-foreground uppercase tracking-wide text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-border/30'}`}>
@@ -191,17 +191,17 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
                         </div>
                         <div>
                           <h4 className="font-bold text-base text-foreground mb-1 group-hover:text-primary transition-colors">{user.name || 'User'}</h4>
-                          <p className="text-xs font-bold text-muted-foreground uppercase tracking-premium">{user.email}</p>
+                          <p className="text-xs font-medium text-muted-foreground">{user.email}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="space-y-1.5">
-                        <div className="flex items-center gap-2 text-[11px] font-bold text-foreground">
-                          <i className="fa-solid fa-phone text-primary text-[10px]"></i>
+                        <div className="flex items-center gap-2 text-xs font-medium text-foreground">
+                          <i className="fa-solid fa-phone text-primary"></i>
                           {user.phone || 'N/A'}
                         </div>
-                        <div className="flex items-center gap-2 text-[10px] font-medium text-muted-foreground max-w-[200px] truncate">
+                        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground max-w-[200px] truncate">
                           <i className="fa-solid fa-location-dot text-muted-foreground/40"></i>
                           {user.address || 'No address'}
                         </div>
@@ -221,7 +221,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
                     </td>
                     <td className="px-6 py-4 text-center">
                       <div className="flex flex-col items-center gap-1">
-                        <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${(user.status || 'active') === 'active'
+                        <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide border transition-all ${(user.status || 'active') === 'active'
                           ? 'bg-green-500/10 text-green-500 border-green-500/20'
                           : 'bg-destructive/10 text-destructive border-destructive/20 shadow-lg shadow-destructive/10'
                           }`}>

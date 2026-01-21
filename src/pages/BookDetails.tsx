@@ -4,6 +4,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Book } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { useBooks } from '../contexts/BookContext';
 import { db, Review } from '@/services/db';
 import { AVAILABLE_AI_MODELS } from '../constants/ai-models';
 import BookCard from '../components/BookCard';
@@ -43,6 +44,7 @@ const SocialShare: React.FC<{ title: string }> = ({ title }) => {
 
 const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickView }) => {
   const { addToCart } = useCart();
+  const { setViewingBook } = useBooks();
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -79,6 +81,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
         const foundBook = await db.getBookById(id);
         if (foundBook) {
           setBook(foundBook);
+          setViewingBook(foundBook);
 
           // Fetch author info
           db.getAuthors().then(authors => {
@@ -118,8 +121,11 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
     window.scrollTo(0, 0);
     const handleScroll = () => setScrolled(window.scrollY > 100);
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [id]);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      setViewingBook(null);
+    };
+  }, [id, setViewingBook]);
 
   const isWishlisted = useMemo(() => wishlist.some(b => b.id === id), [wishlist, id]);
 

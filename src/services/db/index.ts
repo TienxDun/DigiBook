@@ -89,6 +89,8 @@ class DataService {
   getAIInsight = ai.getAIInsight;
   getAuthorAIInsight = ai.getAuthorAIInsight;
   getAIInsights = ai.getAIInsights;
+  getPersonalizedRecommendations = ai.getPersonalizedRecommendations;
+  chatWithAI = ai.chatWithAI;
 
   constructor() {
     // Tự động kiểm tra kết nối khi khởi tạo

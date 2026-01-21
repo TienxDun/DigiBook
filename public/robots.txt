@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /checkout
+Disallow: /profile
 
-Sitemap: https://tienxdun.github.io/DigiBook/sitemap.xml
+Sitemap: https://digibook.vn/sitemap.xml

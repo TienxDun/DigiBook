@@ -6,6 +6,7 @@ const BackToTop: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const location = useLocation();
   const isBookDetails = location.pathname.startsWith('/book/');
+  const isAdmin = location.pathname.startsWith('/admin');
 
   // Show button when page is scrolled up to given distance
   const toggleVisibility = () => {
@@ -28,6 +29,8 @@ const BackToTop: React.FC = () => {
     return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
 
+  if (isAdmin) return null;
+
   return (
     <AnimatePresence>
       {isVisible && (
@@ -36,7 +39,7 @@ const BackToTop: React.FC = () => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.5, y: 20 }}
           onClick={scrollToTop}
-          className={`fixed ${isBookDetails ? 'bottom-44' : 'bottom-24'} right-6 z-[110] lg:bottom-10 lg:right-10 w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-2xl shadow-slate-900/20 hover:bg-indigo-600 transition-colors group`}
+          className={`fixed ${isBookDetails ? 'bottom-44' : 'bottom-24'} right-6 z-[110] lg:bottom-10 lg:right-32 w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-2xl shadow-slate-900/20 hover:bg-indigo-600 transition-colors group`}
           aria-label="Back to top"
         >
           <i className="fa-solid fa-arrow-up group-hover:-translate-y-1 transition-transform"></i>

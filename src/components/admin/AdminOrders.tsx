@@ -111,7 +111,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
     };
 
     return (
-      <div className={`px-4 py-1.5 rounded-full text-micro font-black uppercase tracking-premium border flex items-center gap-2 justify-center ${styles[step as keyof typeof styles]}`}>
+      <div className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide border flex items-center gap-2 justify-center ${styles[step as keyof typeof styles]}`}>
         <span className={`w-1.5 h-1.5 rounded-full ${colors[step as keyof typeof colors]}`}></span>
         {status.label}
       </div>
@@ -140,8 +140,8 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className={`w-full h-12 pl-12 pr-6 rounded-2xl transition-all text-sm font-bold outline-none ${isMidnight
-                      ? 'bg-slate-800/50 border-white/5 text-slate-200 focus:bg-slate-800 focus:border-primary/50'
-                      : 'bg-muted/30 border border-border text-foreground focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-card'
+                    ? 'bg-slate-800/50 border-white/5 text-slate-200 focus:bg-slate-800 focus:border-primary/50'
+                    : 'bg-muted/30 border border-border text-foreground focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-card'
                     }`}
                 />
                 <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-xs group-focus-within:text-primary transition-colors"></i>
@@ -150,8 +150,8 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
               <button
                 onClick={() => { refreshData(); toast.success('Đã làm mới dữ liệu'); }}
                 className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-95 ${isMidnight
-                    ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:bg-primary hover:text-primary-foreground'
-                    : 'bg-muted border border-border text-muted-foreground hover:bg-primary hover:text-primary-foreground'
+                  ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:bg-primary hover:text-primary-foreground'
+                  : 'bg-muted border border-border text-muted-foreground hover:bg-primary hover:text-primary-foreground'
                   }`}
                 title="Làm mới"
               >
@@ -178,12 +178,12 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
             <table className="w-full text-left border-collapse min-w-[1000px]">
               <thead>
                 <tr className={`${isMidnight ? 'bg-slate-900/50 border-white/5' : 'border-border bg-muted/20'} border-b`}>
-                  <th className="px-8 py-6 text-micro font-black text-muted-foreground uppercase tracking-premium">Đơn hàng</th>
-                  <th className="px-8 py-6 text-micro font-black text-muted-foreground uppercase tracking-premium">Khách hàng</th>
-                  <th className="px-8 py-6 text-micro font-black text-muted-foreground uppercase tracking-premium text-right">Tổng thanh toán</th>
-                  <th className="px-8 py-6 text-micro font-black text-muted-foreground uppercase tracking-premium text-center">Trạng thái</th>
-                  <th className="px-8 py-6 text-micro font-black text-muted-foreground uppercase tracking-premium">Thời gian</th>
-                  <th className="px-8 py-6 text-micro font-black text-muted-foreground uppercase tracking-premium text-center">Tác vụ</th>
+                  <th className="px-8 py-6 text-xs font-bold text-muted-foreground uppercase tracking-wide">Đơn hàng</th>
+                  <th className="px-8 py-6 text-xs font-bold text-muted-foreground uppercase tracking-wide">Khách hàng</th>
+                  <th className="px-8 py-6 text-xs font-bold text-muted-foreground uppercase tracking-wide text-right">Tổng thanh toán</th>
+                  <th className="px-8 py-6 text-xs font-bold text-muted-foreground uppercase tracking-wide text-center">Trạng thái</th>
+                  <th className="px-8 py-6 text-xs font-bold text-muted-foreground uppercase tracking-wide">Thời gian</th>
+                  <th className="px-8 py-6 text-xs font-bold text-muted-foreground uppercase tracking-wide text-center">Tác vụ</th>
                 </tr>
               </thead>
               <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-border'}`}>
@@ -193,9 +193,9 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                       <div className="flex flex-col">
                         <span className="text-sm font-black text-primary mb-0.5">#{order.id.slice(-8).toUpperCase()}</span>
                         <div className="flex gap-2">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${order.payment.method === 'COD'
-                              ? (isMidnight ? 'bg-slate-700 text-slate-400' : 'bg-muted text-muted-foreground')
-                              : 'bg-chart-2/10 text-chart-2'
+                          <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide ${order.payment.method === 'COD'
+                            ? (isMidnight ? 'bg-slate-700 text-slate-400' : 'bg-muted text-muted-foreground')
+                            : 'bg-chart-2/10 text-chart-2'
                             }`}>
                             {order.payment.method}
                           </span>
@@ -204,8 +204,8 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                     </td>
                     <td className="px-8 py-6">
                       <div className="flex flex-col">
-                        <span className="text-sm font-black text-foreground">{order.customer?.name || 'Vãng lai'}</span>
-                        <span className="text-micro font-bold text-muted-foreground tracking-premium">{order.customer?.phone}</span>
+                        <span className="text-sm font-bold text-foreground">{order.customer?.name || 'Vãng lai'}</span>
+                        <span className="text-xs font-medium text-muted-foreground tracking-wide">{order.customer?.phone}</span>
                       </div>
                     </td>
                     <td className="px-8 py-6 text-right">
@@ -244,8 +244,8 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                         <button
                           onClick={() => handleViewOrderDetails(order)}
                           className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm active:scale-95 ${isMidnight
-                              ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:bg-primary hover:text-primary-foreground hover:border-primary'
-                              : 'bg-card border border-border text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary'
+                            ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:bg-primary hover:text-primary-foreground hover:border-primary'
+                            : 'bg-card border border-border text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary'
                             }`}
                           title="Chi tiết đơn hàng"
                         >
@@ -350,10 +350,10 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                             disabled={updatingOrderStatus}
                             onClick={() => handleUpdateOrderStatus(selectedOrder.id, status.step)}
                             className={`px-4 h-9 rounded-lg text-[10px] font-black uppercase tracking-premium transition-all whitespace-nowrap border flex items-center gap-2 ${selectedOrder.statusStep === status.step
-                                ? 'bg-primary border-primary text-primary-foreground shadow-md shadow-primary/10'
-                                : (isMidnight
-                                  ? 'bg-slate-700/50 border-white/5 text-slate-400 hover:border-primary/30 hover:text-primary'
-                                  : 'bg-card/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:text-primary')
+                              ? 'bg-primary border-primary text-primary-foreground shadow-md shadow-primary/10'
+                              : (isMidnight
+                                ? 'bg-slate-700/50 border-white/5 text-slate-400 hover:border-primary/30 hover:text-primary'
+                                : 'bg-card/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:text-primary')
                               }`}
                           >
                             <span className={`w-1 h-1 rounded-full ${selectedOrder.statusStep === status.step ? 'bg-primary-foreground' : 'bg-current opacity-30'}`}></span>
@@ -463,7 +463,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                               <span className="text-[9px] font-black uppercase text-muted-foreground">Trạng thái</span>
                               <div className="flex items-center gap-1.5">
                                 <span className={`w-2 h-2 rounded-full ${selectedOrder.statusStep >= 3 ? 'bg-green-500' :
-                                    selectedOrder.statusStep >= 2 ? 'bg-yellow-500' : 'bg-red-500'
+                                  selectedOrder.statusStep >= 2 ? 'bg-yellow-500' : 'bg-red-500'
                                   }`}></span>
                                 <span className="text-[10px] font-bold text-foreground capitalize">
                                   {orderStatusOptions.find(s => s.step === selectedOrder.statusStep)?.label || 'Chưa xác định'}
