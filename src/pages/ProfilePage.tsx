@@ -5,6 +5,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { db } from '@/services/db';
 import { UserProfile } from '../types';
 import { ErrorHandler } from '../services/errorHandler';
+import { AddressInput } from '../components/AddressInput';
+import { MapPicker } from '../components/MapPicker';
+import { mapService, AddressResult } from '@/services/map';
 
 const ProfilePage: React.FC = () => {
     const { user, changePassword } = useAuth();
@@ -28,6 +31,7 @@ const ProfilePage: React.FC = () => {
         gender: 'Nam',
         birthday: ''
     });
+    const [coordinates, setCoordinates] = useState<{ lat: number, lon: number } | null>(null);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -70,6 +74,21 @@ const ProfilePage: React.FC = () => {
 
         fetchProfile();
     }, [user]);
+
+    const handleAddressSelect = (result: AddressResult) => {
+        if (result.lat && result.lon) {
+            setCoordinates({ lat: parseFloat(result.lat), lon: parseFloat(result.lon) });
+        }
+    };
+
+    const handleMapLocationSelect = async (lat: number, lon: number) => {
+        setCoordinates({ lat, lon });
+        // Reverse geocode to get address text
+        const details = await mapService.getAddressDetails(lat, lon);
+        if (details && details.display_name) {
+            setFormData(prev => ({ ...prev, address: details.display_name }));
+        }
+    };
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -326,7 +345,7 @@ const ProfilePage: React.FC = () => {
 
                         {/* Form */}
                         <div className="lg:col-span-3">
-                            <div className="bg-white rounded-[2.5rem] p-8 lg:p-12 shadow-sm border border-slate-200/60 shadow-slate-200/20 transition-all hover:border-slate-300 relative overflow-hidden group">
+                            <div className="bg-white rounded-[2.5rem] p-8 lg:p-12 shadow-sm border border-slate-200/60 shadow-slate-200/20 transition-all hover:border-slate-300 relative group">
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/50 rounded-full -mr-32 -mt-32 blur-3xl transition-all group-hover:bg-indigo-100/50"></div>
                                 <form onSubmit={handleSave} className="space-y-8 relative z-10">
                                     <div className="grid md:grid-cols-2 gap-6">
@@ -359,14 +378,25 @@ const ProfilePage: React.FC = () => {
 
                                     <div className="space-y-2">
                                         <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Địa chỉ giao hàng</label>
-                                        <div className="relative group">
-                                            <i className="fa-solid fa-location-dot absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
-                                            <input
-                                                type="text"
+                                        <div className="relative z-50 group">
+                                            <i className="fa-solid fa-location-dot absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors z-10"></i>
+                                            <AddressInput
+                                                label=""
                                                 value={formData.address}
-                                                onChange={e => setFormData({ ...formData, address: e.target.value })}
+                                                onChange={(val) => setFormData({ ...formData, address: val })}
+                                                onSelect={handleAddressSelect}
                                                 placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"
-                                                className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 font-bold transition-all text-slate-900 shadow-inner"
+                                                className="pl-12 !pt-4 !pb-4"
+                                            />
+                                        </div>
+
+                                        {/* Map Picker Visual */}
+                                        <div className="mt-4">
+                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2 ml-4">Vị trí trên bản đồ</p>
+                                            <MapPicker
+                                                onLocationSelect={handleMapLocationSelect}
+                                                initialLat={coordinates?.lat}
+                                                initialLon={coordinates?.lon}
                                             />
                                         </div>
                                     </div>
@@ -381,8 +411,8 @@ const ProfilePage: React.FC = () => {
                                                         type="button"
                                                         onClick={() => setFormData({ ...formData, gender: g })}
                                                         className={`flex-1 py-4 rounded-2xl font-extrabold text-micro uppercase tracking-premium transition-all ${formData.gender === g
-                                                                ? 'bg-slate-900 text-white shadow-lg'
-                                                                : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+                                                            ? 'bg-slate-900 text-white shadow-lg'
+                                                            : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
                                                             }`}
                                                     >
                                                         {g}

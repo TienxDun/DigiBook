@@ -993,7 +993,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                   <div className={`px-10 py-8 border-t flex items-center justify-between shrink-0 ${isMidnight ? 'bg-slate-800/80 border-white/10' : 'bg-card border-border'
                     }`}>
                     <p className="text-micro font-bold text-muted-foreground italic">
-                      * Nhấn Esc hoặc bấm bên ngoài để hủy bỏ thay đổi.
+                      * Bấm bên ngoài để hủy bỏ thay đổi.
                     </p>
                     <div className="flex gap-4">
                       <button

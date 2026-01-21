@@ -18,7 +18,6 @@ const formatPrice = (price: number) => {
 interface AISettings {
   activeModelId: string;
 }
-
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"overview" | "books" | "orders" | "categories" | "authors" | "coupons" | "users" | "logs" | "ai">("overview");
   const [adminTheme, setAdminTheme] = useState<"midnight" | "light">(localStorage.getItem("digibook_admin_theme") as any || "midnight");
@@ -43,8 +42,7 @@ const AdminDashboard: React.FC = () => {
 
   const [hasMoreLogs, setHasMoreLogs] = useState(true);
   const [isLoadingMoreLogs, setIsLoadingMoreLogs] = useState(false);
-  const [isSeeding, setIsSeeding] = useState(false);
-  const [seedStatus, setSeedStatus] = useState<{ msg: string, type: "success" | "error" | "info" } | null>(null);
+
 
   const refreshData = async () => {
     try {
@@ -234,25 +232,7 @@ const AdminDashboard: React.FC = () => {
     };
   }, [orders, books, categories, authors, coupons, chartView]);
 
-  const handleSeedData = async () => {
-    if (!window.confirm("Bạn chắc chắn muốn đẩy dữ liệu mẫu lên Firestore?")) return;
-    setIsSeeding(true);
-    setSeedStatus({ msg: "Đang đẩy dữ liệu lên Cloud Firestore...", type: "info" });
-    try {
-      const result = await db.seedDatabase();
-      if (result.success) {
-        setSeedStatus({ msg: `Thành công! Cập nhật ${result.count} danh mục hệ thống.`, type: "success" });
-        setTimeout(() => { refreshData(); setIsSeeding(false); }, 1500);
-      } else {
-        setIsSeeding(false);
-        setSeedStatus({ msg: `Lỗi: ${result.error}`, type: "error" });
-      }
-    } catch (err: any) {
-      setIsSeeding(false);
-      setSeedStatus({ msg: `Lỗi hệ thống: ${err.message}`, type: "error" });
-    }
-    setTimeout(() => setSeedStatus(null), 8000);
-  };
+
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -315,8 +295,8 @@ const AdminDashboard: React.FC = () => {
                       }`}
                   >
                     <i className={`fa-solid ${tab.icon} ${isSidebarCollapsed ? 'text-lg' : 'text-sm w-5 text-center'} ${activeTab === tab.id
-                        ? (isMidnight ? 'text-white' : 'text-sidebar-primary-foreground')
-                        : (isMidnight ? 'text-slate-500 group-hover:text-primary' : 'text-sidebar-foreground/40 group-hover:text-primary')
+                      ? (isMidnight ? 'text-white' : 'text-sidebar-primary-foreground')
+                      : (isMidnight ? 'text-slate-500 group-hover:text-primary' : 'text-sidebar-foreground/40 group-hover:text-primary')
                       }`}></i>
                     {!isSidebarCollapsed && <span className="animate-fadeIn">{tab.label}</span>}
 
@@ -392,26 +372,15 @@ const AdminDashboard: React.FC = () => {
             <button
               onClick={toggleTheme}
               className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center transition-all active:scale-95 shadow-lg border ${isMidnight
-                  ? 'bg-slate-800 border-white/5 text-amber-400 shadow-black/20 hover:bg-slate-700'
-                  : 'bg-card text-indigo-600 border-border shadow-slate-200/50 hover:bg-slate-50'
+                ? 'bg-slate-800 border-white/5 text-amber-400 shadow-black/20 hover:bg-slate-700'
+                : 'bg-card text-indigo-600 border-border shadow-slate-200/50 hover:bg-slate-50'
                 }`}
               title={isMidnight ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}
             >
               <i className={`fa-solid ${isMidnight ? 'fa-sun' : 'fa-moon'}`}></i>
             </button>
 
-            {/* Seed Data Button */}
-            <button
-              onClick={handleSeedData}
-              disabled={isSeeding}
-              className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center transition-all active:scale-95 shadow-lg border ${isMidnight
-                  ? 'bg-slate-800 border-white/5 text-amber-500 shadow-black/20 hover:bg-slate-700'
-                  : 'bg-card text-amber-600 border-border shadow-slate-200/50 hover:bg-slate-50'
-                } ${isSeeding ? 'opacity-50' : ''}`}
-              title="Khởi tạo dữ liệu hệ thống"
-            >
-              <i className={`fa-solid ${isSeeding ? 'fa-circle-notch animate-spin' : 'fa-database'}`}></i>
-            </button>
+
 
             <div className="hidden md:flex flex-col items-end">
               <span className="text-micro font-black text-muted-foreground uppercase tracking-widest">{new Date().toLocaleDateString('vi-VN', { weekday: 'long' })}</span>
@@ -424,24 +393,7 @@ const AdminDashboard: React.FC = () => {
           </div>
         </header>
 
-        {seedStatus && (
-          <div className="px-6 lg:px-10 py-4 animate-slideDown">
-            <div className={`p-4 rounded-2xl border flex items-center justify-between shadow-xl ${seedStatus.type === 'success'
-                ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                : seedStatus.type === 'error'
-                  ? 'bg-rose-50 border-rose-200 text-rose-700'
-                  : 'bg-primary/10 border-primary/20 text-primary'
-              }`}>
-              <div className="flex items-center gap-3">
-                <i className={`fa-solid ${seedStatus.type === 'success' ? 'fa-circle-check' : seedStatus.type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-info'}`}></i>
-                <span className="text-xs font-black uppercase tracking-widest">{seedStatus.msg}</span>
-              </div>
-              <button onClick={() => setSeedStatus(null)} className="opacity-50 hover:opacity-100 transition-opacity">
-                <i className="fa-solid fa-xmark"></i>
-              </button>
-            </div>
-          </div>
-        )}
+
 
         <div className="p-4 lg:p-10 flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
           {activeTab === "overview" && (
@@ -455,8 +407,8 @@ const AdminDashboard: React.FC = () => {
                   { label: "Đang xử lý", value: stats.pendingOrders, icon: "fa-clock", bgColor: "bg-chart-3/10", iconColor: "text-chart-3", sub: `${stats.completedOrders} đơn hoàn thành`, growth: "Ưu tiên cao", trend: "neutral" }
                 ].map((stat, i) => (
                   <div key={i} className={`p-5 lg:p-7 rounded-[2rem] lg:rounded-[2.5rem] border shadow-2xl transition-all duration-500 group relative overflow-hidden ${isMidnight
-                      ? 'bg-[#1e293b]/40 border-white/5 hover:border-primary/40 hover:bg-[#1e293b]/60'
-                      : 'bg-card border-border hover:shadow-primary/5 hover:border-primary'
+                    ? 'bg-[#1e293b]/40 border-white/5 hover:border-primary/40 hover:bg-[#1e293b]/60'
+                    : 'bg-card border-border hover:shadow-primary/5 hover:border-primary'
                     }`}>
                     <div className="flex items-start justify-between mb-6 relative z-10">
                       <div className={`w-12 h-12 lg:w-14 lg:h-14 ${stat.bgColor} ${stat.iconColor} rounded-2xl lg:rounded-[1.2rem] flex items-center justify-center text-lg lg:text-xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-[0_0_30px_rgba(112,51,255,0.2)]`}>
@@ -464,8 +416,8 @@ const AdminDashboard: React.FC = () => {
                       </div>
                       <div className="flex flex-col items-end">
                         <div className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${stat.trend === 'up' ? 'text-emerald-400 bg-emerald-500/10' :
-                            stat.trend === 'down' ? 'text-rose-400 bg-rose-500/10' :
-                              'text-muted-foreground bg-muted'
+                          stat.trend === 'down' ? 'text-rose-400 bg-rose-500/10' :
+                            'text-muted-foreground bg-muted'
                           }`}>
                           {stat.growth}
                         </div>
@@ -544,8 +496,8 @@ const AdminDashboard: React.FC = () => {
                               {/* Bar */}
                               <div
                                 className={`w-full ${chartView === 'week' ? 'max-w-[50px]' : 'max-w-[15px]'} rounded-t-2xl transition-all duration-1000 relative group-hover:shadow-[0_0_40px_rgba(112,51,255,0.5)] ${isPeak
-                                    ? 'bg-gradient-to-t from-primary via-primary/80 to-primary/60 shadow-[0_0_20px_rgba(112,51,255,0.3)]'
-                                    : 'bg-gradient-to-t from-primary/10 via-primary/50 to-primary/40 shadow-lg shadow-primary/10'
+                                  ? 'bg-gradient-to-t from-primary via-primary/80 to-primary/60 shadow-[0_0_20px_rgba(112,51,255,0.3)]'
+                                  : 'bg-gradient-to-t from-primary/10 via-primary/50 to-primary/40 shadow-lg shadow-primary/10'
                                   }`}
                                 style={{ height: `${(day.total / stats.maxRevenue) * 100}%`, minHeight: '8px' }}
                               >
@@ -608,8 +560,8 @@ const AdminDashboard: React.FC = () => {
                         { label: "Mã KM", value: stats.totalCoupons, color: "amber", icon: "fa-ticket" }
                       ].map((item, id) => (
                         <div key={id} className={`flex items-center justify-between p-4 rounded-2xl border group transition-all duration-300 ${isMidnight
-                            ? 'bg-slate-800/40 border-white/5 hover:bg-slate-800 hover:border-primary/40'
-                            : 'bg-muted border-border hover:bg-card hover:shadow-xl hover:shadow-slate-100 hover:border-transparent'
+                          ? 'bg-slate-800/40 border-white/5 hover:bg-slate-800 hover:border-primary/40'
+                          : 'bg-muted border-border hover:bg-card hover:shadow-xl hover:shadow-slate-100 hover:border-transparent'
                           }`}>
                           <div className="flex items-center gap-4">
                             <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-xs transition-transform group-hover:rotate-12 bg-primary/10 text-primary`}>
@@ -679,12 +631,12 @@ const AdminDashboard: React.FC = () => {
                   <div className="space-y-4">
                     {stats.recentOrders.length > 0 ? stats.recentOrders.map((order: any) => (
                       <div key={order.id} className={`flex items-center justify-between p-5 rounded-3xl transition-all border ${isMidnight
-                          ? 'bg-slate-800/40 border-white/5 hover:bg-slate-800 hover:border-primary/40'
-                          : 'bg-muted border-border hover:bg-card hover:shadow-xl hover:shadow-slate-100'
+                        ? 'bg-slate-800/40 border-white/5 hover:bg-slate-800 hover:border-primary/40'
+                        : 'bg-muted border-border hover:bg-card hover:shadow-xl hover:shadow-slate-100'
                         }`}>
                         <div className="flex items-center gap-4">
                           <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-lg ${order.statusStep === 3 ? 'bg-chart-1/10 text-chart-1' :
-                              order.statusStep === 0 ? 'bg-chart-3/10 text-chart-3' : 'bg-primary/10 text-primary'
+                            order.statusStep === 0 ? 'bg-chart-3/10 text-chart-3' : 'bg-primary/10 text-primary'
                             }`}>
                             <i className={`fa-solid ${order.statusStep === 3 ? 'fa-check' : 'fa-clock'}`}></i>
                           </div>
@@ -723,8 +675,8 @@ const AdminDashboard: React.FC = () => {
                   <div className="space-y-4">
                     {stats.topSellingBooks.length > 0 ? stats.topSellingBooks.map((book: any, idx: number) => (
                       <div key={idx} className={`flex items-center justify-between p-4 rounded-3xl transition-all border ${isMidnight
-                          ? 'bg-slate-800/40 border-white/5 hover:bg-slate-800 hover:border-primary/40'
-                          : 'bg-muted border-border hover:bg-card hover:shadow-xl hover:shadow-slate-100'
+                        ? 'bg-slate-800/40 border-white/5 hover:bg-slate-800 hover:border-primary/40'
+                        : 'bg-muted border-border hover:bg-card hover:shadow-xl hover:shadow-slate-100'
                         }`}>
                         <div className="flex items-center gap-4">
                           <div className="relative">

@@ -536,9 +536,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
 
                 {/* Footer / Actions */}
                 <div className={`px-8 py-6 flex items-center justify-between border-t ${isMidnight ? 'bg-slate-900 border-white/10' : 'bg-muted/5 border-border'}`}>
-                  <p className="text-[11px] font-bold text-muted-foreground flex items-center gap-2">
-                    <i className="fa-keyboard fa-solid text-[10px]"></i>
-                    ESC để đóng
+                  <p className="">
                   </p>
                   <div className="flex gap-3">
                     <button

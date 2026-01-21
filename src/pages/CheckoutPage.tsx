@@ -1,25 +1,42 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { CartItem } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '@/services/db';
 import { ErrorHandler } from '../services/errorHandler';
-
 import { useCart } from '../contexts/CartContext';
+import { motion, AnimatePresence } from 'framer-motion';
+
+import { AddressInput } from '../components/AddressInput';
+import { MapPicker } from '../components/MapPicker';
+import { mapService, AddressResult } from '@/services/map';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 };
 
+// Modern Floating Label Input Component (Keeping this for other inputs)
+const FloatingInput = ({ label, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: string }) => (
+  <div className="relative group">
+    <input
+      {...props}
+      placeholder=" "
+      className="peer w-full pt-6 pb-2 px-4 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:bg-white focus:border-indigo-500 transition-all font-bold text-slate-800 placeholder-shown:pt-4 placeholder-shown:pb-4"
+    />
+    <label className="absolute left-4 top-4 text-slate-400 text-xs font-bold uppercase tracking-wider transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:text-indigo-500 pointer-events-none">
+      {label}
+    </label>
+  </div>
+);
+
 const CheckoutPage: React.FC = () => {
   const { cart, clearCart } = useCart();
-
   const navigate = useNavigate();
   const { user, setShowLoginModal } = useAuth();
 
   // States
+  const isSubmittingRef = useRef(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -27,6 +44,7 @@ const CheckoutPage: React.FC = () => {
     address: '',
     note: ''
   });
+  const [coordinates, setCoordinates] = useState<{ lat: number, lon: number } | null>(null);
 
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'online'>('cod');
   const [couponCode, setCouponCode] = useState('');
@@ -52,7 +70,8 @@ const CheckoutPage: React.FC = () => {
     };
 
     fillProfile();
-    if (cart.length === 0) navigate('/');
+    // Only redirect if cart is empty AND we are not currently submitting an order
+    if (cart.length === 0 && !isSubmittingRef.current) navigate('/');
   }, [user, cart, navigate]);
 
   // Calculations
@@ -71,14 +90,34 @@ const CheckoutPage: React.FC = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleAddressSelect = (result: AddressResult) => {
+    if (result.lat && result.lon) {
+      setCoordinates({ lat: parseFloat(result.lat), lon: parseFloat(result.lon) });
+    }
+  };
+
+  const handleMapLocationSelect = async (lat: number, lon: number) => {
+    setCoordinates({ lat, lon });
+    // Reverse geocode to get address text
+    const details = await mapService.getAddressDetails(lat, lon);
+    if (details && details.display_name) {
+      setFormData(prev => ({ ...prev, address: details.display_name }));
+    }
+  };
+
   const handleApplyCoupon = async () => {
     setCouponError('');
+    if (!couponCode.trim()) return;
+
+    // Simulate API delay for UX
     const coupon = await db.validateCoupon(couponCode, subtotal);
     if (coupon) {
       setAppliedCoupon({ code: coupon.code, value: coupon.value, type: coupon.type });
       setCouponCode('');
+      toast.success('Áp dụng mã giảm giá thành công!');
     } else {
       setCouponError('Mã giảm giá không hợp lệ hoặc không đủ điều kiện.');
+      toast.error('Mã giảm giá không hợp lệ');
     }
   };
 
@@ -92,8 +131,8 @@ const CheckoutPage: React.FC = () => {
     setIsProcessing(true);
 
     try {
-      // Đợi xử lý
-      await new Promise(r => setTimeout(r, 1500));
+      // Simulate processing visualization
+      await new Promise(r => setTimeout(r, 2000));
 
       const order = await db.createOrder({
         userId: user.id,
@@ -119,6 +158,7 @@ const CheckoutPage: React.FC = () => {
         await db.incrementCouponUsage(appliedCoupon.code);
       }
 
+      isSubmittingRef.current = true; // Prevent redirect when cart is cleared
       clearCart();
       setIsProcessing(false);
       navigate('/order-success', { state: { orderId: order.id } });
@@ -133,246 +173,260 @@ const CheckoutPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen pt-12 lg:pt-16 fade-in">
-      <div className="bg-white border-b border-slate-100 py-3 mb-6">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="max-w-xl mx-auto flex items-center justify-between">
-            {[
-              { label: 'Giỏ hàng', active: true, done: true },
-              { label: 'Thanh toán', active: true, done: false },
-              { label: 'Hoàn tất', active: false, done: false }
-            ].map((step, i, arr) => (
-              <React.Fragment key={i}>
-                <div className="flex flex-col items-center gap-2">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-extrabold text-micro transition-all ${step.active ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'bg-slate-100 text-slate-400'
-                    }`}>
-                    {step.done ? <i className="fa-solid fa-check"></i> : i + 1}
-                  </div>
-                  <span className={`text-micro font-bold uppercase tracking-premium ${step.active ? 'text-indigo-600' : 'text-slate-400'}`}>
-                    {step.label}
-                  </span>
-                </div>
-                {i < arr.length - 1 && <div className={`flex-1 h-0.5 mx-3 rounded-full ${arr[i + 1].active ? 'bg-indigo-600' : 'bg-slate-100'}`}></div>}
-              </React.Fragment>
-            ))}
-          </div>
+    <div className="bg-slate-50 min-h-screen pt-20 pb-20 fade-in">
+      <div className="max-w-7xl mx-auto px-4 lg:px-6">
+        {/* Minimalist Header Step Indicator */}
+        <div className="flex items-center gap-4 mb-8 text-sm font-bold text-slate-400">
+          <span className="text-slate-900 cursor-pointer hover:underline" onClick={() => navigate('/')}>Trang chủ</span>
+          <i className="fa-solid fa-chevron-right text-[10px]"></i>
+          <span className="text-slate-900 cursor-pointer hover:underline" onClick={() => navigate('/cart')}>Giỏ hàng</span>
+          <i className="fa-solid fa-chevron-right text-[10px]"></i>
+          <span className="text-indigo-600">Thanh toán</span>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 pb-20">
-        <div className="grid lg:grid-cols-12 gap-8 items-start">
-          <div className="lg:col-span-8 space-y-8">
-            <section className="bg-white rounded-3xl p-6 lg:p-8 border border-slate-200/60 shadow-sm shadow-slate-200/20 transition-all hover:border-slate-300">
-              <div className="flex items-center gap-3.5 mb-8">
-                <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
-                  <i className="fa-solid fa-truck-fast text-lg"></i>
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+
+          {/* Left Column: Forms */}
+          <div className="lg:col-span-7 space-y-10">
+
+            {/* Shipping Info Section */}
+            <section className="bg-white rounded-[2.5rem] p-8 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-slate-100">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm">
+                  <i className="fa-solid fa-location-dot text-xl"></i>
                 </div>
                 <div>
-                  <h2 className="text-lg font-extrabold text-slate-900 leading-tight tracking-tight uppercase">Thông tin giao hàng</h2>
-                  <p className="text-micro text-slate-400 font-bold uppercase tracking-premium">Nơi chúng tôi gửi tri thức đến bạn</p>
+                  <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Thông tin giao hàng</h2>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mt-1">Nơi nhận bộ sưu tập sách của bạn</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-1.5">
-                  <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-1">Họ và tên</label>
-                  <input
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="Nhập tên người nhận..."
-                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold text-slate-900 text-sm shadow-inner"
-                  />
+              <div className="space-y-4">
+                <FloatingInput
+                  label="Họ và tên người nhận"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                />
+                <FloatingInput
+                  label="Số điện thoại liên lạc"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                />
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="relative z-50">
+                    <AddressInput
+                      label="Địa chỉ chi tiết"
+                      value={formData.address}
+                      onChange={(val) => setFormData(prev => ({ ...prev, address: val }))}
+                      onSelect={handleAddressSelect}
+                    />
+                  </div>
+
+                  {/* Map Picker Visual */}
+                  <div className="mt-2">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2 ml-1">Vị trí trên bản đồ</p>
+                    <MapPicker
+                      onLocationSelect={handleMapLocationSelect}
+                      initialLat={coordinates?.lat}
+                      initialLon={coordinates?.lon}
+                    />
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-1">Số điện thoại</label>
-                  <input
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    placeholder="09xx xxx xxx"
-                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold text-slate-900 text-sm shadow-inner"
-                  />
-                </div>
-                <div className="md:col-span-2 space-y-1.5">
-                  <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-1">Địa chỉ chi tiết</label>
-                  <input
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    placeholder="Số nhà, tên đường, phường/xã..."
-                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold text-slate-900 text-sm shadow-inner"
-                  />
-                </div>
-                <div className="md:col-span-2 space-y-1.5">
-                  <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-1">Ghi chú đơn hàng (Tùy chọn)</label>
+                <div className="relative group">
                   <textarea
                     name="note"
                     value={formData.note}
                     onChange={handleInputChange}
-                    placeholder="Ví dụ: Giao giờ hành chính, gọi trước khi đến..."
-                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold text-slate-900 text-sm h-24 resize-none shadow-inner"
+                    placeholder=" "
+                    className="peer w-full pt-6 pb-2 px-4 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:bg-white focus:border-indigo-500 transition-all font-bold text-slate-800 h-32 resize-none placeholder-shown:pt-4"
                   />
+                  <label className="absolute left-4 top-4 text-slate-400 text-xs font-bold uppercase tracking-wider transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:text-indigo-500 pointer-events-none">
+                    Ghi chú cho shipper (Tùy chọn)
+                  </label>
                 </div>
               </div>
             </section>
 
-            <section className="bg-white rounded-3xl p-6 lg:p-8 border border-slate-200/60 shadow-sm shadow-slate-200/20 transition-all hover:border-slate-300">
-              <div className="flex items-center gap-3.5 mb-8">
-                <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
-                  <i className="fa-solid fa-credit-card text-lg"></i>
+            {/* Payment Method Section */}
+            <section className="bg-white rounded-[2.5rem] p-8 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-slate-100">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm">
+                  <i className="fa-solid fa-wallet text-xl"></i>
                 </div>
                 <div>
-                  <h2 className="text-lg font-extrabold text-slate-900 leading-tight tracking-tight uppercase">Phương thức thanh toán</h2>
-                  <p className="text-micro text-slate-400 font-bold uppercase tracking-premium">An toàn & bảo mật tuyệt đối</p>
+                  <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Phương thức thanh toán</h2>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mt-1">An toàn và bảo mật tuyệt đối</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button
+                {/* COD Option */}
+                <div
                   onClick={() => setPaymentMethod('cod')}
-                  className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${paymentMethod === 'cod'
-                    ? 'border-indigo-600 bg-indigo-50/30'
-                    : 'border-slate-50 bg-slate-50/30 hover:border-slate-200'
-                    }`}
+                  className={`relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 group ${paymentMethod === 'cod' ? 'border-indigo-600 bg-indigo-50/50 shadow-md' : 'border-slate-100 hover:border-slate-300 bg-slate-50'}`}
                 >
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'cod' ? 'border-indigo-600' : 'border-slate-200'}`}>
-                    {paymentMethod === 'cod' && <div className="w-2.5 h-2.5 bg-indigo-600 rounded-full"></div>}
+                  <div className="flex justify-between items-start mb-4">
+                    <i className={`fa-solid fa-money-bill-wave text-2xl ${paymentMethod === 'cod' ? 'text-indigo-600' : 'text-slate-300'}`}></i>
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'cod' ? 'border-indigo-600' : 'border-slate-300'}`}>
+                      {paymentMethod === 'cod' && <div className="w-3 h-3 rounded-full bg-indigo-600"></div>}
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-extrabold text-slate-900 text-xs">Thanh toán khi nhận hàng</p>
-                    <p className="text-micro text-slate-400 font-bold uppercase tracking-premium">Tiền mặt (COD)</p>
-                  </div>
-                  <i className="fa-solid fa-money-bill-wave ml-auto text-slate-300 text-lg"></i>
-                </button>
+                  <p className="font-extrabold text-slate-900 mb-1">Thanh toán khi nhận hàng</p>
+                  <p className="text-xs font-bold text-slate-400">COD - Cash on Delivery</p>
+                </div>
 
-                <button
+                {/* Online Payment Option */}
+                <div
                   onClick={() => setPaymentMethod('online')}
-                  className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${paymentMethod === 'online'
-                    ? 'border-indigo-600 bg-indigo-50/30'
-                    : 'border-slate-50 bg-slate-50/30 hover:border-slate-200'
-                    }`}
+                  className={`relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 group overflow-hidden ${paymentMethod === 'online' ? 'border-indigo-600 bg-indigo-50/50 shadow-md' : 'border-slate-100 hover:border-slate-300 bg-slate-50'}`}
                 >
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'online' ? 'border-indigo-600' : 'border-slate-200'}`}>
-                    {paymentMethod === 'online' && <div className="w-2.5 h-2.5 bg-indigo-600 rounded-full"></div>}
+                  <div className="absolute top-0 right-0 p-2 opacity-10 transform translate-x-4 -translate-y-4">
+                    <i className="fa-solid fa-qrcode text-8xl text-indigo-900"></i>
                   </div>
-                  <div>
-                    <p className="font-extrabold text-slate-900 text-xs">Thanh toán trực tuyến</p>
-                    <p className="text-micro text-slate-400 font-bold uppercase tracking-premium">Thẻ / Chuyển khoản</p>
+                  <div className="flex justify-between items-start mb-4 relative z-10">
+                    <i className={`fa-solid fa-credit-card text-2xl ${paymentMethod === 'online' ? 'text-indigo-600' : 'text-slate-300'}`}></i>
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'online' ? 'border-indigo-600' : 'border-slate-300'}`}>
+                      {paymentMethod === 'online' && <div className="w-3 h-3 rounded-full bg-indigo-600"></div>}
+                    </div>
                   </div>
-                  <i className="fa-solid fa-building-columns ml-auto text-slate-300 text-lg"></i>
-                </button>
+                  <p className="font-extrabold text-slate-900 mb-1 relative z-10">Thanh toán Online / QR</p>
+                  <p className="text-xs font-bold text-slate-400 relative z-10">ZaloPay / MoMo / Banking</p>
+
+                  {paymentMethod === 'online' && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      className="mt-3 pt-3 border-t border-indigo-200"
+                    >
+                      <span className="text-[10px] uppercase font-black tracking-wider text-indigo-600 flex items-center gap-1">
+                        <i className="fa-solid fa-bolt"></i> Giảm thêm 5% tối đa 50k
+                      </span>
+                    </motion.div>
+                  )}
+                </div>
               </div>
             </section>
           </div>
 
-          <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
-            <div className="bg-white rounded-3xl p-6 lg:p-8 border border-slate-100 shadow-sm overflow-hidden">
-              <h3 className="text-base font-extrabold text-slate-900 mb-5 uppercase tracking-premium">Tóm tắt đơn hàng</h3>
+          {/* Right Column: Summary Sticky */}
+          <div className="lg:col-span-5 sticky top-24">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden relative">
+              {/* Decorative Pattern using CSS radial gradients or similar could go here */}
 
-              <div className="max-h-60 overflow-y-auto no-scrollbar space-y-4 mb-6">
+              {/* Header */}
+              <div className="p-8 pb-4 border-b border-slate-50">
+                <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight flex items-center justify-between">
+                  Đơn hàng của bạn
+                  <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg text-xs font-bold">{cart.length} món</span>
+                </h3>
+              </div>
+
+              {/* Items List */}
+              <div className="px-8 py-4 max-h-[300px] overflow-y-auto no-scrollbar space-y-5">
                 {cart.map(item => (
-                  <div key={item.id} className="flex gap-4 items-center group">
-                    <div className="w-12 h-16 rounded-xl overflow-hidden bg-slate-50 flex-shrink-0 border border-slate-100">
+                  <div key={item.id} className="flex gap-4 group">
+                    <div className="w-14 h-20 rounded-xl overflow-hidden shadow-sm border border-slate-100 shrink-0 relative">
                       <img src={item.cover} alt={item.title} className="w-full h-full object-cover" />
+                      <span className="absolute bottom-0 right-0 bg-slate-900 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-tl-lg">x{item.quantity}</span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-extrabold text-slate-900 text-label truncate group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{item.title}</h4>
-                      <p className="text-micro text-slate-400 font-bold mb-0.5">SL: {item.quantity}</p>
-                      <p className="font-black text-rose-600 text-label tracking-tight">{formatPrice(item.price * item.quantity)}</p>
+                    <div className="flex-1 min-w-0 py-1">
+                      <h4 className="font-bold text-sm text-slate-800 line-clamp-2 uppercase tracking-tight leading-snug">{item.title}</h4>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mt-1">{item.author}</p>
+                    </div>
+                    <div className="text-right py-1">
+                      <p className="font-black text-sm text-slate-900">{formatPrice(item.price * item.quantity)}</p>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="pt-5 border-t border-slate-50 mb-5">
-                <div className="relative mb-2">
+              {/* Coupon Input */}
+              <div className="px-8 py-4 bg-slate-50/50 border-t border-b border-slate-50">
+                <div className="relative flex gap-2">
                   <input
                     type="text"
+                    placeholder="Mã giảm giá (nếu có)"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
-                    placeholder="Mã giảm giá"
-                    className="w-full py-2.5 pl-3.5 pr-20 bg-slate-50 border border-transparent rounded-lg outline-none focus:bg-white focus:border-indigo-100 text-xs font-bold"
+                    className="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold uppercase tracking-wide outline-none focus:border-indigo-500 transition-colors"
                   />
                   <button
                     onClick={handleApplyCoupon}
-                    className="absolute right-1 top-1 bottom-1 px-3 bg-slate-900 text-white rounded-md text-micro font-bold uppercase tracking-premium hover:bg-indigo-600 transition-all"
+                    className="bg-slate-900 text-white px-4 rounded-xl font-bold text-xs uppercase tracking-wide hover:bg-indigo-600 transition-colors"
                   >
                     Áp dụng
                   </button>
                 </div>
-                {couponError && <p className="text-micro text-rose-500 font-bold ml-1">{couponError}</p>}
                 {appliedCoupon && (
-                  <div className="flex items-center justify-between px-3 py-1.5 bg-emerald-50 rounded-lg mt-1.5 border border-emerald-100">
-                    <span className="text-micro font-bold text-emerald-700 uppercase tracking-premium flex items-center gap-2">
-                      <i className="fa-solid fa-ticket"></i> {appliedCoupon.code}
-                    </span>
-                    <button
-                      onClick={() => setAppliedCoupon(null)}
-                      className="w-10 h-10 flex items-center justify-center text-emerald-700 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all active:scale-90"
-                      aria-label="Remove coupon"
-                    >
-                      <i className="fa-solid fa-circle-xmark text-lg"></i>
+                  <div className="mt-3 flex items-center justify-between p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+                    <div className="flex items-center gap-2">
+                      <i className="fa-solid fa-ticket text-emerald-600"></i>
+                      <span className="text-xs font-bold text-emerald-800 uppercase tracking-wide">Đã dùng: {appliedCoupon.code}</span>
+                    </div>
+                    <button onClick={() => setAppliedCoupon(null)} className="text-emerald-400 hover:text-emerald-700">
+                      <i className="fa-solid fa-xmark"></i>
                     </button>
                   </div>
                 )}
+                {couponError && (
+                  <p className="text-[10px] font-bold text-rose-500 mt-2 ml-1">{couponError}</p>
+                )}
               </div>
 
-              <div className="space-y-2.5 pt-5 border-t border-slate-50">
-                <div className="flex justify-between text-label font-bold text-slate-500">
-                  <span className="uppercase tracking-premium text-micro">Tạm tính ({cart.length})</span>
-                  <span>{formatPrice(subtotal)}</span>
+              {/* Financial Summary */}
+              <div className="p-8 space-y-3 bg-white">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-400 font-bold uppercase tracking-wide text-[11px]">Tạm tính</span>
+                  <span className="font-bold text-slate-900">{formatPrice(subtotal)}</span>
                 </div>
-                <div className="flex justify-between text-label font-bold text-slate-500">
-                  <span className="uppercase tracking-premium text-micro">Vận chuyển</span>
-                  <span>{shipping === 0 ? 'Miễn phí' : formatPrice(shipping)}</span>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-400 font-bold uppercase tracking-wide text-[11px]">Phí vận chuyển</span>
+                  <span className={`font-bold ${shipping === 0 ? 'text-emerald-600' : 'text-slate-900'}`}>
+                    {shipping === 0 ? 'Miễn phí' : formatPrice(shipping)}
+                  </span>
                 </div>
                 {appliedCoupon && (
-                  <div className="flex justify-between text-label font-bold text-emerald-600">
-                    <span className="uppercase tracking-premium text-micro">Giảm giá (Coupon)</span>
-                    <span>-{formatPrice(discount)}</span>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-emerald-600 font-bold uppercase tracking-wide text-[11px]">Giảm giá</span>
+                    <span className="font-bold text-emerald-600">-{formatPrice(discount)}</span>
                   </div>
                 )}
-                <div className="pt-4 border-t border-slate-200 flex justify-between items-center">
-                  <span className="text-sm font-black text-slate-900 uppercase tracking-premium">Tổng thanh toán</span>
-                  <span className="text-2xl font-black text-rose-600 tracking-tighter">{formatPrice(total)}</span>
+
+                <div className="pt-6 mt-3 border-t border-dashed border-slate-200 flex justify-between items-end">
+                  <span className="font-black text-slate-900 uppercase tracking-widest text-xs mb-1">Tổng cộng</span>
+                  <span className="text-3xl font-black text-indigo-600 tracking-tighter leading-none">{formatPrice(total)}</span>
+                </div>
+
+                <button
+                  onClick={handleCompleteOrder}
+                  disabled={isProcessing}
+                  className="w-full mt-6 py-5 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-200 hover:bg-emerald-600 hover:shadow-emerald-200 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed group active:scale-95 flex items-center justify-center gap-3"
+                >
+                  {isProcessing ? (
+                    <>
+                      <i className="fa-solid fa-circle-notch fa-spin"></i>
+                      Đang xử lý...
+                    </>
+                  ) : (
+                    <>
+                      Đặt hàng ngay
+                      <i className="fa-solid fa-arrow-right-long group-hover:translate-x-1 transition-transform"></i>
+                    </>
+                  )}
+                </button>
+
+                <div className="flex items-center justify-center gap-2 mt-4 opacity-40 grayscale hover:grayscale-0 transition-all cursor-help">
+                  <i className="fa-brands fa-cc-visa text-2xl"></i>
+                  <i className="fa-brands fa-cc-mastercard text-2xl"></i>
+                  <i className="fa-solid fa-shield-halved text-lg"></i>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide ml-1">Bảo mật thanh toán 100%</span>
                 </div>
               </div>
-
-              <button
-                onClick={handleCompleteOrder}
-                disabled={isProcessing}
-                className={`w-full mt-6 py-4 rounded-xl font-extrabold text-micro uppercase tracking-premium transition-all shadow-xl flex items-center justify-center gap-2.5 ${isProcessing
-                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
-                  : 'bg-slate-900 text-white hover:bg-indigo-600 shadow-slate-200'
-                  }`}
-              >
-                {isProcessing ? (
-                  <>
-                    <i className="fa-solid fa-spinner fa-spin"></i>
-                    Đang xử lý...
-                  </>
-                ) : (
-                  <>
-                    Hoàn tất đặt hàng
-                    <i className="fa-solid fa-arrow-right-long"></i>
-                  </>
-                )}
-              </button>
-
-              <div className="mt-5 flex items-center justify-center gap-4 opacity-30">
-                <i className="fa-brands fa-cc-visa text-xl"></i>
-                <i className="fa-brands fa-cc-mastercard text-xl"></i>
-                <i className="fa-solid fa-shield-halved text-lg"></i>
-              </div>
-            </div>
-
-            <div className="px-6 text-center">
-              <p className="text-micro font-bold text-slate-400 uppercase tracking-premium leading-relaxed">
-                Bằng việc nhấn đặt hàng, bạn đồng ý với <a href="#" className="text-indigo-600 underline">Điều khoản</a> & <a href="#" className="text-indigo-600 underline">Chính sách</a> của DigiBook.
-              </p>
             </div>
           </div>
+
         </div>
       </div>
     </div>
@@ -380,4 +434,3 @@ const CheckoutPage: React.FC = () => {
 };
 
 export default CheckoutPage;
-
