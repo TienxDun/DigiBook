@@ -26,6 +26,7 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
   const [authorFormData, setAuthorFormData] = useState<Partial<Author>>({});
   const [selectedAuthors, setSelectedAuthors] = useState<string[]>([]);
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Lock scroll when modal is open
   useEffect(() => {
@@ -39,11 +40,20 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
     };
   }, [isAuthorModalOpen]);
 
-  // Pagination State
+  // Filter & Pagination
+  const filteredAuthors = React.useMemo(() => {
+    if (!searchTerm) return authors;
+    const lowerTerm = searchTerm.toLowerCase();
+    return authors.filter(a =>
+      a.name.toLowerCase().includes(lowerTerm) ||
+      a.bio.toLowerCase().includes(lowerTerm)
+    );
+  }, [authors, searchTerm]);
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const totalPages = Math.ceil(authors.length / itemsPerPage);
-  const paginatedAuthors = authors.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const totalPages = Math.ceil(filteredAuthors.length / itemsPerPage);
+  const paginatedAuthors = filteredAuthors.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handleOpenAddAuthor = () => {
     setEditingAuthor(null);
@@ -97,7 +107,11 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
   };
 
   const toggleSelectAllAuthors = () => {
-    setSelectedAuthors(prev => prev.length === authors.length ? [] : authors.map(a => a.id));
+    if (selectedAuthors.length === filteredAuthors.length) {
+      setSelectedAuthors([]);
+    } else {
+      setSelectedAuthors(filteredAuthors.map(a => a.id));
+    }
   };
 
   const handleBulkDeleteAuthors = async () => {
@@ -133,13 +147,31 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
             </p>
           </div>
         </div>
-        <button
-          onClick={handleOpenAddAuthor}
-          className="bg-primary text-primary-foreground px-8 py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/25 flex items-center gap-3 group"
-        >
-          <i className="fa-solid fa-plus group-hover:rotate-90 transition-transform"></i>
-          <span>Thêm tác giả mới</span>
-        </button>
+
+        <div className="flex flex-1 items-center justify-end gap-3 min-w-[200px]">
+          <div className="relative group flex-1 max-w-xs">
+            <div className={`absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center transition-colors pointer-events-none ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>
+              <i className="fa-solid fa-magnifying-glass text-xs"></i>
+            </div>
+            <input
+              type="text"
+              placeholder="Tìm tác giả..."
+              value={searchTerm}
+              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+              className={`w-full pl-12 pr-4 py-3 rounded-2xl border transition-all text-xs font-bold outline-none ${isMidnight
+                  ? 'bg-slate-800/50 border-white/5 text-slate-200 focus:bg-slate-800 focus:border-primary/50'
+                  : 'bg-background border-border text-foreground focus:border-primary focus:ring-4 focus:ring-primary/5'
+                }`}
+            />
+          </div>
+          <button
+            onClick={handleOpenAddAuthor}
+            className="bg-primary text-primary-foreground h-12 px-8 rounded-2xl text-micro font-bold uppercase tracking-premium hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 group whitespace-nowrap"
+          >
+            <i className="fa-solid fa-plus group-hover:rotate-90 transition-transform"></i>
+            <span>Thêm mới</span>
+          </button>
+        </div>
       </div>
 
       {/* Bulk Actions Bar */}
@@ -190,8 +222,8 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
                   <div
                     onClick={toggleSelectAllAuthors}
                     className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${selectedAuthors.length === authors.length && authors.length > 0
-                        ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/30'
-                        : (isMidnight ? 'border-white/10 bg-slate-800 shadow-inner' : 'border-border bg-background shadow-inner')
+                      ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/30'
+                      : (isMidnight ? 'border-white/10 bg-slate-800 shadow-inner' : 'border-border bg-background shadow-inner')
                       }`}
                   >
                     {selectedAuthors.length === authors.length && authors.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
@@ -210,16 +242,16 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
                   className={`group transition-all duration-300 ${selectedAuthors.includes(author.id)
-                      ? (isMidnight ? 'bg-primary/10' : 'bg-primary/[0.04]')
-                      : (isMidnight ? 'hover:bg-slate-700/30' : 'hover:bg-secondary/30')
+                    ? (isMidnight ? 'bg-primary/10' : 'bg-primary/[0.04]')
+                    : (isMidnight ? 'hover:bg-slate-700/30' : 'hover:bg-secondary/30')
                     }`}
                 >
                   <td className="p-8 text-center">
                     <div
                       onClick={() => toggleSelectAuthor(author.id)}
                       className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${selectedAuthors.includes(author.id)
-                          ? 'bg-primary border-primary text-primary-foreground shadow-md shadow-primary/20'
-                          : (isMidnight ? 'border-white/10 bg-slate-800' : 'border-border bg-background') + ' group-hover:border-primary/50 shadow-inner'
+                        ? 'bg-primary border-primary text-primary-foreground shadow-md shadow-primary/20'
+                        : (isMidnight ? 'border-white/10 bg-slate-800' : 'border-border bg-background') + ' group-hover:border-primary/50 shadow-inner'
                         }`}
                     >
                       {selectedAuthors.includes(author.id) && <i className="fa-solid fa-check text-[10px]"></i>}
@@ -254,8 +286,8 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
                       <button
                         onClick={() => handleEditAuthor(author)}
                         className={`w-11 h-11 flex items-center justify-center rounded-2xl transition-all shadow-sm active:scale-95 ${isMidnight
-                            ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:border-primary hover:text-primary hover:bg-slate-700'
-                            : 'bg-background border border-border text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/5'
+                          ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:border-primary hover:text-primary hover:bg-slate-700'
+                          : 'bg-background border border-border text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/5'
                           }`}
                         title="Chỉnh sửa"
                       >
@@ -264,8 +296,8 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
                       <button
                         onClick={() => handleDeleteAuthor(author)}
                         className={`w-11 h-11 flex items-center justify-center rounded-2xl transition-all shadow-sm active:scale-95 ${isMidnight
-                            ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:border-destructive hover:text-destructive hover:bg-slate-700'
-                            : 'bg-background border border-border text-muted-foreground hover:border-destructive hover:text-destructive hover:bg-destructive/5'
+                          ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:border-destructive hover:text-destructive hover:bg-slate-700'
+                          : 'bg-background border border-border text-muted-foreground hover:border-destructive hover:text-destructive hover:bg-destructive/5'
                           }`}
                         title="Xóa"
                       >

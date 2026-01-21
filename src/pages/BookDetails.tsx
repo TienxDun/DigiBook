@@ -279,12 +279,12 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
-          {/* LEFT: Premium Visual Container - Optimized for density */}
-          <aside className="lg:col-span-3 space-y-5">
+          {/* LEFT: Premium Visual Container - Optimized for density & Sticky */}
+          <aside className="lg:col-span-3 lg:sticky lg:top-24 h-fit space-y-5 z-20">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-white p-1.5 rounded-[1.5rem] shadow-lg shadow-slate-200/40 border border-slate-100 relative overflow-hidden group"
+              className="bg-white p-1.5 rounded-[1.5rem] shadow-lg shadow-slate-200/40 border border-slate-100 relative overflow-hidden group max-w-[280px] mx-auto lg:max-w-none"
             >
               <div className="relative aspect-[4/5] sm:aspect-[3/4.2] rounded-[1.3rem] overflow-hidden bg-slate-50 flex items-center justify-center">
                 <motion.img
@@ -327,63 +327,6 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
                 ))}
               </div>
             </motion.div>
-
-            {/* 1. Description Dashboard - High Symmetry */}
-            <section
-              className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/60 transition-all"
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-1 h-3.5 bg-slate-900 rounded-full"></div>
-                <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Giới thiệu sách</h3>
-              </div>
-
-              <motion.div
-                layout
-                className="relative"
-                animate={{ height: showFullDescription ? 'auto' : '80px' }}
-                style={{ overflow: 'hidden' }}
-              >
-                <div className="text-slate-600 text-sm leading-relaxed font-medium whitespace-pre-line text-justify italic">
-                  {book.description}
-                </div>
-                {!showFullDescription && (
-                  <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-white via-white/80 to-transparent z-10"></div>
-                )}
-              </motion.div>
-
-              <button
-                onClick={() => setShowFullDescription(!showFullDescription)}
-                className="mt-3 w-full py-2 rounded-xl bg-slate-50 text-xs font-black text-slate-500 uppercase tracking-widest border border-slate-200/50 hover:bg-slate-900 hover:text-white transition-all flex items-center justify-center gap-1.5"
-              >
-                <span>{showFullDescription ? 'Thu gọn' : 'Chi tiết nội dung'}</span>
-                <i className={`fa-solid fa-chevron-${showFullDescription ? 'up' : 'down'} text-[9px]`}></i>
-              </button>
-            </section>
-
-            {/* Author Segment - Refined & Compact */}
-            <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden group">
-              <div className="flex items-center gap-3">
-                <div className="relative shrink-0">
-                  <img
-                    src={authorInfo?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(book.author)}&background=4f46e5&color=fff&bold=true&size=48`}
-                    className="w-10 h-10 rounded-full object-cover border border-slate-50 shadow-sm"
-                    alt={book.author}
-                  />
-                  <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-white rounded-full shadow flex items-center justify-center text-indigo-600 border border-slate-50">
-                    <i className="fa-solid fa-check text-[8px]"></i>
-                  </div>
-                </div>
-                <div className="flex-grow min-w-0">
-                  <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0">Tác giả chính</div>
-                  <Link
-                    to={`/author/${book.author}`}
-                    className="text-xs font-black text-slate-900 hover:text-indigo-600 transition-all truncate block"
-                  >
-                    {book.author}
-                  </Link>
-                </div>
-              </div>
-            </div>
           </aside>
 
           {/* RIGHT: Sophisticated Content Column - 9 Cols */}
@@ -490,6 +433,69 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
                 </motion.div>
               ))}
             </div>
+
+            {/* NEW LOCATION: Author Segment - now in Main Col */}
+            <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden group flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="relative shrink-0">
+                  <img
+                    src={authorInfo?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(book.author)}&background=4f46e5&color=fff&bold=true&size=48`}
+                    className="w-12 h-12 rounded-full object-cover border-2 border-slate-50 shadow-sm"
+                    alt={book.author}
+                  />
+                  <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-white rounded-full shadow flex items-center justify-center text-indigo-600 border border-slate-50">
+                    <i className="fa-solid fa-check text-[10px]"></i>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Tác giả chính</div>
+                  <Link
+                    to={`/author/${book.author}`}
+                    className="text-sm font-black text-slate-900 hover:text-indigo-600 transition-all truncate block"
+                  >
+                    {book.author}
+                  </Link>
+                </div>
+              </div>
+              <Link
+                to={`/author/${book.author}`}
+                className="px-4 py-2 bg-slate-50 rounded-xl text-xs font-black text-slate-600 uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all whitespace-nowrap"
+              >
+                Xem hồ sơ
+              </Link>
+            </div>
+
+            {/* NEW LOCATION: Description Dashboard - now in Main Col */}
+            <section
+              className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/60 transition-all"
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-1 h-4 bg-slate-900 rounded-full"></div>
+                <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Giới thiệu sách</h3>
+              </div>
+
+              <motion.div
+                layout
+                className="relative"
+                animate={{ height: showFullDescription ? 'auto' : '100px' }}
+                style={{ overflow: 'hidden' }}
+              >
+                <div className="text-slate-600 text-[15px] leading-relaxed font-medium whitespace-pre-line text-justify">
+                  {book.description}
+                </div>
+                {!showFullDescription && (
+                  <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-white via-white/80 to-transparent z-10"></div>
+                )}
+              </motion.div>
+
+              <button
+                onClick={() => setShowFullDescription(!showFullDescription)}
+                className="mt-4 w-full py-2.5 rounded-xl bg-slate-50 text-xs font-black text-slate-500 uppercase tracking-widest border border-slate-200/50 hover:bg-slate-900 hover:text-white transition-all flex items-center justify-center gap-1.5"
+              >
+                <span>{showFullDescription ? 'Thu gọn' : 'Đọc đầy đủ nội dung'}</span>
+                <i className={`fa-solid fa-chevron-${showFullDescription ? 'up' : 'down'} text-[9px]`}></i>
+              </button>
+            </section>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* 3. AI Intelligence Card - Integrated better */}

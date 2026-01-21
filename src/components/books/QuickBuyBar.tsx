@@ -40,43 +40,34 @@ const QuickBuyBar: React.FC<QuickBuyBarProps> = ({
                         }`}
                 >
                     <div className="bg-white/90 backdrop-blur-3xl border border-white/40 rounded-[2rem] p-2 lg:p-2 lg:pr-3 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.15)] flex items-center justify-between gap-3 relative overflow-hidden group">
-                        {/* Subtle Gradient Glow */}
+                        {/* Background Gradient */}
                         <div className="absolute inset-0 bg-gradient-to-r from-indigo-50/20 via-transparent to-rose-50/20 pointer-events-none"></div>
 
+                        {/* Book Info Section */}
                         <div className="flex items-center gap-3 flex-grow min-w-0 relative z-10">
-                            {/* Book Cover */}
                             <div className="h-12 w-9 rounded-lg overflow-hidden shadow-md border border-white/60 ml-1 hidden sm:block shrink-0 transform group-hover:scale-105 transition-transform">
-                                <img src={book.cover} className="w-full h-full object-cover" alt={book.title} />
+                                <img className="w-full h-full object-cover" alt={book.title} src={book.cover} />
                             </div>
-
-                            {/* Book Info */}
                             <div className="flex-grow min-w-0">
-                                <p className="text-slate-900 font-black text-xs leading-none truncate tracking-tight uppercase mb-1">
-                                    {book.title}
-                                </p>
+                                <p className="text-slate-900 font-black text-xs leading-none truncate tracking-tight uppercase mb-1">{book.title}</p>
                                 <div className="flex items-center gap-2">
-                                    <p className="text-rose-600 font-black text-lg tracking-tighter leading-none">
-                                        {formatPrice(book.price)}
-                                    </p>
+                                    <p className="text-rose-600 font-black text-lg tracking-tighter leading-none">{formatPrice(book.price)}</p>
                                     {book.originalPrice > book.price && (
-                                        <p className="text-slate-400 text-[10px] font-bold line-through opacity-50 leading-none">
-                                            {formatPrice(book.originalPrice)}
-                                        </p>
+                                        <p className="text-slate-400 text-[10px] font-bold line-through opacity-50 leading-none">{formatPrice(book.originalPrice)}</p>
                                     )}
-                                    {/* Stock Status Dot */}
                                     <div className="flex items-center gap-1 ml-1">
-                                        <div className={`w-1.5 h-1.5 rounded-full ${book.stockQuantity > 5 ? 'bg-emerald-500' : 'bg-amber-500'} animate-pulse`}></div>
+                                        <div className={`w-1.5 h-1.5 rounded-full ${book.stockQuantity > 0 ? 'bg-emerald-500' : 'bg-red-500'} animate-pulse`}></div>
                                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden md:inline">
-                                            {book.stockQuantity > 5 ? 'Sẵn hàng' : `Chỉ còn ${book.stockQuantity}`}
+                                            {book.stockQuantity > 0 ? 'Sẵn hàng' : 'Hết hàng'}
                                         </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Controls */}
+                        {/* Controls Section */}
                         <div className="flex items-center gap-2 relative z-10">
-                            {/* Quantity Picker - Integrated into bar */}
+                            {/* Quantity */}
                             <div className="hidden sm:flex items-center gap-1 bg-slate-50/80 p-1 rounded-xl border border-slate-200/50 mr-1">
                                 <button
                                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -93,28 +84,26 @@ const QuickBuyBar: React.FC<QuickBuyBarProps> = ({
                                 </button>
                             </div>
 
+                            {/* Wishlist */}
                             <button
-                                onClick={toggleWishlist as any}
+                                onClick={() => toggleWishlist(book)}
                                 className={`h-10 w-10 rounded-xl flex items-center justify-center transition-all border ${isWishlisted
                                         ? 'bg-rose-50 border-rose-100 text-rose-500 shadow-sm shadow-rose-100'
-                                        : 'bg-white border-slate-200 text-slate-400 hover:text-rose-500 hover:bg-rose-50 hover:border-rose-100'
+                                        : 'bg-white border-slate-200/50 text-slate-400 hover:text-rose-500 hover:bg-rose-50 hover:border-rose-100'
                                     }`}
-                                aria-label={isWishlisted ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
+                                aria-label="Bỏ yêu thích"
                             >
                                 <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-sm`}></i>
                             </button>
 
+                            {/* Add to Cart */}
                             <button
                                 onClick={(e) => addToCart(book, quantity, { x: e.clientX, y: e.clientY })}
                                 disabled={book.stockQuantity <= 0}
-                                className="h-10 px-5 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-900 hover:shadow-indigo-200 hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:bg-slate-300 active:scale-[0.97] whitespace-nowrap shadow-md shadow-indigo-100"
+                                className="h-10 px-5 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-900 hover:shadow-indigo-200 hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:bg-slate-300 disabled:shadow-none active:scale-[0.97] whitespace-nowrap shadow-md shadow-indigo-100"
                             >
                                 <i className="fa-solid fa-cart-shopping text-xs"></i>
-                                <span>
-                                    {book.stockQuantity > 0
-                                        ? (window.innerWidth < 640 ? 'Mua' : 'Thêm giỏ hàng')
-                                        : 'Hết hàng'}
-                                </span>
+                                <span>{book.stockQuantity > 0 ? (isMobile ? 'Mua' : 'Thêm giỏ hàng') : 'Hết hàng'}</span>
                             </button>
                         </div>
                     </div>

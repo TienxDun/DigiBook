@@ -29,7 +29,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
   const [activeTab, setActiveTab] = useState<'models' | 'test'>('models');
   const [isUpdatingAI, setIsUpdatingAI] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [testPrompt, setTestPrompt] = useState('Hãy vi?t m?t l?i chào ng?n t?i qu?n tr? viên c?a DigiBook.');
+  const [testPrompt, setTestPrompt] = useState('Hãy viết một lời chào ngắn từ quản trị viên của DigiBook.');
   const [testResult, setTestResult] = useState('');
   const [isTesting, setIsTesting] = useState(false);
   const [models, setModels] = useState<AIModelConfig[]>([]);
@@ -68,7 +68,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
       const data = await db.getAIModels();
       setModels(data);
     } catch (error) {
-      ErrorHandler.handle(error, 't?i danh sách model');
+      ErrorHandler.handle(error, 'tải danh sách model');
     } finally {
       setIsLoadingModels(false);
     }
@@ -89,10 +89,10 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
     setIsUpdatingAI(true);
     try {
       await db.updateAIConfig(modelId);
-      toast.success('Ðã c?p nh?t model AI thành công');
+      toast.success('Đã cập nhật model AI thành công');
       refreshData();
     } catch (error) {
-      ErrorHandler.handle(error, 'c?p nh?t model AI');
+      ErrorHandler.handle(error, 'cập nhật model AI');
     } finally {
       setIsUpdatingAI(false);
     }
@@ -112,13 +112,13 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
 
   const handleDeleteModel = async (modelId: string) => {
     if (activeModelId === modelId) {
-      toast.error('Không th? xóa model dang ho?t d?ng');
+      toast.error('Không thể xóa model đang hoạt động');
       return;
     }
-    if (!window.confirm('B?n có ch?c ch?n mu?n xóa model này?')) return;
+    if (!window.confirm('Bạn có chắc chắn muốn xóa model này?')) return;
     try {
       await db.deleteAIModel(modelId);
-      toast.success('Ðã xóa model thành công');
+      toast.success('Đã xóa model thành công');
       loadModels();
     } catch (error) {
       ErrorHandler.handle(error, 'xóa model AI');
@@ -128,37 +128,37 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
   const handleSaveModel = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.id || !formData.name) {
-      toast.error('Vui lòng di?n d?y d? ID và Tên model');
+      toast.error('Vui lòng điền đầy đủ ID và Tên model');
       return;
     }
     setIsSubmitting(true);
     try {
       if (isEditing) {
         await db.updateAIModelInfo(formData);
-        toast.success('Ðã c?p nh?t thông tin model');
+        toast.success('Đã cập nhật thông tin model');
       } else {
         await db.addAIModel(formData);
-        toast.success('Ðã thêm model m?i');
+        toast.success('Đã thêm model mới');
       }
       setShowModal(false);
       loadModels();
     } catch (error) {
-      ErrorHandler.handle(error, 'luu model AI');
+      ErrorHandler.handle(error, 'lưu model AI');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleSyncModels = async () => {
-    if (!window.confirm('B?n có mu?n làm m?i danh sách model t? h? th?ng? T?t c? d? li?u hi?n t?i s? b? xóa và thay th? b?ng c?u hình m?c d?nh.')) return;
+    if (!window.confirm('Bạn có muốn làm mới danh sách model từ hệ thống? Tất cả dữ liệu hiện tại sẽ bị xóa và thay thế bằng cấu hình mặc định.')) return;
     
     setIsUpdatingAI(true);
     try {
       const count = await db.syncAIModels(AVAILABLE_AI_MODELS);
-      toast.success(`Ðã làm m?i hoàn toàn ${count} model h? th?ng`);
+      toast.success(`Đã làm mới hoàn toàn ${count} model hệ thống`);
       loadModels();
     } catch (error) {
-      ErrorHandler.handle(error, 'd?ng b? model AI');
+      ErrorHandler.handle(error, 'đồng bộ model AI');
     } finally {
       setIsUpdatingAI(false);
     }
@@ -167,13 +167,13 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
   const handleTestAI = async () => {
     if (!testPrompt.trim()) return;
     setIsTesting(true);
-    setTestResult('Ðang k?t n?i t?i AI...');
+    setTestResult('Đang kết nối đến AI...');
     try {
       const result = await db.getAIInsights(null, testPrompt);
       setTestResult(result);
     } catch (error: any) {
-      setTestResult('L?i: ' + error.message);
-      toast.error('L?i khi ki?m tra AI API');
+      setTestResult('Lỗi: ' + error.message);
+      toast.error('Lỗi khi kiểm tra AI API');
     } finally {
       setIsTesting(false);
     }
@@ -201,14 +201,14 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                 <i className="fa-solid fa-brain text-xl text-white"></i>
               </div>
               <div>
-                <p className="text-micro font-black uppercase tracking-premium opacity-60">Model Hi?n t?i</p>
-                <h3 className="text-xl font-black line-clamp-1">{currentModel?.name || 'Ðang c?p nh?t...'}</h3>
+                <p className="text-micro font-black uppercase tracking-premium opacity-60">Model Hiện tại</p>
+                <h3 className="text-xl font-black line-clamp-1">{currentModel?.name || 'Đang cập nhật...'}</h3>
               </div>
             </div>
             <div className="space-y-4 pt-6 border-t border-white/10">
               <div className="flex justify-between items-center">
-                <span className="opacity-60 font-black uppercase text-micro tracking-premium">Tr?ng thái:</span>
-                <span className="font-black uppercase tracking-widest text-micro bg-white/20 px-3 py-1 rounded-xl">Ho?t d?ng</span>
+                <span className="opacity-60 font-black uppercase text-micro tracking-premium">Trạng thái:</span>
+                <span className="font-black uppercase tracking-widest text-micro bg-white/20 px-3 py-1 rounded-xl">Hoạt động</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="opacity-60 font-black uppercase text-micro tracking-premium">Phân khúc:</span>
@@ -225,8 +225,8 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                 <i className="fa-solid fa-key text-xl"></i>
               </div>
               <div>
-                <h3 className="font-black uppercase tracking-tight text-foreground">Tr?ng thái Connector</h3>
-                <p className="text-micro font-black uppercase tracking-premium text-muted-foreground">Kh?i t?o môi tru?ng thông qua .env</p>
+                <h3 className="font-black uppercase tracking-tight text-foreground">Trạng thái Connector</h3>
+                <p className="text-micro font-black uppercase tracking-premium text-muted-foreground">Khởi tạo môi trường thông qua .env</p>
               </div>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -245,7 +245,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
           <div className="flex items-start gap-4">
             <i className="fa-solid fa-shield-halved text-primary mt-1"></i>
             <p className="text-sm leading-relaxed font-bold text-muted-foreground/80 italic">
-              "Toàn b? yêu c?u phân tích t? mô hình du?c truy?n t?i qua c?ng b?o m?t gRPC/L?p 7. DigiBook AI d?m b?o m?i k?t qu? tr? v? tuân th? tiêu chu?n an toàn d? li?u và t?i uu hóa tài nguyên h? th?ng."
+              "Toàn bộ yêu cầu phân tích thông qua mô hình được truyền qua gRPC/Layer 7. DigiBook AI đảm bảo kết quả tuân theo tiêu chuẩn an toàn dữ liệu và tối ưu hóa tài nguyên hệ thống."
             </p>
           </div>
         </div>
@@ -261,7 +261,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                 activeTab === 'models' ? 'text-primary' : (isMidnight ? 'text-slate-400 hover:text-primary' : 'text-muted-foreground hover:text-foreground')
               }`}
             >
-              Models Registry
+              Quản lý mô hình AI
               {activeTab === 'models' && <motion.div layoutId="activeTab" className="absolute bottom-[-1px] left-0 w-full h-1 rounded-full bg-primary" />}
             </button>
             <button
@@ -270,7 +270,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                 activeTab === 'test' ? 'text-primary' : (isMidnight ? 'text-slate-400 hover:text-primary' : 'text-muted-foreground hover:text-foreground')
               }`}
             >
-              AI Laboratory
+              Phòng thí nghiệm AI
               {activeTab === 'test' && <motion.div layoutId="activeTab" className="absolute bottom-[-1px] left-0 w-full h-1 rounded-full bg-primary" />}
             </button>
           </div>
@@ -409,11 +409,11 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
             >
               <div className="space-y-6">
                 <div className="space-y-3">
-                  <label className="text-micro font-black uppercase tracking-premium text-muted-foreground ml-1">AI Instruction Console</label>
+                  <label className="text-micro font-black uppercase tracking-premium text-muted-foreground ml-1">Bảng điều khiển lệnh AI</label>
                   <textarea
                     value={testPrompt}
                     onChange={(e) => setTestPrompt(e.target.value)}
-                    placeholder="Enter system instruction or prompt here..."
+                    placeholder="Nhập hướng dẫn hệ thống hoặc prompt tại đây..."
                     className="w-full h-80 p-8 rounded-[2rem] bg-secondary/30 border border-border text-foreground font-bold text-sm outline-none focus:border-primary focus:bg-card focus:shadow-3xl focus:shadow-primary/5 transition-all resize-none leading-relaxed"
                   />
                 </div>
@@ -423,15 +423,15 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                   className="w-full py-5 rounded-[1.5rem] bg-primary text-white font-black text-micro uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-3"
                 >
                   {isTesting ? (
-                    <><i className="fa-solid fa-spinner animate-spin"></i> Processing Request...</>
+                    <><i className="fa-solid fa-spinner animate-spin"></i> Đang xử lý yêu cầu...</>
                   ) : (
-                    <><i className="fa-solid fa-bolt"></i> Execute AI Test Pulse</>
+                    <><i className="fa-solid fa-bolt"></i> Thực thi kiểm tra AI</>
                   )}
                 </button>
               </div>
 
               <div className="space-y-3 flex flex-col">
-                <label className="text-micro font-black uppercase tracking-premium text-muted-foreground ml-1">AI Output Stream</label>
+                <label className="text-micro font-black uppercase tracking-premium text-muted-foreground ml-1">Luồng kết quả AI</label>
                 <div className={`flex-1 rounded-[2rem] border overflow-hidden relative flex flex-col bg-card shadow-3xl`}>
                   <div className="flex-1 p-8 overflow-y-auto custom-scrollbar prose prose-primary prose-xs max-w-none text-foreground/80">
                     {testResult ? (
@@ -441,7 +441,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                     ) : (
                       <div className="h-full flex flex-col items-center justify-center text-center py-20 opacity-30">
                         <i className="fa-solid fa-terminal text-5xl mb-6"></i>
-                        <p className="text-micro font-black uppercase tracking-widest">Waiting for output...</p>
+                        <p className="text-micro font-black uppercase tracking-widest">Đang chờ kết quả...</p>
                       </div>
                     )}
                   </div>
@@ -577,7 +577,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                         isMidnight ? 'bg-slate-700/50 text-slate-400 hover:bg-border' : 'bg-secondary text-muted-foreground hover:bg-border'
                       }`}
                     >
-                      B? qua
+                      Bỏ qua
                     </button>
                     <button
                       type="submit"
@@ -585,7 +585,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                       className="flex-[2] py-4 rounded-2xl bg-primary text-white font-black text-micro uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
                     >
                       {isSubmitting ? <i className="fa-solid fa-spinner animate-spin mr-2"></i> : <i className="fa-solid fa-save mr-2"></i>}
-                      {isEditing ? 'Luu c?u hình' : 'T?o m?i'}
+                      {isEditing ? 'Lưu thông tin' : 'Thêm mới'}
                     </button>
                   </div>
                 </form>

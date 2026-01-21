@@ -200,19 +200,19 @@ const HomePage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickVie
             </div>
 
             {/* Small High-Density Info Cards */}
-            <div className="col-span-2 bg-amber-50 rounded-[2rem] p-4 lg:p-5 flex flex-col items-center justify-center text-center group hover:bg-amber-100 transition-colors">
+            <div className="col-span-2 lg:col-span-1 bg-amber-50 rounded-[2rem] p-4 lg:p-5 flex flex-col items-center justify-center text-center group hover:bg-amber-100 transition-colors">
               <i className="fa-solid fa-bolt text-amber-500 text-lg lg:text-xl mb-2"></i>
               <span className="text-[9px] lg:text-xs font-black text-foreground uppercase">Flash Sale</span>
               <p className="hidden xs:block text-micro font-bold text-amber-600 mt-1">Đang diễn ra</p>
             </div>
 
-            <div className="col-span-2 bg-emerald-50 rounded-[2rem] p-4 lg:p-5 flex flex-col items-center justify-center text-center group hover:bg-emerald-100 transition-colors">
+            <div className="col-span-2 lg:col-span-1 bg-emerald-50 rounded-[2rem] p-4 lg:p-5 flex flex-col items-center justify-center text-center group hover:bg-emerald-100 transition-colors">
               <i className="fa-solid fa-truck-fast text-emerald-500 text-lg lg:text-xl mb-2"></i>
               <span className="text-[9px] lg:text-xs font-black text-foreground uppercase">Free Ship</span>
               <p className="hidden xs:block text-micro font-bold text-emerald-600 mt-1">Đơn từ 500k</p>
             </div>
 
-            <div className="col-span-2 bg-secondary rounded-[2rem] p-4 lg:p-5 flex flex-col items-center justify-center text-center group hover:bg-muted transition-colors">
+            <div className="col-span-2 lg:col-span-1 bg-secondary rounded-[2rem] p-4 lg:p-5 flex flex-col items-center justify-center text-center group hover:bg-muted transition-colors">
               <i className="fa-solid fa-users text-slate-400 text-lg lg:text-xl mb-2"></i>
               <span className="text-[9px] lg:text-xs font-black text-foreground uppercase">Cộng đồng</span>
               <p className="hidden xs:block text-micro font-bold text-slate-500 mt-1">15k Member</p>
