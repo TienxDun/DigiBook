@@ -14,6 +14,33 @@ export interface ChatMessage {
   content: string;
 }
 
+export async function fetchGroqModels(): Promise<any[]> {
+  const groqKey = import.meta.env.VITE_GROQ_API_KEY;
+  if (!groqKey) {
+    console.error("VITE_GROQ_API_KEY is missing");
+    return [];
+  }
+
+  try {
+    const response = await fetch("https://api.groq.com/openai/v1/models", {
+      headers: {
+        "Authorization": `Bearer ${groqKey}`,
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Groq API Error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.data || [];
+  } catch (error) {
+    console.error("Failed to fetch Groq models", error);
+    return [];
+  }
+}
+
 async function callAIService(prompt: string, actionName: string): Promise<string> {
   const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const groqKey = import.meta.env.VITE_GROQ_API_KEY;
@@ -21,7 +48,13 @@ async function callAIService(prompt: string, actionName: string): Promise<string
 
   try {
     const config = await getAIConfig();
-    const modelId = config.activeModelId || 'gemini-3-flash';
+    let modelId = config.activeModelId;
+
+    // Defensive check: ensure modelId is a string
+    if (typeof modelId !== 'string') {
+      console.warn("Invalid modelId type in config:", modelId);
+      modelId = 'gemini-3-flash';
+    }
 
     if (modelId.includes('/')) {
       if (!openRouterKey) throw new Error("Vui lòng cấu hình VITE_OPENROUTER_API_KEY trong file .env");
@@ -263,7 +296,13 @@ export async function chatWithAI(messages: ChatMessage[]): Promise<string> {
 
   try {
     const config = await getAIConfig();
-    const modelId = config.activeModelId || 'gemini-3-flash';
+    let modelId = config.activeModelId;
+
+    // Defensive check: ensure modelId is a string
+    if (typeof modelId !== 'string' || !modelId) {
+      console.warn("Invalid modelId type in config:", modelId);
+      modelId = 'gemini-3-flash';
+    }
 
     // Normalize messages for OpenAI-compatible APIs (Groq, OpenRouter)
     // Map 'model' -> 'assistant'

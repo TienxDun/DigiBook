@@ -82,7 +82,7 @@ export interface SystemLog {
   id?: string;
   action: string;
   detail: string;
-  status: 'SUCCESS' | 'ERROR';
+  status: 'SUCCESS' | 'ERROR' | 'WARNING' | 'INFO' | 'WARN';
   level: LogLevel;
   category?: LogCategory;
   user: string;

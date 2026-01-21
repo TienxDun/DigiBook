@@ -120,102 +120,119 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
 
   return (
     <>
-      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        {/* Search & Stats Bar */}
-        <div className="flex flex-col md:flex-row gap-6 items-stretch">
-          <div className={`${isMidnight ? 'bg-[#1e293b]/40 border-white/5' : 'bg-card/40 backdrop-blur-md border-border shadow-2xl shadow-primary/5'} p-8 rounded-[2.5rem] flex-1 flex flex-col md:flex-row items-center justify-between gap-6`}>
+      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className={`${isMidnight ? 'bg-[#1e293b]/40 border-white/5' : 'bg-card border-border shadow-sm'} p-6 rounded-[2rem] border flex items-center justify-between`}>
             <div>
-              <h3 className="text-xl font-black text-foreground tracking-tight flex items-center gap-2">
-                <i className="fa-solid fa-receipt text-primary"></i>
-                Đơn hàng mới
-              </h3>
-              <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-1">Quản lý và vận hành đơn vận</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Tổng đơn hàng</p>
+              <p className="text-2xl font-black text-foreground">{orders.length}</p>
             </div>
-
-            <div className="flex items-center gap-4 w-full md:w-auto">
-              <div className="relative flex-1 md:w-80 group">
-                <input
-                  type="text"
-                  placeholder="Tra cứu mã đơn, tên, SĐT..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className={`w-full h-12 pl-12 pr-6 rounded-2xl transition-all text-sm font-bold outline-none ${isMidnight
-                    ? 'bg-slate-800/50 border-white/5 text-slate-200 focus:bg-slate-800 focus:border-primary/50'
-                    : 'bg-muted/30 border border-border text-foreground focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-card'
-                    }`}
-                />
-                <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-xs group-focus-within:text-primary transition-colors"></i>
-              </div>
-
-              <button
-                onClick={() => { refreshData(); toast.success('Đã làm mới dữ liệu'); }}
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-95 ${isMidnight
-                  ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:bg-primary hover:text-primary-foreground'
-                  : 'bg-muted border border-border text-muted-foreground hover:bg-primary hover:text-primary-foreground'
-                  }`}
-                title="Làm mới"
-              >
-                <i className="fa-solid fa-rotate"></i>
-              </button>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-lg bg-primary/10 text-primary border border-primary/20 shadow-sm">
+              <i className="fa-solid fa-receipt"></i>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 w-full md:w-[350px]">
-            <div className="bg-primary/5 border border-primary/10 p-6 rounded-[2.5rem] flex flex-col justify-center">
-              <span className="text-micro font-black text-primary uppercase tracking-premium">Tổng đơn</span>
-              <span className="text-2xl font-black text-foreground">{orders.length}</span>
+          <div className={`${isMidnight ? 'bg-[#1e293b]/40 border-white/5' : 'bg-card border-border shadow-sm'} p-6 rounded-[2rem] border flex items-center justify-between`}>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-chart-1 mb-1">Đơn chờ duyệt</p>
+              <p className="text-2xl font-black text-foreground">{orders.filter(o => o.statusStep === 0).length}</p>
             </div>
-            <div className="bg-chart-1/5 border border-chart-1/10 p-6 rounded-[2.5rem] flex flex-col justify-center">
-              <span className="text-micro font-black text-chart-1 uppercase tracking-premium">Chờ duyệt</span>
-              <span className="text-2xl font-black text-foreground">{orders.filter(o => o.statusStep === 0).length}</span>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-lg bg-chart-1/10 text-chart-1 border border-chart-1/20 shadow-sm">
+              <i className="fa-solid fa-clock"></i>
             </div>
           </div>
         </div>
 
+        {/* Sticky Toolbar */}
+        <div className={`${isMidnight ? 'bg-[#1e293b]/40 border-white/5' : 'bg-card/40 backdrop-blur-xl border-border shadow-xl shadow-slate-200/30'} flex flex-wrap items-center justify-between gap-6 p-5 rounded-[2.5rem] border transition-all hover:border-primary/20 sticky top-0 z-30`}>
+          <div className="flex flex-wrap items-center gap-5 flex-1 min-w-[300px]">
+            <div className="relative group flex-1 max-w-md">
+              <div className={`absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center transition-all ${isMidnight ? 'bg-slate-700 text-slate-400' : 'bg-muted text-muted-foreground'
+                } group-focus-within:bg-primary group-focus-within:text-primary-foreground group-focus-within:shadow-lg group-focus-within:shadow-primary/20`}>
+                <i className="fa-solid fa-magnifying-glass text-[10px]"></i>
+              </div>
+              <input
+                type="text"
+                placeholder="Tra cứu mã đơn, tên, SĐT..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={`w-full h-12 pl-16 pr-5 rounded-2xl text-xs font-bold outline-none border transition-all ${isMidnight
+                  ? 'bg-slate-800/50 border-white/5 text-slate-200 focus:bg-slate-800'
+                  : 'bg-card border-border text-foreground focus:border-primary focus:ring-4 focus:ring-primary/5'
+                  }`}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className={`absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full transition-all flex items-center justify-center ${isMidnight ? 'bg-slate-700 text-slate-400 hover:bg-destructive' : 'bg-muted text-muted-foreground hover:bg-destructive hover:text-destructive-foreground'
+                    }`}
+                >
+                  <i className="fa-solid fa-xmark text-[10px]"></i>
+                </button>
+              )}
+            </div>
+
+            <div className={`h-8 w-px hidden xl:block ${isMidnight ? 'bg-white/5' : 'bg-border'}`}></div>
+
+            <button
+              onClick={() => { refreshData(); toast.success('Đã làm mới dữ liệu'); }}
+              className={`h-12 px-6 rounded-2xl font-bold transition-all shadow-sm border flex items-center gap-2 group ${isMidnight
+                ? 'bg-slate-800 border-white/10 text-slate-400 hover:text-primary hover:bg-slate-700'
+                : 'bg-card border-border text-muted-foreground hover:text-primary hover:bg-muted'
+                }`}
+            >
+              <i className="fa-solid fa-rotate-right group-hover:rotate-180 transition-transform duration-500"></i>
+              <span className="text-xs uppercase tracking-wider">Làm mới</span>
+            </button>
+          </div>
+        </div>
+
         {/* Table Container */}
-        <div className={`${isMidnight ? 'bg-[#1e293b]/40 border-white/5' : 'bg-card/40 backdrop-blur-md border-border shadow-2xl shadow-primary/5'} rounded-[2.5rem] overflow-hidden`}>
+        <div className={`${isMidnight ? 'bg-[#1e293b] border-white/5' : 'bg-card backdrop-blur-xl border-border shadow-2xl'} rounded-[2.5rem] border overflow-hidden`}>
           <div className="overflow-x-auto custom-scrollbar">
             <table className="w-full text-left border-collapse min-w-[1000px]">
               <thead>
-                <tr className={`${isMidnight ? 'bg-slate-900/50 border-white/5' : 'border-border bg-muted/20'} border-b`}>
-                  <th className="px-8 py-6 text-xs font-bold text-muted-foreground uppercase tracking-wide">Đơn hàng</th>
-                  <th className="px-8 py-6 text-xs font-bold text-muted-foreground uppercase tracking-wide">Khách hàng</th>
-                  <th className="px-8 py-6 text-xs font-bold text-muted-foreground uppercase tracking-wide text-right">Tổng thanh toán</th>
-                  <th className="px-8 py-6 text-xs font-bold text-muted-foreground uppercase tracking-wide text-center">Trạng thái</th>
-                  <th className="px-8 py-6 text-xs font-bold text-muted-foreground uppercase tracking-wide">Thời gian</th>
-                  <th className="px-8 py-6 text-xs font-bold text-muted-foreground uppercase tracking-wide text-center">Tác vụ</th>
+                <tr className={`${isMidnight ? 'bg-slate-900/50 border-white/5' : 'bg-muted/30 border-border'} border-b`}>
+                  <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide">Đơn hàng</th>
+                  <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide">Khách hàng</th>
+                  <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide text-right">Tổng thanh toán</th>
+                  <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide text-center">Trạng thái</th>
+                  <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide">Thời gian</th>
+                  <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide text-center">Tác vụ</th>
                 </tr>
               </thead>
               <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-border'}`}>
                 {paginatedOrders.length > 0 ? paginatedOrders.map(order => (
-                  <tr key={order.id} className={`group transition-all ${isMidnight ? 'hover:bg-slate-700/30' : 'hover:bg-primary/5'}`}>
-                    <td className="px-8 py-6">
-                      <div className="flex flex-col">
-                        <span className="text-sm font-black text-primary mb-0.5">#{order.id.slice(-8).toUpperCase()}</span>
-                        <div className="flex gap-2">
-                          <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide ${order.payment.method === 'COD'
-                            ? (isMidnight ? 'bg-slate-700 text-slate-400' : 'bg-muted text-muted-foreground')
-                            : 'bg-chart-2/10 text-chart-2'
-                            }`}>
-                            {order.payment.method}
-                          </span>
+                  <tr key={order.id} className={`group transition-all ${isMidnight ? 'hover:bg-slate-700/30' : 'hover:bg-muted/30'}`}>
+                    <td className="px-4 py-4">
+                      <div className="flex bg-primary/10 w-fit px-2 py-1 rounded-lg">
+                        <span className="text-sm font-black text-primary">#{order.id.slice(-8).toUpperCase()}</span>
+                      </div>
+                    </td>
+                    <td className="px-8 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs ${isMidnight ? 'bg-slate-700 text-slate-300' : 'bg-muted text-muted-foreground'}`}>
+                          <i className="fa-solid fa-user"></i>
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-foreground line-clamp-1">{order.customer?.name || 'Vãng lai'}</p>
+                          <p className="text-xs text-muted-foreground">{order.customer?.phone}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
-                      <div className="flex flex-col">
-                        <span className="text-sm font-bold text-foreground">{order.customer?.name || 'Vãng lai'}</span>
-                        <span className="text-xs font-medium text-muted-foreground tracking-wide">{order.customer?.phone}</span>
-                      </div>
+                    <td className="px-4 py-4 text-right">
+                      <span className={`px-2 py-1 rounded-lg text-xs font-bold uppercase tracking-wide mr-3 ${order.payment.method === 'COD'
+                        ? (isMidnight ? 'bg-slate-700 text-slate-400' : 'bg-muted text-muted-foreground')
+                        : 'bg-chart-2/10 text-chart-2'
+                        }`}>
+                        {order.payment.method}
+                      </span>
+                      <span className="text-base font-black text-foreground">{formatPrice(order.payment.total)}</span>
                     </td>
-                    <td className="px-8 py-6 text-right">
-                      <span className="text-base font-black text-foreground italic">{formatPrice(order.payment.total)}</span>
-                    </td>
-                    <td className="px-8 py-6">
+                    <td className="px-8 py-4">
                       <div className="flex justify-center group/status relative">
                         {renderStatusPill(order.statusStep)}
-
-                        {/* Quick Change Dropdown on Hover/Click */}
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all">
                           <select
                             value={order.statusStep}
@@ -229,29 +246,20 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                         </div>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
-                      <div className="flex flex-col">
-                        <span className="text-micro font-black text-muted-foreground uppercase tracking-premium">
-                          {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString('vi-VN') : order.date}
-                        </span>
-                        <span className="text-[10px] font-bold text-muted-foreground/60">
-                          {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : ''}
-                        </span>
-                      </div>
+                    <td className="px-4 py-4 text-sm font-medium text-muted-foreground">
+                      {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString('vi-VN') : order.date}
                     </td>
-                    <td className="px-8 py-6">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => handleViewOrderDetails(order)}
-                          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm active:scale-95 ${isMidnight
-                            ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:bg-primary hover:text-primary-foreground hover:border-primary'
-                            : 'bg-card border border-border text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary'
-                            }`}
-                          title="Chi tiết đơn hàng"
-                        >
-                          <i className="fa-solid fa-eye text-xs"></i>
-                        </button>
-                      </div>
+                    <td className="px-4 py-4 text-center">
+                      <button
+                        onClick={() => handleViewOrderDetails(order)}
+                        className={`w-9 h-9 rounded-lg inline-flex items-center justify-center transition-all shadow-sm active:scale-95 ${isMidnight
+                          ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:bg-primary hover:text-primary-foreground hover:border-primary'
+                          : 'bg-card border border-border text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary'
+                          }`}
+                        title="Chi tiết đơn hàng"
+                      >
+                        <i className="fa-solid fa-eye text-xs"></i>
+                      </button>
                     </td>
                   </tr>
                 )) : (
@@ -304,21 +312,24 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                 initial={{ opacity: 0, scale: 0.9, y: 30 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 30 }}
-                className={`${isMidnight ? 'bg-slate-800 border-white/10' : 'bg-card border-border'} w-full max-w-4xl h-full max-h-[85vh] overflow-hidden flex flex-col relative z-20 rounded-[2.5rem] shadow-3xl`}
+                className={`${isMidnight ? 'bg-slate-900 border-white/10' : 'bg-card border-border'} w-full max-w-5xl h-full max-h-[90vh] overflow-hidden flex flex-col relative z-20 rounded-[2.5rem] shadow-4xl`}
               >
                 {/* Header */}
-                <div className={`px-8 py-6 flex items-center justify-between border-b ${isMidnight ? 'bg-slate-900/50 border-white/5' : 'bg-muted/20 border-border'}`}>
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
-                      <i className="fa-solid fa-file-invoice text-sm"></i>
+                <div className={`px-8 py-6 flex items-center justify-between border-b ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/20 border-border'}`}>
+                  <div className="flex items-center gap-5">
+                    <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
+                      <i className="fa-solid fa-file-invoice text-xl"></i>
                     </div>
                     <div>
-                      <h2 className={`text-xl font-black tracking-tight ${isMidnight ? 'text-slate-100' : 'text-foreground'}`}>
+                      <h2 className={`text-2xl font-black tracking-tight ${isMidnight ? 'text-slate-100' : 'text-foreground'}`}>
                         Đơn #{selectedOrder.id.slice(-8).toUpperCase()}
                       </h2>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-premium mt-0.5">
-                        Ngày đặt: {selectedOrder.createdAt?.toDate ? selectedOrder.createdAt.toDate().toLocaleString('vi-VN') : selectedOrder.date}
-                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50"></span>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Ngày đặt: {selectedOrder.createdAt?.toDate ? selectedOrder.createdAt.toDate().toLocaleString('vi-VN') : selectedOrder.date}
+                        </p>
+                      </div>
                     </div>
                   </div>
                   <button
@@ -326,37 +337,41 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                     className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all active:scale-95 ${isMidnight ? 'bg-slate-700/50 text-slate-400 hover:bg-destructive/10 hover:text-destructive' : 'bg-secondary text-muted-foreground hover:bg-destructive/10 hover:text-destructive'
                       }`}
                   >
-                    <i className="fa-solid fa-xmark text-base"></i>
+                    <i className="fa-solid fa-xmark text-lg"></i>
                   </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-                  <div className="space-y-6">
+                <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                  <div className="space-y-8">
                     {/* Status Steps Bar */}
-                    <div className={`${isMidnight ? 'bg-slate-700/20 border-white/5' : 'bg-gradient-to-r from-muted/5 to-muted/10 border-border/50'} p-5 rounded-2xl border`}>
-                      <div className="flex items-center justify-between mb-4">
-                        <h4 className="text-[11px] font-black uppercase tracking-premium text-muted-foreground flex items-center gap-2">
-                          <i className="fa-solid fa-signal text-[9px]"></i>
+                    <div className={`${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-card border-border'} p-6 rounded-3xl border shadow-sm`}>
+                      <div className="flex items-center justify-between mb-5">
+                        <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                          <i className="fa-solid fa-signal text-xs"></i>
                           Trạng thái đơn hàng
                         </h4>
-                        <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded-full">
+                        <div className={`px-3 py-1 rounded-full text-xs font-bold border ${selectedOrder.statusStep >= 3 ? 'bg-emerald-500/10 text-emerald-600 border-emerald-200/50' :
+                          selectedOrder.statusStep >= 2 ? 'bg-blue-500/10 text-blue-600 border-blue-200/50' :
+                            selectedOrder.statusStep >= 1 ? 'bg-amber-500/10 text-amber-600 border-amber-200/50' :
+                              'bg-slate-500/10 text-slate-600 border-slate-200/50'
+                          }`}>
                           {orderStatusOptions.find(s => s.step === selectedOrder.statusStep)?.label || 'Chưa xác định'}
-                        </span>
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-3">
                         {orderStatusOptions.map(status => (
                           <button
                             key={status.step}
                             disabled={updatingOrderStatus}
                             onClick={() => handleUpdateOrderStatus(selectedOrder.id, status.step)}
-                            className={`px-4 h-9 rounded-lg text-[10px] font-black uppercase tracking-premium transition-all whitespace-nowrap border flex items-center gap-2 ${selectedOrder.statusStep === status.step
-                              ? 'bg-primary border-primary text-primary-foreground shadow-md shadow-primary/10'
+                            className={`px-5 h-11 rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap border flex items-center gap-3 ${selectedOrder.statusStep === status.step
+                              ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105'
                               : (isMidnight
-                                ? 'bg-slate-700/50 border-white/5 text-slate-400 hover:border-primary/30 hover:text-primary'
-                                : 'bg-card/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:text-primary')
+                                ? 'bg-slate-700/30 border-white/5 text-slate-400 hover:bg-slate-700 hover:text-slate-200'
+                                : 'bg-muted/30 border-border text-muted-foreground hover:bg-muted hover:text-foreground')
                               }`}
                           >
-                            <span className={`w-1 h-1 rounded-full ${selectedOrder.statusStep === status.step ? 'bg-primary-foreground' : 'bg-current opacity-30'}`}></span>
+                            <span className={`w-2 h-2 rounded-full ring-2 ring-offset-1 ring-offset-transparent ${selectedOrder.statusStep === status.step ? 'bg-white ring-white/30' : 'bg-current opacity-30 ring-transparent'}`}></span>
                             {status.label}
                           </button>
                         ))}
@@ -364,30 +379,29 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                     </div>
 
                     {/* Main Info Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                       {/* Customer Info Card */}
-                      <div className={`lg:col-span-1 p-5 rounded-2xl border space-y-4 ${isMidnight ? 'bg-slate-900 border-white/5' : 'bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20'
+                      <div className={`lg:col-span-1 p-6 rounded-3xl border space-y-5 ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-card border-border shadow-sm'
                         }`}>
-                        <div className="flex items-center gap-2.5 mb-3">
-                          <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-                            <i className="fa-solid fa-user text-primary text-xs"></i>
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600">
+                            <i className="fa-solid fa-user text-sm"></i>
                           </div>
-                          <h4 className="text-[11px] font-black uppercase tracking-premium text-foreground">Người nhận</h4>
+                          <h4 className="text-sm font-bold text-foreground">Người nhận</h4>
                         </div>
 
-                        <div className="space-y-3">
-                          <div className="flex flex-col gap-1">
-                            <span className="text-[9px] font-black uppercase text-muted-foreground">Tên khách hàng</span>
-                            <span className="text-sm font-black text-foreground">{selectedOrder.customer.name}</span>
+                        <div className="space-y-4">
+                          <div className="flex flex-col gap-1.5">
+                            <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Tên khách hàng</span>
+                            <span className="text-base font-bold text-foreground">{selectedOrder.customer.name}</span>
                           </div>
-                          <div className="flex flex-col gap-1">
-                            <span className="text-[9px] font-black uppercase text-muted-foreground">Số điện thoại</span>
-                            <span className="text-sm font-black text-primary">{selectedOrder.customer.phone}</span>
+                          <div className="flex flex-col gap-1.5">
+                            <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Số điện thoại</span>
+                            <span className="text-base font-bold text-foreground font-mono">{selectedOrder.customer.phone}</span>
                           </div>
-                          <div className={`pt-3 border-t ${isMidnight ? 'border-white/5' : 'border-border/50'}`}>
-                            <span className="text-[9px] font-black uppercase text-muted-foreground block mb-2">Địa chỉ giao hàng</span>
-                            <p className={`text-[11px] font-bold leading-relaxed p-3 rounded-lg border ${isMidnight ? 'bg-slate-800 border-white/5 text-slate-300' : 'bg-card/50 border-border/30 text-foreground/80'
-                              }`}>
+                          <div className={`pt-4 border-t ${isMidnight ? 'border-white/5' : 'border-border/50'}`}>
+                            <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block mb-2.5">Địa chỉ giao hàng</span>
+                            <p className={`text-sm font-medium leading-relaxed p-4 rounded-xl border ${isMidnight ? 'bg-slate-900/50 border-white/5 text-slate-300' : 'bg-muted/30 border-border/50 text-foreground/80'}`}>
                               {selectedOrder.customer.address}
                             </p>
                           </div>
@@ -395,77 +409,79 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                       </div>
 
                       {/* Payment Info Card */}
-                      <div className={`lg:col-span-1 p-5 rounded-2xl border space-y-4 ${isMidnight ? 'bg-slate-900 border-white/5' : 'bg-gradient-to-br from-chart-1/5 to-chart-1/10 border-chart-1/20'
+                      <div className={`lg:col-span-1 p-6 rounded-3xl border space-y-5 ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-card border-border shadow-sm'
                         }`}>
-                        <div className="flex items-center gap-2.5 mb-3">
-                          <div className="w-8 h-8 rounded-lg bg-chart-1/20 flex items-center justify-center">
-                            <i className="fa-solid fa-wallet text-chart-1 text-xs"></i>
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-600">
+                            <i className="fa-solid fa-wallet text-sm"></i>
                           </div>
-                          <h4 className="text-[11px] font-black uppercase tracking-premium text-foreground">Thanh toán</h4>
+                          <h4 className="text-sm font-bold text-foreground">Thanh toán</h4>
                         </div>
 
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-[9px] font-black uppercase text-muted-foreground">Phương thức</span>
-                            <span className={`px-2 py-1 border rounded text-[9px] font-black uppercase tracking-premium ${isMidnight ? 'bg-slate-800 border-white/5 text-slate-300' : 'bg-card border-border text-foreground'
+                            <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Phương thức</span>
+                            <span className={`px-2.5 py-1 border rounded-lg text-[10px] font-bold uppercase tracking-wider ${isMidnight ? 'bg-slate-700/50 border-white/5 text-slate-300' : 'bg-muted/50 border-border text-foreground'
                               }`}>
                               {selectedOrder.payment.method}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-[9px] font-black uppercase text-muted-foreground">Tiền hàng</span>
+                            <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Tiền hàng</span>
                             <span className="text-sm font-bold text-foreground">{formatPrice(selectedOrder.payment.subtotal)}</span>
                           </div>
                           {selectedOrder.payment.couponDiscount > 0 && (
-                            <div className="flex items-center justify-between text-destructive">
-                              <span className="text-[9px] font-black uppercase">Coupon</span>
-                              <span className="text-sm font-black">-{formatPrice(selectedOrder.payment.couponDiscount)}</span>
+                            <div className="flex items-center justify-between text-rose-500">
+                              <span className="text-[10px] font-black uppercase tracking-wider">Coupon</span>
+                              <span className="text-sm font-bold">-{formatPrice(selectedOrder.payment.couponDiscount)}</span>
                             </div>
                           )}
                           <div className={`flex items-center justify-between pb-3 border-b ${isMidnight ? 'border-white/5' : 'border-border/50'}`}>
-                            <span className="text-[9px] font-black uppercase text-muted-foreground">Vận chuyển</span>
+                            <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Vận chuyển</span>
                             <span className="text-sm font-bold text-foreground">+{formatPrice(selectedOrder.payment.shipping)}</span>
                           </div>
                           <div className="pt-1 flex items-center justify-between">
-                            <span className="text-[9px] font-black uppercase text-foreground">Tổng cộng</span>
-                            <span className="text-lg font-black text-primary">{formatPrice(selectedOrder.payment.total)}</span>
+                            <span className="text-[10px] font-black uppercase tracking-wider text-foreground">Tổng cộng</span>
+                            <span className="text-xl font-black text-primary">{formatPrice(selectedOrder.payment.total)}</span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Order Summary Card */}
-                      <div className={`lg:col-span-1 p-5 rounded-2xl border space-y-4 ${isMidnight ? 'bg-slate-900 border-white/5' : 'bg-gradient-to-br from-muted/5 to-muted/10 border-border/50'
+                      {/* Summary Card */}
+                      <div className={`lg:col-span-1 p-6 rounded-3xl border space-y-5 ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-card border-border shadow-sm'
                         }`}>
-                        <div className="flex items-center gap-2.5 mb-3">
-                          <div className="w-8 h-8 rounded-lg bg-muted/20 flex items-center justify-center">
-                            <i className="fa-solid fa-chart-line text-muted-foreground text-xs"></i>
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600">
+                            <i className="fa-solid fa-chart-pie text-sm"></i>
                           </div>
-                          <h4 className="text-[11px] font-black uppercase tracking-premium text-foreground">Tóm tắt</h4>
+                          <h4 className="text-sm font-bold text-foreground">Tóm tắt</h4>
                         </div>
 
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-[9px] font-black uppercase text-muted-foreground">Mã đơn</span>
-                            <span className="text-[10px] font-black text-primary">#{selectedOrder.id.slice(-8).toUpperCase()}</span>
+                            <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Mã đơn</span>
+                            <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-muted text-foreground font-mono">#{selectedOrder.id.slice(-8).toUpperCase()}</span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-[9px] font-black uppercase text-muted-foreground">Ngày đặt</span>
-                            <span className="text-[10px] font-bold text-foreground">
+                            <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Ngày đặt</span>
+                            <span className="text-sm font-bold text-foreground">
                               {selectedOrder.createdAt?.toDate ? selectedOrder.createdAt.toDate().toLocaleDateString('vi-VN') : selectedOrder.date}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-[9px] font-black uppercase text-muted-foreground">Số lượng</span>
-                            <span className="text-sm font-black text-chart-2">{selectedOrder.items.reduce((acc, item) => acc + item.quantity, 0)} sp</span>
+                            <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Số lượng</span>
+                            <span className="text-sm font-black text-foreground">{selectedOrder.items.reduce((acc, item) => acc + item.quantity, 0)} sp</span>
                           </div>
                           <div className={`pt-3 border-t ${isMidnight ? 'border-white/5' : 'border-border/50'}`}>
                             <div className="flex items-center justify-between">
-                              <span className="text-[9px] font-black uppercase text-muted-foreground">Trạng thái</span>
-                              <div className="flex items-center gap-1.5">
-                                <span className={`w-2 h-2 rounded-full ${selectedOrder.statusStep >= 3 ? 'bg-green-500' :
-                                  selectedOrder.statusStep >= 2 ? 'bg-yellow-500' : 'bg-red-500'
+                              <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Trạng thái</span>
+                              <div className="flex items-center gap-2">
+                                <span className={`w-2.5 h-2.5 rounded-full ${selectedOrder.statusStep >= 3 ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]' :
+                                  selectedOrder.statusStep >= 2 ? 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.4)]' :
+                                    selectedOrder.statusStep >= 1 ? 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.4)]' :
+                                      'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]'
                                   }`}></span>
-                                <span className="text-[10px] font-bold text-foreground capitalize">
+                                <span className="text-xs font-bold text-foreground capitalize">
                                   {orderStatusOptions.find(s => s.step === selectedOrder.statusStep)?.label || 'Chưa xác định'}
                                 </span>
                               </div>
@@ -476,54 +492,56 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                     </div>
 
                     {/* Order Items Table */}
-                    <div className={`p-6 rounded-2xl border space-y-4 ${isMidnight ? 'bg-slate-900 border-white/5' : 'bg-gradient-to-br from-card/50 to-card/30 border-border/50'
+                    <div className={`p-6 rounded-3xl border space-y-5 ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-card border-border shadow-sm'
                       }`}>
                       <div className="flex items-center justify-between mb-4">
-                        <h4 className="text-[11px] font-black uppercase tracking-premium text-foreground flex items-center gap-2">
-                          <i className="fa-solid fa-boxes-stacked text-[9px]"></i>
+                        <h4 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center text-teal-600">
+                            <i className="fa-solid fa-layer-group text-xs"></i>
+                          </div>
                           Chi tiết sản phẩm
                         </h4>
-                        <span className="text-[11px] font-bold text-primary bg-primary/10 px-2 py-1 rounded-full">
+                        <span className="text-xs font-bold text-foreground bg-muted px-3 py-1.5 rounded-full border border-border">
                           {selectedOrder.items.reduce((acc, item) => acc + item.quantity, 0)} món
                         </span>
                       </div>
 
-                      <div className={`rounded-xl border overflow-hidden ${isMidnight ? 'bg-slate-800 border-white/5' : 'bg-card/20 border-border/30'
+                      <div className={`rounded-2xl border overflow-hidden ${isMidnight ? 'bg-slate-900/50 border-white/5' : 'bg-card border-border/50'
                         }`}>
                         <table className="w-full text-left border-collapse">
                           <thead>
-                            <tr className={`border-b ${isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-muted/10 border-border/30'}`}>
-                              <th className="px-5 py-3 text-[10px] font-black uppercase tracking-premium text-muted-foreground">Sản phẩm</th>
-                              <th className="px-5 py-3 text-[10px] font-black uppercase tracking-premium text-muted-foreground text-center">SL</th>
-                              <th className="px-5 py-3 text-[10px] font-black uppercase tracking-premium text-muted-foreground text-right">Tổng</th>
+                            <tr className={`border-b ${isMidnight ? 'bg-slate-800/80 border-white/5' : 'bg-muted/30 border-border/50'}`}>
+                              <th className="px-6 py-4 text-[10px] font-black uppercase tracking-wider text-muted-foreground">Sản phẩm</th>
+                              <th className="px-6 py-4 text-[10px] font-black uppercase tracking-wider text-muted-foreground text-center">SL</th>
+                              <th className="px-6 py-4 text-[10px] font-black uppercase tracking-wider text-muted-foreground text-right">Tổng</th>
                             </tr>
                           </thead>
                           <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-border/20'}`}>
                             {selectedOrder.items.map((item, index) => (
                               <tr key={index} className="hover:bg-primary/5 transition-all">
-                                <td className="px-5 py-3">
-                                  <div className="flex items-center gap-3">
-                                    <div className={`w-8 h-10 rounded-md overflow-hidden flex-shrink-0 border bg-card ${isMidnight ? 'border-white/5' : 'border-border/30'
+                                <td className="px-6 py-4">
+                                  <div className="flex items-center gap-4">
+                                    <div className={`w-12 h-16 rounded-lg overflow-hidden flex-shrink-0 border bg-card shadow-sm ${isMidnight ? 'border-white/10' : 'border-border/30'
                                       }`}>
                                       {item.cover ? (
                                         <img src={item.cover} alt={item.title} className="w-full h-full object-cover" />
                                       ) : (
                                         <div className="w-full h-full bg-muted/20 flex items-center justify-center text-muted-foreground">
-                                          <i className="fa-solid fa-book text-[9px]"></i>
+                                          <i className="fa-solid fa-book text-xs"></i>
                                         </div>
                                       )}
                                     </div>
-                                    <div className="min-w-0">
-                                      <p className="text-[11px] font-bold text-foreground truncate max-w-[180px]">{item.title}</p>
-                                      <p className="text-[9px] text-muted-foreground font-medium mt-0.5">{formatPrice(item.priceAtPurchase)}</p>
+                                    <div className="min-w-0 py-1">
+                                      <p className="text-sm font-bold text-foreground truncate max-w-[250px] mb-1">{item.title}</p>
+                                      <p className="text-xs text-muted-foreground font-medium">{formatPrice(item.priceAtPurchase)}</p>
                                     </div>
                                   </div>
                                 </td>
-                                <td className="px-5 py-3 text-center">
-                                  <span className="text-[11px] font-black text-foreground">×{item.quantity}</span>
+                                <td className="px-6 py-4 text-center">
+                                  <span className="text-sm font-bold text-foreground px-2 py-1 rounded-md bg-muted/50">×{item.quantity}</span>
                                 </td>
-                                <td className="px-5 py-3 text-right">
-                                  <span className="text-[11px] font-black text-primary">{formatPrice(item.priceAtPurchase * item.quantity)}</span>
+                                <td className="px-6 py-4 text-right">
+                                  <span className="text-sm font-black text-primary">{formatPrice(item.priceAtPurchase * item.quantity)}</span>
                                 </td>
                               </tr>
                             ))}
@@ -535,23 +553,24 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                 </div>
 
                 {/* Footer / Actions */}
-                <div className={`px-8 py-6 flex items-center justify-between border-t ${isMidnight ? 'bg-slate-900 border-white/10' : 'bg-muted/5 border-border'}`}>
-                  <p className="">
+                <div className={`px-8 py-6 flex items-center justify-between border-t ${isMidnight ? 'bg-slate-900/50 border-white/5' : 'bg-muted/20 border-border'}`}>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    * Đơn hàng đã bao gồm VAT nếu có
                   </p>
-                  <div className="flex gap-3">
+                  <div className="flex gap-4">
                     <button
                       onClick={() => window.print()}
-                      className={`px-6 h-11 rounded-xl text-micro font-black uppercase tracking-premium transition-all flex items-center gap-2.5 active:scale-95 shadow-sm ${isMidnight ? 'bg-slate-700/50 border-slate-600 text-slate-300 hover:bg-slate-600' : 'bg-card border border-border text-foreground hover:bg-muted'
+                      className={`px-6 h-12 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2.5 active:scale-95 shadow-sm border ${isMidnight ? 'bg-slate-800 border-white/10 text-slate-300 hover:bg-slate-700' : 'bg-card border-border text-foreground hover:bg-muted'
                         }`}
                     >
-                      <i className="fa-solid fa-print text-[11px]"></i>
-                      <span>In đơn</span>
+                      <i className="fa-solid fa-print text-sm opacity-70"></i>
+                      <span>In đơn hàng</span>
                     </button>
                     <button
                       onClick={() => setIsOrderModalOpen(false)}
-                      className="px-6 h-11 rounded-xl bg-primary text-primary-foreground text-micro font-black uppercase tracking-premium transition-all hover:opacity-90 active:scale-95 shadow-lg shadow-primary/10"
+                      className="px-8 h-12 rounded-xl bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wider transition-all hover:opacity-90 active:scale-95 shadow-lg shadow-primary/25"
                     >
-                      Hoàn thành
+                      Đóng
                     </button>
                   </div>
                 </div>

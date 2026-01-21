@@ -91,6 +91,7 @@ class DataService {
   getAIInsights = ai.getAIInsights;
   getPersonalizedRecommendations = ai.getPersonalizedRecommendations;
   chatWithAI = ai.chatWithAI;
+  fetchGroqModels = ai.fetchGroqModels;
 
   constructor() {
     // Tự động kiểm tra kết nối khi khởi tạo

@@ -138,43 +138,72 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
 
   return (
     <div className="space-y-8 animate-fadeIn text-foreground">
-      {/* Header Card */}
-      <div className={`${isMidnight ? 'bg-[#1e293b]/40 border-white/5' : 'bg-card/40 backdrop-blur-md border-border shadow-3xl'} flex flex-wrap items-center justify-between gap-6 p-8 rounded-[2.5rem] transition-all hover:border-primary/20`}>
-        <div className="flex items-center gap-5">
-          <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-inner">
-            <i className="fa-solid fa-tags text-2xl"></i>
+      {/* Categories Dashboard Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: 'Tổng danh mục', value: categories.length, icon: 'fa-shapes', color: 'primary' },
+          { label: 'Hoạt động', value: categories.length, icon: 'fa-check-circle', color: 'chart-1' },
+          { label: 'Mới cập nhật', value: '3', icon: 'fa-clock', color: 'chart-2' },
+          { label: 'Sách liên quan', value: '150+', icon: 'fa-book', color: 'chart-3' }
+        ].map((stat, i) => (
+          <div key={i} className={`${isMidnight ? 'bg-[#1e293b]/40 border-white/5' : 'bg-card border-border shadow-sm'} p-6 rounded-[2rem] border group transition-all hover:border-primary/50`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">{stat.label}</p>
+                <p className="text-2xl font-black text-foreground">{stat.value}</p>
+              </div>
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-lg bg-${stat.color}/10 text-${stat.color} border border-${stat.color}/20 shadow-sm group-hover:scale-110 transition-transform`}>
+                <i className={`fa-solid ${stat.icon}`}></i>
+              </div>
+            </div>
           </div>
-          <div>
-            <h3 className="text-xl font-black uppercase tracking-tight text-foreground">Quản lý danh mục</h3>
-            <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-1.5 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
-              {categories.length} danh mục hiện có
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-1 items-center justify-end gap-3 min-w-[200px]">
-          <div className="relative group flex-1 max-w-xs">
-            <div className={`absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center transition-colors pointer-events-none ${isMidnight ? 'text-slate-500' : 'text-muted-foreground'}`}>
-              <i className="fa-solid fa-magnifying-glass text-xs"></i>
+        ))}
+      </div>
+      <div className={`${isMidnight ? 'bg-[#1e293b]/40 border-white/5' : 'bg-card/40 backdrop-blur-xl border-border shadow-xl shadow-slate-200/30'} flex flex-wrap items-center justify-between gap-6 p-5 rounded-[2.5rem] border transition-all hover:border-primary/20 sticky top-0 z-30`}>
+        {/* Search & Stats Group */}
+        <div className="flex flex-wrap items-center gap-5 flex-1 min-w-[300px]">
+          <div className="relative group flex-1 max-w-md">
+            <div className={`absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center transition-all ${isMidnight ? 'bg-slate-700 text-slate-400' : 'bg-muted text-muted-foreground'
+              } group-focus-within:bg-primary group-focus-within:text-primary-foreground group-focus-within:shadow-lg group-focus-within:shadow-primary/20`}>
+              <i className="fa-solid fa-magnifying-glass text-[10px]"></i>
             </div>
             <input
               type="text"
-              placeholder="Tìm danh mục..."
+              placeholder="Tìm kiếm danh mục..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className={`w-full pl-12 pr-4 py-3 rounded-2xl border transition-all text-xs font-bold outline-none ${isMidnight
-                ? 'bg-slate-800/50 border-white/5 text-slate-200 focus:bg-slate-800 focus:border-primary/50'
-                : 'bg-background border-border text-foreground focus:border-primary focus:ring-4 focus:ring-primary/5'
+              className={`w-full h-12 pl-16 pr-5 rounded-2xl text-xs font-bold outline-none border transition-all ${isMidnight
+                ? 'bg-slate-800/50 border-white/5 text-slate-200 focus:bg-slate-800'
+                : 'bg-card border-border text-foreground focus:border-primary focus:ring-4 focus:ring-primary/5'
                 }`}
             />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className={`absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full transition-all flex items-center justify-center ${isMidnight ? 'bg-slate-700 text-slate-400 hover:bg-destructive' : 'bg-muted text-muted-foreground hover:bg-destructive hover:text-destructive-foreground'
+                  }`}
+              >
+                <i className="fa-solid fa-xmark text-[10px]"></i>
+              </button>
+            )}
           </div>
+
+          <div className={`h-8 w-px hidden xl:block ${isMidnight ? 'bg-white/5' : 'bg-border'}`}></div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Tổng:</span>
+            <span className="text-sm font-black text-primary bg-primary/10 px-3 py-1 rounded-lg">{categories.length}</span>
+          </div>
+        </div>
+
+        {/* Actions Group */}
+        <div className="flex items-center gap-3">
           <button
             onClick={handleOpenAddCategory}
-            className="bg-primary text-primary-foreground h-12 px-8 rounded-2xl text-micro font-bold uppercase tracking-premium hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/25 flex items-center gap-3 group whitespace-nowrap"
+            className="h-12 px-6 bg-primary text-primary-foreground rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center gap-3 group active:scale-95"
           >
-            <i className="fa-solid fa-plus group-hover:rotate-90 transition-transform"></i>
-            <span>Thêm mới</span>
+            <i className="fa-solid fa-plus text-xs group-hover:rotate-90 transition-transform duration-300"></i>
+            Thêm danh mục
           </button>
         </div>
       </div>
@@ -186,119 +215,114 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className={`${isMidnight ? 'bg-[#1e293b]/40 border-primary/20' : 'bg-card/40 backdrop-blur-md border-primary/20 shadow-xl'} flex items-center justify-between p-5 rounded-[2rem]`}
+            className={`bg-card/40 backdrop-blur-md border-primary/20 shadow-xl flex items-center justify-between p-4 rounded-[2rem] border ${isMidnight ? 'bg-[#1e293b]/40' : ''}`}
           >
-            <div className="flex items-center gap-5 ml-2">
-              <div className="flex items-center gap-3">
-                <span className="flex h-3 w-3 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
-                </span>
-                <span className="text-micro font-black text-primary uppercase tracking-premium">Đã chọn {selectedCategories.length} danh mục</span>
-              </div>
+            <div className="flex items-center gap-4 ml-2">
+              <span className="text-micro font-black text-primary uppercase tracking-premium">Đã chọn {selectedCategories.length} danh mục</span>
               <div className="h-4 w-px bg-border/60"></div>
               <button
                 onClick={toggleSelectAllCategories}
-                className={`text-micro font-bold uppercase tracking-premium transition-colors ${isMidnight ? 'text-slate-400 hover:text-primary' : 'text-muted-foreground hover:text-primary'
-                  }`}
+                className="text-micro font-bold uppercase tracking-premium transition-colors text-muted-foreground hover:text-primary"
               >
-                Bỏ chọn tất cả
+                Bỏ chọn
               </button>
             </div>
-            <button
-              onClick={handleBulkDeleteCategories}
-              disabled={isDeletingBulk}
-              className="bg-destructive/10 text-destructive hover:bg-destructive hover:text-white px-6 py-3 rounded-xl text-micro font-bold uppercase tracking-premium transition-all shadow-sm flex items-center gap-2"
-            >
-              <i className={isDeletingBulk ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-trash-can"}></i>
-              <span>Xóa hàng loạt</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleBulkDeleteCategories}
+                disabled={isDeletingBulk}
+                className="bg-destructive/10 text-destructive hover:bg-destructive hover:text-white px-5 py-2.5 rounded-xl text-micro font-bold uppercase tracking-premium transition-all shadow-sm flex items-center gap-2"
+              >
+                <i className={isDeletingBulk ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-trash-can"}></i>
+                <span>Xóa ({selectedCategories.length})</span>
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Categories Table */}
-      <div className={`${isMidnight ? 'bg-[#1e293b]/40 border-white/5' : 'bg-card/40 backdrop-blur-md border-border shadow-3xl'} rounded-[2.5rem] overflow-hidden`}>
+      <div className={`${isMidnight ? 'bg-[#1e293b] border-white/5' : 'bg-card backdrop-blur-xl border-border shadow-2xl'} rounded-[2.5rem] border overflow-hidden`}>
         <div className="overflow-x-auto custom-scrollbar">
-          <table className="w-full text-left border-collapse min-w-[900px]">
+          <table className="w-full text-left border-collapse min-w-[1000px]">
             <thead>
-              <tr className={`border-b ${isMidnight ? 'bg-slate-900/50 border-white/5' : 'border-border/50 bg-secondary/20'}`}>
-                <th className="p-8 w-20 text-center">
+              <tr className={`border-b ${isMidnight ? 'bg-slate-900/50 border-white/5' : 'bg-muted/30 border-border'}`}>
+                <th className="px-4 py-5 w-20 text-center">
                   <div
                     onClick={toggleSelectAllCategories}
-                    className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${selectedCategories.length === filteredCategories.length && filteredCategories.length > 0
+                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${selectedCategories.length === filteredCategories.length && filteredCategories.length > 0
                       ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/30'
-                      : (isMidnight ? 'border-white/10 bg-slate-800 shadow-inner' : 'border-border bg-background shadow-inner')
+                      : (isMidnight ? 'border-white/10 bg-slate-800 shadow-inner' : 'border-border bg-card shadow-inner')
                       }`}
                   >
-                    {selectedCategories.length === filteredCategories.length && filteredCategories.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
+                    {selectedCategories.length === filteredCategories.length && filteredCategories.length > 0 && <i className="fa-solid fa-check text-xs"></i>}
                   </div>
                 </th>
-                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium">Tên danh mục</th>
-                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium text-center">Biểu tượng</th>
-                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium md:w-1/3">Mô tả</th>
-                <th className="p-8 text-micro font-black text-muted-foreground uppercase tracking-premium text-right">Thao tác</th>
+                <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide">Tên danh mục</th>
+                <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide text-center">Biểu tượng</th>
+                <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide md:w-1/3">Mô tả</th>
+                <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide text-right">Thao tác</th>
               </tr>
             </thead>
-            <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-border/30'}`}>
+            <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-border'}`}>
               {paginatedCategories.map((category, idx) => (
                 <motion.tr
                   key={category.name}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
-                  className={`group transition-all duration-300 ${selectedCategories.includes(category.name)
-                    ? (isMidnight ? 'bg-primary/10' : 'bg-primary/[0.04]')
-                    : (isMidnight ? 'hover:bg-slate-700/30' : 'hover:bg-secondary/30')
+                  className={`group transition-all ${selectedCategories.includes(category.name)
+                    ? (isMidnight ? 'bg-primary/10' : 'bg-primary/5')
+                    : (isMidnight ? 'hover:bg-slate-700/30' : 'hover:bg-muted/30')
                     }`}
                 >
-                  <td className="p-6 text-center">
+                  <td className="px-4 py-4 text-center">
                     <div
                       onClick={() => toggleSelectCategory(category.name)}
-                      className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${selectedCategories.includes(category.name)
+                      className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${selectedCategories.includes(category.name)
                         ? 'bg-primary border-primary text-primary-foreground shadow-md shadow-primary/20'
-                        : (isMidnight ? 'border-white/10 bg-slate-800' : 'border-border bg-background') + ' group-hover:border-primary/50 shadow-inner'
+                        : (isMidnight ? 'border-white/10 bg-slate-800' : 'border-border bg-card') + ' group-hover:border-primary/40'
                         }`}
                     >
-                      {selectedCategories.includes(category.name) && <i className="fa-solid fa-check text-[10px]"></i>}
+                      {selectedCategories.includes(category.name) && <i className="fa-solid fa-check text-xs"></i>}
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <span className="font-extrabold text-base text-foreground group-hover:text-primary transition-colors">{category.name}</span>
+                  <td className="px-4 py-4">
+                    <span className="font-bold text-base text-foreground group-hover:text-primary transition-colors">{category.name}</span>
                   </td>
-                  <td className="px-6 py-4 text-center">
-                    <div className={`w-12 h-12 rounded-2xl mx-auto flex items-center justify-center text-xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 ${isMidnight
+                  <td className="px-4 py-4 text-center">
+                    <div className={`w-10 h-10 rounded-xl mx-auto flex items-center justify-center text-lg transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 ${isMidnight
                       ? 'bg-slate-800/80 text-primary border border-white/5 shadow-lg shadow-black/20'
-                      : 'bg-white text-primary border border-border shadow-lg shadow-primary/5'}`}>
+                      : 'bg-card text-primary border border-border shadow-md'}`}>
                       <i className={`fa-solid ${category.icon}`}></i>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-4">
                     <p className="text-sm font-medium text-muted-foreground line-clamp-2 leading-relaxed">
                       {category.description || 'Chưa có mô tả'}
                     </p>
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-3">
+                  <td className="px-4 py-4 text-right">
+                    <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => handleEditCategory(category)}
-                        className={`w-11 h-11 flex items-center justify-center rounded-2xl transition-all shadow-sm active:scale-95 ${isMidnight
+                        className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm ${isMidnight
                           ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:border-primary hover:text-primary hover:bg-slate-700'
-                          : 'bg-background border border-border text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/5'
+                          : 'bg-muted text-foreground hover:bg-primary/10 hover:text-primary'
                           }`}
                         title="Chỉnh sửa"
                       >
-                        <i className="fa-solid fa-pen-to-square text-sm"></i>
+                        <i className="fa-solid fa-pen-to-square text-xs"></i>
                       </button>
                       <button
                         onClick={() => handleDeleteCategory(category)}
-                        className={`w-11 h-11 flex items-center justify-center rounded-2xl transition-all shadow-sm active:scale-95 ${isMidnight
+                        className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm ${isMidnight
                           ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:border-destructive hover:text-destructive hover:bg-slate-700'
-                          : 'bg-background border border-border text-muted-foreground hover:border-destructive hover:text-destructive hover:bg-destructive/5'
+                          : 'bg-destructive/10 text-destructive hover:bg-destructive/20'
                           }`}
                         title="Xóa"
                       >
-                        <i className="fa-solid fa-trash-can text-sm"></i>
+                        <i className="fa-solid fa-trash-can text-xs"></i>
                       </button>
                     </div>
                   </td>

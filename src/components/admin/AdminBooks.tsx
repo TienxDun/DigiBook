@@ -494,41 +494,38 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
         </div>
       </div>
 
-      {/* Bulk Actions */}
-      {filteredBooks.length > 0 && (
-        <div className={`${isMidnight ? 'bg-[#1e293b]/30 border-white/5' : 'bg-card/30 backdrop-blur-md border-border shadow-xl'} flex items-center justify-between p-4 rounded-2xl border`}>
-          <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 cursor-pointer group">
-              <div
+      {/* Bulk Actions Bar */}
+      <AnimatePresence>
+        {selectedBooks.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className={`bg-card/40 backdrop-blur-md border-primary/20 shadow-xl flex items-center justify-between p-4 rounded-[2rem] border ${isMidnight ? 'bg-[#1e293b]/40' : ''}`}
+          >
+            <div className="flex items-center gap-4 ml-2">
+              <span className="text-micro font-black text-primary uppercase tracking-premium">Đã chọn {selectedBooks.length} sách</span>
+              <div className="h-4 w-px bg-border/60"></div>
+              <button
                 onClick={toggleSelectAllBooks}
-                className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${selectedBooks.length === filteredBooks.length && filteredBooks.length > 0
-                  ? 'bg-primary border-primary text-primary-foreground'
-                  : 'border-border/60 group-hover:border-primary/50'
-                  }`}
+                className="text-micro font-bold uppercase tracking-premium transition-colors text-muted-foreground hover:text-primary"
               >
-                {selectedBooks.length === filteredBooks.length && filteredBooks.length > 0 && <i className="fa-solid fa-check text-xs"></i>}
-              </div>
-              <span className="text-xs font-bold text-muted-foreground">Chọn tất cả ({filteredBooks.length})</span>
-            </label>
-            {selectedBooks.length > 0 && (
-              <div className="h-4 w-px bg-border"></div>
-            )}
-            {selectedBooks.length > 0 && (
-              <span className="text-xs font-bold text-primary">Đã chọn {selectedBooks.length} sản phẩm</span>
-            )}
-          </div>
-          {selectedBooks.length > 0 && (
-            <button
-              onClick={handleBulkDeleteBooks}
-              disabled={isDeletingBulk}
-              className="bg-destructive/10 text-destructive hover:bg-destructive/20 px-4 py-2 rounded-xl text-micro font-bold uppercase tracking-premium transition-all flex items-center gap-2"
-            >
-              <i className={isDeletingBulk ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-trash-can"}></i>
-              <span>Xóa hàng loạt</span>
-            </button>
-          )}
-        </div>
-      )}
+                Bỏ chọn
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleBulkDeleteBooks}
+                disabled={isDeletingBulk}
+                className="bg-destructive/10 text-destructive hover:bg-destructive hover:text-white px-5 py-2.5 rounded-xl text-micro font-bold uppercase tracking-premium transition-all shadow-sm flex items-center gap-2"
+              >
+                <i className={isDeletingBulk ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-trash-can"}></i>
+                <span>Xóa ({selectedBooks.length})</span>
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className={`${isMidnight ? 'bg-[#1e293b] border-white/5' : 'bg-card backdrop-blur-xl border-border shadow-2xl'} rounded-[2.5rem] border overflow-hidden`}>
         <div className="overflow-x-auto custom-scrollbar">

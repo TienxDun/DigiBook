@@ -117,10 +117,13 @@ const AIAssistant: React.FC = () => {
                             {messages.map((msg, idx) => (
                                 <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                     <div className={`max-w-[85%] rounded-2xl p-3 text-sm leading-relaxed shadow-sm ${msg.role === 'user'
-                                        ? 'bg-indigo-600 text-white rounded-tr-none'
-                                        : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none'
+                                        ? 'bg-indigo-600 text-white rounded-tr-none font-medium'
+                                        : 'bg-white text-slate-900 border border-slate-100 rounded-tl-none font-medium'
                                         }`}>
-                                        <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-headings:my-2">
+                                        <div className={`prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-headings:my-2 ${msg.role === 'user'
+                                            ? 'prose-p:text-white prose-headings:text-white prose-strong:text-white prose-li:text-white'
+                                            : 'prose-p:text-slate-900 prose-headings:text-slate-900 prose-strong:text-slate-900 prose-li:text-slate-900'
+                                            }`}>
                                             <ReactMarkdown
                                                 components={{
                                                     p: ({ node, ...props }) => <p className="mb-1 last:mb-0" {...props} />

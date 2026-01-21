@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, PieChart, Pie, Legend } from 'recharts';
 import { db } from "../services/db";
@@ -43,6 +43,25 @@ const AdminDashboard: React.FC = () => {
 
   const [hasMoreLogs, setHasMoreLogs] = useState(true);
   const [isLoadingMoreLogs, setIsLoadingMoreLogs] = useState(false);
+  const [isChartReady, setIsChartReady] = useState(false);
+
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!chartContainerRef.current) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+          setIsChartReady(true);
+        }
+      }
+    });
+
+    resizeObserver.observe(chartContainerRef.current);
+
+    return () => resizeObserver.disconnect();
+  }, []);
 
 
   const refreshData = async () => {
@@ -246,17 +265,15 @@ const AdminDashboard: React.FC = () => {
       )}
 
       {/* Sidebar - Menu chính */}
-      <aside className={`${isSidebarCollapsed ? 'w-24' : 'w-80'} flex flex-col fixed inset-y-0 z-[100] shadow-xl transition-all duration-500 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} ${isMidnight ? 'bg-[#0f172a] border-white/5' : 'bg-sidebar border-sidebar-border'
-        } border-r`}>
-        <div className={`p-6 flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between'} gap-4 h-24 relative z-20 border-b ${isMidnight ? 'border-white/5 bg-[#0f172a]' : 'border-sidebar-border bg-sidebar'
-          }`}>
+      <aside className={`${isSidebarCollapsed ? 'w-24' : 'w-80'} flex flex-col fixed inset-y-0 z-[100] shadow-xl transition-all duration-500 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} bg-[#0f172a] border-white/5 border-r`}>
+        <div className={`p-6 flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between'} gap-4 h-24 relative z-20 border-b border-white/5 bg-[#0f172a]`}>
           {!isSidebarCollapsed ? (
             <div className="flex items-center gap-4 animate-fadeIn">
               <Link to="/" className="w-11 h-11 bg-primary rounded-xl flex items-center justify-center text-primary-foreground hover:scale-105 shadow-xl shadow-primary/20 transition-all active:scale-95 group">
                 <i className="fa-solid fa-bolt-lightning group-hover:rotate-12 transition-transform"></i>
               </Link>
               <div>
-                <h1 className={`text-xl font-black tracking-tighter uppercase leading-none ${isMidnight ? 'text-slate-100' : 'text-sidebar-foreground'}`}>DigiBook</h1>
+                <h1 className="text-xl font-black tracking-tighter uppercase leading-none text-slate-100">DigiBook</h1>
                 <p className="text-[10px] font-black text-primary/80 uppercase tracking-[0.3em] mt-1.5">Architecture</p>
               </div>
             </div>
@@ -265,8 +282,7 @@ const AdminDashboard: React.FC = () => {
               <i className="fa-solid fa-bolt-lightning group-hover:rotate-12 transition-transform"></i>
             </Link>
           )}
-          <button onClick={() => setIsMobileMenuOpen(false)} className={`lg:hidden w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${isMidnight ? 'text-slate-400 hover:text-white hover:bg-white/5' : 'text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent'
-            }`}>
+          <button onClick={() => setIsMobileMenuOpen(false)} className="lg:hidden w-10 h-10 rounded-lg flex items-center justify-center transition-colors text-slate-400 hover:text-white hover:bg-white/5">
             <i className="fa-solid fa-xmark text-lg"></i>
           </button>
         </div>
@@ -275,8 +291,7 @@ const AdminDashboard: React.FC = () => {
           {menuGroups.map((group, gIdx) => (
             <div key={gIdx} className="space-y-2">
               {!isSidebarCollapsed && (
-                <h3 className={`px-4 text-xs font-black uppercase tracking-[0.2em] mb-4 animate-fadeIn ${isMidnight ? 'text-slate-500' : 'text-sidebar-foreground/40'
-                  }`}>
+                <h3 className="px-4 text-xs font-black uppercase tracking-[0.2em] mb-4 animate-fadeIn text-slate-500">
                   {group.title}
                 </h3>
               )}
@@ -291,13 +306,13 @@ const AdminDashboard: React.FC = () => {
                     title={isSidebarCollapsed ? tab.label : ""}
                     className={`flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-4 px-5'} w-full py-3.5 rounded-2xl text-xs font-black uppercase tracking-wide transition-all duration-300 group relative
                       ${activeTab === tab.id
-                        ? (isMidnight ? "bg-primary text-white shadow-xl shadow-primary/20" : "bg-sidebar-primary text-sidebar-primary-foreground shadow-xl shadow-sidebar-primary/20")
-                        : (isMidnight ? "text-slate-400 hover:text-white hover:bg-white/5 hover:translate-x-1" : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent hover:translate-x-1")
+                        ? "bg-primary text-white shadow-xl shadow-primary/20"
+                        : "text-slate-400 hover:text-white hover:bg-white/5 hover:translate-x-1"
                       }`}
                   >
                     <i className={`fa-solid ${tab.icon} ${isSidebarCollapsed ? 'text-lg' : 'text-sm w-5 text-center'} ${activeTab === tab.id
-                      ? (isMidnight ? 'text-white' : 'text-sidebar-primary-foreground')
-                      : (isMidnight ? 'text-slate-500 group-hover:text-primary' : 'text-sidebar-foreground/40 group-hover:text-primary')
+                      ? 'text-white'
+                      : 'text-slate-500 group-hover:text-primary'
                       }`}></i>
                     {!isSidebarCollapsed && <span className="animate-fadeIn">{tab.label}</span>}
 
@@ -315,14 +330,13 @@ const AdminDashboard: React.FC = () => {
         </nav>
 
         {/* Sidebar Footer - Collapse Toggle */}
-        <div className={`p-4 border-t hidden lg:block ${isMidnight ? 'border-white/5' : 'border-white/[0.03]'}`}>
+        <div className="p-4 border-t hidden lg:block border-white/5">
           <button
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className={`w-full flex items-center justify-center gap-3 py-3 rounded-xl transition-all text-[10px] font-black uppercase tracking-widest overflow-hidden ${isMidnight ? 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white' : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
-              }`}
+            className="w-full flex items-center justify-center gap-3 py-3 rounded-xl transition-all text-[10px] font-black uppercase tracking-widest overflow-hidden bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
           >
             <i className={`fa-solid ${isSidebarCollapsed ? 'fa-angles-right' : 'fa-angles-left'} transition-transform duration-500`}></i>
-            {!isSidebarCollapsed && <span className="whitespace-nowrap animate-fadeIn">Thu g?n menu</span>}
+            {!isSidebarCollapsed && <span className="whitespace-nowrap animate-fadeIn">Thu gọn menu</span>}
           </button>
         </div>
       </aside>
@@ -385,10 +399,10 @@ const AdminDashboard: React.FC = () => {
               {/* Stats Grid - Premium Glassmorphism */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
                 {[
-                  { label: "Doanh thu", value: formatPrice(stats.totalRevenue), icon: "fa-sack-dollar", bgColor: "bg-chart-1/10", iconColor: "text-chart-1", sub: `Chiếm ${((stats.totalRevenue / 1000000) * 100).toFixed(1)}% mục tiêu tuần`, growth: "+12.5%", trend: "up" },
-                  { label: "Đơn hàng", value: stats.totalOrders, icon: "fa-cart-shopping", bgColor: "bg-primary/10", iconColor: "text-primary", sub: `${stats.todayOrders} đơn trong hôm nay`, growth: stats.todayOrders > 0 ? "+25%" : "0%", trend: "up" },
-                  { label: "Sách tồn", value: stats.totalBooks, icon: "fa-book-open-reader", bgColor: "bg-chart-2/10", iconColor: "text-chart-2", sub: `${stats.outOfStock} đầu sách hết`, growth: stats.lowStock > 0 ? `-${stats.lowStock}` : "Ẩn danh", trend: stats.lowStock > 0 ? "down" : "neutral" },
-                  { label: "Đang xử lý", value: stats.pendingOrders, icon: "fa-clock", bgColor: "bg-chart-3/10", iconColor: "text-chart-3", sub: `${stats.completedOrders} đơn hoàn thành`, growth: "Ưu tiên cao", trend: "neutral" }
+                  { label: "Doanh thu", value: formatPrice(stats.totalRevenue), icon: "fa-sack-dollar", bgColor: "bg-chart-1/10", iconColor: "text-chart-1", sub: `Tổng doanh thu`, growth: "VNĐ", trend: "neutral" },
+                  { label: "Đơn hàng", value: stats.totalOrders, icon: "fa-cart-shopping", bgColor: "bg-primary/10", iconColor: "text-primary", sub: `${stats.todayOrders} đơn hôm nay`, growth: "Orders", trend: "neutral" },
+                  { label: "Sách tồn", value: stats.totalBooks, icon: "fa-book-open-reader", bgColor: "bg-chart-2/10", iconColor: "text-chart-2", sub: `${stats.outOfStock} sách hết hàng`, growth: "Books", trend: "neutral" },
+                  { label: "Đang xử lý", value: stats.pendingOrders, icon: "fa-clock", bgColor: "bg-chart-3/10", iconColor: "text-chart-3", sub: `${stats.completedOrders} đơn hoàn tất`, growth: "Process", trend: "neutral" }
                 ].map((stat, i) => (
                   <div key={i} className={`p-4 rounded-2xl lg:rounded-3xl border shadow-xl transition-all duration-500 group relative overflow-hidden ${isMidnight
                     ? 'bg-[#1e293b]/40 border-white/5 hover:border-primary/40 hover:bg-[#1e293b]/60'
@@ -399,10 +413,7 @@ const AdminDashboard: React.FC = () => {
                         <i className={`fa-solid ${stat.icon}`}></i>
                       </div>
                       <div className="flex flex-col items-end">
-                        <div className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest ${stat.trend === 'up' ? 'text-emerald-400 bg-emerald-500/10' :
-                          stat.trend === 'down' ? 'text-rose-400 bg-rose-500/10' :
-                            'text-muted-foreground bg-muted'
-                          }`}>
+                        <div className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest text-muted-foreground bg-muted`}>
                           {stat.growth}
                         </div>
                       </div>
@@ -448,55 +459,57 @@ const AdminDashboard: React.FC = () => {
                   </div>
 
                   {/* Revenue Chart Visualization using Recharts */}
-                  <div className="h-80 mt-10 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart
-                        data={stats.revenueByDay}
-                        margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-                      >
-                        <defs>
-                          <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
-                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke={isMidnight ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"} vertical={false} />
-                        <XAxis
-                          dataKey="day"
-                          stroke={isMidnight ? "#94a3b8" : "#64748b"}
-                          fontSize={10}
-                          tickLine={false}
-                          axisLine={false}
-                          tickFormatter={(value) => `Ngày ${value}`}
-                        />
-                        <YAxis
-                          stroke={isMidnight ? "#94a3b8" : "#64748b"}
-                          fontSize={10}
-                          tickLine={false}
-                          axisLine={false}
-                          tickFormatter={(value) => value >= 1000000 ? `${(value / 1000000).toFixed(1)}M` : value >= 1000 ? `${(value / 1000).toFixed(0)}K` : value}
-                        />
-                        <Tooltip
-                          contentStyle={{
-                            backgroundColor: isMidnight ? '#1e293b' : '#fff',
-                            borderRadius: '12px',
-                            border: 'none',
-                            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-                          }}
-                          labelStyle={{ color: isMidnight ? '#cbd5e1' : '#64748b', fontWeight: 'bold' }}
-                          formatter={(value: any) => [formatPrice(value), 'Doanh thu']}
-                        />
-                        <Area
-                          type="monotone"
-                          dataKey="total"
-                          stroke="#8b5cf6"
-                          strokeWidth={3}
-                          fillOpacity={1}
-                          fill="url(#colorRevenue)"
-                          animationDuration={1500}
-                        />
-                      </AreaChart>
-                    </ResponsiveContainer>
+                  <div ref={chartContainerRef} className="h-80 mt-10 w-full" style={{ width: '100%', height: 320 }}>
+                    {isChartReady && (
+                      <ResponsiveContainer width="100%" height={300}>
+                        <AreaChart
+                          data={stats.revenueByDay}
+                          margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                        >
+                          <defs>
+                            <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
+                              <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke={isMidnight ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"} vertical={false} />
+                          <XAxis
+                            dataKey="day"
+                            stroke={isMidnight ? "#94a3b8" : "#64748b"}
+                            fontSize={10}
+                            tickLine={false}
+                            axisLine={false}
+                            tickFormatter={(value) => `Ngày ${value}`}
+                          />
+                          <YAxis
+                            stroke={isMidnight ? "#94a3b8" : "#64748b"}
+                            fontSize={10}
+                            tickLine={false}
+                            axisLine={false}
+                            tickFormatter={(value) => value >= 1000000 ? `${(value / 1000000).toFixed(1)}M` : value >= 1000 ? `${(value / 1000).toFixed(0)}K` : value}
+                          />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: isMidnight ? '#1e293b' : '#fff',
+                              borderRadius: '12px',
+                              border: 'none',
+                              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                            }}
+                            labelStyle={{ color: isMidnight ? '#cbd5e1' : '#64748b', fontWeight: 'bold' }}
+                            formatter={(value: any) => [formatPrice(value), 'Doanh thu']}
+                          />
+                          <Area
+                            type="monotone"
+                            dataKey="total"
+                            stroke="#8b5cf6"
+                            strokeWidth={3}
+                            fillOpacity={1}
+                            fill="url(#colorRevenue)"
+                            animationDuration={1500}
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    )}
                   </div>
                 </div>
 
