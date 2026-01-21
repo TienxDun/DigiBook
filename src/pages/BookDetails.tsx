@@ -607,13 +607,22 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
               value={newComment}
               onChange={e => setNewComment(e.target.value)}
               placeholder="Chia sẻ cảm nhận của bạn về cuốn sách này..."
-              className="flex-grow px-4 py-2 bg-slate-50 rounded-xl outline-none focus:ring-2 ring-indigo-500/20 font-medium text-sm text-slate-700 transition-all border border-slate-200 min-w-0"
+              disabled={loading}
+              className="flex-grow px-4 py-2 bg-slate-50 rounded-xl outline-none focus:ring-2 ring-indigo-500/20 font-medium text-sm text-slate-700 transition-all border border-slate-200 min-w-0 disabled:opacity-70"
             />
             <button
               onClick={handleAddReview}
-              className="w-full sm:w-auto px-6 py-2 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all active:scale-95 whitespace-nowrap"
+              disabled={loading}
+              className="w-full sm:w-auto px-6 py-2 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all active:scale-95 whitespace-nowrap disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              Gửi nhận xét
+              {loading ? (
+                <>
+                  <i className="fa-solid fa-spinner fa-spin"></i>
+                  Đang gửi...
+                </>
+              ) : (
+                'Gửi nhận xét'
+              )}
             </button>
           </div>
         </section>

@@ -26,6 +26,7 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
   const [authorFormData, setAuthorFormData] = useState<Partial<Author>>({});
   const [selectedAuthors, setSelectedAuthors] = useState<string[]>([]);
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   // Lock scroll when modal is open
@@ -159,8 +160,8 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
               value={searchTerm}
               onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
               className={`w-full pl-12 pr-4 py-3 rounded-2xl border transition-all text-xs font-bold outline-none ${isMidnight
-                  ? 'bg-slate-800/50 border-white/5 text-slate-200 focus:bg-slate-800 focus:border-primary/50'
-                  : 'bg-background border-border text-foreground focus:border-primary focus:ring-4 focus:ring-primary/5'
+                ? 'bg-slate-800/50 border-white/5 text-slate-200 focus:bg-slate-800 focus:border-primary/50'
+                : 'bg-background border-border text-foreground focus:border-primary focus:ring-4 focus:ring-primary/5'
                 }`}
             />
           </div>
@@ -457,15 +458,21 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
                       onClick={() => setIsAuthorModalOpen(false)}
                       className={`flex-1 py-4 rounded-2xl text-micro font-black uppercase tracking-widest transition-all active:scale-95 ${isMidnight ? 'text-slate-400 hover:bg-slate-700/50' : 'text-muted-foreground hover:bg-secondary'
                         }`}
+                      disabled={isSubmitting}
                     >
-                      Hủy bỏ
+                      Bỏ qua
                     </button>
                     <button
                       type="submit"
-                      className="flex-[1.5] bg-primary text-primary-foreground py-4 rounded-2xl text-micro font-black uppercase tracking-widest hover:shadow-lg hover:shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
+                      disabled={isSubmitting}
+                      className="flex-[1.5] bg-primary text-primary-foreground py-4 rounded-2xl text-micro font-black uppercase tracking-widest hover:shadow-lg hover:shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <i className="fa-solid fa-save text-xs"></i>
-                      <span>{editingAuthor ? 'Cập nhật' : 'Thêm mới'}</span>
+                      {isSubmitting ? (
+                        <i className="fa-solid fa-spinner fa-spin text-xs"></i>
+                      ) : (
+                        <i className="fa-solid fa-check-circle text-xs"></i>
+                      )}
+                      <span>Lưu thay đổi</span>
                     </button>
                   </div>
                 </form>
@@ -479,4 +486,3 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
 };
 
 export default AdminAuthors;
-
