@@ -27,11 +27,11 @@ export async function getAuthors(): Promise<Author[]> {
   );
 }
 
-export async function saveAuthor(author: Author): Promise<void> {
+export async function saveAuthor(author: Author): Promise<string> {
   const id = author.id || Date.now().toString();
-  await wrap(
-    setDoc(doc(db_fs, 'authors', id), { ...author, id }, { merge: true }),
-    undefined,
+  return wrap(
+    setDoc(doc(db_fs, 'authors', id), { ...author, id }, { merge: true }).then(() => id),
+    id,
     'SAVE_AUTHOR',
     author.name
   );
@@ -96,7 +96,7 @@ export async function deleteCategoriesBulk(names: string[]): Promise<void> {
   );
 }
 
-export async function seedDatabase(): Promise<{success: boolean, count: number, error?: string}> {
+export async function seedDatabase(): Promise<{ success: boolean, count: number, error?: string }> {
   if (!db_fs) return { success: false, count: 0, error: "Firebase chưa được cấu hình" };
   try {
     const batch = writeBatch(db_fs);
@@ -104,7 +104,7 @@ export async function seedDatabase(): Promise<{success: boolean, count: number, 
       const ref = doc(db_fs, 'categories', cat.name);
       batch.set(ref, cat);
     });
-    
+
     await batch.commit();
     logActivity('SEED_DATA', `Seeded ${INITIAL_CATEGORIES.length} categories.`, 'SUCCESS', 'INFO', 'ADMIN');
     return { success: true, count: INITIAL_CATEGORIES.length };
@@ -116,20 +116,20 @@ export async function seedDatabase(): Promise<{success: boolean, count: number, 
 
 export async function saveBooksBatch(books: Book[]): Promise<number> {
   if (books.length === 0) return 0;
-  
+
   return wrap(
     (async () => {
       const batch = writeBatch(db_fs);
-      
+
       const existingAuthors = await getAuthors();
       const authorMap = new Map(existingAuthors.map(a => [a.name.toLowerCase().trim(), a.id]));
-      
+
       for (const book of books) {
         const authorName = book.author.trim();
         const authorKey = authorName.toLowerCase();
-        
+
         let authorId: string;
-        
+
         if (authorMap.has(authorKey)) {
           authorId = authorMap.get(authorKey)!;
         } else {
@@ -140,21 +140,21 @@ export async function saveBooksBatch(books: Book[]): Promise<number> {
             bio: book.authorBio || `Tác giả của cuốn sách "${book.title}".`,
             avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=random&size=256`
           };
-          
+
           const authorDocRef = doc(db_fs, 'authors', authorId);
           batch.set(authorDocRef, { ...newAuthor, createdAt: serverTimestamp() });
           authorMap.set(authorKey, authorId);
         }
-        
+
         book.authorId = authorId;
         const cleanBook = Object.fromEntries(
           Object.entries(book).filter(([_, v]) => v !== undefined)
         );
-        
+
         const bookDocRef = doc(db_fs, 'books', book.id);
         batch.set(bookDocRef, { ...cleanBook, updatedAt: serverTimestamp() }, { merge: true });
       }
-      
+
       await batch.commit();
       return books.length;
     })(),

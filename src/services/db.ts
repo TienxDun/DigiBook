@@ -23,6 +23,7 @@ class DataService {
 
   // Books
   getBooks = books.getBooks;
+  getBooksPaginated = books.getBooksPaginated;
   getBookById = books.getBookById;
   getBooksByIds = books.getBooksByIds;
   getRelatedBooks = books.getRelatedBooks;
@@ -51,6 +52,8 @@ class DataService {
   checkIfUserPurchasedBook = orders.checkIfUserPurchasedBook;
   getOrderWithItems = orders.getOrderWithItems;
   updateOrderStatus = orders.updateOrderStatus;
+  syncUserCart = orders.syncUserCart;
+  getUserCart = orders.getUserCart;
 
   // Users & Profiles
   getUserProfile = users.getUserProfile;

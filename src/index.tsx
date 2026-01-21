@@ -3,6 +3,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './AuthContext';
+import { BookProvider } from './contexts/BookContext';
+import { CartProvider } from './contexts/CartContext';
 import './index.css';
 import App from './App';
 import { registerSW } from 'virtual:pwa-register';
@@ -29,7 +31,11 @@ root.render(
   <React.StrictMode>
     <HelmetProvider>
       <AuthProvider>
-        <App />
+        <BookProvider>
+          <CartProvider>
+            <App />
+          </CartProvider>
+        </BookProvider>
       </AuthProvider>
     </HelmetProvider>
   </React.StrictMode>

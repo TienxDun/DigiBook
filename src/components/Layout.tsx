@@ -24,74 +24,33 @@ export const MainContent: React.FC<{ children: React.ReactNode }> = ({ children 
   );
 };
 
-export const LayoutWrapper: React.FC<{ 
-  children: React.ReactNode, 
-  cartCount: number, 
-  cartItems: CartItem[], 
-  selectedCartItemIds: string[],
-  onToggleSelection: (id: string) => void,
-  onToggleAll: (selectAll: boolean) => void,
-  categories: CategoryInfo[],
-  allBooks: Book[],
-  onOpenCart: () => void, 
+export const LayoutWrapper: React.FC<{
+  children: React.ReactNode,
   onSearch: (q: string) => void,
   searchQuery: string,
-  onRefreshData?: () => void,
-  isCartOpen: boolean,
-  onCloseCart: () => void,
-  onRemoveCart: (id: string) => void,
-  onUpdateCartQty: (id: string, delta: number) => void
-}> = ({ 
-  children, 
-  cartCount, 
-  cartItems, 
-  selectedCartItemIds,
-  onToggleSelection,
-  onToggleAll,
-  categories, 
-  allBooks,
-  onOpenCart, 
-  onSearch, 
-  searchQuery, 
-  onRefreshData, 
-  isCartOpen, 
-  onCloseCart, 
-  onRemoveCart, 
-  onUpdateCartQty 
+}> = ({
+  children,
+  onSearch,
+  searchQuery,
 }) => {
-  const location = useLocation();
-  const isAdmin = location.pathname.startsWith('/admin');
+    const location = useLocation();
+    const isAdmin = location.pathname.startsWith('/admin');
 
-  return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      {!isAdmin && (
-        <Header 
-          cartCount={cartCount} 
-          cartItems={cartItems} 
-          categories={categories}
-          allBooks={allBooks}
-          onOpenCart={onOpenCart} 
-          onSearch={onSearch} 
-          searchQuery={searchQuery}
-          onRefreshData={onRefreshData}
-        />
-      )}
-      
-      <MainContent>{children}</MainContent>
-      
-      {!isAdmin && <Footer />}
-      {!isAdmin && <MobileNav cartCount={cartCount} onOpenCart={onOpenCart} onRefreshData={onRefreshData} isCartOpen={isCartOpen} onCloseCart={onCloseCart} />}
-      
-      <CartSidebar 
-        isOpen={isCartOpen} 
-        onClose={onCloseCart} 
-        items={cartItems} 
-        selectedIds={selectedCartItemIds}
-        onToggleSelection={onToggleSelection}
-        onToggleAll={onToggleAll}
-        onRemove={onRemoveCart} 
-        onUpdateQty={onUpdateCartQty} 
-      />
-    </div>
-  );
-};
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-50">
+        {!isAdmin && (
+          <Header
+            onSearch={onSearch}
+            searchQuery={searchQuery}
+          />
+        )}
+
+        <MainContent>{children}</MainContent>
+
+        {!isAdmin && <Footer />}
+        {!isAdmin && <MobileNav />}
+
+        <CartSidebar />
+      </div>
+    );
+  };

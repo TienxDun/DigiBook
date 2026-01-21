@@ -11,7 +11,10 @@ import {
   updateDoc,
   deleteDoc,
   writeBatch,
-  serverTimestamp
+  serverTimestamp,
+  startAfter,
+  orderBy,
+  QueryDocumentSnapshot
 } from "firebase/firestore";
 import { db_fs } from "../firebase";
 import { Book, Author } from '../../types';
@@ -21,6 +24,26 @@ export async function getBooks(): Promise<Book[]> {
   return wrap(
     getDocs(collection(db_fs, 'books')).then(snap => snap.docs.map(d => ({ id: d.id, ...d.data() } as Book))),
     []
+  );
+}
+
+export async function getBooksPaginated(limitCount: number = 10, lastVisibleDoc?: QueryDocumentSnapshot): Promise<{ books: Book[], lastDoc: QueryDocumentSnapshot | null }> {
+  return wrap(
+    (async () => {
+      const booksRef = collection(db_fs, 'books');
+      let q = query(booksRef, orderBy('title'), limit(limitCount));
+
+      if (lastVisibleDoc) {
+        q = query(booksRef, orderBy('title'), startAfter(lastVisibleDoc), limit(limitCount));
+      }
+
+      const snap = await getDocs(q);
+      const books = snap.docs.map(d => ({ id: d.id, ...d.data() } as Book));
+      const lastDoc = snap.docs[snap.docs.length - 1] || null;
+
+      return { books, lastDoc };
+    })(),
+    { books: [], lastDoc: null }
   );
 }
 
@@ -42,7 +65,7 @@ export async function getRelatedBooks(category: string, currentBookId: string, a
     (async () => {
       const booksRef = collection(db_fs, 'books');
       const qCat = query(
-        booksRef, 
+        booksRef,
         where('category', '==', category),
         limit(limitCount + 1)
       );
@@ -136,12 +159,12 @@ export async function fetchBooksFromGoogle(q: string = 'sách tiếng việt', m
         }
 
         if (!coverUrl) {
-           coverUrl = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=800&auto=format&fit=crop';
+          coverUrl = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=800&auto=format&fit=crop';
         }
 
         const finalIsbn = isbn;
         const finalRating = Number(info.averageRating || (4 + Math.random()).toFixed(1));
-        
+
         let mappedLang = 'Tiếng Việt';
         if (info.language === 'en') mappedLang = 'English';
         else if (info.language === 'ja') mappedLang = '日本語';
@@ -149,7 +172,7 @@ export async function fetchBooksFromGoogle(q: string = 'sách tiếng việt', m
         else if (info.language === 'de') mappedLang = 'Deutsch';
         else if (info.language === 'es') mappedLang = 'Español';
         else if (info.language === 'zh') mappedLang = '中文';
-        
+
         let badge = '';
         if (finalRating >= 4.8) badge = 'Bán chạy';
         else if (info.pageCount > 500) badge = 'Kinh điển';
@@ -159,7 +182,7 @@ export async function fetchBooksFromGoogle(q: string = 'sách tiếng việt', m
           title: info.title || 'Không có tiêu đề',
           author: info.authors?.join(', ') || 'Nhiều tác giả',
           authorBio: info.description?.substring(0, 300) || 'Thông tin tác giả đang được cập nhật.',
-          price: Math.floor(Math.random() * (350000 - 85000) + 85000), 
+          price: Math.floor(Math.random() * (350000 - 85000) + 85000),
           originalPrice: Math.floor(Math.random() * (450000 - 400000) + 400000),
           stockQuantity: Math.floor(Math.random() * 50) + 5,
           rating: finalRating,
@@ -186,7 +209,7 @@ export async function fetchBooksFromGoogle(q: string = 'sách tiếng việt', m
 export async function fetchBookByISBN(isbn: string): Promise<Book | null> {
   try {
     if (!isbn || isbn.length < 10) return null;
-    
+
     const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${encodeURIComponent(isbn)}`;
     const response = await fetch(url);
     const data = await response.json();
@@ -194,7 +217,7 @@ export async function fetchBookByISBN(isbn: string): Promise<Book | null> {
     if (!data.items || data.items.length === 0) return null;
 
     const info = data.items[0].volumeInfo;
-    
+
     const gbCats = info.categories || [];
     let appCat = "Văn học";
     if (gbCats.some((c: string) => c.toLowerCase().includes('business') || c.toLowerCase().includes('economics'))) appCat = 'Kinh tế';
@@ -204,7 +227,7 @@ export async function fetchBookByISBN(isbn: string): Promise<Book | null> {
 
     let coverUrl = info.imageLinks?.thumbnail?.replace('http:', 'https:') || "";
     if (coverUrl.includes('zoom=1')) coverUrl = coverUrl.replace('zoom=1', 'zoom=2');
-    
+
     if (!coverUrl) {
       coverUrl = `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`;
     }
@@ -214,7 +237,7 @@ export async function fetchBookByISBN(isbn: string): Promise<Book | null> {
       title: info.title || 'Không có tiêu đề',
       author: info.authors?.join(', ') || 'Nhiều tác giả',
       authorBio: info.description?.substring(0, 300) || 'Thông tin tác giả đang được cập nhật.',
-      price: 0, 
+      price: 0,
       stockQuantity: 10,
       rating: Number(info.averageRating || 5),
       cover: coverUrl,

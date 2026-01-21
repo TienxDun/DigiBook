@@ -5,25 +5,32 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Book, CategoryInfo, CartItem } from '../types';
 import { db } from '../services/db';
 import { useAuth } from '../AuthContext';
+import { useBooks } from '../contexts/BookContext';
+import { useCart } from '../contexts/CartContext';
 import BookCard from '../components/BookCard';
 import { BookCardSkeleton } from '../components/Skeleton';
 import SEO from '../components/SEO';
 
-interface HomePageProps {
-  onAddToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => void;
-  onQuickView?: (book: Book) => void;
-  categories: CategoryInfo[];
-  allBooks: Book[];
-}
+const HomePage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickView }) => {
+  const { allBooks, categories, hasMore, loadingMore, loadMore } = useBooks();
+  const { addToCart } = useCart();
+  const { user, wishlist, setShowLoginModal, setAuthMode } = useAuth();
 
-const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categories, allBooks }) => {
-  const { user, wishlist } = useAuth();
-  const { setShowLoginModal, setAuthMode } = useAuth();
+  // Giả sử onQuickView được xử lý thông qua state trong App hoặc Context khác, 
+  // nhưng ở đây HomePage nhận nó từ prop. Để đơn giản, tôi sẽ giả định App vẫn truyền nó 
+  // hoặc dùng một cơ chế khác. Trong App.tsx hiện tại, handleQuickView vẫn được định nghĩa.
+  // Tuy nhiên, để đúng tinh thần refactor, tôi sẽ truyền nó qua prop nếu nó là UI state cục bộ của App.
+  // Nhưng kế hoạch là dùng Context cho dữ liệu. UI state như QuickView có thể vẫn ở App hoặc một UIContext.
+  // Cho bây giờ, tôi sẽ giữ onQuickView là prop nếu cần, hoặc bỏ nó nếu nó có thể dùng chung.
+
+  // Tạm thời tôi sẽ bỏ props và nếu cần QuickView thì sẽ tính sau (hoặc dùng prop nếu App vẫn truyền).
+  // Nhìn vào App.tsx mới, AppContent vẫn truyền các hàm này.
+
 
   return (
     <div className="space-y-0 fade-in">
-      <SEO 
-        title="Trang chủ" 
+      <SEO
+        title="Trang chủ"
         description="Chào mừng bạn đến với DigiBook - Nhà sách trực tuyến hiện đại nhất Việt Nam. Khám phá kho sách khổng lồ và công nghệ AI phân tích sách."
         url="/"
       />
@@ -31,7 +38,7 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
       <section className="relative min-h-[40vh] lg:min-h-[60vh] flex items-center overflow-hidden bg-background mt-[-80px] lg:mt-[-80px]">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-secondary -skew-x-12 translate-x-32 hidden lg:block"></div>
         <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-secondary/50 to-transparent lg:hidden"></div>
-        
+
         <div className="max-w-7xl mx-auto px-4 relative z-10 flex flex-col lg:flex-row items-center gap-10 pt-12 pb-6 lg:pt-20 lg:pb-2">
           <div className="flex-1 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent rounded-full text-primary text-micro font-extrabold uppercase tracking-ultra mb-4">
@@ -51,7 +58,7 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
               </Link>
               <div className="flex items-center gap-3">
                 <div className="flex -space-x-3">
-                  {[1,2,3].map(i => (
+                  {[1, 2, 3].map(i => (
                     <img key={i} src={`https://i.pravatar.cc/100?u=${i}`} className="w-8 h-8 rounded-full border-4 border-white shadow-sm" alt="" />
                   ))}
                 </div>
@@ -61,23 +68,23 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
               </div>
             </div>
           </div>
-          
+
           <div className="flex-1 relative group w-full max-w-lg">
-             <div className="absolute -inset-10 bg-primary/10 blur-[80px] rounded-full group-hover:bg-primary/20 transition-all duration-700"></div>
-             <div className="relative grid grid-cols-2 gap-3">
-                <div className="space-y-3 pt-6">
-                   <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop" loading="eager" className="w-full aspect-[3/4] object-cover rounded-[1.2rem] shadow-xl transition-transform duration-700 hover:-translate-y-2" alt="Hero book 1" />
-                   <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=800&auto=format&fit=crop" loading="eager" className="w-full aspect-[3/4] object-cover rounded-[1.2rem] shadow-xl transition-transform duration-700 hover:-translate-y-2" alt="Hero book 2" />
+            <div className="absolute -inset-10 bg-primary/10 blur-[80px] rounded-full group-hover:bg-primary/20 transition-all duration-700"></div>
+            <div className="relative grid grid-cols-2 gap-3">
+              <div className="space-y-3 pt-6">
+                <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop" loading="eager" className="w-full aspect-[3/4] object-cover rounded-[1.2rem] shadow-xl transition-transform duration-700 hover:-translate-y-2" alt="Hero book 1" />
+                <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=800&auto=format&fit=crop" loading="eager" className="w-full aspect-[3/4] object-cover rounded-[1.2rem] shadow-xl transition-transform duration-700 hover:-translate-y-2" alt="Hero book 2" />
+              </div>
+              <div className="space-y-3">
+                <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=800&auto=format&fit=crop" loading="eager" className="w-full aspect-[3/4] object-cover rounded-[1.2rem] shadow-xl transition-transform duration-700 hover:-translate-y-2" alt="Hero book 3" />
+                <div className="w-full aspect-[3/4] bg-primary rounded-[1.2rem] shadow-xl flex flex-col items-center justify-center p-4 text-center text-white">
+                  <i className="fa-solid fa-star-half-stroke text-2xl mb-2 text-amber-300"></i>
+                  <p className="text-lg font-extrabold">4.9/5</p>
+                  <p className="text-micro font-bold uppercase tracking-premium opacity-60 text-white">Đánh giá chung</p>
                 </div>
-                <div className="space-y-3">
-                   <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=800&auto=format&fit=crop" loading="eager" className="w-full aspect-[3/4] object-cover rounded-[1.2rem] shadow-xl transition-transform duration-700 hover:-translate-y-2" alt="Hero book 3" />
-                   <div className="w-full aspect-[3/4] bg-primary rounded-[1.2rem] shadow-xl flex flex-col items-center justify-center p-4 text-center text-white">
-                      <i className="fa-solid fa-star-half-stroke text-2xl mb-2 text-amber-300"></i>
-                      <p className="text-lg font-extrabold">4.9/5</p>
-                      <p className="text-micro font-bold uppercase tracking-premium opacity-60 text-white">Đánh giá chung</p>
-                   </div>
-                </div>
-             </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -94,26 +101,26 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
               </div>
               <span className="text-xs font-black text-white uppercase tracking-[0.2em] leading-none hidden sm:block">Khám phá</span>
             </div>
-            
+
             <div className="flex-1 flex items-center gap-3 overflow-x-auto no-scrollbar scroll-smooth">
               {categories.map((cat, i) => (
-                <Link 
-                  key={i} 
+                <Link
+                  key={i}
                   to={`/category/${cat.name}`}
                   className="flex-shrink-0 flex items-center gap-2.5 px-4 py-2 bg-white/5 hover:bg-indigo-500/10 rounded-xl transition-all group border border-white/5 hover:border-indigo-500/30 relative overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <i className={`fa-solid ${cat.icon} text-xs text-indigo-400/40 group-hover:text-indigo-300 transition-transform group-hover:scale-110 z-10`}></i>
                   <span className="text-xs font-bold text-slate-300 group-hover:text-white whitespace-nowrap z-10">{cat.name}</span>
-                  
+
                   {/* Subtle hover glow */}
                   <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-indigo-500/60 group-hover:w-1/2 transition-all duration-500"></div>
                 </Link>
               ))}
             </div>
 
-            <Link 
-              to="/category/Tất cả sách" 
+            <Link
+              to="/category/Tất cả sách"
               className="flex-shrink-0 flex items-center justify-center w-11 h-11 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-90"
               title="Tất cả danh mục"
             >
@@ -128,29 +135,29 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3 lg:gap-4">
             <div className="md:col-span-1 bg-cyan-50/50 p-5 lg:p-6 rounded-[2rem] lg:rounded-3xl border border-cyan-100/50 flex flex-col gap-4 group">
-               <div className="w-10 h-10 bg-cyan-500 text-white rounded-xl flex items-center justify-center text-sm shadow-lg shadow-cyan-500/20 group-hover:scale-110 transition-transform"><i className="fa-solid fa-certificate"></i></div>
-               <div>
-                 <h3 className="text-xs font-black text-foreground uppercase tracking-widest mb-1">Bản Quyền</h3>
-                 <p className="text-xs text-slate-500 font-medium leading-relaxed">Sách chính hãng 100%.</p>
-               </div>
+              <div className="w-10 h-10 bg-cyan-500 text-white rounded-xl flex items-center justify-center text-sm shadow-lg shadow-cyan-500/20 group-hover:scale-110 transition-transform"><i className="fa-solid fa-certificate"></i></div>
+              <div>
+                <h3 className="text-xs font-black text-foreground uppercase tracking-widest mb-1">Bản Quyền</h3>
+                <p className="text-xs text-slate-500 font-medium leading-relaxed">Sách chính hãng 100%.</p>
+              </div>
             </div>
             <div className="md:col-span-1 bg-orange-50/50 p-6 rounded-3xl border border-orange-100/50 flex flex-col gap-4 group">
-               <div className="w-10 h-10 bg-orange-500 text-white rounded-xl flex items-center justify-center text-sm shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform"><i className="fa-solid fa-bolt"></i></div>
-               <div>
-                 <h3 className="text-xs font-black text-foreground uppercase tracking-widest mb-1">Giao Tốc Hành</h3>
-                 <p className="text-xs text-slate-500 font-medium leading-relaxed">Nhận hàng trong 2h nội thành.</p>
-               </div>
+              <div className="w-10 h-10 bg-orange-500 text-white rounded-xl flex items-center justify-center text-sm shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform"><i className="fa-solid fa-bolt"></i></div>
+              <div>
+                <h3 className="text-xs font-black text-foreground uppercase tracking-widest mb-1">Giao Tốc Hành</h3>
+                <p className="text-xs text-slate-500 font-medium leading-relaxed">Nhận hàng trong 2h nội thành.</p>
+              </div>
             </div>
             <div className="md:col-span-2 bg-foreground rounded-3xl p-6 relative overflow-hidden group">
-               <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent"></div>
-               <div className="relative z-10 flex items-center justify-between h-full">
-                  <div>
-                    <span className="text-micro font-black text-primary uppercase tracking-[0.2em] mb-2 block">Chào mừng bạn mới</span>
-                    <h3 className="text-white text-xl font-bold mb-4">Giảm 15% cho đơn đầu tiên</h3>
-                    <div className="inline-block px-4 py-2 bg-white/10 backdrop-blur-md rounded-lg font-black text-xs text-white border border-white/10 tracking-widest">DIGI26</div>
-                  </div>
-                  <i className="fa-solid fa-gift text-white/5 text-7xl -rotate-12 group-hover:scale-125 transition-transform duration-700"></i>
-               </div>
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent"></div>
+              <div className="relative z-10 flex items-center justify-between h-full">
+                <div>
+                  <span className="text-micro font-black text-primary uppercase tracking-[0.2em] mb-2 block">Chào mừng bạn mới</span>
+                  <h3 className="text-white text-xl font-bold mb-4">Giảm 15% cho đơn đầu tiên</h3>
+                  <div className="inline-block px-4 py-2 bg-white/10 backdrop-blur-md rounded-lg font-black text-xs text-white border border-white/10 tracking-widest">DIGI26</div>
+                </div>
+                <i className="fa-solid fa-gift text-white/5 text-7xl -rotate-12 group-hover:scale-125 transition-transform duration-700"></i>
+              </div>
             </div>
           </div>
         </div>
@@ -166,15 +173,15 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
               <div className="relative z-10 h-full flex flex-col justify-between">
                 <div>
                   <span className="px-3 py-1 bg-primary text-[10px] font-bold uppercase tracking-premium rounded-full mb-4 lg:mb-6 inline-block">Editor's Choice</span>
-                  <h3 className="text-xl lg:text-4xl font-extrabold mb-2 lg:mb-4 leading-tight tracking-tighter">Bestsellers <br/>của tháng.</h3>
+                  <h3 className="text-xl lg:text-4xl font-extrabold mb-2 lg:mb-4 leading-tight tracking-tighter">Bestsellers <br />của tháng.</h3>
                   <p className="text-slate-400 text-[10px] lg:text-sm font-medium leading-relaxed max-w-[150px] lg:max-w-[200px]">Bộ sưu tập tinh hoa hội tụ.</p>
                 </div>
                 <Link to="/category/Bán chạy" className="w-fit px-5 lg:px-6 py-2.5 lg:py-3 bg-white text-foreground rounded-xl font-bold text-[10px] lg:text-xs uppercase tracking-premium hover:bg-primary hover:text-white transition-all">Khám phá</Link>
               </div>
-              <img 
-                src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop" 
-                className="absolute -right-6 -bottom-6 lg:-right-10 lg:-bottom-10 w-32 lg:w-64 h-auto rotate-12 group-hover:rotate-6 group-hover:scale-110 transition-all duration-700 opacity-30 lg:opacity-100" 
-                alt="" 
+              <img
+                src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop"
+                className="absolute -right-6 -bottom-6 lg:-right-10 lg:-bottom-10 w-32 lg:w-64 h-auto rotate-12 group-hover:rotate-6 group-hover:scale-110 transition-all duration-700 opacity-30 lg:opacity-100"
+                alt=""
               />
             </div>
 
@@ -206,9 +213,9 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
             </div>
 
             <div className="col-span-2 bg-secondary rounded-[2rem] p-4 lg:p-5 flex flex-col items-center justify-center text-center group hover:bg-muted transition-colors">
-               <i className="fa-solid fa-users text-slate-400 text-lg lg:text-xl mb-2"></i>
-               <span className="text-[9px] lg:text-xs font-black text-foreground uppercase">Cộng đồng</span>
-               <p className="hidden xs:block text-micro font-bold text-slate-500 mt-1">15k Member</p>
+              <i className="fa-solid fa-users text-slate-400 text-lg lg:text-xl mb-2"></i>
+              <span className="text-[9px] lg:text-xs font-black text-foreground uppercase">Cộng đồng</span>
+              <p className="hidden xs:block text-micro font-bold text-slate-500 mt-1">15k Member</p>
             </div>
           </div>
         </div>
@@ -217,7 +224,7 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
       {/* Books Section */}
       <section className="py-12 lg:py-16 bg-secondary/50 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent/30 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/3"></div>
-        
+
         <div className="max-w-7xl mx-auto px-4 relative">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 lg:gap-8 mb-12 lg:mb-16">
             <div className="max-w-xl text-center md:text-left">
@@ -233,51 +240,65 @@ const HomePage: React.FC<HomePageProps> = ({ onAddToCart, onQuickView, categorie
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
-            {allBooks.length > 0 ? allBooks.slice(0, 10).map(book => (
-              <BookCard key={book.id} book={book} onAddToCart={onAddToCart} onQuickView={onQuickView} />
-            )) : (
+            {allBooks.length > 0 ? (
+              <>
+                {allBooks.map(book => (
+                  <BookCard key={book.id} book={book} onAddToCart={addToCart} onQuickView={onQuickView} />
+                ))}
+                {loadingMore && [...Array(5)].map((_, i) => (
+                  <BookCardSkeleton key={i} />
+                ))}
+              </>
+            ) : (
               [...Array(10)].map((_, i) => (
                 <BookCardSkeleton key={i} />
               ))
             )}
           </div>
-          
-          <div className="mt-12 flex justify-center md:hidden">
-             <Link to="/category/Tất cả sách" className="px-6 py-3 bg-white border border-secondary text-foreground rounded-xl font-bold text-xs uppercase tracking-premium shadow-sm active:scale-95 transition-all">
-                Xem toàn bộ kho sách
-             </Link>
-          </div>
+
+          {hasMore && !loadingMore && allBooks.length > 0 && (
+            <div className="mt-12 flex justify-center">
+              <button
+                onClick={loadMore}
+                className="group px-10 py-4 bg-white border border-slate-200 text-slate-900 rounded-[2rem] font-black text-xs uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all shadow-xl shadow-slate-200/50 hover:shadow-indigo-500/20 active:scale-95 flex items-center gap-3"
+              >
+                <span>Tải thêm tri thức</span>
+                <i className="fa-solid fa-chevron-down text-[10px] group-hover:translate-y-1 transition-transform"></i>
+              </button>
+            </div>
+          )}
+
         </div>
       </section>
 
       {/* Promo Section */}
       <section className="py-12 lg:py-16 bg-background">
         <div className="max-w-7xl mx-auto px-4">
-           <div className="bg-foreground rounded-[2.5rem] lg:rounded-[4rem] p-8 lg:p-16 flex flex-col lg:flex-row items-center gap-10 lg:gap-12 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_120%,#7033ff,transparent)] opacity-20"></div>
-              
-              <div className="flex-1 relative z-10 text-center lg:text-left">
-                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full mb-6 text-primary text-xs font-bold uppercase tracking-premium">
-                    <i className="fa-solid fa-gift"></i> Đặc quyền thành viên
-                 </div>
-                 <h2 className="text-3xl lg:text-5xl font-extrabold text-white mb-6 leading-tight">
-                    Chào mừng bạn đến với <br className="hidden lg:block" />
-                    vũ trụ tri thức <span className="text-primary">DigiBook</span>.
-                 </h2>
-                 <p className="text-slate-400 text-xs mb-8 max-w-lg mx-auto lg:mx-0">Sử dụng mã <strong>WELCOME5</strong> cho đơn hàng từ 200k. Chỉ áp dụng cho tài khoản mới đăng ký.</p>
-                 <button 
-                   onClick={() => {
-                     setAuthMode('register');
-                     setShowLoginModal(true);
-                   }}
-                   className="w-full sm:w-auto px-8 py-4 bg-primary text-white rounded-xl font-bold uppercase tracking-premium hover:bg-white hover:text-foreground transition-all active:scale-95 text-xs">
-                    Đăng ký thành viên
-                 </button>
+          <div className="bg-foreground rounded-[2.5rem] lg:rounded-[4rem] p-8 lg:p-16 flex flex-col lg:flex-row items-center gap-10 lg:gap-12 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_120%,#7033ff,transparent)] opacity-20"></div>
+
+            <div className="flex-1 relative z-10 text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full mb-6 text-primary text-xs font-bold uppercase tracking-premium">
+                <i className="fa-solid fa-gift"></i> Đặc quyền thành viên
               </div>
-              <div className="flex-1 relative hidden lg:block">
-                 <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=800&auto=format&fit=crop" className="w-full rounded-2xl shadow-2xl rotate-2" alt="" />
-              </div>
-           </div>
+              <h2 className="text-3xl lg:text-5xl font-extrabold text-white mb-6 leading-tight">
+                Chào mừng bạn đến với <br className="hidden lg:block" />
+                vũ trụ tri thức <span className="text-primary">DigiBook</span>.
+              </h2>
+              <p className="text-slate-400 text-xs mb-8 max-w-lg mx-auto lg:mx-0">Sử dụng mã <strong>WELCOME5</strong> cho đơn hàng từ 200k. Chỉ áp dụng cho tài khoản mới đăng ký.</p>
+              <button
+                onClick={() => {
+                  setAuthMode('register');
+                  setShowLoginModal(true);
+                }}
+                className="w-full sm:w-auto px-8 py-4 bg-primary text-white rounded-xl font-bold uppercase tracking-premium hover:bg-white hover:text-foreground transition-all active:scale-95 text-xs">
+                Đăng ký thành viên
+              </button>
+            </div>
+            <div className="flex-1 relative hidden lg:block">
+              <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=800&auto=format&fit=crop" className="w-full rounded-2xl shadow-2xl rotate-2" alt="" />
+            </div>
+          </div>
         </div>
       </section>
     </div>

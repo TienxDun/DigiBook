@@ -5,34 +5,29 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CartItem } from '../types';
 import { useAuth } from '../AuthContext';
 
-interface CartSidebarProps {
-  isOpen: boolean;
-  onClose: () => void;
-  items: CartItem[];
-  selectedIds: string[];
-  onToggleSelection: (id: string) => void;
-  onToggleAll: (selectAll: boolean) => void;
-  onRemove: (id: string) => void;
-  onUpdateQty: (id: string, delta: number) => void;
-}
+import { useCart } from '../contexts/CartContext';
+
+interface CartSidebarProps { }
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 };
 
-const CartSidebar: React.FC<CartSidebarProps> = ({ 
-  isOpen, 
-  onClose, 
-  items, 
-  selectedIds,
-  onToggleSelection,
-  onToggleAll,
-  onRemove, 
-  onUpdateQty 
-}) => {
+const CartSidebar: React.FC<CartSidebarProps> = () => {
+  const {
+    isCartOpen: isOpen,
+    setIsCartOpen,
+    cart: items,
+    selectedCartItemIds: selectedIds,
+    toggleSelection: onToggleSelection,
+    toggleAll: onToggleAll,
+    removeFromCart: onRemove,
+    updateQuantity: onUpdateQty
+  } = useCart();
+  const onClose = () => setIsCartOpen(false);
   const navigate = useNavigate();
   const { user, setShowLoginModal } = useAuth();
-  
+
   // Lock body scroll when sidebar is open
   useEffect(() => {
     if (isOpen) {
@@ -47,17 +42,17 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
 
   const FREE_SHIPPING_THRESHOLD = 500000;
 
-  const selectedItems = useMemo(() => 
-    items.filter(item => selectedIds.includes(item.id)), 
-  [items, selectedIds]);
+  const selectedItems = useMemo(() =>
+    items.filter(item => selectedIds.includes(item.id)),
+    [items, selectedIds]);
 
-  const subtotal = useMemo(() => 
-    selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0), 
-  [selectedItems]);
+  const subtotal = useMemo(() =>
+    selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    [selectedItems]);
 
-  const isAllSelected = useMemo(() => 
-    items.length > 0 && selectedIds.length === items.length, 
-  [items, selectedIds]);
+  const isAllSelected = useMemo(() =>
+    items.length > 0 && selectedIds.length === items.length,
+    [items, selectedIds]);
 
   const shippingProgress = useMemo(() => {
     return Math.min((subtotal / FREE_SHIPPING_THRESHOLD) * 100, 100);
@@ -84,16 +79,16 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
         {isOpen && (
           <>
             {/* Ultra Modern Backdrop */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={onClose}
               className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60] cursor-crosshair"
             />
-            
+
             {/* Premium Sidebar Design */}
-            <motion.aside 
+            <motion.aside
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
@@ -108,7 +103,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
 
               {/* Header Section */}
               <div className="relative z-10 flex flex-col shrink-0">
-                <motion.div 
+                <motion.div
                   className="px-6 pt-5 pb-3 flex items-center justify-between"
                   drag="y"
                   dragConstraints={{ top: 0, bottom: 0 }}
@@ -123,8 +118,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                       {items.length} tác phẩm
                     </p>
                   </div>
-                  <button 
-                    onClick={onClose} 
+                  <button
+                    onClick={onClose}
                     className="w-12 h-12 rounded-full bg-white shadow-sm border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors active:scale-90"
                   >
                     <i className="fa-solid fa-xmark text-lg"></i>
@@ -144,7 +139,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                         <i className={`fa-solid ${remainingForFreeShipping > 0 ? 'fa-truck-fast text-indigo-500' : 'fa-circle-check text-emerald-500'}`}></i>
                       </div>
                       <div className="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
-                        <motion.div 
+                        <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${shippingProgress}%` }}
                           className={`h-full transition-colors duration-500 ${shippingProgress === 100 ? 'bg-emerald-500' : 'bg-indigo-500'}`}
@@ -158,12 +153,11 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
               {/* Toolbar: Slimmer */}
               {items.length > 0 && (
                 <div className="px-6 py-1.5 relative z-10 flex items-center justify-between shrink-0">
-                  <button 
+                  <button
                     onClick={() => onToggleAll(!isAllSelected)}
                     className="flex items-center gap-2 group"
                   >
-                    <div className={`w-3.5 h-3.5 rounded border transition-all flex items-center justify-center ${
-                        isAllSelected ? 'bg-slate-900 border-slate-900' : 'border-slate-300'
+                    <div className={`w-3.5 h-3.5 rounded border transition-all flex items-center justify-center ${isAllSelected ? 'bg-slate-900 border-slate-900' : 'border-slate-300'
                       }`}
                     >
                       {isAllSelected && <i className="fa-solid fa-check text-[7px] text-white"></i>}
@@ -172,8 +166,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                       Chọn tất cả
                     </span>
                   </button>
-                  
-                  <button 
+
+                  <button
                     onClick={() => items.forEach(item => onRemove(item.id))}
                     className="text-[9px] font-bold text-rose-500/60 uppercase tracking-widest transition-colors hover:text-rose-600"
                   >
@@ -186,7 +180,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
               <div className="flex-1 overflow-y-auto px-6 py-2 space-y-3 no-scrollbar relative z-10 min-h-0">
                 <AnimatePresence initial={false} mode="popLayout">
                   {items.length === 0 ? (
-                    <motion.div 
+                    <motion.div
                       key="empty-cart"
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -200,7 +194,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                       <p className="text-slate-400 text-xs font-medium max-w-[200px] leading-relaxed mb-8">
                         Hãy chọn cho mình những tri thức mới mẻ từ kho sách của chúng tôi.
                       </p>
-                      <button 
+                      <button
                         onClick={onClose}
                         className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-indigo-600 transition-all shadow-xl shadow-slate-200"
                       >
@@ -209,40 +203,36 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                     </motion.div>
                   ) : (
                     items.map((item, idx) => (
-                      <motion.div 
+                      <motion.div
                         layout
                         key={item.id}
                         initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ 
-                          opacity: 1, 
+                        animate={{
+                          opacity: 1,
                           scale: 1,
-                          transition: { delay: idx * 0.03 } 
+                          transition: { delay: idx * 0.03 }
                         }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className={`group relative flex gap-3 p-2 rounded-2xl transition-all duration-300 border cursor-pointer ${
-                          selectedIds.includes(item.id) 
-                            ? 'bg-indigo-50/40 border-indigo-200 shadow-sm' 
+                        className={`group relative flex gap-3 p-2 rounded-2xl transition-all duration-300 border cursor-pointer ${selectedIds.includes(item.id)
+                            ? 'bg-indigo-50/40 border-indigo-200 shadow-sm'
                             : 'bg-white border-transparent hover:border-slate-100'
-                        }`}
+                          }`}
                         onClick={() => onToggleSelection(item.id)}
                       >
                         {/* More Compact Image */}
                         <div className="relative w-14 h-20 shrink-0">
-                          <div className={`w-full h-full rounded-xl overflow-hidden shadow-sm transition-all ${
-                            selectedIds.includes(item.id) ? 'ring-2 ring-indigo-500 ring-offset-2 scale-90' : 'border border-slate-100'
-                          }`}>
-                            <img 
-                              src={item.cover} 
-                              alt={item.title} 
-                              className={`w-full h-full object-cover ${
-                                selectedIds.includes(item.id) ? 'scale-110' : ''
-                              }`}
+                          <div className={`w-full h-full rounded-xl overflow-hidden shadow-sm transition-all ${selectedIds.includes(item.id) ? 'ring-2 ring-indigo-500 ring-offset-2 scale-90' : 'border border-slate-100'
+                            }`}>
+                            <img
+                              src={item.cover}
+                              alt={item.title}
+                              className={`w-full h-full object-cover ${selectedIds.includes(item.id) ? 'scale-110' : ''
+                                }`}
                             />
                           </div>
-                          
-                          <div className={`absolute -top-1 -left-1 w-6 h-6 rounded-full border-2 border-white shadow-md flex items-center justify-center transition-all duration-300 ${
-                            selectedIds.includes(item.id) ? 'bg-indigo-600 scale-110' : 'bg-white'
-                          }`}>
+
+                          <div className={`absolute -top-1 -left-1 w-6 h-6 rounded-full border-2 border-white shadow-md flex items-center justify-center transition-all duration-300 ${selectedIds.includes(item.id) ? 'bg-indigo-600 scale-110' : 'bg-white'
+                            }`}>
                             <i className={`fa-solid fa-check text-[8px] ${selectedIds.includes(item.id) ? 'text-white' : 'text-slate-200'}`}></i>
                           </div>
                         </div>
@@ -251,14 +241,13 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                         <div className="flex-1 flex flex-col min-w-0" onClick={(e) => e.stopPropagation()}>
                           <div className="flex justify-between items-start mb-1" onClick={() => onToggleSelection(item.id)}>
                             <div className="min-w-0 flex-1">
-                              <h4 className={`font-bold text-[12px] leading-tight line-clamp-1 transition-colors uppercase tracking-tight ${
-                                selectedIds.includes(item.id) ? 'text-indigo-900' : 'text-slate-800'
-                              }`}>
+                              <h4 className={`font-bold text-[12px] leading-tight line-clamp-1 transition-colors uppercase tracking-tight ${selectedIds.includes(item.id) ? 'text-indigo-900' : 'text-slate-800'
+                                }`}>
                                 {item.title}
                               </h4>
                               <p className="text-[9px] text-slate-400 font-medium truncate italic">{item.author}</p>
                             </div>
-                            <button 
+                            <button
                               onClick={(e) => { e.stopPropagation(); onRemove(item.id); }}
                               className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-rose-50 text-slate-300 hover:text-rose-500 transition-all ml-1 active:scale-90"
                             >
@@ -268,39 +257,38 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
 
                           {/* Dynamic Info Line - Smaller */}
                           <div className="flex items-center gap-1.5 mb-2" onClick={() => onToggleSelection(item.id)}>
-                             {item.badge && (
-                               <span className="px-1 py-0.5 bg-indigo-100/50 text-indigo-600 text-[6.5px] font-black uppercase tracking-tighter rounded">
-                                 {item.badge}
-                               </span>
-                             )}
-                             {item.stockQuantity <= 5 && (
-                               <span className="px-1 py-0.5 bg-rose-50 text-rose-600 text-[6.5px] font-black uppercase tracking-tighter rounded animate-pulse">
-                                 Chỉ còn {item.stockQuantity}
-                               </span>
-                             )}
+                            {item.badge && (
+                              <span className="px-1 py-0.5 bg-indigo-100/50 text-indigo-600 text-[6.5px] font-black uppercase tracking-tighter rounded">
+                                {item.badge}
+                              </span>
+                            )}
+                            {item.stockQuantity <= 5 && (
+                              <span className="px-1 py-0.5 bg-rose-50 text-rose-600 text-[6.5px] font-black uppercase tracking-tighter rounded animate-pulse">
+                                Chỉ còn {item.stockQuantity}
+                              </span>
+                            )}
                           </div>
 
                           {/* Small Action Bar */}
                           <div className="mt-auto flex items-center justify-between">
                             <div className="flex items-center bg-slate-50 rounded-xl p-1 border border-slate-100">
-                              <button 
-                                onClick={(e) => { e.stopPropagation(); onUpdateQty(item.id, -1); }} 
+                              <button
+                                onClick={(e) => { e.stopPropagation(); onUpdateQty(item.id, -1); }}
                                 className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-white rounded-lg transition-all active:scale-90"
                               >
                                 <i className="fa-solid fa-minus text-sm"></i>
                               </button>
                               <span className="text-sm font-black text-slate-700 w-8 text-center">{item.quantity}</span>
-                              <button 
-                                onClick={(e) => { e.stopPropagation(); onUpdateQty(item.id, 1); }} 
+                              <button
+                                onClick={(e) => { e.stopPropagation(); onUpdateQty(item.id, 1); }}
                                 className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-white rounded-lg transition-all active:scale-90"
                               >
                                 <i className="fa-solid fa-plus text-sm"></i>
                               </button>
                             </div>
                             <div className="text-right flex-1 pl-2" onClick={() => onToggleSelection(item.id)}>
-                              <p className={`font-black text-[13px] tracking-tighter ${
-                                selectedIds.includes(item.id) ? 'text-indigo-600' : 'text-slate-900'
-                              }`}>
+                              <p className={`font-black text-[13px] tracking-tighter ${selectedIds.includes(item.id) ? 'text-indigo-600' : 'text-slate-900'
+                                }`}>
                                 {formatPrice(item.price * item.quantity)}
                               </p>
                             </div>
@@ -323,13 +311,13 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                       </span>
                     </div>
                     <div className="text-right">
-                       <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full ${subtotal >= FREE_SHIPPING_THRESHOLD ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-400'}`}>
+                      <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full ${subtotal >= FREE_SHIPPING_THRESHOLD ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-400'}`}>
                         {subtotal >= FREE_SHIPPING_THRESHOLD ? 'Freeship' : '+25k Ship'}
                       </span>
                     </div>
                   </div>
 
-                  <button 
+                  <button
                     onClick={handleCheckoutClick}
                     disabled={selectedItems.length === 0}
                     className="w-full group relative h-14 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-[0.15em] text-[11px] hover:bg-indigo-600 transition-all duration-300 shadow-xl shadow-slate-200 flex items-center justify-between px-6 disabled:bg-slate-50 disabled:text-slate-200 disabled:shadow-none overflow-hidden"
@@ -340,7 +328,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                     </span>
                     <i className="fa-solid fa-chevron-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
                   </button>
-                  
+
                   <p className="text-center text-[9px] text-slate-300 mt-3 font-medium uppercase tracking-[0.3em] flex items-center justify-center gap-1.5">
                     <i className="fa-solid fa-shield-halved text-emerald-500/40"></i>
                     Thanh toán an toàn & bảo mật

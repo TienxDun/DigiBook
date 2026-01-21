@@ -4,33 +4,26 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CartItem, CategoryInfo, Book } from '../types';
 import { useAuth } from '../AuthContext';
+import { useBooks } from '../contexts/BookContext';
+import { useCart } from '../contexts/CartContext';
 
 
 interface HeaderProps {
-  cartCount: number;
-  cartItems: CartItem[];
-  categories: CategoryInfo[];
-  allBooks: Book[];
-  onOpenCart: () => void;
   onSearch: (query: string) => void;
   searchQuery: string;
-  onRefreshData?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ 
-  cartCount, 
-  cartItems, 
-  categories, 
-  allBooks,
-  onOpenCart, 
-  onSearch, 
-  searchQuery, 
-  onRefreshData 
+const Header: React.FC<HeaderProps> = ({
+  onSearch,
+  searchQuery
 }) => {
+  const { allBooks, categories, refreshData: onRefreshData } = useBooks();
+  const { cartCount, cart: cartItems, setIsCartOpen } = useCart();
+  const onOpenCart = () => setIsCartOpen(true);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, wishlist, logout, setShowLoginModal } = useAuth();
-  
+
   const [searchValue, setSearchValue] = useState(searchQuery);
   const [searchSuggestions, setSearchSuggestions] = useState<Book[]>([]);
   const [showCartPreview, setShowCartPreview] = useState(false);
@@ -56,8 +49,8 @@ const Header: React.FC<HeaderProps> = ({
   useEffect(() => {
     if (searchValue.trim().length >= 2) {
       const filtered = allBooks
-        .filter(book => 
-          book.title.toLowerCase().includes(searchValue.toLowerCase()) || 
+        .filter(book =>
+          book.title.toLowerCase().includes(searchValue.toLowerCase()) ||
           book.author.toLowerCase().includes(searchValue.toLowerCase())
         )
         .slice(0, 5);
@@ -125,12 +118,11 @@ const Header: React.FC<HeaderProps> = ({
   if (location.pathname.startsWith('/admin')) return null;
 
   return (
-    <header 
-      className={`fixed top-0 w-full z-50 transition-all duration-500 ease-in-out ${
-        scrolled 
-          ? 'h-16 bg-background/80 backdrop-blur-xl border-b border-border shadow-sm px-3 sm:px-4' 
+    <header
+      className={`fixed top-0 w-full z-50 transition-all duration-500 ease-in-out ${scrolled
+          ? 'h-16 bg-background/80 backdrop-blur-xl border-b border-border shadow-sm px-3 sm:px-4'
           : 'h-20 sm:h-24 bg-transparent border-b border-transparent px-4 sm:px-6'
-      }`}
+        }`}
     >
       {/* Scroll Progress Bar */}
       {scrolled && (
@@ -138,15 +130,15 @@ const Header: React.FC<HeaderProps> = ({
       )}
 
       <div className="max-w-[1400px] mx-auto h-full flex items-center justify-between gap-2 sm:gap-4">
-        
+
         {/* Left: Logo & Navigation */}
         <div className="flex items-center gap-2 sm:gap-6">
-          <Link 
-            to="/" 
-            className="flex items-center gap-2 sm:gap-3 group" 
-            onClick={() => { 
+          <Link
+            to="/"
+            className="flex items-center gap-2 sm:gap-3 group"
+            onClick={() => {
               setSearchValue('');
-              onRefreshData?.(); 
+              onRefreshData?.();
             }}
           >
             <div className={`transition-all duration-700 bg-foreground group-hover:bg-primary rounded-xl sm:rounded-2xl flex items-center justify-center text-primary-foreground shadow-2xl shadow-primary/20 ${scrolled ? 'w-9 h-9 sm:w-10 sm:h-10 rotate-0' : 'w-10 h-10 sm:w-11 sm:h-11 -rotate-3 group-hover:rotate-0'}`}>
@@ -159,7 +151,7 @@ const Header: React.FC<HeaderProps> = ({
 
           <nav className="hidden lg:flex items-center gap-6">
             <div className="relative" ref={categoryMenuRef}>
-              <button 
+              <button
                 onClick={() => setShowCategoryMenu(!showCategoryMenu)}
                 className={`flex items-center gap-2 text-micro font-bold uppercase tracking-premium transition-all py-1 ${showCategoryMenu ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
               >
@@ -172,7 +164,7 @@ const Header: React.FC<HeaderProps> = ({
                 <div className="absolute top-full left-0 mt-4 w-[480px] bg-white rounded-3xl shadow-2xl border border-border p-6 z-[100] animate-fadeIn">
                   <div className="grid grid-cols-2 gap-4">
                     {categories.length > 0 ? categories.map((cat) => (
-                      <Link 
+                      <Link
                         key={cat.name}
                         to={`/category/${cat.name}`}
                         onClick={() => setShowCategoryMenu(false)}
@@ -199,8 +191,8 @@ const Header: React.FC<HeaderProps> = ({
             </div>
 
             {navLinks.map((link) => (
-              <Link 
-                key={link.name} 
+              <Link
+                key={link.name}
                 to={link.path}
                 onClick={() => {
                   if (link.path === '/') {
@@ -222,19 +214,18 @@ const Header: React.FC<HeaderProps> = ({
         {/* Center: Search Bar */}
         <div ref={searchContainerRef} className={`relative flex-1 hidden md:block transition-all duration-700 ${isSearchFocused ? 'max-w-xl' : 'max-w-md'}`}>
           <div className="relative group">
-            <input 
+            <input
               ref={searchInputRef}
-              type="text" 
-              placeholder="Tìm tên sách, tác giả hoặc ISBN..." 
+              type="text"
+              placeholder="Tìm tên sách, tác giả hoặc ISBN..."
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               onKeyDown={handleKeyDown}
               onFocus={() => setIsSearchFocused(true)}
-              className={`w-full py-3.5 pl-12 pr-6 rounded-2xl text-label font-bold outline-none transition-all duration-500 border ${
-                isSearchFocused 
-                ? 'bg-background border-primary/20 ring-[6px] ring-primary/5 shadow-2xl shadow-primary/10' 
-                : 'bg-secondary/50 border-transparent hover:bg-secondary hover:border-secondary'
-              }`}
+              className={`w-full py-3.5 pl-12 pr-6 rounded-2xl text-label font-bold outline-none transition-all duration-500 border ${isSearchFocused
+                  ? 'bg-background border-primary/20 ring-[6px] ring-primary/5 shadow-2xl shadow-primary/10'
+                  : 'bg-secondary/50 border-transparent hover:bg-secondary hover:border-secondary'
+                }`}
             />
             <div className={`absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center transition-all duration-500 ${isSearchFocused ? 'text-primary scale-110' : 'text-muted-foreground'}`}>
               {isSearchFocused ? (
@@ -257,7 +248,7 @@ const Header: React.FC<HeaderProps> = ({
             <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-3xl shadow-2xl border border-border overflow-hidden z-[110] animate-fadeIn">
               <div className="p-3">
                 {searchSuggestions.map(book => (
-                  <Link 
+                  <Link
                     key={book.id}
                     to={`/book/${book.id}`}
                     onClick={() => setIsSearchFocused(false)}
@@ -274,7 +265,7 @@ const Header: React.FC<HeaderProps> = ({
                   </Link>
                 ))}
               </div>
-              <button 
+              <button
                 onClick={() => {
                   onSearch(searchValue);
                   navigate(`/search/${encodeURIComponent(searchValue.trim())}`);
@@ -290,9 +281,9 @@ const Header: React.FC<HeaderProps> = ({
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2 sm:gap-4">
-          
+
           {/* Mobile Search Toggle */}
-          <button 
+          <button
             onClick={() => setIsMobileSearchOpen(true)}
             className="md:hidden w-10 h-10 sm:w-12 sm:h-12 rounded-xl text-muted-foreground hover:bg-secondary transition-all flex items-center justify-center active:scale-90"
           >
@@ -301,16 +292,15 @@ const Header: React.FC<HeaderProps> = ({
 
           <div className="flex items-center p-0.5 sm:p-1 bg-secondary/50 rounded-xl sm:rounded-2xl relative">
             {/* Wishlist Icon */}
-            <Link 
-              to="/wishlist" 
-              className={`w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl transition-all flex items-center justify-center relative group active:scale-90 ${
-                wishlist.length > 0 
-                  ? 'bg-rose-50 text-rose-500 shadow-sm' 
+            <Link
+              to="/wishlist"
+              className={`w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl transition-all flex items-center justify-center relative group active:scale-90 ${wishlist.length > 0
+                  ? 'bg-rose-50 text-rose-500 shadow-sm'
                   : 'text-muted-foreground hover:bg-white hover:text-rose-500 hover:shadow-sm'
-              }`}
+                }`}
             >
               <AnimatePresence mode="wait">
-                <motion.i 
+                <motion.i
                   key={wishlist.length > 0 ? 'solid' : 'regular'}
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -320,7 +310,7 @@ const Header: React.FC<HeaderProps> = ({
                 ></motion.i>
               </AnimatePresence>
               {wishlist.length > 0 && (
-                <motion.span 
+                <motion.span
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   className="absolute top-1.5 right-1.5 sm:top-2.5 sm:right-2.5 flex h-1.5 w-1.5 sm:h-2 sm:w-2"
@@ -332,13 +322,13 @@ const Header: React.FC<HeaderProps> = ({
             </Link>
 
             {/* Cart Toggle with Quick Preview */}
-            <div 
+            <div
               className="relative"
               onMouseEnter={() => setShowCartPreview(true)}
               onMouseLeave={() => setShowCartPreview(false)}
             >
-              <button 
-                onClick={onOpenCart} 
+              <button
+                onClick={onOpenCart}
                 className="w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-white text-muted-foreground hover:text-primary shadow-sm transition-all relative flex items-center justify-center group active:scale-90"
               >
                 <i className="fa-solid fa-bag-shopping text-base sm:text-lg group-hover:scale-110 transition-transform"></i>
@@ -352,7 +342,7 @@ const Header: React.FC<HeaderProps> = ({
               {/* Quick Cart Preview Dropdown */}
               <AnimatePresence>
                 {showCartPreview && cartItems.length > 0 && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, scale: 0.95, y: 10, originX: '90%', originY: '0%' }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -361,7 +351,7 @@ const Header: React.FC<HeaderProps> = ({
                   >
                     {/* Glassy Accent */}
                     <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -z-10 rounded-full" />
-                    
+
                     <div className="flex items-center justify-between mb-5 px-1">
                       <h3 className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em]">Túi đồ ({cartCount})</h3>
                       <Link to="/category/Tất cả sách" onClick={() => setShowCartPreview(false)} className="text-[10px] font-bold text-primary hover:underline transition-colors">Xem tất cả</Link>
@@ -377,14 +367,14 @@ const Header: React.FC<HeaderProps> = ({
                             <h4 className="text-[12px] font-bold text-foreground line-clamp-1 leading-tight group-hover:text-primary transition-colors uppercase tracking-tight mb-0.5">{item.title}</h4>
                             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none mb-1.5">{item.quantity} x {item.price.toLocaleString()}đ</p>
                             <div className="flex items-center gap-1.5">
-                               {item.badge && (
-                                 <span className="px-1 py-0.5 bg-accent text-accent-foreground text-[7px] font-black uppercase tracking-tighter rounded">{item.badge}</span>
-                               )}
+                              {item.badge && (
+                                <span className="px-1 py-0.5 bg-accent text-accent-foreground text-[7px] font-black uppercase tracking-tighter rounded">{item.badge}</span>
+                              )}
                             </div>
                           </div>
                         </div>
                       ))}
-                      
+
                       {cartItems.length > 3 && (
                         <div className="pt-2 text-center">
                           <p className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-[0.3em]">+{cartItems.length - 3} món khác</p>
@@ -399,8 +389,8 @@ const Header: React.FC<HeaderProps> = ({
                           {cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toLocaleString()}đ
                         </span>
                       </div>
-                      
-                      <button 
+
+                      <button
                         onClick={() => { onOpenCart(); setShowCartPreview(false); }}
                         className="w-full py-4 bg-foreground text-primary-foreground rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-primary transition-all shadow-lg shadow-foreground/10 flex items-center justify-center gap-2 active:scale-95 group/btn"
                       >
@@ -419,7 +409,7 @@ const Header: React.FC<HeaderProps> = ({
           {/* Profile Section */}
           {user ? (
             <div className="relative">
-              <button 
+              <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="flex items-center gap-2 sm:gap-3 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl transition-all hover:bg-secondary active:scale-95"
               >
@@ -428,10 +418,10 @@ const Header: React.FC<HeaderProps> = ({
                   <p className="text-micro font-bold text-primary uppercase tracking-premium leading-none">{user.isAdmin ? 'Quản trị viên' : 'Thành viên'}</p>
                 </div>
                 <div className="relative">
-                  <img 
-                    src={user.avatar} 
-                    className="w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl shadow-md object-cover border-2 border-background ring-1 ring-border" 
-                    alt={user.name} 
+                  <img
+                    src={user.avatar}
+                    className="w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl shadow-md object-cover border-2 border-background ring-1 ring-border"
+                    alt={user.name}
                     referrerPolicy="no-referrer"
                   />
                   <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-3 h-3 sm:w-4 sm:h-4 bg-chart-1 rounded-full border-2 border-background shadow-sm"></div>
@@ -439,7 +429,7 @@ const Header: React.FC<HeaderProps> = ({
               </button>
 
               {showUserMenu && (
-                <div 
+                <div
                   className="absolute top-full right-0 mt-4 w-64 bg-white rounded-3xl shadow-2xl border border-border py-3 z-[100] animate-fadeIn"
                   onMouseLeave={() => setShowUserMenu(false)}
                 >
@@ -469,7 +459,7 @@ const Header: React.FC<HeaderProps> = ({
                       </Link>
                     )}
                     <div className="h-px bg-border/50 my-2 mx-3"></div>
-                    <button 
+                    <button
                       onClick={() => { logout(); setShowUserMenu(false); }}
                       className="w-full flex items-center gap-3 px-4 py-2.5 text-micro font-bold uppercase tracking-premium text-destructive hover:bg-destructive/10 rounded-2xl transition-all text-left group"
                     >
@@ -483,7 +473,7 @@ const Header: React.FC<HeaderProps> = ({
               )}
             </div>
           ) : (
-            <button 
+            <button
               onClick={() => setShowLoginModal(true)}
               className="group relative px-4 py-2.5 sm:px-6 sm:py-3 bg-foreground text-primary-foreground rounded-xl sm:rounded-2xl text-[9px] sm:text-micro font-bold uppercase tracking-premium hover:bg-primary transition-all shadow-xl shadow-foreground/10 overflow-hidden"
             >
@@ -495,7 +485,7 @@ const Header: React.FC<HeaderProps> = ({
       </div>
       <AnimatePresence>
         {isMobileSearchOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -508,17 +498,17 @@ const Header: React.FC<HeaderProps> = ({
             className="fixed inset-0 bg-background z-[120] p-4 flex flex-col"
           >
             <div className="flex items-center gap-4 mb-6">
-              <button 
+              <button
                 onClick={() => setIsMobileSearchOpen(false)}
                 className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-muted-foreground active:scale-90"
               >
                 <i className="fa-solid fa-arrow-left text-lg"></i>
               </button>
               <div className="flex-1 relative">
-                <input 
+                <input
                   autoFocus
-                  type="text" 
-                  placeholder="Tìm kiếm sách..." 
+                  type="text"
+                  placeholder="Tìm kiếm sách..."
                   value={searchValue}
                   onChange={(e) => setSearchValue(e.target.value)}
                   onKeyDown={(e) => {
@@ -539,7 +529,7 @@ const Header: React.FC<HeaderProps> = ({
                 <div className="space-y-4">
                   <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest pl-2">Kết quả gợi ý</p>
                   {searchSuggestions.map(book => (
-                    <Link 
+                    <Link
                       key={book.id}
                       to={`/book/${book.id}`}
                       onClick={() => {

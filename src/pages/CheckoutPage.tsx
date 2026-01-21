@@ -7,21 +7,25 @@ import { useAuth } from '../AuthContext';
 import { db } from '../services/db';
 import { ErrorHandler } from '../services/errorHandler';
 
+import { useCart } from '../contexts/CartContext';
+
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 };
 
-const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({ cart, onClearCart }) => {
+const CheckoutPage: React.FC = () => {
+  const { cart, clearCart } = useCart();
+
   const navigate = useNavigate();
   const { user, setShowLoginModal } = useAuth();
-  
+
   // States
   const [isProcessing, setIsProcessing] = useState(false);
-  const [formData, setFormData] = useState({ 
-    name: user?.name || '', 
-    phone: '', 
-    address: '', 
-    note: '' 
+  const [formData, setFormData] = useState({
+    name: user?.name || '',
+    phone: '',
+    address: '',
+    note: ''
   });
 
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'online'>('cod');
@@ -46,7 +50,7 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
         }
       }
     };
-    
+
     fillProfile();
     if (cart.length === 0) navigate('/');
   }, [user, cart, navigate]);
@@ -80,13 +84,13 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
 
   const handleCompleteOrder = async () => {
     if (!user) { setShowLoginModal(true); return; }
-    if (!formData.name || !formData.phone || !formData.address) { 
-      toast.error('Vui lòng nhập đầy đủ thông tin giao hàng.'); 
-      return; 
+    if (!formData.name || !formData.phone || !formData.address) {
+      toast.error('Vui lòng nhập đầy đủ thông tin giao hàng.');
+      return;
     }
 
     setIsProcessing(true);
-    
+
     try {
       // Đợi xử lý
       await new Promise(r => setTimeout(r, 1500));
@@ -95,12 +99,12 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
         userId: user.id,
         status: 'Đang xử lý',
         statusStep: 1,
-        customer: { 
-          name: formData.name, 
-          phone: formData.phone, 
-          address: formData.address, 
+        customer: {
+          name: formData.name,
+          phone: formData.phone,
+          address: formData.address,
           email: user.email,
-          note: formData.note 
+          note: formData.note
         },
         payment: {
           method: paymentMethod === 'online' ? 'Chuyển khoản / Thẻ' : 'Tiền mặt khi nhận hàng (COD)',
@@ -115,7 +119,7 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
         await db.incrementCouponUsage(appliedCoupon.code);
       }
 
-      onClearCart();
+      clearCart();
       setIsProcessing(false);
       navigate('/order-success', { state: { orderId: order.id } });
     } catch (error: any) {
@@ -140,16 +144,15 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
             ].map((step, i, arr) => (
               <React.Fragment key={i}>
                 <div className="flex flex-col items-center gap-2">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-extrabold text-micro transition-all ${
-                    step.active ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'bg-slate-100 text-slate-400'
-                  }`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-extrabold text-micro transition-all ${step.active ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'bg-slate-100 text-slate-400'
+                    }`}>
                     {step.done ? <i className="fa-solid fa-check"></i> : i + 1}
                   </div>
                   <span className={`text-micro font-bold uppercase tracking-premium ${step.active ? 'text-indigo-600' : 'text-slate-400'}`}>
                     {step.label}
                   </span>
                 </div>
-                {i < arr.length - 1 && <div className={`flex-1 h-0.5 mx-3 rounded-full ${arr[i+1].active ? 'bg-indigo-600' : 'bg-slate-100'}`}></div>}
+                {i < arr.length - 1 && <div className={`flex-1 h-0.5 mx-3 rounded-full ${arr[i + 1].active ? 'bg-indigo-600' : 'bg-slate-100'}`}></div>}
               </React.Fragment>
             ))}
           </div>
@@ -173,42 +176,42 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-1.5">
                   <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-1">Họ và tên</label>
-                  <input 
-                    name="name" 
-                    value={formData.name} 
-                    onChange={handleInputChange} 
-                    placeholder="Nhập tên người nhận..." 
-                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold text-slate-900 text-sm shadow-inner" 
+                  <input
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="Nhập tên người nhận..."
+                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold text-slate-900 text-sm shadow-inner"
                   />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-1">Số điện thoại</label>
-                  <input 
-                    name="phone" 
-                    value={formData.phone} 
-                    onChange={handleInputChange} 
-                    placeholder="09xx xxx xxx" 
-                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold text-slate-900 text-sm shadow-inner" 
+                  <input
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="09xx xxx xxx"
+                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold text-slate-900 text-sm shadow-inner"
                   />
                 </div>
                 <div className="md:col-span-2 space-y-1.5">
                   <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-1">Địa chỉ chi tiết</label>
-                  <input 
-                    name="address" 
-                    value={formData.address} 
-                    onChange={handleInputChange} 
-                    placeholder="Số nhà, tên đường, phường/xã..." 
-                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold text-slate-900 text-sm shadow-inner" 
+                  <input
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    placeholder="Số nhà, tên đường, phường/xã..."
+                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold text-slate-900 text-sm shadow-inner"
                   />
                 </div>
                 <div className="md:col-span-2 space-y-1.5">
                   <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-1">Ghi chú đơn hàng (Tùy chọn)</label>
-                  <textarea 
-                    name="note" 
-                    value={formData.note} 
-                    onChange={handleInputChange} 
-                    placeholder="Ví dụ: Giao giờ hành chính, gọi trước khi đến..." 
-                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold text-slate-900 text-sm h-24 resize-none shadow-inner" 
+                  <textarea
+                    name="note"
+                    value={formData.note}
+                    onChange={handleInputChange}
+                    placeholder="Ví dụ: Giao giờ hành chính, gọi trước khi đến..."
+                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold text-slate-900 text-sm h-24 resize-none shadow-inner"
                   />
                 </div>
               </div>
@@ -226,13 +229,12 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button 
+                <button
                   onClick={() => setPaymentMethod('cod')}
-                  className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${
-                    paymentMethod === 'cod' 
-                    ? 'border-indigo-600 bg-indigo-50/30' 
+                  className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${paymentMethod === 'cod'
+                    ? 'border-indigo-600 bg-indigo-50/30'
                     : 'border-slate-50 bg-slate-50/30 hover:border-slate-200'
-                  }`}
+                    }`}
                 >
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'cod' ? 'border-indigo-600' : 'border-slate-200'}`}>
                     {paymentMethod === 'cod' && <div className="w-2.5 h-2.5 bg-indigo-600 rounded-full"></div>}
@@ -244,13 +246,12 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                   <i className="fa-solid fa-money-bill-wave ml-auto text-slate-300 text-lg"></i>
                 </button>
 
-                <button 
+                <button
                   onClick={() => setPaymentMethod('online')}
-                  className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${
-                    paymentMethod === 'online' 
-                    ? 'border-indigo-600 bg-indigo-50/30' 
+                  className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${paymentMethod === 'online'
+                    ? 'border-indigo-600 bg-indigo-50/30'
                     : 'border-slate-50 bg-slate-50/30 hover:border-slate-200'
-                  }`}
+                    }`}
                 >
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'online' ? 'border-indigo-600' : 'border-slate-200'}`}>
                     {paymentMethod === 'online' && <div className="w-2.5 h-2.5 bg-indigo-600 rounded-full"></div>}
@@ -268,7 +269,7 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
           <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
             <div className="bg-white rounded-3xl p-6 lg:p-8 border border-slate-100 shadow-sm overflow-hidden">
               <h3 className="text-base font-extrabold text-slate-900 mb-5 uppercase tracking-premium">Tóm tắt đơn hàng</h3>
-              
+
               <div className="max-h-60 overflow-y-auto no-scrollbar space-y-4 mb-6">
                 {cart.map(item => (
                   <div key={item.id} className="flex gap-4 items-center group">
@@ -286,14 +287,14 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
 
               <div className="pt-5 border-t border-slate-50 mb-5">
                 <div className="relative mb-2">
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
-                    placeholder="Mã giảm giá" 
+                    placeholder="Mã giảm giá"
                     className="w-full py-2.5 pl-3.5 pr-20 bg-slate-50 border border-transparent rounded-lg outline-none focus:bg-white focus:border-indigo-100 text-xs font-bold"
                   />
-                  <button 
+                  <button
                     onClick={handleApplyCoupon}
                     className="absolute right-1 top-1 bottom-1 px-3 bg-slate-900 text-white rounded-md text-micro font-bold uppercase tracking-premium hover:bg-indigo-600 transition-all"
                   >
@@ -306,8 +307,8 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                     <span className="text-micro font-bold text-emerald-700 uppercase tracking-premium flex items-center gap-2">
                       <i className="fa-solid fa-ticket"></i> {appliedCoupon.code}
                     </span>
-                    <button 
-                      onClick={() => setAppliedCoupon(null)} 
+                    <button
+                      onClick={() => setAppliedCoupon(null)}
                       className="w-10 h-10 flex items-center justify-center text-emerald-700 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all active:scale-90"
                       aria-label="Remove coupon"
                     >
@@ -338,14 +339,13 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                 </div>
               </div>
 
-              <button 
-                onClick={handleCompleteOrder} 
+              <button
+                onClick={handleCompleteOrder}
                 disabled={isProcessing}
-                className={`w-full mt-6 py-4 rounded-xl font-extrabold text-micro uppercase tracking-premium transition-all shadow-xl flex items-center justify-center gap-2.5 ${
-                  isProcessing 
-                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none' 
+                className={`w-full mt-6 py-4 rounded-xl font-extrabold text-micro uppercase tracking-premium transition-all shadow-xl flex items-center justify-center gap-2.5 ${isProcessing
+                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
                   : 'bg-slate-900 text-white hover:bg-indigo-600 shadow-slate-200'
-                }`}
+                  }`}
               >
                 {isProcessing ? (
                   <>
@@ -359,7 +359,7 @@ const CheckoutPage: React.FC<{ cart: CartItem[], onClearCart: () => void }> = ({
                   </>
                 )}
               </button>
-              
+
               <div className="mt-5 flex items-center justify-center gap-4 opacity-30">
                 <i className="fa-brands fa-cc-visa text-xl"></i>
                 <i className="fa-brands fa-cc-mastercard text-xl"></i>

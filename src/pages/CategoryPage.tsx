@@ -9,41 +9,22 @@ import { Book, CategoryInfo } from '../types';
 import { BookCardSkeleton } from '../components/Skeleton';
 import SEO from '../components/SEO';
 
-interface CategoryPageProps {
-  onAddToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => void;
-  onQuickView?: (book: Book) => void;
-}
+import { useCart } from '../contexts/CartContext';
+import { useBooks } from '../contexts/BookContext';
 
 const ITEMS_PER_PAGE = 10;
 
-const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView }) => {
+const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickView }) => {
+  const { addToCart } = useCart();
+  const { allBooks, categories, loading: isLoading } = useBooks();
+
   const { categoryName } = useParams<{ categoryName: string }>();
   const [sortBy, setSortBy] = useState('newest');
   const [currentPage, setCurrentPage] = useState(1);
   const [timeLeft, setTimeLeft] = useState({ hours: 12, minutes: 45, seconds: 30 });
-  const [allBooks, setAllBooks] = useState<Book[]>([]);
-  const [categories, setCategories] = useState<CategoryInfo[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const topRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      try {
-        const [books, cats] = await Promise.all([
-          db.getBooks(),
-          db.getCategories()
-        ]);
-        setAllBooks(books);
-        setCategories(cats);
-      } catch (error) {
-        console.error("Error loading category data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadData();
-
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
@@ -65,7 +46,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
     if (sortBy === 'price-low') books = [...books].sort((a, b) => a.price - b.price);
     else if (sortBy === 'price-high') books = [...books].sort((a, b) => b.price - a.price);
     else if (sortBy === 'rating') books = [...books].sort((a, b) => b.rating - a.rating);
-    
+
     return books;
   }, [allBooks, categoryName, sortBy]);
 
@@ -90,7 +71,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-10 fade-in">
-      <SEO 
+      <SEO
         title={categoryName}
         description={`Khám phá danh mục ${categoryName} tại DigiBook. ${currentCategory.description}`}
         url={`/category/${categoryName}`}
@@ -128,9 +109,9 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
               </div>
               <div className="hidden lg:block relative group">
                 <div className="absolute -inset-4 bg-amber-400 rounded-3xl blur-2xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                <img 
-                  src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=800&auto=format&fit=crop" 
-                  alt="Promotion" 
+                <img
+                  src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=800&auto=format&fit=crop"
+                  alt="Promotion"
                   className="w-[380px] h-[260px] object-cover rounded-3xl shadow-2xl rotate-3 group-hover:rotate-0 transition-transform duration-700"
                 />
               </div>
@@ -139,7 +120,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
         </section>
       )}
 
-      <div 
+      <div
         ref={topRef}
         className={`max-w-7xl mx-auto px-4 relative z-20 scroll-mt-20 lg:scroll-mt-24 ${isPromotionPage ? '-mt-8' : 'mt-2'}`}
       >
@@ -148,12 +129,12 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
             <i className="fa-solid fa-layer-group text-indigo-500"></i>
             <span className="text-xs font-black text-slate-800 uppercase tracking-widest hidden sm:block">Chân dung tri thức</span>
           </div>
-          
+
           <div className="flex-1 flex overflow-x-auto pb-1 gap-3 no-scrollbar scroll-smooth py-1">
             {[{ name: 'Tất cả sách', icon: 'fa-book-open' }, ...categories].map((cat, i) => {
               const isActive = categoryName === cat.name || (!categoryName && cat.name === 'Tất cả sách');
-              const bookCount = cat.name === 'Tất cả sách' 
-                ? allBooks.length 
+              const bookCount = cat.name === 'Tất cả sách'
+                ? allBooks.length
                 : allBooks.filter(b => b.category.toLowerCase() === cat.name.toLowerCase()).length;
 
               const colors = [
@@ -165,19 +146,18 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
                 { active: 'bg-violet-500 text-white shadow-violet-200 ring-4 ring-violet-50', inactive: 'bg-white text-slate-600 hover:bg-violet-50 hover:text-violet-500 hover:border-violet-200' },
               ];
               const color = colors[i % colors.length];
-              
+
               return (
                 <Link
                   key={i}
                   to={`/category/${cat.name}`}
-                  className={`flex-shrink-0 px-6 py-3.5 rounded-2xl font-bold text-xs uppercase tracking-premium flex items-center gap-3 transition-all duration-500 border border-slate-100 relative group/cat ${
-                    isActive ? `${color.active} z-10 -translate-y-1` : `${color.inactive} hover:-translate-y-0.5 shadow-sm`
-                  }`}
+                  className={`flex-shrink-0 px-6 py-3.5 rounded-2xl font-bold text-xs uppercase tracking-premium flex items-center gap-3 transition-all duration-500 border border-slate-100 relative group/cat ${isActive ? `${color.active} z-10 -translate-y-1` : `${color.inactive} hover:-translate-y-0.5 shadow-sm`
+                    }`}
                 >
                   <i className={`fa-solid ${cat.icon} ${isActive ? 'scale-110 text-white' : 'text-slate-400 group-hover/cat:scale-110 group-hover/cat:text-current transition-all'}`}></i>
                   <span>{cat.name}</span>
                   {isActive && (
-                    <motion.div 
+                    <motion.div
                       layoutId="activeCategory"
                       className="absolute inset-0 bg-transparent rounded-2xl z-[-1]"
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
@@ -191,69 +171,68 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
 
         <div className="bg-white p-3 sm:p-4 rounded-3xl shadow-lg shadow-slate-200/50 border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 mb-4">
           <div className="flex flex-wrap items-center gap-3">
-               {!isPromotionPage && (
-                 <div className="flex items-center gap-3.5 mr-4">
-                   <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-inner">
-                     <i className={`fa-solid ${currentCategory.icon} text-xl`}></i>
-                   </div>
-                   <div>
-                     <div className="flex items-center gap-2 mb-0.5">
-                       <p className="text-micro font-bold uppercase tracking-premium text-indigo-500">Danh mục</p>
-                       <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                       <p className="text-micro font-bold uppercase tracking-premium text-slate-400">
-                          {filteredBooks.length} sản phẩm
-                       </p>
-                     </div>
-                     <h1 className="text-xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">{categoryName || 'Tất cả sách'}</h1>
-                   </div>
-                 </div>
-               )}
-               {isPromotionPage && (
-                 <div className="flex flex-col gap-1 mr-4">
-                   <div className="flex items-center gap-2">
-                      <p className="text-micro font-bold uppercase tracking-premium text-rose-500">Chương trình</p>
-                      <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                      <p className="text-micro font-bold uppercase tracking-premium text-slate-400">
-                        {filteredBooks.length} ưu đãi
-                      </p>
-                   </div>
-                   <div className="flex gap-2">
-                     <button className="px-4 py-2 bg-rose-50 text-rose-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-rose-100">Sale 50%</button>
-                     <button className="px-4 py-2 bg-amber-50 text-amber-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-amber-100">Hot</button>
-                     <button className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-emerald-100">Freeship</button>
-                   </div>
-                 </div>
-               )}
+            {!isPromotionPage && (
+              <div className="flex items-center gap-3.5 mr-4">
+                <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-inner">
+                  <i className={`fa-solid ${currentCategory.icon} text-xl`}></i>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="text-micro font-bold uppercase tracking-premium text-indigo-500">Danh mục</p>
+                    <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                    <p className="text-micro font-bold uppercase tracking-premium text-slate-400">
+                      {filteredBooks.length} sản phẩm
+                    </p>
+                  </div>
+                  <h1 className="text-xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">{categoryName || 'Tất cả sách'}</h1>
+                </div>
+              </div>
+            )}
+            {isPromotionPage && (
+              <div className="flex flex-col gap-1 mr-4">
+                <div className="flex items-center gap-2">
+                  <p className="text-micro font-bold uppercase tracking-premium text-rose-500">Chương trình</p>
+                  <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                  <p className="text-micro font-bold uppercase tracking-premium text-slate-400">
+                    {filteredBooks.length} ưu đãi
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button className="px-4 py-2 bg-rose-50 text-rose-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-rose-100">Sale 50%</button>
+                  <button className="px-4 py-2 bg-amber-50 text-amber-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-amber-100">Hot</button>
+                  <button className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-micro font-bold uppercase tracking-premium border border-emerald-100">Freeship</button>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-2 bg-slate-100/50 p-1.5 rounded-2xl border border-slate-200 w-full md:w-auto overflow-x-auto no-scrollbar shadow-inner">
+            <div className="flex items-center gap-2 px-3 py-1.5 border-r border-slate-200 mr-1 hidden lg:flex">
+              <i className="fa-solid fa-sort-amount-down text-xs text-slate-400"></i>
+              <span className="text-xs font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Sắp xếp</span>
             </div>
-            <div className="flex items-center gap-2 bg-slate-100/50 p-1.5 rounded-2xl border border-slate-200 w-full md:w-auto overflow-x-auto no-scrollbar shadow-inner">
-              <div className="flex items-center gap-2 px-3 py-1.5 border-r border-slate-200 mr-1 hidden lg:flex">
-                <i className="fa-solid fa-sort-amount-down text-xs text-slate-400"></i>
-                <span className="text-xs font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Sắp xếp</span>
-              </div>
-              
-              <div className="flex items-center gap-1.5">
-                {[
-                  { id: 'newest', label: 'Mới nhất', icon: 'fa-clock' },
-                  { id: 'price-low', label: 'Giá thấp', icon: 'fa-chevron-up' },
-                  { id: 'price-high', label: 'Giá cao', icon: 'fa-chevron-down' },
-                  { id: 'rating', label: 'Đánh giá', icon: 'fa-star' }
-                ].map((option) => (
-                  <button
-                    key={option.id}
-                    onClick={() => setSortBy(option.id)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${
-                      sortBy === option.id 
-                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
-                      : 'bg-white text-slate-500 hover:text-indigo-600 hover:bg-slate-50 border border-slate-100 shadow-sm'
+
+            <div className="flex items-center gap-1.5">
+              {[
+                { id: 'newest', label: 'Mới nhất', icon: 'fa-clock' },
+                { id: 'price-low', label: 'Giá thấp', icon: 'fa-chevron-up' },
+                { id: 'price-high', label: 'Giá cao', icon: 'fa-chevron-down' },
+                { id: 'rating', label: 'Đánh giá', icon: 'fa-star' }
+              ].map((option) => (
+                <button
+                  key={option.id}
+                  onClick={() => setSortBy(option.id)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${sortBy === option.id
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100'
+                    : 'bg-white text-slate-500 hover:text-indigo-600 hover:bg-slate-50 border border-slate-100 shadow-sm'
                     }`}
-                  >
-                    <i className={`fa-solid ${option.icon} ${sortBy === option.id ? 'text-white' : 'text-slate-300 group-hover:text-indigo-400'}`}></i>
-                    {option.label}
-                  </button>
-                ))}
-              </div>
+                >
+                  <i className={`fa-solid ${option.icon} ${sortBy === option.id ? 'text-white' : 'text-slate-300 group-hover:text-indigo-400'}`}></i>
+                  {option.label}
+                </button>
+              ))}
             </div>
           </div>
+        </div>
 
         {isLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5 mb-8">
@@ -265,7 +244,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ onAddToCart, onQuickView })
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5 mb-8">
               {paginatedBooks.map(book => (
-                <BookCard key={book.id} book={book} onAddToCart={onAddToCart} onQuickView={onQuickView} />
+                <BookCard key={book.id} book={book} onAddToCart={addToCart} onQuickView={onQuickView} />
               ))}
             </div>
             {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}

@@ -3,17 +3,18 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 
-const MobileNav: React.FC<{ cartCount: number; onOpenCart: () => void; onRefreshData?: () => void; isCartOpen: boolean; onCloseCart: () => void }> = ({ 
-  cartCount, 
-  onOpenCart, 
-  onRefreshData,
-  isCartOpen,
-  onCloseCart
-}) => {
+import { useBooks } from '../contexts/BookContext';
+import { useCart } from '../contexts/CartContext';
+
+const MobileNav: React.FC = () => {
+  const { refreshData: onRefreshData } = useBooks();
+  const { cartCount, setIsCartOpen, isCartOpen } = useCart();
+  const onOpenCart = () => setIsCartOpen(true);
+  const onCloseCart = () => setIsCartOpen(false);
   const location = useLocation();
   const currentPath = decodeURIComponent(location.pathname);
   const { user, setShowLoginModal } = useAuth();
-  const [ripples, setRipples] = useState<{[key: string]: boolean}>({});
+  const [ripples, setRipples] = useState<{ [key: string]: boolean }>({});
 
   if (location.pathname.startsWith('/admin')) return null;
 
@@ -34,9 +35,9 @@ const MobileNav: React.FC<{ cartCount: number; onOpenCart: () => void; onRefresh
         {navItems.map((item) => {
           const isActive = currentPath === item.path;
           return (
-            <Link 
-              key={item.path} 
-              to={item.path} 
+            <Link
+              key={item.path}
+              to={item.path}
               onClick={() => {
                 handleRipple(item.path);
                 if (item.path === '/') onRefreshData?.();
@@ -44,26 +45,24 @@ const MobileNav: React.FC<{ cartCount: number; onOpenCart: () => void; onRefresh
               }}
               className="flex-1 flex flex-col items-center justify-center h-full relative group"
             >
-              <div className={`flex flex-col items-center justify-center w-11 h-11 rounded-2xl transition-all duration-500 relative ${
-                isActive ? `${item.glow} scale-110 shadow-[0_0_20px_rgba(0,0,0,0.2)]` : 'hover:bg-white/5'
-              }`}>
+              <div className={`flex flex-col items-center justify-center w-11 h-11 rounded-2xl transition-all duration-500 relative ${isActive ? `${item.glow} scale-110 shadow-[0_0_20px_rgba(0,0,0,0.2)]` : 'hover:bg-white/5'
+                }`}>
                 <i className={`fa-solid ${item.icon} text-xl transition-all duration-500 ${isActive ? `${item.color} ${item.dropShadow}` : 'text-slate-400 opacity-60'}`}></i>
                 {ripples[item.path] && <span className="absolute inset-0 bg-white/10 rounded-2xl animate-ping opacity-0"></span>}
               </div>
             </Link>
           );
         })}
-        
-        <button 
+
+        <button
           onClick={() => {
             handleRipple('cart');
             onOpenCart();
           }}
           className="flex-1 flex flex-col items-center justify-center h-full relative group"
         >
-          <div className={`flex flex-col items-center justify-center w-11 h-11 rounded-2xl transition-all duration-500 relative ${
-            cartCount > 0 ? 'bg-amber-400/20 scale-110 shadow-[0_0_20px_rgba(0,0,0,0.3)]' : 'hover:bg-white/5'
-          }`}>
+          <div className={`flex flex-col items-center justify-center w-11 h-11 rounded-2xl transition-all duration-500 relative ${cartCount > 0 ? 'bg-amber-400/20 scale-110 shadow-[0_0_20px_rgba(0,0,0,0.3)]' : 'hover:bg-white/5'
+            }`}>
             <div className="relative">
               <i className={`fa-solid fa-bag-shopping text-xl transition-all duration-500 ${cartCount > 0 ? 'text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]' : 'text-slate-400 opacity-60'}`}></i>
               {cartCount > 0 && (
@@ -76,7 +75,7 @@ const MobileNav: React.FC<{ cartCount: number; onOpenCart: () => void; onRefresh
           </div>
         </button>
 
-        <button 
+        <button
           onClick={() => {
             if (!user) {
               handleRipple('user');

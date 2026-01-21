@@ -11,18 +11,16 @@ import { useAuth } from '../AuthContext';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-interface AuthorPageProps {
-  onAddToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => void;
-  onQuickView?: (book: Book) => void;
-}
+import { useCart } from '../contexts/CartContext';
 
-const AuthorBookCard: React.FC<{ 
-  book: Book, 
-  onAddToCart: any, 
-  onQuickView: any,
-  index: number 
-}> = ({ book, onAddToCart, onQuickView, index }) => {
+const AuthorBookCard: React.FC<{
+  book: Book,
+  index: number,
+  onQuickView?: (book: Book) => void
+}> = ({ book, index, onQuickView }) => {
+  const { addToCart } = useCart();
   const { wishlist, toggleWishlist } = useAuth();
+
   const isWishlisted = wishlist.some(b => b.id === book.id);
 
   const formatPrice = (price: number) => {
@@ -41,7 +39,7 @@ const AuthorBookCard: React.FC<{
         <div className="relative w-28 h-40 flex-shrink-0 rounded-2xl overflow-hidden shadow-lg group-hover:scale-105 transition-transform duration-500">
           <img src={book.cover} alt={book.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          
+
           {book.badge && (
             <div className="absolute top-2 left-2 px-2 py-0.5 bg-indigo-600 text-xs font-bold text-white uppercase rounded-md shadow-lg">
               {book.badge}
@@ -54,17 +52,17 @@ const AuthorBookCard: React.FC<{
           <div>
             <div className="flex justify-between items-start gap-2 mb-1">
               <h3 className="font-extrabold text-slate-800 text-sm lg:text-base leading-tight line-clamp-2 hover:text-indigo-600 cursor-pointer transition-colors"
-                  onClick={() => window.location.href = `/book/${book.id}`}>
+                onClick={() => window.location.href = `/book/${book.id}`}>
                 {book.title}
               </h3>
-              <button 
+              <button
                 onClick={() => toggleWishlist(book)}
                 className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isWishlisted ? 'text-rose-500 bg-rose-50' : 'text-slate-300 hover:text-rose-500 hover:bg-rose-50'}`}
               >
                 <i className={`fa-${isWishlisted ? 'solid' : 'regular'} fa-heart text-xs`}></i>
               </button>
             </div>
-            
+
             <p className="text-xs text-slate-500 line-clamp-2 mb-3 leading-relaxed">
               {book.description}
             </p>
@@ -101,7 +99,7 @@ const AuthorBookCard: React.FC<{
                 <i className="fa-solid fa-expand text-xs"></i>
               </button>
               <button
-                onClick={(e) => onAddToCart(book, 1, { x: e.clientX, y: e.clientY })}
+                onClick={(e) => addToCart(book, 1, { x: e.clientX, y: e.clientY })}
                 disabled={book.stockQuantity <= 0}
                 className="px-4 h-9 bg-slate-900 text-white rounded-xl text-micro font-bold uppercase tracking-premium flex items-center justify-center gap-2 hover:bg-indigo-600 disabled:bg-slate-200 transition-all shadow-lg shadow-slate-200"
               >
@@ -120,7 +118,7 @@ const AuthorBookCard: React.FC<{
   );
 };
 
-const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => {
+const AuthorPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickView }) => {
   const { authorName } = useParams<{ authorName: string }>();
   const [authorBooks, setAuthorBooks] = useState<Book[]>([]);
   const [authorInfo, setAuthorInfo] = useState<Author | null>(null);
@@ -129,7 +127,7 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
   const [loadingAI, setLoadingAI] = useState(false);
   const [activeModelName, setActiveModelName] = useState('Gemini');
   const [sortBy, setSortBy] = useState<'newest' | 'price-asc' | 'price-desc' | 'rating'>('newest');
-  
+
   const sortedBooks = [...authorBooks].sort((a, b) => {
     if (sortBy === 'newest') return b.publishYear - a.publishYear;
     if (sortBy === 'price-asc') return a.price - b.price;
@@ -152,10 +150,10 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
         db.getBooks(),
         db.getAuthors()
       ]);
-      
+
       const filtered = allBooks.filter(b => b.author.toLowerCase() === authorName?.toLowerCase());
       const info = allAuthors.find(a => a.name.toLowerCase() === authorName?.toLowerCase());
-      
+
       setAuthorBooks(filtered);
       setAuthorInfo(info || null);
       setLoading(false);
@@ -193,16 +191,16 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
                   <div key={i} className="bg-white rounded-3xl p-4 border border-slate-100 flex gap-5">
                     <Skeleton className="w-28 h-40 rounded-2xl flex-shrink-0" />
                     <div className="flex-1 space-y-3 py-1">
-                       <Skeleton className="h-5 w-3/4" />
-                       <Skeleton className="h-10 w-full" />
-                       <div className="flex gap-2">
-                         <Skeleton className="h-6 w-20 rounded-lg" />
-                         <Skeleton className="h-6 w-16 rounded-lg" />
-                       </div>
-                       <div className="pt-3 border-t border-slate-50 flex justify-between items-center">
-                         <Skeleton className="h-6 w-24" />
-                         <Skeleton className="h-9 w-20 rounded-xl" />
-                       </div>
+                      <Skeleton className="h-5 w-3/4" />
+                      <Skeleton className="h-10 w-full" />
+                      <div className="flex gap-2">
+                        <Skeleton className="h-6 w-20 rounded-lg" />
+                        <Skeleton className="h-6 w-16 rounded-lg" />
+                      </div>
+                      <div className="pt-3 border-t border-slate-50 flex justify-between items-center">
+                        <Skeleton className="h-6 w-24" />
+                        <Skeleton className="h-9 w-20 rounded-xl" />
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -217,10 +215,10 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
     );
   }
 
-  const mainCategory = authorBooks.length > 0 
-    ? [...new Set(authorBooks.map(b => b.category))].sort((a,b) => 
-        authorBooks.filter(x => x.category === b).length - authorBooks.filter(x => x.category === a).length
-      )[0] 
+  const mainCategory = authorBooks.length > 0
+    ? [...new Set(authorBooks.map(b => b.category))].sort((a, b) =>
+      authorBooks.filter(x => x.category === b).length - authorBooks.filter(x => x.category === a).length
+    )[0]
     : "Văn học";
 
   return (
@@ -240,52 +238,52 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
 
         {/* Header Block */}
         <div className="bg-indigo-950 rounded-[1.5rem] lg:rounded-[2rem] p-5 lg:p-7 mb-6 relative overflow-hidden shadow-2xl shadow-indigo-200">
-           <div className="absolute top-0 right-0 w-1/3 h-full bg-indigo-500/10 blur-[100px]" aria-hidden="true"></div>
-           <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-indigo-400/5 rounded-full blur-[80px]"></div>
-           
-           <div className="relative z-10 flex flex-col lg:flex-row items-center gap-6 lg:gap-10">
-              <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-2xl lg:rounded-3xl overflow-hidden border-[6px] border-white/5 shadow-2xl bg-indigo-900 flex-shrink-0 group">
-                <img 
-                  src={authorInfo?.avatar || `https://ui-avatars.com/api/?name=${authorName}&background=4f46e5&color=fff&size=512&bold=true`} 
-                  alt={authorName} 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
+          <div className="absolute top-0 right-0 w-1/3 h-full bg-indigo-500/10 blur-[100px]" aria-hidden="true"></div>
+          <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-indigo-400/5 rounded-full blur-[80px]"></div>
+
+          <div className="relative z-10 flex flex-col lg:flex-row items-center gap-6 lg:gap-10">
+            <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-2xl lg:rounded-3xl overflow-hidden border-[6px] border-white/5 shadow-2xl bg-indigo-900 flex-shrink-0 group">
+              <img
+                src={authorInfo?.avatar || `https://ui-avatars.com/api/?name=${authorName}&background=4f46e5&color=fff&size=512&bold=true`}
+                alt={authorName}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+            </div>
+
+            <div className="flex-1 text-center lg:text-left">
+              <div className="flex flex-wrap justify-center lg:justify-start items-center gap-2 mb-3">
+                <span className="px-2.5 py-0.5 bg-indigo-500/20 text-indigo-300 rounded-lg text-micro font-bold uppercase tracking-premium border border-indigo-500/20">Tác giả tiêu biểu</span>
+                <span className="px-2.5 py-0.5 bg-white/5 text-slate-400 rounded-lg text-micro font-bold uppercase tracking-premium border border-white/5">{mainCategory}</span>
               </div>
 
-              <div className="flex-1 text-center lg:text-left">
-                <div className="flex flex-wrap justify-center lg:justify-start items-center gap-2 mb-3">
-                  <span className="px-2.5 py-0.5 bg-indigo-500/20 text-indigo-300 rounded-lg text-micro font-bold uppercase tracking-premium border border-indigo-500/20">Tác giả tiêu biểu</span>
-                  <span className="px-2.5 py-0.5 bg-white/5 text-slate-400 rounded-lg text-micro font-bold uppercase tracking-premium border border-white/5">{mainCategory}</span>
+              <h1 className="text-2xl lg:text-3xl font-extrabold text-white mb-4 tracking-tight leading-tight">{authorName}</h1>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-4">
+                <div className="bg-white/5 p-2 rounded-xl border border-white/5 backdrop-blur-sm">
+                  <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-0.5">Tác phẩm</p>
+                  <p className="text-xl font-extrabold text-white">{authorBooks.length}</p>
                 </div>
-                
-                <h1 className="text-2xl lg:text-3xl font-extrabold text-white mb-4 tracking-tight leading-tight">{authorName}</h1>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-4">
-                  <div className="bg-white/5 p-2 rounded-xl border border-white/5 backdrop-blur-sm">
-                    <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-0.5">Tác phẩm</p>
-                    <p className="text-xl font-extrabold text-white">{authorBooks.length}</p>
-                  </div>
-                  <div className="bg-white/5 p-2 rounded-xl border border-white/5 backdrop-blur-sm">
-                    <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-0.5">Đánh giá</p>
-                    <p className="text-xl font-extrabold text-white">4.9<span className="text-[10px] text-indigo-400">/5</span></p>
-                  </div>
-                  <div className="bg-white/5 p-2 rounded-xl border border-white/5 backdrop-blur-sm">
-                    <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-0.5">Độc giả</p>
-                    <p className="text-xl font-extrabold text-white">12k+</p>
-                  </div>
-                  <div className="bg-white/5 p-2 rounded-xl border border-white/5 backdrop-blur-sm">
-                    <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-0.5">Theo dõi</p>
-                    <p className="text-xl font-extrabold text-white">4.2k</p>
-                  </div>
+                <div className="bg-white/5 p-2 rounded-xl border border-white/5 backdrop-blur-sm">
+                  <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-0.5">Đánh giá</p>
+                  <p className="text-xl font-extrabold text-white">4.9<span className="text-[10px] text-indigo-400">/5</span></p>
+                </div>
+                <div className="bg-white/5 p-2 rounded-xl border border-white/5 backdrop-blur-sm">
+                  <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-0.5">Độc giả</p>
+                  <p className="text-xl font-extrabold text-white">12k+</p>
+                </div>
+                <div className="bg-white/5 p-2 rounded-xl border border-white/5 backdrop-blur-sm">
+                  <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-0.5">Theo dõi</p>
+                  <p className="text-xl font-extrabold text-white">4.2k</p>
                 </div>
               </div>
-           </div>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Main Info Side */}
           <div className="lg:col-span-8 space-y-6">
-            
+
             {/* Biography Block */}
             <div className="bg-white p-6 lg:p-8 rounded-3xl border border-slate-200/60 shadow-xl shadow-slate-200/40">
               <div className="flex items-center gap-3 mb-6">
@@ -305,10 +303,10 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
                       {para}
                     </span>
                   )) || (
-                    <span className="italic opacity-80">
-                      {authorName} là một trong những cây bút có sức ảnh hưởng sâu rộng trong nền văn học hiện đại. Với khả năng quan sát tinh tế và ngôn từ sắc sảo, các tác phẩm của tác giả không chỉ là những câu chuyện kể mà còn là những bản chiêm nghiệm sâu sắc về cuộc sống, con người và những giá trị nhân bản vĩnh cửu.
-                    </span>
-                  )}
+                      <span className="italic opacity-80">
+                        {authorName} là một trong những cây bút có sức ảnh hưởng sâu rộng trong nền văn học hiện đại. Với khả năng quan sát tinh tế và ngôn từ sắc sảo, các tác phẩm của tác giả không chỉ là những câu chuyện kể mà còn là những bản chiêm nghiệm sâu sắc về cuộc sống, con người và những giá trị nhân bản vĩnh cửu.
+                      </span>
+                    )}
                 </p>
               </div>
 
@@ -337,28 +335,27 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
                 </div>
 
                 <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200/60 shadow-sm">
-                   <select 
+                  <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as any)}
                     className="text-micro font-bold uppercase tracking-premium bg-transparent outline-none px-2 py-1.5 text-slate-600 cursor-pointer"
-                   >
-                     <option value="newest">Mới nhất</option>
-                     <option value="rating">Đánh giá cao</option>
-                     <option value="price-asc">Giá thấp đến cao</option>
-                     <option value="price-desc">Giá cao đến thấp</option>
-                   </select>
+                  >
+                    <option value="newest">Mới nhất</option>
+                    <option value="rating">Đánh giá cao</option>
+                    <option value="price-asc">Giá thấp đến cao</option>
+                    <option value="price-desc">Giá cao đến thấp</option>
+                  </select>
                 </div>
               </div>
 
               {sortedBooks.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-2 lg:px-0">
                   {sortedBooks.map((book, index) => (
-                    <AuthorBookCard 
-                      key={book.id} 
-                      book={book} 
-                      onAddToCart={onAddToCart} 
-                      onQuickView={onQuickView}
+                    <AuthorBookCard
+                      key={book.id}
+                      book={book}
                       index={index}
+                      onQuickView={onQuickView}
                     />
                   ))}
                 </div>
@@ -375,7 +372,7 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
           <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
             <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-8 rounded-3xl shadow-2xl relative overflow-hidden group border border-white/5">
               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl -mr-16 -mt-16"></div>
-              
+
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
@@ -398,23 +395,23 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
                       </div>
                     </div>
                     <div className="mt-6 pt-6 border-t border-white/5 space-y-4">
-                       <div>
-                          <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-3">Điểm nhấn sáng tạo:</p>
-                          <div className="grid grid-cols-1 gap-2">
-                             <div className="flex items-center gap-3 p-2 rounded-xl bg-white/5 border border-white/5">
-                                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                                   <i className="fa-solid fa-bolt text-emerald-400 text-xs"></i>
-                                </div>
-                                <span className="text-xs font-bold text-slate-300">Tư duy độc bản & đột phá</span>
-                             </div>
-                             <div className="flex items-center gap-3 p-2 rounded-xl bg-white/5 border border-white/5">
-                                <div className="w-8 h-8 rounded-lg bg-rose-500/20 flex items-center justify-center">
-                                   <i className="fa-solid fa-heart-pulse text-rose-400 text-xs"></i>
-                                </div>
-                                <span className="text-xs font-bold text-slate-300">Kết nối cảm xúc mạnh mẽ</span>
-                             </div>
+                      <div>
+                        <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-3">Điểm nhấn sáng tạo:</p>
+                        <div className="grid grid-cols-1 gap-2">
+                          <div className="flex items-center gap-3 p-2 rounded-xl bg-white/5 border border-white/5">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                              <i className="fa-solid fa-bolt text-emerald-400 text-xs"></i>
+                            </div>
+                            <span className="text-xs font-bold text-slate-300">Tư duy độc bản & đột phá</span>
                           </div>
-                       </div>
+                          <div className="flex items-center gap-3 p-2 rounded-xl bg-white/5 border border-white/5">
+                            <div className="w-8 h-8 rounded-lg bg-rose-500/20 flex items-center justify-center">
+                              <i className="fa-solid fa-heart-pulse text-rose-400 text-xs"></i>
+                            </div>
+                            <span className="text-xs font-bold text-slate-300">Kết nối cảm xúc mạnh mẽ</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -422,7 +419,7 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
                     <p className="text-indigo-100/60 text-xs font-medium mb-6 leading-relaxed">
                       Để AI giúp bạn phác họa chân dung nghệ thuật và phong cách đặc trưng của {authorName}.
                     </p>
-                    <button 
+                    <button
                       onClick={handleGetAIInsight}
                       disabled={loadingAI}
                       className="w-full py-4 bg-white text-slate-900 rounded-2xl font-extrabold uppercase tracking-premium text-micro hover:bg-indigo-50 transition-all shadow-xl shadow-white/5 flex items-center justify-center gap-2 active:scale-95 disabled:bg-slate-800 disabled:text-slate-500"
@@ -445,12 +442,12 @@ const AuthorPage: React.FC<AuthorPageProps> = ({ onAddToCart, onQuickView }) => 
 
             {/* Newsletter or CTA */}
             <div className="bg-emerald-600 p-8 rounded-3xl text-white shadow-xl shadow-emerald-100/50 relative overflow-hidden">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16"></div>
-               <h4 className="text-base font-extrabold mb-1 tracking-premium uppercase">Theo dõi {authorName}</h4>
-               <p className="text-xs text-emerald-100 font-medium mb-4 leading-relaxed">Nhận thông báo ngay khi có tác phẩm hoặc sự kiện mới nhất.</p>
-               <button className="w-full py-3.5 bg-white text-emerald-600 rounded-xl font-extrabold uppercase tracking-premium text-micro hover:bg-emerald-50 transition-colors shadow-lg shadow-black/10">
-                 Đăng ký ngay
-               </button>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16"></div>
+              <h4 className="text-base font-extrabold mb-1 tracking-premium uppercase">Theo dõi {authorName}</h4>
+              <p className="text-xs text-emerald-100 font-medium mb-4 leading-relaxed">Nhận thông báo ngay khi có tác phẩm hoặc sự kiện mới nhất.</p>
+              <button className="w-full py-3.5 bg-white text-emerald-600 rounded-xl font-extrabold uppercase tracking-premium text-micro hover:bg-emerald-50 transition-colors shadow-lg shadow-black/10">
+                Đăng ký ngay
+              </button>
             </div>
           </div>
         </div>

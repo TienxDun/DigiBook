@@ -7,7 +7,7 @@ interface SkeletonProps {
 
 export const Skeleton: React.FC<SkeletonProps> = ({ className }) => {
     return (
-        <div className={`bg-slate-200 rounded ${className}`}></div>
+        <div className={`animate-shimmer rounded ${className}`}></div>
     );
 };
 
@@ -20,11 +20,11 @@ export const BookCardSkeleton: React.FC = () => {
                 <Skeleton className="h-4 w-2/3" />
             </div>
             <Skeleton className="h-3 w-1/2 mt-1 mb-auto" />
-            
+
             <div className="pt-2 border-t border-slate-50 mt-2 flex items-end justify-between">
                 <div className="flex flex-col gap-1">
-                   <Skeleton className="h-3 w-12" />
-                   <Skeleton className="h-5 w-20" />
+                    <Skeleton className="h-3 w-12" />
+                    <Skeleton className="h-5 w-20" />
                 </div>
                 <Skeleton className="h-8 w-8 rounded-lg" />
             </div>

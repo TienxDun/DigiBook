@@ -9,7 +9,8 @@ import {
   updateDoc,
   increment,
   writeBatch,
-  serverTimestamp
+  serverTimestamp,
+  setDoc
 } from "firebase/firestore";
 import { db_fs } from "../firebase";
 import { Order, OrderItem, CartItem } from '../../types';
@@ -45,7 +46,7 @@ export async function createOrder(orderInfo: any, cartItems: CartItem[]) {
       quantity: item.quantity,
       cover: item.cover
     }));
-    
+
     const batch = writeBatch(db_fs);
     const orderRef = doc(collection(db_fs, 'orders'));
     const orderId = orderRef.id;
@@ -78,10 +79,10 @@ export async function createOrder(orderInfo: any, cartItems: CartItem[]) {
 }
 
 export async function getOrdersByUserId(userId: string): Promise<Order[]> {
-  const q = userId === 'admin' 
+  const q = userId === 'admin'
     ? collection(db_fs, 'orders')
     : query(collection(db_fs, 'orders'), where("userId", "==", userId));
-  
+
   return wrap(
     getDocs(q).then(snap => {
       const orders = snap.docs.map(d => ({ id: d.id, ...d.data() } as Order));
@@ -113,13 +114,32 @@ export async function getOrderWithItems(orderId: string): Promise<(Order & { ite
 
 export async function updateOrderStatus(orderId: string, newStatus: string, newStatusStep: number): Promise<void> {
   await wrap(
-    updateDoc(doc(db_fs, 'orders', orderId), { 
-      status: newStatus, 
+    updateDoc(doc(db_fs, 'orders', orderId), {
+      status: newStatus,
       statusStep: newStatusStep,
       updatedAt: serverTimestamp()
     }),
     undefined,
     'UPDATE_ORDER_STATUS',
     `${orderId} -> ${newStatus} (step ${newStatusStep})`
+  );
+}
+
+export async function syncUserCart(userId: string, cartItems: CartItem[]): Promise<void> {
+  await wrap(
+    setDoc(doc(db_fs, 'userCarts', userId), {
+      items: cartItems.map(item => ({ ...item, updatedAt: new Date().toISOString() })),
+      updatedAt: serverTimestamp()
+    }),
+    undefined,
+    'SYNC_CART',
+    userId
+  );
+}
+
+export async function getUserCart(userId: string): Promise<CartItem[]> {
+  return wrap(
+    getDoc(doc(db_fs, 'userCarts', userId)).then(snap => snap.exists() ? snap.data().items as CartItem[] : []),
+    []
   );
 }
