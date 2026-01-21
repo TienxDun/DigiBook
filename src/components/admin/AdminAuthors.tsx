@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Author } from '../../types';
-import { db } from '../../services/db';
+import { Author } from '@/types';
+import { db } from '@/services/db';
 import { toast } from 'react-hot-toast';
-import { ErrorHandler } from '../../services/errorHandler';
+import { ErrorHandler } from '@/services/errorHandler';
 import Pagination from '../Pagination';
 
 // Portal component for rendering modals outside DOM structure
@@ -91,7 +91,7 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
   };
 
   const toggleSelectAuthor = (id: string) => {
-    setSelectedAuthors(prev => 
+    setSelectedAuthors(prev =>
       prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
     );
   };
@@ -133,7 +133,7 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
             </p>
           </div>
         </div>
-        <button 
+        <button
           onClick={handleOpenAddAuthor}
           className="bg-primary text-primary-foreground px-8 py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/25 flex items-center gap-3 group"
         >
@@ -145,7 +145,7 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
       {/* Bulk Actions Bar */}
       <AnimatePresence>
         {selectedAuthors.length > 0 && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -160,16 +160,15 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
                 <span className="text-micro font-black text-primary uppercase tracking-premium">Đã chọn {selectedAuthors.length} tác giả</span>
               </div>
               <div className="h-4 w-px bg-border/60"></div>
-              <button 
+              <button
                 onClick={toggleSelectAllAuthors}
-                className={`text-micro font-bold uppercase tracking-premium transition-colors ${
-                  isMidnight ? 'text-slate-400 hover:text-primary' : 'text-muted-foreground hover:text-primary'
-                }`}
+                className={`text-micro font-bold uppercase tracking-premium transition-colors ${isMidnight ? 'text-slate-400 hover:text-primary' : 'text-muted-foreground hover:text-primary'
+                  }`}
               >
                 Bỏ chọn tất cả
               </button>
             </div>
-            <button 
+            <button
               onClick={handleBulkDeleteAuthors}
               disabled={isDeletingBulk}
               className="bg-destructive/10 text-destructive hover:bg-destructive hover:text-white px-6 py-3 rounded-xl text-micro font-bold uppercase tracking-premium transition-all shadow-sm flex items-center gap-2"
@@ -188,13 +187,12 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
             <thead>
               <tr className={`border-b ${isMidnight ? 'bg-slate-900/50 border-white/5' : 'border-border/50'}`}>
                 <th className="p-8 w-20 text-center">
-                  <div 
+                  <div
                     onClick={toggleSelectAllAuthors}
-                    className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
-                      selectedAuthors.length === authors.length && authors.length > 0
-                      ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/30' 
-                      : (isMidnight ? 'border-white/10 bg-slate-800 shadow-inner' : 'border-border bg-background shadow-inner')
-                    }`}
+                    className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${selectedAuthors.length === authors.length && authors.length > 0
+                        ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/30'
+                        : (isMidnight ? 'border-white/10 bg-slate-800 shadow-inner' : 'border-border bg-background shadow-inner')
+                      }`}
                   >
                     {selectedAuthors.length === authors.length && authors.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
                   </div>
@@ -206,25 +204,23 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
             </thead>
             <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-border/30'}`}>
               {paginatedAuthors.map((author, idx) => (
-                <motion.tr 
+                <motion.tr
                   key={author.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
-                  className={`group transition-all duration-300 ${
-                    selectedAuthors.includes(author.id) 
-                    ? (isMidnight ? 'bg-primary/10' : 'bg-primary/[0.04]')
-                    : (isMidnight ? 'hover:bg-slate-700/30' : 'hover:bg-secondary/30')
-                  }`}
+                  className={`group transition-all duration-300 ${selectedAuthors.includes(author.id)
+                      ? (isMidnight ? 'bg-primary/10' : 'bg-primary/[0.04]')
+                      : (isMidnight ? 'hover:bg-slate-700/30' : 'hover:bg-secondary/30')
+                    }`}
                 >
                   <td className="p-8 text-center">
-                    <div 
+                    <div
                       onClick={() => toggleSelectAuthor(author.id)}
-                      className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
-                        selectedAuthors.includes(author.id)
-                        ? 'bg-primary border-primary text-primary-foreground shadow-md shadow-primary/20'
-                        : (isMidnight ? 'border-white/10 bg-slate-800' : 'border-border bg-background') + ' group-hover:border-primary/50 shadow-inner'
-                      }`}
+                      className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${selectedAuthors.includes(author.id)
+                          ? 'bg-primary border-primary text-primary-foreground shadow-md shadow-primary/20'
+                          : (isMidnight ? 'border-white/10 bg-slate-800' : 'border-border bg-background') + ' group-hover:border-primary/50 shadow-inner'
+                        }`}
                     >
                       {selectedAuthors.includes(author.id) && <i className="fa-solid fa-check text-[10px]"></i>}
                     </div>
@@ -232,9 +228,9 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
                   <td className="p-8">
                     <div className="flex items-center gap-5">
                       <div className="relative group/avatar">
-                        <img 
-                          src={author.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(author.name) + '&background=7033ff&color=fff'} 
-                          alt={author.name} 
+                        <img
+                          src={author.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(author.name) + '&background=7033ff&color=fff'}
+                          alt={author.name}
                           className="w-14 h-14 object-cover rounded-2xl shadow-lg border-2 border-white transition-transform group-hover/avatar:scale-105"
                           onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(author.name) + '&background=7033ff&color=fff'; }}
                         />
@@ -255,24 +251,22 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
                   </td>
                   <td className="p-8">
                     <div className="flex items-center justify-end gap-3">
-                      <button 
+                      <button
                         onClick={() => handleEditAuthor(author)}
-                        className={`w-11 h-11 flex items-center justify-center rounded-2xl transition-all shadow-sm active:scale-95 ${
-                          isMidnight 
-                            ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:border-primary hover:text-primary hover:bg-slate-700' 
+                        className={`w-11 h-11 flex items-center justify-center rounded-2xl transition-all shadow-sm active:scale-95 ${isMidnight
+                            ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:border-primary hover:text-primary hover:bg-slate-700'
                             : 'bg-background border border-border text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/5'
-                        }`}
+                          }`}
                         title="Chỉnh sửa"
                       >
                         <i className="fa-solid fa-pen-to-square text-sm"></i>
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleDeleteAuthor(author)}
-                        className={`w-11 h-11 flex items-center justify-center rounded-2xl transition-all shadow-sm active:scale-95 ${
-                          isMidnight 
-                            ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:border-destructive hover:text-destructive hover:bg-slate-700' 
+                        className={`w-11 h-11 flex items-center justify-center rounded-2xl transition-all shadow-sm active:scale-95 ${isMidnight
+                            ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:border-destructive hover:text-destructive hover:bg-slate-700'
                             : 'bg-background border border-border text-muted-foreground hover:border-destructive hover:text-destructive hover:bg-destructive/5'
-                        }`}
+                          }`}
                         title="Xóa"
                       >
                         <i className="fa-solid fa-trash-can text-sm"></i>
@@ -283,7 +277,7 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
               ))}
             </tbody>
           </table>
-          
+
           {authors.length === 0 && (
             <div className="p-24 text-center">
               <div className="w-24 h-24 rounded-[2rem] bg-secondary/50 flex items-center justify-center mx-auto mb-8 shadow-inner border border-border/50">
@@ -291,7 +285,7 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
               </div>
               <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground">Chưa có tác giả nào</h3>
               <p className="text-xs font-semibold text-muted-foreground/60 mt-2">Bắt đầu bằng cách thêm tác giả đầu tiên của bạn.</p>
-              <button 
+              <button
                 onClick={handleOpenAddAuthor}
                 className="mt-8 text-primary font-black uppercase tracking-premium text-micro border-b-2 border-primary/20 hover:border-primary transition-all pb-1"
               >
@@ -304,7 +298,7 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="p-8 border-t border-border/50 bg-secondary/20">
-            <Pagination 
+            <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={(page) => {
@@ -322,7 +316,7 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
         {isAuthorModalOpen && (
           <Portal>
             <div className="fixed inset-0 z-[500] flex items-center justify-center p-6">
-              <motion.div 
+              <motion.div
                 key="author-modal-overlay"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -330,36 +324,33 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
                 onClick={() => setIsAuthorModalOpen(false)}
                 className="absolute inset-0 bg-foreground/40 backdrop-blur-md"
               />
-              
-              <motion.div 
+
+              <motion.div
                 key="author-modal-content"
                 initial={{ opacity: 0, scale: 0.95, y: 30 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 30 }}
-                className={`relative w-full max-w-lg border shadow-3xl rounded-[2.5rem] overflow-hidden flex flex-col ${
-                  isMidnight ? 'bg-slate-800 border-white/10' : 'bg-card border-border'
-                }`}
+                className={`relative w-full max-w-lg border shadow-3xl rounded-[2.5rem] overflow-hidden flex flex-col ${isMidnight ? 'bg-slate-800 border-white/10' : 'bg-card border-border'
+                  }`}
               >
                 {/* Modal Header */}
-                <div className={`px-8 py-6 border-b flex items-center justify-between backdrop-blur-xl ${
-                  isMidnight ? 'border-white/5 bg-slate-800/80' : 'border-border/50 bg-card/50'
-                }`}>
+                <div className={`px-8 py-6 border-b flex items-center justify-between backdrop-blur-xl ${isMidnight ? 'border-white/5 bg-slate-800/80' : 'border-border/50 bg-card/50'
+                  }`}>
                   <div>
                     <h2 className="text-xl font-black uppercase tracking-tight text-foreground">
                       {editingAuthor ? 'Cập nhật tác giả' : 'Thêm tác giả mới'}
                     </h2>
                     <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-0.5">Thông tin định danh tác giả</p>
                   </div>
-                  <button 
-                    onClick={() => setIsAuthorModalOpen(false)} 
-                    className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
-                      isMidnight ? 'bg-slate-700 text-slate-400 hover:bg-primary/10 hover:text-primary' : 'bg-secondary text-muted-foreground hover:bg-primary/10 hover:text-primary'
-                    }`}
+                  <button
+                    onClick={() => setIsAuthorModalOpen(false)}
+                    className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${isMidnight ? 'bg-slate-700 text-slate-400 hover:bg-primary/10 hover:text-primary' : 'bg-secondary text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                      }`}
                   >
                     <i className="fa-solid fa-times text-base"></i>
                   </button>
                 </div>
-                
+
                 <form onSubmit={handleSaveAuthor} className="p-8 space-y-6 overflow-y-auto custom-scrollbar max-h-[75vh]">
                   <div className="space-y-6">
                     <div className="space-y-2">
@@ -372,15 +363,14 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
                           type="text"
                           required
                           value={authorFormData.name || ''}
-                          onChange={(e) => setAuthorFormData({...authorFormData, name: e.target.value})}
-                          className={`w-full pl-12 pr-6 py-3.5 rounded-2xl border transition-all text-sm font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 ${
-                            isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary/20 border-border'
-                          }`}
+                          onChange={(e) => setAuthorFormData({ ...authorFormData, name: e.target.value })}
+                          className={`w-full pl-12 pr-6 py-3.5 rounded-2xl border transition-all text-sm font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 ${isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary/20 border-border'
+                            }`}
                           placeholder="Nhập tên..."
                         />
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-1 flex justify-between">
                         <span>Tiểu sử</span>
@@ -388,25 +378,23 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
                       </label>
                       <textarea
                         value={authorFormData.bio || ''}
-                        onChange={(e) => setAuthorFormData({...authorFormData, bio: e.target.value})}
+                        onChange={(e) => setAuthorFormData({ ...authorFormData, bio: e.target.value })}
                         rows={3}
-                        className={`w-full px-5 py-4 rounded-2xl border transition-all font-semibold resize-none outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 leading-relaxed text-sm ${
-                          isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary/20 border-border'
-                        }`}
+                        className={`w-full px-5 py-4 rounded-2xl border transition-all font-semibold resize-none outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 leading-relaxed text-sm ${isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary/20 border-border'
+                          }`}
                         placeholder="Giới thiệu về tác giả..."
                       />
                     </div>
-                    
+
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-1">Ảnh đại diện</label>
                       <div className="flex gap-4">
-                        <div className={`w-16 h-16 shrink-0 rounded-2xl border overflow-hidden shadow-inner flex items-center justify-center ${
-                          isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary border-border bg-muted/30'
-                        }`}>
+                        <div className={`w-16 h-16 shrink-0 rounded-2xl border overflow-hidden shadow-inner flex items-center justify-center ${isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary border-border bg-muted/30'
+                          }`}>
                           {authorFormData.avatar ? (
-                            <img 
-                              src={authorFormData.avatar} 
-                              className="w-full h-full object-cover" 
+                            <img
+                              src={authorFormData.avatar}
+                              className="w-full h-full object-cover"
                               alt="Preview"
                               onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=tac+gia&background=7033ff&color=fff'; }}
                             />
@@ -421,24 +409,22 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
                           <input
                             type="url"
                             value={authorFormData.avatar || ''}
-                            onChange={(e) => setAuthorFormData({...authorFormData, avatar: e.target.value})}
-                            className={`w-full h-full pl-11 pr-4 py-3.5 rounded-2xl border transition-all text-sm font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 ${
-                              isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary/20 border-border'
-                            }`}
+                            onChange={(e) => setAuthorFormData({ ...authorFormData, avatar: e.target.value })}
+                            className={`w-full h-full pl-11 pr-4 py-3.5 rounded-2xl border transition-all text-sm font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 ${isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary/20 border-border'
+                              }`}
                             placeholder="URL hình ảnh..."
                           />
                         </div>
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-3 pt-4">
                     <button
                       type="button"
                       onClick={() => setIsAuthorModalOpen(false)}
-                      className={`flex-1 py-4 rounded-2xl text-micro font-black uppercase tracking-widest transition-all active:scale-95 ${
-                        isMidnight ? 'text-slate-400 hover:bg-slate-700/50' : 'text-muted-foreground hover:bg-secondary'
-                      }`}
+                      className={`flex-1 py-4 rounded-2xl text-micro font-black uppercase tracking-widest transition-all active:scale-95 ${isMidnight ? 'text-slate-400 hover:bg-slate-700/50' : 'text-muted-foreground hover:bg-secondary'
+                        }`}
                     >
                       Hủy bỏ
                     </button>

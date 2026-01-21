@@ -4,7 +4,7 @@ import Header from './Header';
 import Footer from './Footer';
 import MobileNav from './MobileNav';
 import CartSidebar from './CartSidebar';
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { CartItem, CategoryInfo, Book } from '../types';
 
 export const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {

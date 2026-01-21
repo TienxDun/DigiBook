@@ -46,19 +46,17 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
 
   return (
     <div className="flex flex-col items-center gap-5 mt-16 px-4">
-      <div className={`flex items-center justify-center gap-1.5 p-1.5 backdrop-blur-md rounded-2xl border transition-all duration-300 ${
-        isMidnight 
-        ? 'bg-slate-800/50 border-white/5 shadow-lg shadow-black/20' 
-        : 'bg-slate-50/80 border-slate-200/60 shadow-sm shadow-slate-200/30'
-      }`}>
+      <div className={`flex items-center justify-center gap-1.5 p-1.5 backdrop-blur-md rounded-2xl border transition-all duration-300 ${isMidnight
+          ? 'bg-slate-800/50 border-white/5 shadow-lg shadow-black/20'
+          : 'bg-slate-50/80 border-slate-200/60 shadow-sm shadow-slate-200/30'
+        }`}>
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className={`w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed group ${
-            isMidnight 
-            ? 'text-slate-400 hover:bg-slate-700 hover:text-primary hover:border-white/10' 
-            : 'text-slate-400 hover:bg-white hover:text-indigo-600 hover:shadow-md hover:ring-1 hover:ring-slate-200'
-          }`}
+          className={`w-10 h-10 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed group ${isMidnight
+              ? 'text-slate-400 hover:bg-slate-700 hover:text-primary hover:border-white/10'
+              : 'text-slate-400 hover:bg-white hover:text-indigo-600 hover:shadow-md hover:ring-1 hover:ring-slate-200'
+            }`}
           aria-label="Previous page"
         >
           <i className="fa-solid fa-chevron-left text-xs group-hover:-translate-x-0.5 transition-transform"></i>
@@ -70,13 +68,12 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
               <button
                 key={index}
                 onClick={() => onPageChange(page)}
-                className={`w-9 h-9 md:w-10 md:h-10 rounded-xl font-black text-xs transition-all flex items-center justify-center ${
-                  currentPage === page
+                className={`w-10 h-10 sm:w-10 sm:h-10 rounded-xl font-black text-xs transition-all flex items-center justify-center ${currentPage === page
                     ? (isMidnight ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-105 z-10' : 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 scale-105 z-10')
-                    : (isMidnight 
-                       ? 'text-slate-500 hover:bg-slate-700 hover:text-primary hover:border-white/10' 
-                       : 'text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm hover:ring-1 hover:ring-slate-200')
-                }`}
+                    : (isMidnight
+                      ? 'text-slate-500 hover:bg-slate-700 hover:text-primary hover:border-white/10'
+                      : 'text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm hover:ring-1 hover:ring-slate-200')
+                  }`}
               >
                 {page}
               </button>
@@ -91,11 +88,10 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className={`w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed group ${
-            isMidnight 
-            ? 'text-slate-400 hover:bg-slate-700 hover:text-primary hover:border-white/10' 
-            : 'text-slate-400 hover:bg-white hover:text-indigo-600 hover:shadow-md hover:ring-1 hover:ring-slate-200'
-          }`}
+          className={`w-10 h-10 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed group ${isMidnight
+              ? 'text-slate-400 hover:bg-slate-700 hover:text-primary hover:border-white/10'
+              : 'text-slate-400 hover:bg-white hover:text-indigo-600 hover:shadow-md hover:ring-1 hover:ring-slate-200'
+            }`}
           aria-label="Next page"
         >
           <i className="fa-solid fa-chevron-right text-xs group-hover:translate-x-0.5 transition-transform"></i>

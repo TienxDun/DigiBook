@@ -1,7 +1,7 @@
 import React, { Suspense, lazy, useState } from 'react';
 import { HashRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { AuthProvider, useAuth } from './AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useBooks } from './contexts/BookContext';
 import { useCart } from './contexts/CartContext';
 

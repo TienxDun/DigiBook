@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Book, CategoryInfo, CartItem } from '../types';
-import { db } from '../services/db';
-import { useAuth } from '../AuthContext';
+import { db } from '@/services/db';
+import { useAuth } from '../contexts/AuthContext';
 import { useBooks } from '../contexts/BookContext';
 import { useCart } from '../contexts/CartContext';
 import BookCard from '../components/BookCard';
@@ -44,7 +44,7 @@ const HomePage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickVie
             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent rounded-full text-primary text-micro font-extrabold uppercase tracking-ultra mb-4">
               <i className="fa-solid fa-wand-magic-sparkles"></i> New Generation Bookstore
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold text-foreground leading-[1.1] mb-3 lg:mb-6 tracking-tighter">
+            <h1 className="text-2xl sm:text-4xl lg:text-6xl font-extrabold text-foreground leading-tight sm:leading-[1.1] mb-3 lg:mb-6 tracking-tighter">
               Khai phá <br />
               <span className="text-primary">Tiềm năng</span> <br />
               qua từng trang sách.
@@ -131,7 +131,7 @@ const HomePage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickVie
       </section>
 
       {/* Intro Spotlight - Bento Integrated */}
-      <section className="py-6 lg:py-12 bg-background">
+      <section className="py-10 lg:py-16 bg-background">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3 lg:gap-4">
             <div className="md:col-span-1 bg-cyan-50/50 p-5 lg:p-6 rounded-[2rem] lg:rounded-3xl border border-cyan-100/50 flex flex-col gap-4 group">
@@ -164,7 +164,7 @@ const HomePage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickVie
       </section>
 
       {/* Bento Spotlight Section - High Density Highlights */}
-      <section className="py-6 lg:py-12 bg-background">
+      <section className="py-10 lg:py-16 bg-background">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-6 grid-rows-none auto-rows-fr gap-3 lg:gap-4 lg:h-[450px]">
             {/* Main Featured Book (Large) */}

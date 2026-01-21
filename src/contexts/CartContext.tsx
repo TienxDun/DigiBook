@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Book, CartItem } from '../types';
 import { toast } from 'react-hot-toast';
-import { useAuth } from '../AuthContext';
-import { db } from '../services/db';
+import { useAuth } from './AuthContext';
+import { db } from '@/services/db';
 
 interface CartContextType {
     cart: CartItem[];

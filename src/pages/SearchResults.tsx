@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { db } from '../services/db';
+import { db } from '@/services/db';
 import { Book } from '../types';
 import BookCard from '../components/BookCard';
 import { BookCardSkeleton } from '../components/Skeleton';

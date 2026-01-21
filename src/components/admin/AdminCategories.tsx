@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { CategoryInfo } from '../../types';
-import { db } from '../../services/db';
+import { CategoryInfo } from '@/types';
+import { db } from '@/services/db';
 import { toast } from 'react-hot-toast';
-import { ErrorHandler } from '../../services/errorHandler';
-import { AVAILABLE_ICONS } from '../../constants/categories';
+import { ErrorHandler } from '@/services/errorHandler';
+import { AVAILABLE_ICONS } from '@/constants/categories';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Portal component for rendering modals outside DOM structure
@@ -88,7 +88,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
   };
 
   const toggleSelectCategory = (name: string) => {
-    setSelectedCategories(prev => 
+    setSelectedCategories(prev =>
       prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]
     );
   };
@@ -130,7 +130,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
             </p>
           </div>
         </div>
-        <button 
+        <button
           onClick={handleOpenAddCategory}
           className="bg-primary text-primary-foreground px-8 py-4 rounded-2xl text-micro font-bold uppercase tracking-premium hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/25 flex items-center gap-3 group"
         >
@@ -142,7 +142,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
       {/* Bulk Actions Bar */}
       <AnimatePresence>
         {selectedCategories.length > 0 && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -157,16 +157,15 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
                 <span className="text-micro font-black text-primary uppercase tracking-premium">Đã chọn {selectedCategories.length} danh mục</span>
               </div>
               <div className="h-4 w-px bg-border/60"></div>
-              <button 
+              <button
                 onClick={toggleSelectAllCategories}
-                className={`text-micro font-bold uppercase tracking-premium transition-colors ${
-                  isMidnight ? 'text-slate-400 hover:text-primary' : 'text-muted-foreground hover:text-primary'
-                }`}
+                className={`text-micro font-bold uppercase tracking-premium transition-colors ${isMidnight ? 'text-slate-400 hover:text-primary' : 'text-muted-foreground hover:text-primary'
+                  }`}
               >
                 Bỏ chọn tất cả
               </button>
             </div>
-            <button 
+            <button
               onClick={handleBulkDeleteCategories}
               disabled={isDeletingBulk}
               className="bg-destructive/10 text-destructive hover:bg-destructive hover:text-white px-6 py-3 rounded-xl text-micro font-bold uppercase tracking-premium transition-all shadow-sm flex items-center gap-2"
@@ -185,13 +184,12 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
             <thead>
               <tr className={`border-b ${isMidnight ? 'bg-slate-900/50 border-white/5' : 'border-border/50'}`}>
                 <th className="p-8 w-20 text-center">
-                  <div 
+                  <div
                     onClick={toggleSelectAllCategories}
-                    className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
-                      selectedCategories.length === categories.length && categories.length > 0
-                      ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/30' 
-                      : (isMidnight ? 'border-white/10 bg-slate-800 shadow-inner' : 'border-border bg-background shadow-inner')
-                    }`}
+                    className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${selectedCategories.length === categories.length && categories.length > 0
+                        ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/30'
+                        : (isMidnight ? 'border-white/10 bg-slate-800 shadow-inner' : 'border-border bg-background shadow-inner')
+                      }`}
                   >
                     {selectedCategories.length === categories.length && categories.length > 0 && <i className="fa-solid fa-check text-[10px]"></i>}
                   </div>
@@ -203,36 +201,33 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
             </thead>
             <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-border/30'}`}>
               {categories.map((category, idx) => (
-                <motion.tr 
+                <motion.tr
                   key={category.name}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
-                  className={`group transition-all duration-300 ${
-                    selectedCategories.includes(category.name) 
-                    ? (isMidnight ? 'bg-primary/10' : 'bg-primary/[0.04]')
-                    : (isMidnight ? 'hover:bg-slate-700/30' : 'hover:bg-secondary/30')
-                  }`}
+                  className={`group transition-all duration-300 ${selectedCategories.includes(category.name)
+                      ? (isMidnight ? 'bg-primary/10' : 'bg-primary/[0.04]')
+                      : (isMidnight ? 'hover:bg-slate-700/30' : 'hover:bg-secondary/30')
+                    }`}
                 >
                   <td className="p-8 text-center">
-                    <div 
+                    <div
                       onClick={() => toggleSelectCategory(category.name)}
-                      className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${
-                        selectedCategories.includes(category.name)
-                        ? 'bg-primary border-primary text-primary-foreground shadow-md shadow-primary/20'
-                        : (isMidnight ? 'border-white/10 bg-slate-800' : 'border-border bg-background shadow-inner') + ' group-hover:border-primary/50'
-                      }`}
+                      className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${selectedCategories.includes(category.name)
+                          ? 'bg-primary border-primary text-primary-foreground shadow-md shadow-primary/20'
+                          : (isMidnight ? 'border-white/10 bg-slate-800' : 'border-border bg-background shadow-inner') + ' group-hover:border-primary/50'
+                        }`}
                     >
                       {selectedCategories.includes(category.name) && <i className="fa-solid fa-check text-[10px]"></i>}
                     </div>
                   </td>
                   <td className="p-8">
                     <div className="flex items-center gap-5">
-                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${
-                        selectedCategories.includes(category.name)
-                        ? 'bg-primary text-white scale-110 rotate-3 shadow-xl shadow-primary/20'
-                        : (isMidnight ? 'bg-slate-800 text-primary border-white/5' : 'bg-secondary text-primary border-border/50') + ' border group-hover:scale-110 group-hover:-rotate-3 group-hover:bg-primary group-hover:text-white'
-                      }`}>
+                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${selectedCategories.includes(category.name)
+                          ? 'bg-primary text-white scale-110 rotate-3 shadow-xl shadow-primary/20'
+                          : (isMidnight ? 'bg-slate-800 text-primary border-white/5' : 'bg-secondary text-primary border-border/50') + ' border group-hover:scale-110 group-hover:-rotate-3 group-hover:bg-primary group-hover:text-white'
+                        }`}>
                         <i className={`fa-solid ${category.icon} text-xl`}></i>
                       </div>
                       <div>
@@ -248,24 +243,22 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
                   </td>
                   <td className="p-8">
                     <div className="flex items-center justify-end gap-3">
-                      <button 
+                      <button
                         onClick={() => handleEditCategory(category)}
-                        className={`w-11 h-11 flex items-center justify-center rounded-2xl transition-all shadow-sm active:scale-95 ${
-                          isMidnight 
-                            ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:border-primary hover:text-primary hover:bg-slate-700' 
+                        className={`w-11 h-11 flex items-center justify-center rounded-2xl transition-all shadow-sm active:scale-95 ${isMidnight
+                            ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:border-primary hover:text-primary hover:bg-slate-700'
                             : 'bg-background border border-border text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/5'
-                        }`}
+                          }`}
                         title="Chỉnh sửa"
                       >
                         <i className="fa-solid fa-pen-to-square text-sm"></i>
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleDeleteCategory(category)}
-                        className={`w-11 h-11 flex items-center justify-center rounded-2xl transition-all shadow-sm active:scale-95 ${
-                          isMidnight 
-                            ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:border-destructive hover:text-destructive hover:bg-slate-700' 
+                        className={`w-11 h-11 flex items-center justify-center rounded-2xl transition-all shadow-sm active:scale-95 ${isMidnight
+                            ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:border-destructive hover:text-destructive hover:bg-slate-700'
                             : 'bg-background border border-border text-muted-foreground hover:border-destructive hover:text-destructive hover:bg-destructive/5'
-                        }`}
+                          }`}
                         title="Xóa"
                       >
                         <i className="fa-solid fa-trash-can text-sm"></i>
@@ -276,7 +269,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
               ))}
             </tbody>
           </table>
-          
+
           {categories.length === 0 && (
             <div className="p-24 text-center">
               <div className="w-24 h-24 rounded-[2rem] bg-secondary/50 flex items-center justify-center mx-auto mb-8 shadow-inner border border-border/50">
@@ -284,7 +277,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
               </div>
               <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground">Chưa có danh mục nào</h3>
               <p className="text-xs font-semibold text-muted-foreground/60 mt-2">Vui lòng khởi tạo danh mục để phân loại các đầu sách.</p>
-              <button 
+              <button
                 onClick={handleOpenAddCategory}
                 className="mt-8 text-primary font-black uppercase tracking-premium text-micro border-b-2 border-primary/20 hover:border-primary transition-all pb-1"
               >
@@ -300,42 +293,39 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
         {isCategoryModalOpen && (
           <Portal>
             <div className="fixed inset-0 z-[300] flex items-center justify-center p-6">
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setIsCategoryModalOpen(false)}
                 className="absolute inset-0 bg-foreground/40 backdrop-blur-md"
               />
-              
-              <motion.div 
+
+              <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 30 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 30 }}
-                className={`relative w-full max-w-lg border shadow-3xl rounded-[2.5rem] overflow-hidden flex flex-col ${
-                  isMidnight ? 'bg-slate-800 border-white/10' : 'bg-card border-border'
-                }`}
+                className={`relative w-full max-w-lg border shadow-3xl rounded-[2.5rem] overflow-hidden flex flex-col ${isMidnight ? 'bg-slate-800 border-white/10' : 'bg-card border-border'
+                  }`}
               >
                 {/* Modal Header */}
-                <div className={`px-8 py-6 border-b flex items-center justify-between backdrop-blur-xl ${
-                  isMidnight ? 'border-white/5 bg-slate-800/80' : 'border-border/50 bg-card/50'
-                }`}>
+                <div className={`px-8 py-6 border-b flex items-center justify-between backdrop-blur-xl ${isMidnight ? 'border-white/5 bg-slate-800/80' : 'border-border/50 bg-card/50'
+                  }`}>
                   <div>
                     <h2 className="text-xl font-black uppercase tracking-tight text-foreground">
                       {editingCategory ? 'Sửa danh mục' : 'Thêm mới'}
                     </h2>
                     <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-0.5">Phân loại sách hệ thống</p>
                   </div>
-                  <button 
-                    onClick={() => setIsCategoryModalOpen(false)} 
-                    className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all shadow-sm ${
-                      isMidnight ? 'bg-slate-700 text-slate-400 hover:bg-primary/10 hover:text-primary' : 'bg-secondary text-muted-foreground hover:bg-primary/10 hover:text-primary'
-                    }`}
+                  <button
+                    onClick={() => setIsCategoryModalOpen(false)}
+                    className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all shadow-sm ${isMidnight ? 'bg-slate-700 text-slate-400 hover:bg-primary/10 hover:text-primary' : 'bg-secondary text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                      }`}
                   >
                     <i className="fa-solid fa-times text-base"></i>
                   </button>
                 </div>
-                
+
                 <form onSubmit={handleSaveCategory} className="p-8 space-y-6 overflow-y-auto custom-scrollbar max-h-[75vh]">
                   <div className="space-y-6">
                     <div className="space-y-2">
@@ -348,10 +338,9 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
                           type="text"
                           required
                           value={categoryFormData.name || ''}
-                          onChange={(e) => setCategoryFormData({...categoryFormData, name: e.target.value})}
-                          className={`w-full pl-11 pr-6 py-3.5 rounded-2xl border transition-all text-sm font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 ${
-                            isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary/20 border-border'
-                          }`}
+                          onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value })}
+                          className={`w-full pl-11 pr-6 py-3.5 rounded-2xl border transition-all text-sm font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 ${isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary/20 border-border'
+                            }`}
                           placeholder="VD: Kinh tế, Văn học..."
                           readOnly={!!editingCategory}
                         />
@@ -360,22 +349,20 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
                         <p className="text-[9px] text-amber-500 font-bold uppercase ml-1 opacity-80 tracking-tighter">Tên danh mục cố định không thể sửa</p>
                       )}
                     </div>
-                    
+
                     <div className="space-y-3">
                       <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-1">Icon đại diện</label>
-                      <div className={`grid grid-cols-6 sm:grid-cols-8 gap-2.5 p-4 rounded-[1.5rem] border ${
-                        isMidnight ? 'bg-white/5 border-white/5' : 'bg-secondary/20 border-border/50'
-                      }`}>
+                      <div className={`grid grid-cols-6 sm:grid-cols-8 gap-2.5 p-4 rounded-[1.5rem] border ${isMidnight ? 'bg-white/5 border-white/5' : 'bg-secondary/20 border-border/50'
+                        }`}>
                         {AVAILABLE_ICONS.slice(0, 16).map((icon) => (
                           <button
                             key={icon}
                             type="button"
-                            onClick={() => setCategoryFormData({...categoryFormData, icon})}
-                            className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${
-                              categoryFormData.icon === icon 
-                              ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-110' 
-                              : (isMidnight ? 'bg-slate-800 text-slate-400 border-white/5 hover:border-primary/40' : 'bg-background text-muted-foreground/40 border border-border/50 hover:border-primary/40')
-                            }`}
+                            onClick={() => setCategoryFormData({ ...categoryFormData, icon })}
+                            className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${categoryFormData.icon === icon
+                                ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-110'
+                                : (isMidnight ? 'bg-slate-800 text-slate-400 border-white/5 hover:border-primary/40' : 'bg-background text-muted-foreground/40 border border-border/50 hover:border-primary/40')
+                              }`}
                             title={icon}
                           >
                             <i className={`fa-solid ${icon} text-xs`}></i>
@@ -383,28 +370,26 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
                         ))}
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-1">Mô tả tóm tắt</label>
                       <textarea
                         value={categoryFormData.description || ''}
-                        onChange={(e) => setCategoryFormData({...categoryFormData, description: e.target.value})}
+                        onChange={(e) => setCategoryFormData({ ...categoryFormData, description: e.target.value })}
                         rows={3}
-                        className={`w-full px-5 py-4 rounded-2xl border transition-all font-semibold resize-none outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 leading-relaxed text-sm ${
-                          isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary/20 border-border'
-                        }`}
+                        className={`w-full px-5 py-4 rounded-2xl border transition-all font-semibold resize-none outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 leading-relaxed text-sm ${isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary/20 border-border'
+                          }`}
                         placeholder="Nội dung danh mục..."
                       />
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-3 pt-4">
                     <button
                       type="button"
                       onClick={() => setIsCategoryModalOpen(false)}
-                      className={`flex-1 py-4 rounded-2xl text-micro font-black uppercase tracking-widest transition-all active:scale-95 ${
-                        isMidnight ? 'text-slate-400 hover:bg-slate-700/50' : 'text-muted-foreground hover:bg-secondary'
-                      }`}
+                      className={`flex-1 py-4 rounded-2xl text-micro font-black uppercase tracking-widest transition-all active:scale-95 ${isMidnight ? 'text-slate-400 hover:bg-slate-700/50' : 'text-muted-foreground hover:bg-secondary'
+                        }`}
                     >
                       Bỏ qua
                     </button>

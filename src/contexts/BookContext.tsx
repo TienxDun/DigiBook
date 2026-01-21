@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Book, CategoryInfo } from '../types';
-import { db } from '../services/db';
+import { db } from '@/services/db';
 
 interface BookContextType {
     allBooks: Book[];

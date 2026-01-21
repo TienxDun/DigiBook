@@ -1,13 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { db } from '../services/db';
+import { db } from '@/services/db';
 import { AVAILABLE_AI_MODELS } from '../constants/ai-models';
 import BookCard from '../components/BookCard';
 import { Book, Author } from '../types';
 import { BookCardSkeleton, Skeleton } from '../components/Skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 

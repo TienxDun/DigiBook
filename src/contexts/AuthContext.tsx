@@ -1,11 +1,11 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Book } from './types';
-import { 
-  auth, 
+import { Book } from '../types';
+import {
+  auth,
   googleProvider,
-  onAuthStateChanged, 
-  signInWithPopup, 
+  onAuthStateChanged,
+  signInWithPopup,
   signOut,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -14,10 +14,10 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider,
   sendPasswordResetEmail
-} from "./services/firebase";
-import { db } from './services/db';
+} from "../services/firebase";
+import { db } from '@/services/db';
 import { toast } from 'react-hot-toast';
-import ErrorHandler from './services/errorHandler';
+import ErrorHandler from '../services/errorHandler';
 
 export interface User {
   id: string;
@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         db.logActivity('AUTH_BANNED_BLOCK', `User ${firebaseUser.email} tried to login but is banned`, 'ERROR');
         return false;
       }
-      
+
       const userData: User = {
         id: firebaseUser.uid,
         name: forceName || profile?.name || firebaseUser.displayName || "Độc giả",
@@ -76,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         avatar: profile?.avatar || firebaseUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(forceName || firebaseUser.displayName || 'U')}&background=4f46e5&color=fff`,
         isAdmin: profile?.role === 'admin'
       };
-      
+
       setUser(userData);
 
       // Đồng bộ wishlist từ Firestore nếu có
@@ -98,7 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           email: userData.email,
           avatar: userData.avatar,
           role: userData.isAdmin ? 'admin' : 'user',
-          ...(!profile && { status: 'active' } )
+          ...(!profile && { status: 'active' })
         });
       }
       return true;
@@ -109,7 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   useEffect(() => {
-    let unsubscribe = () => {};
+    let unsubscribe = () => { };
     if (auth) {
       unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
         syncUser(firebaseUser).finally(() => setLoading(false));
@@ -130,7 +130,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const result = await signInWithPopup(auth, googleProvider);
       const success = await syncUser(result.user);
       if (!success) return;
-      
+
       db.logActivity('AUTH_LOGIN_GOOGLE', `Email: ${result.user.email}`, 'SUCCESS');
       setShowLoginModal(false);
       toast.success(`Chào mừng trở lại, ${result.user.displayName || 'bạn'}!`);
@@ -189,7 +189,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const credential = EmailAuthProvider.credential(auth.currentUser.email!, oldPw);
       await reauthenticateWithCredential(auth.currentUser, credential);
       await updatePassword(auth.currentUser, newPw);
-      
+
       db.logActivity('AUTH_CHANGE_PASSWORD', `Email: ${auth.currentUser.email}`, 'SUCCESS');
       toast.success('Đổi mật khẩu thành công!');
     } catch (error: any) {
@@ -205,8 +205,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       db.logActivity('AUTH_FORGOT_PASSWORD', `Email: ${email}`, 'SUCCESS');
       toast.success('Đã gửi email khôi phục mật khẩu!');
     } catch (error: any) {
-       const result = ErrorHandler.handle(error, 'AUTH_FORGOT_PASSWORD');
-       throw new Error(result.error);
+      const result = ErrorHandler.handle(error, 'AUTH_FORGOT_PASSWORD');
+      throw new Error(result.error);
     }
   };
 
@@ -223,7 +223,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const toggleWishlist = useCallback(async (book: Book) => {
     let updated: Book[] = [];
-    
+
     setWishlist(prev => {
       const exists = prev.find(b => b.id === book.id);
       updated = exists ? prev.filter(b => b.id !== book.id) : [...prev, book];
@@ -252,13 +252,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [user]);
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      loginWithGoogle, 
-      loginWithEmail, 
-      registerWithEmail, 
-      changePassword, 
-      sendPasswordReset, 
+    <AuthContext.Provider value={{
+      user,
+      loginWithGoogle,
+      loginWithEmail,
+      registerWithEmail,
+      changePassword,
+      sendPasswordReset,
       logout,
       showLoginModal,
       setShowLoginModal,

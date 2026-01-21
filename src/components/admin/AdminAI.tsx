@@ -1,8 +1,8 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { db } from '../../services/db';
+import { db } from '@/services/db';
 import { toast } from 'react-hot-toast';
-import { ErrorHandler } from '../../services/errorHandler';
+import { ErrorHandler } from '@/services/errorHandler';
 import { AIModelConfig } from '../../types';
 import { AVAILABLE_AI_MODELS } from '../../constants/ai-models';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -29,7 +29,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
   const [activeTab, setActiveTab] = useState<'models' | 'test'>('models');
   const [isUpdatingAI, setIsUpdatingAI] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [testPrompt, setTestPrompt] = useState('Hãy viết một lời chào ngắn tới quản trị viên của DigiBook.');
+  const [testPrompt, setTestPrompt] = useState('Hãy vi?t m?t l?i chào ng?n t?i qu?n tr? viên c?a DigiBook.');
   const [testResult, setTestResult] = useState('');
   const [isTesting, setIsTesting] = useState(false);
   const [models, setModels] = useState<AIModelConfig[]>([]);
@@ -68,7 +68,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
       const data = await db.getAIModels();
       setModels(data);
     } catch (error) {
-      ErrorHandler.handle(error, 'tải danh sách model');
+      ErrorHandler.handle(error, 't?i danh sách model');
     } finally {
       setIsLoadingModels(false);
     }
@@ -89,10 +89,10 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
     setIsUpdatingAI(true);
     try {
       await db.updateAIConfig(modelId);
-      toast.success('Đã cập nhật model AI thành công');
+      toast.success('Ðã c?p nh?t model AI thành công');
       refreshData();
     } catch (error) {
-      ErrorHandler.handle(error, 'cập nhật model AI');
+      ErrorHandler.handle(error, 'c?p nh?t model AI');
     } finally {
       setIsUpdatingAI(false);
     }
@@ -112,13 +112,13 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
 
   const handleDeleteModel = async (modelId: string) => {
     if (activeModelId === modelId) {
-      toast.error('Không thể xóa model đang hoạt động');
+      toast.error('Không th? xóa model dang ho?t d?ng');
       return;
     }
-    if (!window.confirm('Bạn có chắc chắn muốn xóa model này?')) return;
+    if (!window.confirm('B?n có ch?c ch?n mu?n xóa model này?')) return;
     try {
       await db.deleteAIModel(modelId);
-      toast.success('Đã xóa model thành công');
+      toast.success('Ðã xóa model thành công');
       loadModels();
     } catch (error) {
       ErrorHandler.handle(error, 'xóa model AI');
@@ -128,37 +128,37 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
   const handleSaveModel = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.id || !formData.name) {
-      toast.error('Vui lòng điền đầy đủ ID và Tên model');
+      toast.error('Vui lòng di?n d?y d? ID và Tên model');
       return;
     }
     setIsSubmitting(true);
     try {
       if (isEditing) {
         await db.updateAIModelInfo(formData);
-        toast.success('Đã cập nhật thông tin model');
+        toast.success('Ðã c?p nh?t thông tin model');
       } else {
         await db.addAIModel(formData);
-        toast.success('Đã thêm model mới');
+        toast.success('Ðã thêm model m?i');
       }
       setShowModal(false);
       loadModels();
     } catch (error) {
-      ErrorHandler.handle(error, 'lưu model AI');
+      ErrorHandler.handle(error, 'luu model AI');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleSyncModels = async () => {
-    if (!window.confirm('Bạn có muốn làm mới danh sách model từ hệ thống? Tất cả dữ liệu hiện tại sẽ bị xóa và thay thế bằng cấu hình mặc định.')) return;
+    if (!window.confirm('B?n có mu?n làm m?i danh sách model t? h? th?ng? T?t c? d? li?u hi?n t?i s? b? xóa và thay th? b?ng c?u hình m?c d?nh.')) return;
     
     setIsUpdatingAI(true);
     try {
       const count = await db.syncAIModels(AVAILABLE_AI_MODELS);
-      toast.success(`Đã làm mới hoàn toàn ${count} model hệ thống`);
+      toast.success(`Ðã làm m?i hoàn toàn ${count} model h? th?ng`);
       loadModels();
     } catch (error) {
-      ErrorHandler.handle(error, 'đồng bộ model AI');
+      ErrorHandler.handle(error, 'd?ng b? model AI');
     } finally {
       setIsUpdatingAI(false);
     }
@@ -167,13 +167,13 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
   const handleTestAI = async () => {
     if (!testPrompt.trim()) return;
     setIsTesting(true);
-    setTestResult('Đang kết nối tới AI...');
+    setTestResult('Ðang k?t n?i t?i AI...');
     try {
       const result = await db.getAIInsights(null, testPrompt);
       setTestResult(result);
     } catch (error: any) {
-      setTestResult('Lỗi: ' + error.message);
-      toast.error('Lỗi khi kiểm tra AI API');
+      setTestResult('L?i: ' + error.message);
+      toast.error('L?i khi ki?m tra AI API');
     } finally {
       setIsTesting(false);
     }
@@ -185,7 +185,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
     'OpenRouter': models.filter(m => m.category === 'OpenRouter'),
   };
 
-  if (isLoadingModels) return <div className="p-12 text-center animate-pulse font-black text-primary/40 uppercase tracking-[0.2em] text-sm">Đang khởi tạo AI Engine...</div>;
+  if (isLoadingModels) return <div className="p-12 text-center animate-pulse font-black text-primary/40 uppercase tracking-[0.2em] text-sm">Ðang kh?i t?o AI Engine...</div>;
 
   return (
     <div className="space-y-8 animate-fadeIn text-foreground">
@@ -201,14 +201,14 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                 <i className="fa-solid fa-brain text-xl text-white"></i>
               </div>
               <div>
-                <p className="text-micro font-black uppercase tracking-premium opacity-60">Model Hiện tại</p>
-                <h3 className="text-xl font-black line-clamp-1">{currentModel?.name || 'Đang cập nhật...'}</h3>
+                <p className="text-micro font-black uppercase tracking-premium opacity-60">Model Hi?n t?i</p>
+                <h3 className="text-xl font-black line-clamp-1">{currentModel?.name || 'Ðang c?p nh?t...'}</h3>
               </div>
             </div>
             <div className="space-y-4 pt-6 border-t border-white/10">
               <div className="flex justify-between items-center">
-                <span className="opacity-60 font-black uppercase text-micro tracking-premium">Trạng thái:</span>
-                <span className="font-black uppercase tracking-widest text-micro bg-white/20 px-3 py-1 rounded-xl">Hoạt động</span>
+                <span className="opacity-60 font-black uppercase text-micro tracking-premium">Tr?ng thái:</span>
+                <span className="font-black uppercase tracking-widest text-micro bg-white/20 px-3 py-1 rounded-xl">Ho?t d?ng</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="opacity-60 font-black uppercase text-micro tracking-premium">Phân khúc:</span>
@@ -225,8 +225,8 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                 <i className="fa-solid fa-key text-xl"></i>
               </div>
               <div>
-                <h3 className="font-black uppercase tracking-tight text-foreground">Trạng thái Connector</h3>
-                <p className="text-micro font-black uppercase tracking-premium text-muted-foreground">Khởi tạo môi trường thông qua .env</p>
+                <h3 className="font-black uppercase tracking-tight text-foreground">Tr?ng thái Connector</h3>
+                <p className="text-micro font-black uppercase tracking-premium text-muted-foreground">Kh?i t?o môi tru?ng thông qua .env</p>
               </div>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -245,7 +245,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
           <div className="flex items-start gap-4">
             <i className="fa-solid fa-shield-halved text-primary mt-1"></i>
             <p className="text-sm leading-relaxed font-bold text-muted-foreground/80 italic">
-              "Toàn bộ yêu cầu phân tích từ mô hình được truyền tải qua cổng bảo mật gRPC/Lớp 7. DigiBook AI đảm bảo mọi kết quả trả về tuân thủ tiêu chuẩn an toàn dữ liệu và tối ưu hóa tài nguyên hệ thống."
+              "Toàn b? yêu c?u phân tích t? mô hình du?c truy?n t?i qua c?ng b?o m?t gRPC/L?p 7. DigiBook AI d?m b?o m?i k?t qu? tr? v? tuân th? tiêu chu?n an toàn d? li?u và t?i uu hóa tài nguyên h? th?ng."
             </p>
           </div>
         </div>
@@ -365,15 +365,15 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                           <div className="grid grid-cols-3 gap-3">
                             <div className="bg-card border border-border/50 p-2.5 rounded-2xl flex flex-col items-center">
                               <span className="text-[9px] font-black uppercase tracking-tighter text-muted-foreground/60 mb-0.5">RPM</span>
-                              <span className="font-extrabold text-xs">{model.rpm || '∞'}</span>
+                              <span className="font-extrabold text-xs">{model.rpm || '8'}</span>
                             </div>
                             <div className="bg-card border border-border/50 p-2.5 rounded-2xl flex flex-col items-center">
                               <span className="text-[9px] font-black uppercase tracking-tighter text-muted-foreground/60 mb-0.5">TPM</span>
-                              <span className="font-extrabold text-xs">{model.tpm || '∞'}</span>
+                              <span className="font-extrabold text-xs">{model.tpm || '8'}</span>
                             </div>
                             <div className="bg-card border border-border/50 p-2.5 rounded-2xl flex flex-col items-center">
                               <span className="text-[9px] font-black uppercase tracking-tighter text-muted-foreground/60 mb-0.5">RPD</span>
-                              <span className="font-extrabold text-xs">{model.rpd || '∞'}</span>
+                              <span className="font-extrabold text-xs">{model.rpd || '8'}</span>
                             </div>
                           </div>
                         </div>
@@ -577,7 +577,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                         isMidnight ? 'bg-slate-700/50 text-slate-400 hover:bg-border' : 'bg-secondary text-muted-foreground hover:bg-border'
                       }`}
                     >
-                      Bỏ qua
+                      B? qua
                     </button>
                     <button
                       type="submit"
@@ -585,7 +585,7 @@ const AdminAI: React.FC<AdminAIProps> = ({ aiConfig, refreshData, theme = 'light
                       className="flex-[2] py-4 rounded-2xl bg-primary text-white font-black text-micro uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
                     >
                       {isSubmitting ? <i className="fa-solid fa-spinner animate-spin mr-2"></i> : <i className="fa-solid fa-save mr-2"></i>}
-                      {isEditing ? 'Lưu cấu hình' : 'Tạo mới'}
+                      {isEditing ? 'Luu c?u hình' : 'T?o m?i'}
                     </button>
                   </div>
                 </form>

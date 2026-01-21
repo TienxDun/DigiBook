@@ -2,7 +2,7 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { db } from '../services/db';
+import { db } from '@/services/db';
 import BookCard from '../components/BookCard';
 import Pagination from '../components/Pagination';
 import { Book, CategoryInfo } from '../types';
@@ -125,27 +125,22 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
         className={`max-w-7xl mx-auto px-4 relative z-20 scroll-mt-20 lg:scroll-mt-24 ${isPromotionPage ? '-mt-8' : 'mt-2'}`}
       >
         <div className="sticky top-[64px] lg:top-[80px] z-40 mb-4 p-2.5 bg-white/80 backdrop-blur-lg rounded-[2rem] border border-white/50 shadow-xl shadow-slate-200/50 flex items-center gap-3 overflow-hidden group transition-all duration-300">
-          <div className="flex-shrink-0 flex items-center gap-2 px-5 py-3 border-r border-slate-200 mr-2">
+          <div className="flex-shrink-0 flex items-center gap-2 px-5 py-3 border-r border-slate-200 mr-2 bg-white/50 rounded-l-[1.8rem]">
             <i className="fa-solid fa-layer-group text-indigo-500"></i>
             <span className="text-xs font-black text-slate-800 uppercase tracking-widest hidden sm:block">Chân dung tri thức</span>
           </div>
 
-          <div className="flex-1 flex overflow-x-auto pb-1 gap-3 no-scrollbar scroll-smooth py-1">
+          <div className="flex-1 flex overflow-x-auto pb-1 gap-3 no-scrollbar scroll-smooth py-1 relative pr-12">
             {[{ name: 'Tất cả sách', icon: 'fa-book-open' }, ...categories].map((cat, i) => {
               const isActive = categoryName === cat.name || (!categoryName && cat.name === 'Tất cả sách');
-              const bookCount = cat.name === 'Tất cả sách'
-                ? allBooks.length
-                : allBooks.filter(b => b.category.toLowerCase() === cat.name.toLowerCase()).length;
-
-              const colors = [
+              const color = [
                 { active: 'bg-indigo-600 text-white shadow-indigo-200 ring-4 ring-indigo-50', inactive: 'bg-white text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200' },
                 { active: 'bg-rose-500 text-white shadow-rose-200 ring-4 ring-rose-50', inactive: 'bg-white text-slate-600 hover:bg-rose-50 hover:text-rose-500 hover:border-rose-200' },
                 { active: 'bg-emerald-500 text-white shadow-emerald-200 ring-4 ring-emerald-50', inactive: 'bg-white text-slate-600 hover:bg-emerald-50 hover:text-emerald-500 hover:border-emerald-200' },
                 { active: 'bg-amber-500 text-white shadow-amber-200 ring-4 ring-amber-50', inactive: 'bg-white text-slate-600 hover:bg-amber-50 hover:text-amber-500 hover:border-amber-200' },
                 { active: 'bg-cyan-500 text-white shadow-cyan-200 ring-4 ring-cyan-50', inactive: 'bg-white text-slate-600 hover:bg-cyan-50 hover:text-cyan-500 hover:border-cyan-200' },
                 { active: 'bg-violet-500 text-white shadow-violet-200 ring-4 ring-violet-50', inactive: 'bg-white text-slate-600 hover:bg-violet-50 hover:text-violet-500 hover:border-violet-200' },
-              ];
-              const color = colors[i % colors.length];
+              ][i % 6];
 
               return (
                 <Link
@@ -156,16 +151,11 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
                 >
                   <i className={`fa-solid ${cat.icon} ${isActive ? 'scale-110 text-white' : 'text-slate-400 group-hover/cat:scale-110 group-hover/cat:text-current transition-all'}`}></i>
                   <span>{cat.name}</span>
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeCategory"
-                      className="absolute inset-0 bg-transparent rounded-2xl z-[-1]"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
                 </Link>
               );
             })}
+            {/* Scroll Indicator Gradient */}
+            <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white to-transparent pointer-events-none z-20"></div>
           </div>
         </div>
 

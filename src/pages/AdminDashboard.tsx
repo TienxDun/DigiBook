@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { db } from "../services/db";
 import { Book, CategoryInfo, Author, Coupon, UserProfile, Order, SystemLog } from "../types";
@@ -66,7 +66,7 @@ const AdminDashboard: React.FC = () => {
       const allOrders = await db.getOrdersByUserId("admin");
       setOrders(allOrders);
 
-      // Luôn lấy 5 logs mới nhất cho Overview
+      // Lu�n l?y 5 logs m?i nh?t cho Overview
       const latestLogs = await db.getSystemLogs(0, 5);
       setLogs(latestLogs);
 
@@ -111,29 +111,29 @@ const AdminDashboard: React.FC = () => {
 
   const menuGroups = [
     {
-      title: "Phân tích",
+      title: "Ph�n t�ch",
       items: [
-        { id: "overview", label: "Tổng quan", icon: "fa-chart-pie" }
+        { id: "overview", label: "T?ng quan", icon: "fa-chart-pie" }
       ]
     },
     {
-      title: "Quản lý nội dung",
+      title: "Qu?n l� n?i dung",
       items: [
-        { id: "books", label: "Kho sách", icon: "fa-book" },
-        { id: "authors", label: "Tác giả", icon: "fa-pen-nib" },
-        { id: "categories", label: "Thể loại", icon: "fa-shapes" },
-        { id: "coupons", label: "Ưu đãi", icon: "fa-percent" }
+        { id: "books", label: "Kho s�ch", icon: "fa-book" },
+        { id: "authors", label: "T�c gi?", icon: "fa-pen-nib" },
+        { id: "categories", label: "Th? lo?i", icon: "fa-shapes" },
+        { id: "coupons", label: "Uu d�i", icon: "fa-percent" }
       ]
     },
     {
-      title: "Vận hành",
+      title: "V?n h�nh",
       items: [
-        { id: "orders", label: "Giao dịch", icon: "fa-receipt" },
-        { id: "users", label: "Nhân sự", icon: "fa-user-tie" }
+        { id: "orders", label: "Giao d?ch", icon: "fa-receipt" },
+        { id: "users", label: "Nh�n s?", icon: "fa-user-tie" }
       ]
     },
     {
-      title: "Hệ thống",
+      title: "H? th?ng",
       items: [
         { id: "logs", label: "Audit Log", icon: "fa-fingerprint" },
         { id: "ai", label: "AI Core", icon: "fa-microchip" }
@@ -155,7 +155,7 @@ const AdminDashboard: React.FC = () => {
       return orderDate.toDateString() === today.toDateString();
     }).length;
 
-    // Tính toán doanh thu 7 ngày hoặc 30 ngày gần nhất dựa trên chartView
+    // T�nh to�n doanh thu 7 ng�y ho?c 30 ng�y g?n nh?t d?a tr�n chartView
     const daysToShow = chartView === "week" ? 7 : 30;
     const dateList = [...Array(daysToShow)].map((_, i) => {
       const d = new Date();
@@ -182,7 +182,7 @@ const AdminDashboard: React.FC = () => {
     const maxRevenue = Math.max(...revenueByDay.map(d => d.total), 1);
     const yAxisLabels = [1, 0.75, 0.5, 0.25, 0].map(p => maxRevenue * p);
 
-    // Lấy 5 đơn hàng mới nhất
+    // L?y 5 don h�ng m?i nh?t
     const recentOrdersList = [...orders]
       .sort((a, b) => {
         const dateA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : new Date(a.date).getTime();
@@ -191,7 +191,7 @@ const AdminDashboard: React.FC = () => {
       })
       .slice(0, 5);
 
-    // Tính toán Top sách bán chạy (giả định từ các đơn hàng)
+    // T�nh to�n Top s�ch b�n ch?y (gi? d?nh t? c�c don h�ng)
     const bookSalesMap = new Map();
     orders.forEach(order => {
       order.items?.forEach(item => {
@@ -230,21 +230,21 @@ const AdminDashboard: React.FC = () => {
   }, [orders, books, categories, authors, coupons, chartView]);
 
   const handleSeedData = async () => {
-    if (!window.confirm("Bạn có chắc chắn muốn đẩy dữ liệu mẫu lên Firestore?")) return;
+    if (!window.confirm("B?n c� ch?c ch?n mu?n d?y d? li?u m?u l�n Firestore?")) return;
     setIsSeeding(true);
-    setSeedStatus({ msg: "Đang đẩy dữ liệu lên Cloud Firestore...", type: "info" });
+    setSeedStatus({ msg: "�ang d?y d? li?u l�n Cloud Firestore...", type: "info" });
     try {
       const result = await db.seedDatabase();
       if (result.success) {
-        setSeedStatus({ msg: `Thành công! Đã cập nhật ${result.count} danh mục hệ thống.`, type: "success" });
+        setSeedStatus({ msg: `Th�nh c�ng! �� c?p nh?t ${result.count} danh m?c h? th?ng.`, type: "success" });
         setTimeout(() => { refreshData(); setIsSeeding(false); }, 1500);
       } else {
         setIsSeeding(false);
-        setSeedStatus({ msg: `Lỗi: ${result.error}`, type: "error" });
+        setSeedStatus({ msg: `L?i: ${result.error}`, type: "error" });
       }
     } catch (err: any) {
       setIsSeeding(false);
-      setSeedStatus({ msg: `Lỗi hệ thống: ${err.message}`, type: "error" });
+      setSeedStatus({ msg: `L?i h? th?ng: ${err.message}`, type: "error" });
     }
     setTimeout(() => setSeedStatus(null), 8000);
   };
@@ -259,7 +259,7 @@ const AdminDashboard: React.FC = () => {
         ></div>
       )}
 
-      {/* Sidebar - Cố định bên trái - Nâng cấp màu Sidebar Premium */}
+      {/* Sidebar - C? d?nh b�n tr�i - N�ng c?p m�u Sidebar Premium */}
       <aside className={`${isSidebarCollapsed ? 'w-24' : 'w-80'} flex flex-col fixed inset-y-0 z-[100] shadow-xl transition-all duration-500 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} ${
         isMidnight ? 'bg-[#0f172a] border-white/5' : 'bg-sidebar border-sidebar-border'
       } border-r`}>
@@ -342,7 +342,7 @@ const AdminDashboard: React.FC = () => {
             }`}
           >
             <i className={`fa-solid ${isSidebarCollapsed ? 'fa-angles-right' : 'fa-angles-left'} transition-transform duration-500`}></i>
-            {!isSidebarCollapsed && <span className="whitespace-nowrap animate-fadeIn">Thu gọn menu</span>}
+            {!isSidebarCollapsed && <span className="whitespace-nowrap animate-fadeIn">Thu g?n menu</span>}
           </button>
         </div>
       </aside>
@@ -363,14 +363,14 @@ const AdminDashboard: React.FC = () => {
               </button>
               <div className="animate-fadeIn">
                 <h2 className="text-xl lg:text-2xl font-black uppercase tracking-tight text-foreground">
-                  {activeTab === 'overview' ? 'Báo cáo tổng quan' : 
-                   activeTab === 'books' ? 'Quản lý kho sách' :
-                   activeTab === 'orders' ? 'Đơn hàng & Giao nhận' :
-                   activeTab === 'authors' ? 'Tác giả & Nhà văn' :
-                   activeTab === 'categories' ? 'Phân loại danh mục' :
-                   activeTab === 'coupons' ? 'Mã giảm giá & KM' :
-                   activeTab === 'users' ? 'Quản lý tài khoản' :
-                   activeTab === 'logs' ? 'Lịch sử hệ thống' : 'Cấu hình AI Assistant'}
+                  {activeTab === 'overview' ? 'B�o c�o t?ng quan' : 
+                   activeTab === 'books' ? 'Qu?n l� kho s�ch' :
+                   activeTab === 'orders' ? '�on h�ng & Giao nh?n' :
+                   activeTab === 'authors' ? 'T�c gi? & Nh� van' :
+                   activeTab === 'categories' ? 'Ph�n lo?i danh m?c' :
+                   activeTab === 'coupons' ? 'M� gi?m gi� & KM' :
+                   activeTab === 'users' ? 'Qu?n l� t�i kho?n' :
+                   activeTab === 'logs' ? 'L?ch s? h? th?ng' : 'C?u h�nh AI Assistant'}
                 </h2>
                 <div className="flex items-center gap-2 mt-1">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
@@ -383,7 +383,7 @@ const AdminDashboard: React.FC = () => {
               {/* System Stats - NEW */}
               <div className={`hidden xl:flex items-center gap-6 px-6 border-r mr-2 ${isMidnight ? 'border-white/5' : 'border-border'}`}>
                  <div className="text-right">
-                    <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">Dung lượng</p>
+                    <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">Dung lu?ng</p>
                     <p className={`text-[11px] font-black ${isMidnight ? 'text-slate-200' : 'text-foreground'}`}>1.2 GB / 5GB</p>
                  </div>
                  <div className={`w-12 h-1.5 rounded-full overflow-hidden ${isMidnight ? 'bg-slate-800' : 'bg-muted'}`}>
@@ -399,7 +399,7 @@ const AdminDashboard: React.FC = () => {
                   ? 'bg-slate-800 border-white/5 text-amber-400 shadow-black/20 hover:bg-slate-700' 
                   : 'bg-card text-indigo-600 border-border shadow-slate-200/50 hover:bg-slate-50'
                 }`}
-                title={isMidnight ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}
+                title={isMidnight ? "Chuy?n sang ch? d? s�ng" : "Chuy?n sang ch? d? t?i"}
               >
                 <i className={`fa-solid ${isMidnight ? 'fa-sun' : 'fa-moon'}`}></i>
               </button>
@@ -413,7 +413,7 @@ const AdminDashboard: React.FC = () => {
                   ? 'bg-slate-800 border-white/5 text-amber-500 shadow-black/20 hover:bg-slate-700' 
                   : 'bg-card text-amber-600 border-border shadow-slate-200/50 hover:bg-slate-50'
                 } ${isSeeding ? 'opacity-50' : ''}`}
-                title="Khởi tạo dữ liệu hệ thống"
+                title="Kh?i t?o d? li?u h? th?ng"
               >
                 <i className={`fa-solid ${isSeeding ? 'fa-circle-notch animate-spin' : 'fa-database'}`}></i>
               </button>
@@ -456,10 +456,10 @@ const AdminDashboard: React.FC = () => {
                 {/* Stats Grid - Premium Glassmorphism */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
                 {[
-                  { label: "Doanh thu", value: formatPrice(stats.totalRevenue), icon: "fa-sack-dollar", bgColor: "bg-chart-1/10", iconColor: "text-chart-1", sub: `Chiếm ${((stats.totalRevenue/1000000)*100).toFixed(1)}% mục tiêu tuần`, growth: "+12.5%", trend: "up" },
-                  { label: "Đơn hàng", value: stats.totalOrders, icon: "fa-cart-shopping", bgColor: "bg-primary/10", iconColor: "text-primary", sub: `${stats.todayOrders} đơn trong hôm nay`, growth: stats.todayOrders > 0 ? "+25%" : "0%", trend: "up" },
-                  { label: "Sách tồn", value: stats.totalBooks, icon: "fa-book-open-reader", bgColor: "bg-chart-2/10", iconColor: "text-chart-2", sub: `${stats.outOfStock} đầu sách đã hết`, growth: stats.lowStock > 0 ? `-${stats.lowStock}` : "ổn định", trend: stats.lowStock > 0 ? "down" : "neutral" },
-                  { label: "Đang xử lý", value: stats.pendingOrders, icon: "fa-clock", bgColor: "bg-chart-3/10", iconColor: "text-chart-3", sub: `${stats.completedOrders} đơn đã hoàn thành`, growth: "Ưu tiên cao", trend: "neutral" }
+                  { label: "Doanh thu", value: formatPrice(stats.totalRevenue), icon: "fa-sack-dollar", bgColor: "bg-chart-1/10", iconColor: "text-chart-1", sub: `Chi?m ${((stats.totalRevenue/1000000)*100).toFixed(1)}% m?c ti�u tu?n`, growth: "+12.5%", trend: "up" },
+                  { label: "�on h�ng", value: stats.totalOrders, icon: "fa-cart-shopping", bgColor: "bg-primary/10", iconColor: "text-primary", sub: `${stats.todayOrders} don trong h�m nay`, growth: stats.todayOrders > 0 ? "+25%" : "0%", trend: "up" },
+                  { label: "S�ch t?n", value: stats.totalBooks, icon: "fa-book-open-reader", bgColor: "bg-chart-2/10", iconColor: "text-chart-2", sub: `${stats.outOfStock} d?u s�ch d� h?t`, growth: stats.lowStock > 0 ? `-${stats.lowStock}` : "?n d?nh", trend: stats.lowStock > 0 ? "down" : "neutral" },
+                  { label: "�ang x? l�", value: stats.pendingOrders, icon: "fa-clock", bgColor: "bg-chart-3/10", iconColor: "text-chart-3", sub: `${stats.completedOrders} don d� ho�n th�nh`, growth: "Uu ti�n cao", trend: "neutral" }
                 ].map((stat, i) => (
                   <div key={i} className={`p-5 lg:p-7 rounded-[2rem] lg:rounded-[2.5rem] border shadow-2xl transition-all duration-500 group relative overflow-hidden ${
                     isMidnight 
@@ -494,14 +494,14 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
-                {/* Revenue Chart - chiếm 3 cột */}
+                {/* Revenue Chart - chi?m 3 c?t */}
                 <div className={`lg:col-span-3 p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] border shadow-2xl relative overflow-hidden transition-all ${
                   isMidnight ? 'bg-[#1e293b]/40 border-white/5 shadow-black/20' : 'bg-card border-border shadow-slate-200/50'
                 }`}>
                   <div className="flex items-center justify-between mb-12">
                     <div>
-                      <h3 className="text-lg lg:text-xl font-black uppercase tracking-tight text-foreground">Hiệu quả kinh doanh</h3>
-                      <p className="text-xs lg:text-micro font-bold text-primary/60 uppercase tracking-premium mt-1">Chu kỳ {chartView === 'week' ? '7 ngày' : '30 ngày'} gần nhất • VNĐ</p>
+                      <h3 className="text-lg lg:text-xl font-black uppercase tracking-tight text-foreground">Hi?u qu? kinh doanh</h3>
+                      <p className="text-xs lg:text-micro font-bold text-primary/60 uppercase tracking-premium mt-1">Chu k? {chartView === 'week' ? '7 ng�y' : '30 ng�y'} g?n nh?t � VN�</p>
                     </div>
                     <div className="flex items-center gap-4">
                        <div className={`flex p-1 rounded-xl border ${isMidnight ? 'bg-slate-800 border-white/5' : 'bg-muted border-border'}`}>
@@ -509,13 +509,13 @@ const AdminDashboard: React.FC = () => {
                             onClick={() => setChartView("week")}
                             className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${chartView === 'week' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:text-foreground'}`}
                           >
-                            Tuần
+                            Tu?n
                           </button>
                           <button 
                             onClick={() => setChartView("month")}
                             className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${chartView === 'month' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:text-foreground'}`}
                           >
-                            Tháng
+                            Th�ng
                           </button>
                        </div>
                     </div>
@@ -539,7 +539,7 @@ const AdminDashboard: React.FC = () => {
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
                           <div className="text-center">
                             <i className="fa-solid fa-chart-line text-4xl mb-2"></i>
-                            <p className={`text-[10px] font-black uppercase tracking-widest ${isMidnight ? 'text-slate-500' : 'text-foreground'}`}>Chưa có dữ liệu giao dịch</p>
+                            <p className={`text-[10px] font-black uppercase tracking-widest ${isMidnight ? 'text-slate-500' : 'text-foreground'}`}>Chua c� d? li?u giao d?ch</p>
                           </div>
                         </div>
                       )}
@@ -610,16 +610,16 @@ const AdminDashboard: React.FC = () => {
                     isMidnight ? 'bg-[#1e293b]/40 border-white/5 shadow-black/20' : 'bg-card border-border shadow-slate-200/50'
                   }`}>
                     <div className="flex items-center justify-between mb-8">
-                      <h3 className="text-xs font-black uppercase tracking-premium text-foreground">Thống kê kho</h3>
+                      <h3 className="text-xs font-black uppercase tracking-premium text-foreground">Th?ng k� kho</h3>
                       <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                         <i className="fa-solid fa-cube text-primary text-xs"></i>
                       </div>
                     </div>
                     <div className="space-y-5">
                       {[
-                        { label: "Tác giả", value: stats.totalAuthors, color: "emerald", icon: "fa-pen-nib" },
-                        { label: "Danh mục", value: stats.totalCategories, color: "indigo", icon: "fa-shapes" },
-                        { label: "Mã KM", value: stats.totalCoupons, color: "amber", icon: "fa-ticket" }
+                        { label: "T�c gi?", value: stats.totalAuthors, color: "emerald", icon: "fa-pen-nib" },
+                        { label: "Danh m?c", value: stats.totalCategories, color: "indigo", icon: "fa-shapes" },
+                        { label: "M� KM", value: stats.totalCoupons, color: "amber", icon: "fa-ticket" }
                       ].map((item, id) => (
                         <div key={id} className={`flex items-center justify-between p-4 rounded-2xl border group transition-all duration-300 ${
                           isMidnight 
@@ -649,7 +649,7 @@ const AdminDashboard: React.FC = () => {
                         <span className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
                           <i className="fa-solid fa-bolt-lightning text-amber-300"></i>
                         </span>
-                        Trình quản lý
+                        Tr�nh qu?n l�
                       </h3>
                       <div className="grid grid-cols-1 gap-4">
                         <button
@@ -658,7 +658,7 @@ const AdminDashboard: React.FC = () => {
                         >
                           <div className="flex items-center gap-4">
                             <i className="fa-solid fa-plus-circle text-sm"></i>
-                            <span>Sách mới</span>
+                            <span>S�ch m?i</span>
                           </div>
                           <i className="fa-solid fa-arrow-right text-xs opacity-0 group-hover/btn:opacity-100 transition-all transform group-hover/btn:translate-x-1"></i>
                         </button>
@@ -668,7 +668,7 @@ const AdminDashboard: React.FC = () => {
                         >
                           <div className="flex items-center gap-4">
                             <i className="fa-solid fa-truck-fast text-sm"></i>
-                            <span>Đơn hàng</span>
+                            <span>�on h�ng</span>
                           </div>
                           <i className="fa-solid fa-arrow-right text-xs opacity-0 group-hover/btn:opacity-100 transition-all transform group-hover/btn:translate-x-1"></i>
                         </button>
@@ -686,10 +686,10 @@ const AdminDashboard: React.FC = () => {
                 }`}>
                    <div className="flex items-center justify-between mb-8">
                      <div>
-                       <h3 className="text-lg font-black uppercase tracking-tight text-foreground">Đơn hàng mới nhất</h3>
-                       <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-1">Hoạt động mua hàng gần đây nhất</p>
+                       <h3 className="text-lg font-black uppercase tracking-tight text-foreground">�on h�ng m?i nh?t</h3>
+                       <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-1">Ho?t d?ng mua h�ng g?n d�y nh?t</p>
                      </div>
-                     <button onClick={() => setActiveTab('orders')} className="text-xs font-black uppercase tracking-premium text-primary hover:text-primary/80 transition-colors">Xem tất cả</button>
+                     <button onClick={() => setActiveTab('orders')} className="text-xs font-black uppercase tracking-premium text-primary hover:text-primary/80 transition-colors">Xem t?t c?</button>
                    </div>
                    
                    <div className="space-y-4">
@@ -708,20 +708,20 @@ const AdminDashboard: React.FC = () => {
                            </div>
                            <div>
                              <h4 className="text-xs font-black uppercase tracking-tight text-foreground">#{order.id.slice(-6)}</h4>
-                             <p className="text-xs font-bold text-muted-foreground uppercase">{order.customer?.name || 'Ẩn danh'}</p>
+                             <p className="text-xs font-bold text-muted-foreground uppercase">{order.customer?.name || '?n danh'}</p>
                            </div>
                          </div>
                          <div className="text-right">
                            <p className="text-xs font-black text-primary">{formatPrice(order.payment?.total || 0)}</p>
                            <p className="text-xs font-bold text-muted-foreground uppercase mt-1">
-                             {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : 'Hôm nay'}
+                             {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : 'H�m nay'}
                            </p>
                          </div>
                        </div>
                      )) : (
                        <div className="py-20 text-center opacity-30">
                           <i className="fa-solid fa-inbox text-4xl mb-3"></i>
-                          <p className="text-micro font-bold uppercase">Chưa có dữ liệu</p>
+                          <p className="text-micro font-bold uppercase">Chua c� d? li?u</p>
                        </div>
                      )}
                    </div>
@@ -733,10 +733,10 @@ const AdminDashboard: React.FC = () => {
                 }`}>
                    <div className="flex items-center justify-between mb-8">
                      <div>
-                       <h3 className="text-lg font-black uppercase tracking-tight text-foreground">Sản phẩm bán chạy</h3>
-                       <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-1">Thống kê theo số lượng đã bán</p>
+                       <h3 className="text-lg font-black uppercase tracking-tight text-foreground">S?n ph?m b�n ch?y</h3>
+                       <p className="text-micro font-bold text-muted-foreground uppercase tracking-premium mt-1">Th?ng k� theo s? lu?ng d� b�n</p>
                      </div>
-                     <button onClick={() => setActiveTab('books')} className="text-xs font-black uppercase tracking-premium text-primary hover:text-primary/80 transition-colors">Quản lý kho</button>
+                     <button onClick={() => setActiveTab('books')} className="text-xs font-black uppercase tracking-premium text-primary hover:text-primary/80 transition-colors">Qu?n l� kho</button>
                    </div>
 
                    <div className="space-y-4">
@@ -761,10 +761,10 @@ const AdminDashboard: React.FC = () => {
                          <div className="text-right">
                            <div className="flex flex-col items-end">
                               <span className="px-2 py-1 rounded-lg text-micro font-black uppercase border bg-primary/10 text-primary border-primary/20">
-                                Đã bán: {book.salesCount}
+                                �� b�n: {book.salesCount}
                               </span>
                               <p className={`text-xs font-bold uppercase mt-2 ${book.stockQuantity < 10 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                                Tồn: {book.stockQuantity}
+                                T?n: {book.stockQuantity}
                               </p>
                            </div>
                          </div>
@@ -772,7 +772,7 @@ const AdminDashboard: React.FC = () => {
                      )) : (
                        <div className="py-20 text-center opacity-30">
                           <i className="fa-solid fa-chart-line text-4xl mb-3"></i>
-                          <p className="text-micro font-bold uppercase">Chưa có dữ liệu giao dịch</p>
+                          <p className="text-micro font-bold uppercase">Chua c� d? li?u giao d?ch</p>
                        </div>
                      )}
                    </div>

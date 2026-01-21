@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Book } from '../types';
 import BookCard from '../components/BookCard';
-import { useAuth } from '../AuthContext';
-import { db } from '../services/db';
+import { useAuth } from '../contexts/AuthContext';
+import { db } from '@/services/db';
 import { toast } from 'react-hot-toast';
 
 import { useCart } from '../contexts/CartContext';

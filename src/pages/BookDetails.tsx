@@ -3,8 +3,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Book } from '../types';
-import { useAuth } from '../AuthContext';
-import { db, Review } from '../services/db';
+import { useAuth } from '../contexts/AuthContext';
+import { db, Review } from '@/services/db';
 import { AVAILABLE_AI_MODELS } from '../constants/ai-models';
 import BookCard from '../components/BookCard';
 import SEO from '../components/SEO';
@@ -13,6 +13,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 import { useCart } from '../contexts/CartContext';
+import QuickBuyBar from '../components/books/QuickBuyBar';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -251,7 +252,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
                 {book.category}
               </Link>
             </nav>
-            <h1 className="text-3xl lg:text-4xl font-black text-slate-900 leading-tight tracking-tight uppercase">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 leading-tight tracking-tight uppercase">
               {book.title}
             </h1>
           </motion.div>
@@ -285,7 +286,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
               animate={{ opacity: 1, scale: 1 }}
               className="bg-white p-1.5 rounded-[1.5rem] shadow-lg shadow-slate-200/40 border border-slate-100 relative overflow-hidden group"
             >
-              <div className="relative aspect-[3/4.2] rounded-[1.3rem] overflow-hidden bg-slate-50 flex items-center justify-center">
+              <div className="relative aspect-[4/5] sm:aspect-[3/4.2] rounded-[1.3rem] overflow-hidden bg-slate-50 flex items-center justify-center">
                 <motion.img
                   whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
@@ -496,7 +497,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
                 <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 rounded-full blur-[60px] -mr-12 -mt-12"></div>
 
                 <div className="relative z-10 flex flex-col h-full">
-                  <div className="flex items-center gap-2.5 mb-3">
+                  <div className="flex items-center gap-2.5 mb-2 lg:mb-3">
                     <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30">
                       <i className="fa-solid fa-wand-magic-sparkles text-white text-xs"></i>
                     </div>
@@ -643,63 +644,23 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-4">
               {recentBooks.map(b => (
-                <div key={b.id} className="scale-90 origin-top opacity-80 hover:scale-100 hover:opacity-100 transition-all">
-                  <BookCard book={b} onAddToCart={addToCart} onQuickView={onQuickView} />
-                </div>
+                <BookCard key={b.id} book={b} onAddToCart={addToCart} onQuickView={onQuickView} />
               ))}
             </div>
           </section>
         )}
       </div>
 
-      {/* FIXED BUY BAR: Glassmorphism Ultra Premium - Reduced Height */}
-      <AnimatePresence>
-        {(scrolled || window.innerWidth < 1024) && (
-          <motion.div
-            initial={{ y: 100, opacity: 0, x: window.innerWidth < 1024 ? 0 : '-50%' }}
-            animate={{ y: 0, opacity: 1, x: window.innerWidth < 1024 ? 0 : '-50%' }}
-            exit={{ y: 100, opacity: 0, x: window.innerWidth < 1024 ? 0 : '-50%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className={`fixed left-0 lg:left-1/2 z-[100] w-full lg:w-[95%] lg:max-w-4xl transition-all duration-300 ${scrolled ? 'bottom-0 lg:bottom-4' : 'bottom-0 lg:-bottom-20'}`}
-          >
-            <div className={`bg-white/95 backdrop-blur-2xl border-t lg:border border-slate-200/50 lg:rounded-2xl p-2 lg:p-1.5 lg:pr-2 shadow-2xl flex items-center gap-3 relative overflow-hidden pb-safe-bottom`}>
-              <div className="h-10 w-7.5 rounded-md overflow-hidden shadow-sm border border-white/60 ml-1 hidden sm:block flex-shrink-0">
-                <img src={book.cover} className="w-full h-full object-cover" alt="" />
-              </div>
-
-              <div className="flex-grow min-w-0">
-                <p className="text-slate-900 font-black text-xs leading-none truncate tracking-tight uppercase mb-0.5">{book.title}</p>
-                <div className="flex items-center gap-2">
-                  <p className="text-rose-600 font-black text-base tracking-tighter leading-none">{formatPrice(book.price)}</p>
-                  {book.originalPrice && book.originalPrice > book.price && (
-                    <p className="text-slate-400 text-xs font-bold line-through opacity-50 leading-none">{formatPrice(book.originalPrice)}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={handleToggleWishlist}
-                  className={`h-9 w-9 rounded-lg flex items-center justify-center transition-all border border-slate-200 ${isWishlisted ? 'bg-rose-50 border-rose-100 text-rose-500' : 'bg-white text-slate-400 hover:text-rose-500 hover:bg-rose-50 hover:border-rose-100'
-                    }`}
-                  aria-label={isWishlisted ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
-                >
-                  <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-xs`}></i>
-                </button>
-
-                <button
-                  onClick={(e) => addToCart(book, quantity, { x: e.clientX, y: e.clientY })}
-                  disabled={book.stockQuantity <= 0}
-                  className="h-9 px-4 bg-indigo-600 text-white rounded-lg text-xs font-black uppercase tracking-widest hover:bg-slate-900 transition-all flex items-center justify-center gap-2 disabled:bg-slate-300 active:scale-[0.97] whitespace-nowrap shadow-sm shadow-indigo-100"
-                >
-                  <i className="fa-solid fa-cart-shopping text-xs"></i>
-                  <span>{book.stockQuantity > 0 ? (window.innerWidth < 640 ? 'Mua' : 'Thêm giỏ hàng') : 'Hết hàng'}</span>
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* FIXED BUY BAR: Componentized and Improved */}
+      <QuickBuyBar
+        book={book}
+        quantity={quantity}
+        setQuantity={setQuantity}
+        isWishlisted={isWishlisted}
+        toggleWishlist={handleToggleWishlist as any}
+        addToCart={addToCart}
+        scrolled={scrolled}
+      />
 
     </div>
   );

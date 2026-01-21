@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import { db } from '../../services/db';
+import { db } from '@/services/db';
 import Pagination from '../Pagination';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -36,40 +36,40 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
 
   const handleUpdateUserRole = async (userId: string, currentRole: 'admin' | 'user') => {
     const newRole = currentRole === 'admin' ? 'user' : 'admin';
-    if (!window.confirm(`Bạn có chắc muốn chuyển người dùng này thành ${newRole === 'admin' ? 'Quản trị viên' : 'Khách hàng'}?`)) return;
+    if (!window.confirm(`B?n có ch?c mu?n chuy?n ngu?i dùng này thành ${newRole === 'admin' ? 'Qu?n tr? viên' : 'Khách hàng'}?`)) return;
     
     try {
       await db.updateUserRole(userId, newRole);
       refreshData();
     } catch (error) {
       console.error('Error updating user role:', error);
-      alert('Có lỗi xảy ra khi cập nhật vai trò');
+      alert('Có l?i x?y ra khi c?p nh?t vai trò');
     }
   };
 
   const handleUpdateUserStatus = async (userId: string, currentStatus: 'active' | 'banned') => {
     const newStatus = currentStatus === 'active' ? 'banned' : 'active';
-    const actionText = newStatus === 'banned' ? 'KHÓA' : 'MỞ KHÓA';
-    if (!window.confirm(`Bạn có chắc muốn ${actionText} tài khoản này?`)) return;
+    const actionText = newStatus === 'banned' ? 'KHÓA' : 'M? KHÓA';
+    if (!window.confirm(`B?n có ch?c mu?n ${actionText} tài kho?n này?`)) return;
     
     try {
       await db.updateUserStatus(userId, newStatus);
       refreshData();
     } catch (error) {
       console.error('Error updating user status:', error);
-      alert('Có lỗi xảy ra khi cập nhật trạng thái');
+      alert('Có l?i x?y ra khi c?p nh?t tr?ng thái');
     }
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (!window.confirm('CẢNH BÁO: Bạn có chắc chắn muốn XÓA VĨNH VIỄN tài khoản này? Mọi dữ liệu hồ sơ cá nhân trong hệ thống sẽ bị gỡ bỏ.')) return;
+    if (!window.confirm('C?NH BÁO: B?n có ch?c ch?n mu?n XÓA VINH VI?N tài kho?n này? M?i d? li?u h? so cá nhân trong h? th?ng s? b? g? b?.')) return;
     
     try {
       await db.deleteUser(userId);
       refreshData();
     } catch (error) {
       console.error('Error deleting user:', error);
-      alert('Có lỗi xảy ra khi xóa tài khoản');
+      alert('Có l?i x?y ra khi xóa tài kho?n');
     }
   };
 
@@ -107,14 +107,14 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
                     : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
                   }`}
                 >
-                  {role === 'all' ? 'Tất cả' : role === 'admin' ? 'Admin' : 'User'}
+                  {role === 'all' ? 'T?t c?' : role === 'admin' ? 'Admin' : 'User'}
                 </button>
               ))}
             </div>
           </div>
 
           <div className="space-y-2">
-            <span className="text-[9px] font-black uppercase tracking-premium text-muted-foreground ml-1">Trạng thái</span>
+            <span className="text-[9px] font-black uppercase tracking-premium text-muted-foreground ml-1">Tr?ng thái</span>
             <div className={`flex gap-1 p-1 rounded-xl ${
               isMidnight ? 'bg-slate-700/30 border-white/10' : 'bg-secondary/30 border-border/50'
             }`}>
@@ -128,7 +128,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
                     : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
                   }`}
                 >
-                  {status === 'all' ? 'Tất cả' : status === 'active' ? 'Active' : 'Banned'}
+                  {status === 'all' ? 'T?t c?' : status === 'active' ? 'Active' : 'Banned'}
                 </button>
               ))}
             </div>
@@ -140,7 +140,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
             <i className="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/50 group-focus-within:text-primary transition-colors"></i>
             <input
               type="text"
-              placeholder="Tìm kiếm..."
+              placeholder="Tìm ki?m..."
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
               className={`w-full pl-10 pr-4 py-3 rounded-xl border font-bold outline-none transition-all ${
@@ -165,10 +165,10 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
           <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
               <tr className={`border-b ${isMidnight ? 'bg-slate-900/50 border-white/5' : 'border-border/50'}`}>
-                <th className="px-6 py-4 text-[9px] font-black text-muted-foreground uppercase tracking-premium">Người dùng</th>
-                <th className="px-6 py-4 text-[9px] font-black text-muted-foreground uppercase tracking-premium">Liên hệ</th>
+                <th className="px-6 py-4 text-[9px] font-black text-muted-foreground uppercase tracking-premium">Ngu?i dùng</th>
+                <th className="px-6 py-4 text-[9px] font-black text-muted-foreground uppercase tracking-premium">Liên h?</th>
                 <th className="px-6 py-4 text-[9px] font-black text-muted-foreground uppercase tracking-premium text-center">Vai trò</th>
-                <th className="px-6 py-4 text-[9px] font-black text-muted-foreground uppercase tracking-premium text-center">Trạng thái</th>
+                <th className="px-6 py-4 text-[9px] font-black text-muted-foreground uppercase tracking-premium text-center">Tr?ng thái</th>
                 <th className="px-6 py-4 text-[9px] font-black text-muted-foreground uppercase tracking-premium text-right">Thao tác</th>
               </tr>
             </thead>

@@ -2,7 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { HelmetProvider } from 'react-helmet-async';
-import { AuthProvider } from './AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
 import { BookProvider } from './contexts/BookContext';
 import { CartProvider } from './contexts/CartContext';
 import './index.css';

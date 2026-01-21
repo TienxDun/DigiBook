@@ -4,17 +4,17 @@
  * This file aggregates functionality from modular sub-services for better maintainability.
  */
 
-import * as core from './db/core';
-import * as books from './db/books';
-import * as metadata from './db/metadata';
-import * as orders from './db/orders';
-import * as users from './db/users';
-import * as coupons from './db/coupons';
-import * as reviews from './db/reviews';
-import * as system from './db/system';
-import * as ai from './db/ai';
+import * as core from './core';
+import * as books from './books';
+import * as metadata from './metadata';
+import * as orders from './orders';
+import * as users from './users';
+import * as coupons from './coupons';
+import * as reviews from './reviews';
+import * as system from './system';
+import * as ai from './ai';
 
-import { Order, OrderItem, Review, SystemLog } from '../types';
+import { Order, OrderItem, Review, SystemLog } from '../../types';
 
 class DataService {
   // Core & Base Utility

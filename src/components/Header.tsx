@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CartItem, CategoryInfo, Book } from '../types';
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useBooks } from '../contexts/BookContext';
 import { useCart } from '../contexts/CartContext';
 
@@ -120,8 +120,8 @@ const Header: React.FC<HeaderProps> = ({
   return (
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-500 ease-in-out ${scrolled
-          ? 'h-16 bg-background/80 backdrop-blur-xl border-b border-border shadow-sm px-3 sm:px-4'
-          : 'h-20 sm:h-24 bg-transparent border-b border-transparent px-4 sm:px-6'
+        ? 'h-16 bg-background/80 backdrop-blur-xl border-b border-border shadow-sm px-3 sm:px-4'
+        : 'h-20 sm:h-24 bg-transparent border-b border-transparent px-4 sm:px-6'
         }`}
     >
       {/* Scroll Progress Bar */}
@@ -223,8 +223,8 @@ const Header: React.FC<HeaderProps> = ({
               onKeyDown={handleKeyDown}
               onFocus={() => setIsSearchFocused(true)}
               className={`w-full py-3.5 pl-12 pr-6 rounded-2xl text-label font-bold outline-none transition-all duration-500 border ${isSearchFocused
-                  ? 'bg-background border-primary/20 ring-[6px] ring-primary/5 shadow-2xl shadow-primary/10'
-                  : 'bg-secondary/50 border-transparent hover:bg-secondary hover:border-secondary'
+                ? 'bg-background border-primary/20 ring-[6px] ring-primary/5 shadow-2xl shadow-primary/10'
+                : 'bg-secondary/50 border-transparent hover:bg-secondary hover:border-secondary'
                 }`}
             />
             <div className={`absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center transition-all duration-500 ${isSearchFocused ? 'text-primary scale-110' : 'text-muted-foreground'}`}>
@@ -280,7 +280,7 @@ const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-1.5 sm:gap-4">
 
           {/* Mobile Search Toggle */}
           <button
@@ -295,8 +295,8 @@ const Header: React.FC<HeaderProps> = ({
             <Link
               to="/wishlist"
               className={`w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl transition-all flex items-center justify-center relative group active:scale-90 ${wishlist.length > 0
-                  ? 'bg-rose-50 text-rose-500 shadow-sm'
-                  : 'text-muted-foreground hover:bg-white hover:text-rose-500 hover:shadow-sm'
+                ? 'bg-rose-50 text-rose-500 shadow-sm'
+                : 'text-muted-foreground hover:bg-white hover:text-rose-500 hover:shadow-sm'
                 }`}
             >
               <AnimatePresence mode="wait">
@@ -475,9 +475,10 @@ const Header: React.FC<HeaderProps> = ({
           ) : (
             <button
               onClick={() => setShowLoginModal(true)}
-              className="group relative px-4 py-2.5 sm:px-6 sm:py-3 bg-foreground text-primary-foreground rounded-xl sm:rounded-2xl text-[9px] sm:text-micro font-bold uppercase tracking-premium hover:bg-primary transition-all shadow-xl shadow-foreground/10 overflow-hidden"
+              className="group relative w-10 h-10 sm:w-auto sm:px-6 sm:py-3 bg-foreground text-primary-foreground rounded-xl sm:rounded-2xl text-[9px] sm:text-micro font-bold uppercase tracking-premium hover:bg-primary transition-all shadow-xl shadow-foreground/10 overflow-hidden flex items-center justify-center"
             >
-              <span className="relative z-10 whitespace-nowrap">Đăng nhập</span>
+              <span className="relative z-10 whitespace-nowrap hidden sm:inline">Đăng nhập</span>
+              <i className="fa-solid fa-user text-base sm:hidden relative z-10"></i>
               <div className="absolute inset-0 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </button>
           )}

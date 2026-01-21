@@ -3,8 +3,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { CartItem } from '../types';
-import { useAuth } from '../AuthContext';
-import { db } from '../services/db';
+import { useAuth } from '../contexts/AuthContext';
+import { db } from '@/services/db';
 import { ErrorHandler } from '../services/errorHandler';
 
 import { useCart } from '../contexts/CartContext';

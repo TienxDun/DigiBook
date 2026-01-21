@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { useAuth } from '../AuthContext';
-import { db } from '../services/db';
+import { useAuth } from '../contexts/AuthContext';
+import { db } from '@/services/db';
 import { UserProfile } from '../types';
 import { ErrorHandler } from '../services/errorHandler';
 
@@ -94,7 +94,7 @@ const ProfilePage: React.FC = () => {
     const handlePasswordChange = async (e: React.FormEvent) => {
         e.preventDefault();
         setPwError('');
-        
+
         if (passwords.new.length < 6) {
             setPwError('Mật khẩu mới phải có ít nhất 6 ký tự.');
             return;
@@ -152,9 +152,9 @@ const ProfilePage: React.FC = () => {
                     <div className="flex flex-col md:flex-row items-center gap-8 mb-12">
                         <div className="relative group">
                             <div className="absolute -inset-2 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-full blur-lg opacity-20 group-hover:opacity-40 transition-all"></div>
-                            <img 
-                                src={user.avatar} 
-                                alt={user.name} 
+                            <img
+                                src={user.avatar}
+                                alt={user.name}
                                 className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white shadow-2xl relative z-10 object-cover"
                                 referrerPolicy="no-referrer"
                             />
@@ -174,7 +174,7 @@ const ProfilePage: React.FC = () => {
                                 <span className="px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-micro font-bold uppercase tracking-premium">
                                     ID: {user.id.substring(0, 8)}...
                                 </span>
-                                <button 
+                                <button
                                     onClick={() => setShowPasswordModal(true)}
                                     className="px-4 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-full text-micro font-bold uppercase tracking-premium transition-all flex items-center gap-2 group/btn"
                                 >
@@ -218,7 +218,7 @@ const ProfilePage: React.FC = () => {
                                     <div className="pt-4 border-t border-slate-100 flex flex-col gap-1">
                                         <span className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em]">Tham gia từ</span>
                                         <span className="text-sm font-extrabold text-slate-600">
-                                            {profile?.createdAt 
+                                            {profile?.createdAt
                                                 ? new Date(profile.createdAt.seconds * 1000).toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' })
                                                 : 'Tháng 1, 2024'}
                                         </span>
@@ -232,9 +232,9 @@ const ProfilePage: React.FC = () => {
                                     <i className="fa-solid fa-address-card text-indigo-600"></i>
                                     Tiểu sử
                                 </h2>
-                                <textarea 
+                                <textarea
                                     value={formData.bio}
-                                    onChange={e => setFormData({...formData, bio: e.target.value})}
+                                    onChange={e => setFormData({ ...formData, bio: e.target.value })}
                                     placeholder="Viết vài dòng giới thiệu về bản thân..."
                                     className="w-full h-32 p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 font-medium text-sm transition-all resize-none text-slate-600 shadow-inner"
                                 />
@@ -245,9 +245,9 @@ const ProfilePage: React.FC = () => {
                         {showPasswordModal && (
                             <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-xl animate-fadeIn">
                                 <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 relative shadow-2xl overflow-hidden">
-                                     {/* Background Decoration */}
+                                    {/* Background Decoration */}
                                     <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-600 to-violet-600"></div>
-                                    <button 
+                                    <button
                                         onClick={() => setShowPasswordModal(false)}
                                         className="absolute top-6 right-6 w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-slate-900 transition-all"
                                     >
@@ -271,11 +271,11 @@ const ProfilePage: React.FC = () => {
                                             <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Mật khẩu cũ</label>
                                             <div className="relative group">
                                                 <i className="fa-solid fa-key absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
-                                                <input 
-                                                    type="password" 
+                                                <input
+                                                    type="password"
                                                     required
                                                     value={passwords.current}
-                                                    onChange={e => setPasswords({...passwords, current: e.target.value})}
+                                                    onChange={e => setPasswords({ ...passwords, current: e.target.value })}
                                                     placeholder="Nhập mật khẩu hiện tại"
                                                     className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold shadow-sm"
                                                 />
@@ -286,11 +286,11 @@ const ProfilePage: React.FC = () => {
                                             <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Mật khẩu mới</label>
                                             <div className="relative group">
                                                 <i className="fa-solid fa-lock absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
-                                                <input 
-                                                    type="password" 
+                                                <input
+                                                    type="password"
                                                     required
                                                     value={passwords.new}
-                                                    onChange={e => setPasswords({...passwords, new: e.target.value})}
+                                                    onChange={e => setPasswords({ ...passwords, new: e.target.value })}
                                                     placeholder="Ít nhất 6 ký tự"
                                                     className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold shadow-sm"
                                                 />
@@ -301,18 +301,18 @@ const ProfilePage: React.FC = () => {
                                             <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Xác nhận mật khẩu</label>
                                             <div className="relative group">
                                                 <i className="fa-solid fa-shield-halved absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
-                                                <input 
-                                                    type="password" 
+                                                <input
+                                                    type="password"
                                                     required
                                                     value={passwords.confirm}
-                                                    onChange={e => setPasswords({...passwords, confirm: e.target.value})}
+                                                    onChange={e => setPasswords({ ...passwords, confirm: e.target.value })}
                                                     placeholder="Nhập lại mật khẩu mới"
                                                     className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 transition-all font-bold shadow-sm"
                                                 />
                                             </div>
                                         </div>
 
-                                        <button 
+                                        <button
                                             type="submit"
                                             disabled={pwLoading}
                                             className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-extrabold uppercase tracking-premium text-micro shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50"
@@ -334,11 +334,11 @@ const ProfilePage: React.FC = () => {
                                             <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Họ và tên</label>
                                             <div className="relative group">
                                                 <i className="fa-solid fa-user absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
-                                                <input 
-                                                    type="text" 
+                                                <input
+                                                    type="text"
                                                     value={formData.name}
-                                                    onChange={e => setFormData({...formData, name: e.target.value})}
-                                                    className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 font-bold transition-all text-slate-900 shadow-inner" 
+                                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                                    className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 font-bold transition-all text-slate-900 shadow-inner"
                                                 />
                                             </div>
                                         </div>
@@ -346,12 +346,12 @@ const ProfilePage: React.FC = () => {
                                             <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Số điện thoại</label>
                                             <div className="relative group">
                                                 <i className="fa-solid fa-phone absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
-                                                <input 
-                                                    type="tel" 
+                                                <input
+                                                    type="tel"
                                                     value={formData.phone}
-                                                    onChange={e => setFormData({...formData, phone: e.target.value})}
+                                                    onChange={e => setFormData({ ...formData, phone: e.target.value })}
                                                     placeholder="09xx xxx xxx"
-                                                    className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 font-bold transition-all text-slate-900 shadow-inner" 
+                                                    className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 font-bold transition-all text-slate-900 shadow-inner"
                                                 />
                                             </div>
                                         </div>
@@ -361,12 +361,12 @@ const ProfilePage: React.FC = () => {
                                         <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Địa chỉ giao hàng</label>
                                         <div className="relative group">
                                             <i className="fa-solid fa-location-dot absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 value={formData.address}
-                                                onChange={e => setFormData({...formData, address: e.target.value})}
+                                                onChange={e => setFormData({ ...formData, address: e.target.value })}
                                                 placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"
-                                                className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 font-bold transition-all text-slate-900 shadow-inner" 
+                                                className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 font-bold transition-all text-slate-900 shadow-inner"
                                             />
                                         </div>
                                     </div>
@@ -376,15 +376,14 @@ const ProfilePage: React.FC = () => {
                                             <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Giới tính</label>
                                             <div className="flex gap-4">
                                                 {['Nam', 'Nữ', 'Khác'].map(g => (
-                                                    <button 
+                                                    <button
                                                         key={g}
                                                         type="button"
-                                                        onClick={() => setFormData({...formData, gender: g})}
-                                                        className={`flex-1 py-4 rounded-2xl font-extrabold text-micro uppercase tracking-premium transition-all ${
-                                                            formData.gender === g 
-                                                            ? 'bg-slate-900 text-white shadow-lg' 
-                                                            : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
-                                                        }`}
+                                                        onClick={() => setFormData({ ...formData, gender: g })}
+                                                        className={`flex-1 py-4 rounded-2xl font-extrabold text-micro uppercase tracking-premium transition-all ${formData.gender === g
+                                                                ? 'bg-slate-900 text-white shadow-lg'
+                                                                : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+                                                            }`}
                                                     >
                                                         {g}
                                                     </button>
@@ -395,18 +394,18 @@ const ProfilePage: React.FC = () => {
                                             <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Ngày sinh</label>
                                             <div className="relative group">
                                                 <i className="fa-solid fa-calendar absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors"></i>
-                                                <input 
-                                                    type="date" 
+                                                <input
+                                                    type="date"
                                                     value={formData.birthday}
-                                                    onChange={e => setFormData({...formData, birthday: e.target.value})}
-                                                        className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 font-bold transition-all text-slate-900 shadow-inner" 
+                                                    onChange={e => setFormData({ ...formData, birthday: e.target.value })}
+                                                    className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 focus:ring-4 ring-indigo-500/10 font-bold transition-all text-slate-900 shadow-inner"
                                                 />
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="pt-6">
-                                        <button 
+                                        <button
                                             type="submit"
                                             disabled={saving}
                                             className="w-full py-5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-[1.2rem] font-extrabold uppercase tracking-premium text-micro hover:shadow-2xl hover:shadow-indigo-500/40 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:translate-y-0 transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3"

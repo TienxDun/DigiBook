@@ -3,7 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Book } from '../types';
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface BookCardProps {
   book: Book;
@@ -41,7 +41,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
   const navigate = useNavigate();
   const [imgLoaded, setImgLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  
+
   // const isWishlisted = useMemo(() => wishlist.some(b => b.id === book.id), [wishlist, book.id]);
   const isAvailable = book.isAvailable !== false;
   const hasStock = book.stockQuantity > 0;
@@ -53,17 +53,19 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
   // };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ 
+    <motion.div
+      initial={{ opacity: 0.8, scale: 0.9, y: 10 }}
+      animate={{ opacity: 0.8, scale: 0.9, y: 0 }}
+      whileHover={{
+        opacity: 1,
+        scale: 1,
         y: -10,
         transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] }
       }}
       exit={{ opacity: 0, scale: 0.98 }}
       className="w-full h-full"
     >
-      <div 
+      <div
         className={`relative group flex flex-col min-h-[320px] lg:min-h-[340px] bg-white rounded-3xl sm:rounded-[2rem] p-2.5 sm:p-3 border border-secondary shadow-sm transition-all duration-500 w-full ${(!isAvailable || !hasStock) ? 'grayscale opacity-60' : 'hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/20 hover:ring-4 hover:ring-primary/10'}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -74,7 +76,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
 
         {/* Media Container - Improved Aspect Ratio */}
         <div className="relative h-[160px] sm:h-[180px] w-full rounded-[1.2rem] sm:rounded-[1.5rem] overflow-hidden bg-secondary mb-3 flex-shrink-0">
-          
+
           {/* Status Badges */}
           <div className={`absolute top-2 left-2 z-30 flex flex-col gap-1.5 items-start transition-all duration-300 ${isHovered ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`}>
             {!isAvailable && (
@@ -107,8 +109,8 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
 
           {/* Rating Badge on Image */}
           <div className={`absolute bottom-2 right-2 z-30 px-1.5 py-0.5 bg-white/90 backdrop-blur-sm rounded-md flex items-center gap-1 shadow-sm border border-white/50 transition-all duration-300 ${isHovered ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
-             <i className="fa-solid fa-star text-xs text-amber-400"></i>
-             <span className="text-xs font-bold text-slate-700">{book.rating}</span>
+            <i className="fa-solid fa-star text-xs text-amber-400"></i>
+            <span className="text-xs font-bold text-slate-700">{book.rating}</span>
           </div>
 
           {/* Book Image */}
@@ -118,11 +120,11 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
                 <i className="fa-solid fa-book-open text-slate-300"></i>
               </div>
             )}
-            <motion.img 
-              src={getOptimizedImageUrl(book.cover)} 
+            <motion.img
+              src={getOptimizedImageUrl(book.cover)}
               srcSet={getImageSrcSet(book.cover)}
               sizes="(max-width: 640px) 200px, (max-width: 1024px) 300px, 500px"
-              alt={book.title} 
+              alt={book.title}
               onLoad={() => setImgLoaded(true)}
               loading="lazy"
               animate={isHovered ? { scale: 1.1, filter: 'blur(2px) brightness(0.8)' } : { scale: 1, filter: 'blur(0px) brightness(1)' }}
@@ -160,28 +162,28 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
                 </motion.button>
 
                 {/* Bottom Quick Stats: Integrated & Clean */}
-                <motion.div 
+                <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2, duration: 0.4 }}
                   className="absolute bottom-4 left-4 right-4"
                 >
-                   <div className="flex justify-around items-center bg-white/10 backdrop-blur-xl rounded-2xl py-2 px-1 border border-white/10">
-                      <div className="flex flex-col items-center flex-1">
-                        <span className="text-[11px] font-black text-white leading-none mb-1">{book.pages}</span>
-                        <span className="text-[8px] uppercase text-white/50 font-bold tracking-widest">Trang</span>
-                      </div>
-                      <div className="w-px h-6 bg-white/10"></div>
-                      <div className="flex flex-col items-center flex-1">
-                        <span className="text-[11px] font-black text-white leading-none mb-1">FREE</span>
-                        <span className="text-[8px] uppercase text-white/50 font-bold tracking-widest">Ship</span>
-                      </div>
-                      <div className="w-px h-6 bg-white/10"></div>
-                      <div className="flex flex-col items-center flex-1">
-                        <span className="text-[11px] font-black text-white leading-none mb-1">{book.language === 'Tiếng Việt' ? 'VN' : 'EN'}</span>
-                        <span className="text-[8px] uppercase text-white/50 font-bold tracking-widest">Bản</span>
-                      </div>
-                   </div>
+                  <div className="flex justify-around items-center bg-white/10 backdrop-blur-xl rounded-2xl py-2 px-1 border border-white/10">
+                    <div className="flex flex-col items-center flex-1">
+                      <span className="text-[11px] font-black text-white leading-none mb-1">{book.pages}</span>
+                      <span className="text-[8px] uppercase text-white/50 font-bold tracking-widest">Trang</span>
+                    </div>
+                    <div className="w-px h-6 bg-white/10"></div>
+                    <div className="flex flex-col items-center flex-1">
+                      <span className="text-[11px] font-black text-white leading-none mb-1">FREE</span>
+                      <span className="text-[8px] uppercase text-white/50 font-bold tracking-widest">Ship</span>
+                    </div>
+                    <div className="w-px h-6 bg-white/10"></div>
+                    <div className="flex flex-col items-center flex-1">
+                      <span className="text-[11px] font-black text-white leading-none mb-1">{book.language === 'Tiếng Việt' ? 'VN' : 'EN'}</span>
+                      <span className="text-[8px] uppercase text-white/50 font-bold tracking-widest">Bản</span>
+                    </div>
+                  </div>
                 </motion.div>
               </motion.div>
             )}
@@ -189,19 +191,19 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
         </div>
 
         {/* Info Container */}
-        <div 
+        <div
           onClick={() => navigate(`/book/${book.id}`)}
           className="flex flex-col flex-grow min-h-0 justify-between cursor-pointer group/info"
         >
-          <div>
-            <div className="block mb-0.5">
-              <h3 className="font-bold text-slate-800 text-sm leading-snug line-clamp-2 group-hover/info:text-primary transition-colors">
+          <div className="space-y-1">
+            <div className="block h-[2.8rem] sm:h-[3rem] overflow-hidden">
+              <h3 className="font-bold text-slate-800 text-xs sm:text-sm leading-tight sm:leading-snug line-clamp-2 group-hover/info:text-primary transition-colors">
                 {book.title}
               </h3>
             </div>
-            <p className="text-slate-500 text-xs font-medium truncate italic">{book.author}</p>
+            <p className="text-slate-500 text-[10px] sm:text-xs font-medium truncate italic">{book.author}</p>
           </div>
-          
+
           <div className="pt-2 flex items-center justify-between border-t border-secondary mt-auto">
             <div className="flex flex-col">
               {book.originalPrice && book.originalPrice > book.price && (
@@ -215,24 +217,23 @@ const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) =
             </div>
 
             <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onAddToCart(book, 1, { x: e.clientX, y: e.clientY });
-                }}
-                disabled={!hasStock || !isAvailable}
-                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center transition-all duration-300 ${
-                  (!hasStock || !isAvailable)
-                    ? 'bg-secondary text-slate-300 cursor-not-allowed' 
-                    : 'bg-primary text-white hover:bg-foreground hover:scale-105 active:scale-95 shadow-md shadow-primary/10'
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onAddToCart(book, 1, { x: e.clientX, y: e.clientY });
+              }}
+              disabled={!hasStock || !isAvailable}
+              className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center transition-all duration-300 ${(!hasStock || !isAvailable)
+                ? 'bg-secondary text-slate-300 cursor-not-allowed'
+                : 'bg-primary text-white hover:bg-foreground hover:scale-105 active:scale-95 shadow-md shadow-primary/10'
                 }`}
-              >
-                <i className="fa-solid fa-cart-shopping text-[10px] sm:text-xs"></i>
-              </button>
-            </div>
+            >
+              <i className="fa-solid fa-cart-shopping text-[10px] sm:text-xs"></i>
+            </button>
           </div>
         </div>
-      </motion.div>
+      </div>
+    </motion.div>
   );
 };
 
