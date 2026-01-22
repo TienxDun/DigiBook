@@ -11,6 +11,7 @@ import AdminCoupons from "../components/AdminCoupons";
 import AdminUsers from "../components/AdminUsers";
 
 import AdminLogs from "../components/AdminLogs";
+import AdminAnalytics from "../components/AdminAnalytics";
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
@@ -18,7 +19,7 @@ const formatPrice = (price: number) => {
 
 
 const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"overview" | "books" | "orders" | "categories" | "authors" | "coupons" | "users" | "logs">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "books" | "orders" | "categories" | "authors" | "coupons" | "users" | "logs" | "analytics">("overview");
   const [adminTheme, setAdminTheme] = useState<"midnight" | "light">(localStorage.getItem("digibook_admin_theme") as any || "midnight");
   const isMidnight = adminTheme === "midnight";
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -128,7 +129,8 @@ const AdminDashboard: React.FC = () => {
     {
       title: "Phân tích",
       items: [
-        { id: "overview", label: "Tổng quan", icon: "fa-chart-pie" }
+        { id: "overview", label: "Tổng quan", icon: "fa-chart-pie" },
+        { id: "analytics", label: "Thống kê", icon: "fa-chart-line" }
       ]
     },
     {
@@ -702,6 +704,7 @@ const AdminDashboard: React.FC = () => {
               isLoadingMoreLogs={isLoadingMoreLogs}
             />
           )}
+          {activeTab === "analytics" && <AdminAnalytics />}
         </div>
       </main>
     </div>

@@ -3,6 +3,7 @@
 // UI Components
 export { Skeleton, BookCardSkeleton, AdminRowSkeleton, BookDetailsSkeleton } from './ui/Skeleton';
 export { default as Pagination } from './ui/Pagination';
+export { default as VisitorCounter } from './ui/VisitorCounter';
 
 // Layout Components
 export { default as BackToTop } from './layout/BackToTop';

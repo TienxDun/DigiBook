@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/features/auth';
+import { VisitorCounter } from '@/shared/components';
 
 const Footer: React.FC = () => {
   const { user } = useAuth();
@@ -77,8 +78,10 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="text-slate-500 text-xs font-bold uppercase tracking-premium">
-            © 2026 DigiBook Store. Được thiết kế với <i className="fa-solid fa-heart text-rose-500 mx-1"></i> cho người yêu sách.
+          <div className="flex flex-col md:flex-row items-center gap-4 text-slate-500 text-xs font-bold uppercase tracking-premium">
+            <span>© 2026 DigiBook Store. Được thiết kế với <i className="fa-solid fa-heart text-rose-500 mx-1"></i> cho người yêu sách.</span>
+            <div className="hidden md:block w-px h-4 bg-slate-700"></div>
+            <VisitorCounter siteCode="digibook" />
           </div>
           <div className="flex items-center gap-6">
             <img src="https://img.icons8.com/color/48/visa.png" alt="Visa" className="h-6 opacity-50 grayscale hover:grayscale-0 transition-all cursor-pointer" />
