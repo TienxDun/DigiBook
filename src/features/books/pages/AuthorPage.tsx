@@ -2,16 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { db } from '@/services/db';
-import { AVAILABLE_AI_MODELS } from '@/constants/ai-models';
-import { BookCard } from '@/features/books';
+import { useNavigate } from 'react-router-dom';
 import { Book, Author } from '@/types';
-import { BookCardSkeleton, Skeleton } from '@/components/common/Skeleton';
-import { motion, AnimatePresence } from 'framer-motion';
-import { QuickViewModal } from '@/features/books';
+import { Skeleton } from '@/components/common/Skeleton';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/features/auth';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-
 import { useCart } from '@/features/cart';
 
 const AuthorBookCard: React.FC<{
@@ -124,9 +119,6 @@ const AuthorPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickV
   const [authorBooks, setAuthorBooks] = useState<Book[]>([]);
   const [authorInfo, setAuthorInfo] = useState<Author | null>(null);
   const [loading, setLoading] = useState(true);
-  const [aiInsight, setAiInsight] = useState<string | null>(null);
-  const [loadingAI, setLoadingAI] = useState(false);
-  const [activeModelName, setActiveModelName] = useState('Gemini');
   const [sortBy, setSortBy] = useState<'newest' | 'price-asc' | 'price-desc' | 'rating'>('newest');
 
   const sortedBooks = [...authorBooks].sort((a, b) => {
@@ -140,12 +132,6 @@ const AuthorPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickV
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-
-      // Fetch model config
-      db.getAIConfig().then(config => {
-        const model = AVAILABLE_AI_MODELS.find(m => m.id === config.activeModelId);
-        if (model) setActiveModelName(model.name.split(' (')[0]);
-      });
 
       const [allBooks, allAuthors] = await Promise.all([
         db.getBooks(),
@@ -162,14 +148,6 @@ const AuthorPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickV
     fetchData();
     window.scrollTo(0, 0);
   }, [authorName]);
-
-  const handleGetAIInsight = async () => {
-    if (!authorName) return;
-    setLoadingAI(true);
-    const result = await db.getAuthorAIInsight(authorName);
-    setAiInsight(result);
-    setLoadingAI(false);
-  };
 
   if (loading) {
     return (
@@ -369,78 +347,8 @@ const AuthorPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickV
             </div>
           </div>
 
-          {/* AI Profile Side */}
+          {/* AI Profile Side - REMOVED */}
           <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
-            <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-8 rounded-3xl shadow-2xl relative overflow-hidden group border border-white/5">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl -mr-16 -mt-16"></div>
-
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                    <i className="fa-solid fa-wand-magic-sparkles text-white text-base animate-pulse"></i>
-                  </div>
-                  <div>
-                    <h2 className="text-base font-extrabold text-white uppercase tracking-premium">AI Author Profile</h2>
-                    <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mt-0.5">Phân tích bởi {activeModelName}</p>
-                  </div>
-                </div>
-
-                {aiInsight ? (
-                  <div className="animate-fadeIn">
-                    <div className="relative">
-                      <i className="fa-solid fa-quote-left absolute -top-3 -left-3 text-indigo-500/20 text-2xl"></i>
-                      <div className="prose prose-sm prose-invert max-w-none text-sm text-indigo-50/90 leading-relaxed font-medium italic relative z-10">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {aiInsight}
-                        </ReactMarkdown>
-                      </div>
-                    </div>
-                    <div className="mt-6 pt-6 border-t border-white/5 space-y-4">
-                      <div>
-                        <p className="text-micro font-bold text-indigo-400 uppercase tracking-premium mb-3">Điểm nhấn sáng tạo:</p>
-                        <div className="grid grid-cols-1 gap-2">
-                          <div className="flex items-center gap-3 p-2 rounded-xl bg-white/5 border border-white/5">
-                            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                              <i className="fa-solid fa-bolt text-emerald-400 text-xs"></i>
-                            </div>
-                            <span className="text-xs font-bold text-slate-300">Tư duy độc bản & đột phá</span>
-                          </div>
-                          <div className="flex items-center gap-3 p-2 rounded-xl bg-white/5 border border-white/5">
-                            <div className="w-8 h-8 rounded-lg bg-rose-500/20 flex items-center justify-center">
-                              <i className="fa-solid fa-heart-pulse text-rose-400 text-xs"></i>
-                            </div>
-                            <span className="text-xs font-bold text-slate-300">Kết nối cảm xúc mạnh mẽ</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center py-4 text-center">
-                    <p className="text-indigo-100/60 text-xs font-medium mb-6 leading-relaxed">
-                      Để AI giúp bạn phác họa chân dung nghệ thuật và phong cách đặc trưng của {authorName}.
-                    </p>
-                    <button
-                      onClick={handleGetAIInsight}
-                      disabled={loadingAI}
-                      className="w-full py-4 bg-white text-slate-900 rounded-2xl font-extrabold uppercase tracking-premium text-micro hover:bg-indigo-50 transition-all shadow-xl shadow-white/5 flex items-center justify-center gap-2 active:scale-95 disabled:bg-slate-800 disabled:text-slate-500"
-                    >
-                      {loadingAI ? (
-                        <>
-                          <div className="w-3 h-3 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                          Đang phân tích...
-                        </>
-                      ) : (
-                        <>
-                          <i className="fa-solid fa-wand-magic-sparkles text-indigo-500 text-xs"></i> Khám phá Tác giả
-                        </>
-                      )}
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-
             {/* Newsletter or CTA */}
             <div className="bg-emerald-600 p-8 rounded-3xl text-white shadow-xl shadow-emerald-100/50 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16"></div>
