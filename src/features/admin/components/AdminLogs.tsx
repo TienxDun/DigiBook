@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { SystemLog } from '@/types';
-import Pagination from '@/components/ui/Pagination';
+import { SystemLog } from '@/shared/types';
+import { Pagination } from '@/shared/components';
 
 interface AdminLogsProps {
   logs: SystemLog[];

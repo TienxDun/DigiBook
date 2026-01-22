@@ -1,14 +1,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { db } from '@/services/db';
-import { Book, CategoryInfo } from '@/types';
+import { Book, CategoryInfo } from '@/shared/types';
 import { BookCard } from '@/features/books/components/BookCard';
-import { BookCardSkeleton } from '@/components/common/Skeleton';
-import SEO from '@/components/common/SEO';
-import { AVAILABLE_ICONS } from '@/constants/categories';
-import { useBooks } from '@/contexts/BookContext';
+import { BookCardSkeleton } from '@/shared/components';
+import SEO from '@/shared/components/seo/SEO';
+import { useBooks } from '@/features/books';
 import { useCart } from '@/features/cart';
 
 const ITEMS_PER_PAGE = 10;

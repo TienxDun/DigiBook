@@ -13,9 +13,9 @@ import {
   writeBatch,
   serverTimestamp
 } from "firebase/firestore";
-import { db_fs, auth } from "../../lib/firebase";
-import { SystemLog, AIModelConfig } from '../../types/';
-import { wrap, logActivity } from "./core";
+import { db_fs, auth } from "../../../lib/firebase";
+import { SystemLog, AIModelConfig } from '@/shared/types/';
+import { wrap, logActivity } from "../core";
 
 export async function getSystemLogs(offset: number = 0, limitCount: number = 100): Promise<SystemLog[]> {
   return wrap(

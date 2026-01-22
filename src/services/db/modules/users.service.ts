@@ -9,9 +9,9 @@ import {
   deleteDoc,
   serverTimestamp
 } from "firebase/firestore";
-import { db_fs } from "../../lib/firebase";
-import { UserProfile } from '../../types/';
-import { wrap } from "./core";
+import { db_fs } from "../../../lib/firebase";
+import { UserProfile } from '@/shared/types/';
+import { wrap } from "../core";
 
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
   return wrap(

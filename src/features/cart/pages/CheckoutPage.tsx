@@ -8,10 +8,9 @@ import { ErrorHandler } from '@/services/errorHandler';
 import { useCart } from '@/features/cart';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { AddressInput } from '@/components/common/AddressInput';
-import { MapPicker } from '@/components/common/MapPicker';
+import { AddressInput, MapPicker } from '@/shared/components';
 import { mapService, AddressResult } from '@/services/map';
-import { validateCartStock } from '@/services/db/validateCartStock';
+import { validateCartStock } from '@/services/db/utils/validateCartStock';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);

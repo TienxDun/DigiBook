@@ -10,7 +10,7 @@ import {
   serverTimestamp
 } from "firebase/firestore";
 import { db_fs, auth } from "../../lib/firebase";
-import { LogLevel, LogCategory } from '../../types/';
+import { LogLevel, LogCategory } from '@/shared/types/';
 
 let connectionTested = false;
 

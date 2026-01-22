@@ -3,10 +3,10 @@ import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/features/auth';
 import { db } from '@/services/db';
-import { UserProfile } from '@/types';
+import { UserProfile } from '@/shared/types';
 import { ErrorHandler } from '@/services/errorHandler';
-import { AddressInput } from '@/components/common/AddressInput';
-import { MapPicker } from '@/components/common/MapPicker';
+import { AddressInput } from '@/shared/components';
+import { MapPicker } from '@/shared/components';
 import { mapService, AddressResult } from '@/services/map';
 
 const ProfilePage: React.FC = () => {

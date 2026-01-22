@@ -4,7 +4,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CartItem, CategoryInfo, Book } from '../types/';
 import { useAuth } from '@/features/auth';
-import { useBooks } from '../contexts/BookContext';
+import { useBooks } from '@/features/books/contexts/BookContext';
 import { useCart } from '@/features/cart';
 
 

@@ -2,17 +2,14 @@ import React, { Suspense, lazy, useState } from 'react';
 import { HashRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from '@/features/auth';
-import { useBooks } from './contexts/BookContext';
+import { useBooks } from '@/features/books';
 import { CartProvider, useCart } from '@/features/cart';
 
 import { MainLayout, AdminRoute, MainContent } from './layouts';
 import { LoginModal } from './features/auth';
-import PageTransition from './components/common/PageTransition';
-import ScrollToTop from './components/common/ScrollToTop';
-import AIAssistant from '@/components/common/AIAssistant';
-import BackToTop from './components/common/BackToTop';
+import { PageTransition, ScrollToTop, AIAssistant, BackToTop } from '@/shared/components';
 import { QuickViewModal } from './features/books';
-import { Book } from './types/';
+import { Book } from '@/shared/types/';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Lazy load pages

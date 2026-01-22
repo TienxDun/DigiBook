@@ -10,9 +10,9 @@ import {
   increment,
   serverTimestamp
 } from "firebase/firestore";
-import { db_fs } from "../../lib/firebase";
-import { Coupon } from '../../types/';
-import { wrap } from "./core";
+import { db_fs } from "../../../lib/firebase";
+import { Coupon } from '@/shared/types/';
+import { wrap } from "../core";
 
 export async function validateCoupon(code: string, subtotal: number): Promise<{ code: string, value: number, type: 'percentage' | 'fixed' } | null> {
   const couponRef = doc(db_fs, 'coupons', code.toUpperCase());

@@ -17,7 +17,7 @@ import {
   QueryDocumentSnapshot
 } from "firebase/firestore";
 import { db_fs } from '../../../lib/firebase';
-import { Book } from '../../../types/';
+import { Book } from '@/shared/types/';
 import { wrap } from '../../../services/db/core';
 
 export async function getBooks(): Promise<Book[]> {

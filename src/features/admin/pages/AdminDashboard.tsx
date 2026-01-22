@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, PieChart, Pie, Legend } from 'recharts';
 import { db } from "@/services/db";
-import { Book, CategoryInfo, Author, Coupon, UserProfile, Order, SystemLog } from "@/types/";
+import { Book, CategoryInfo, Author, Coupon, UserProfile, Order, SystemLog } from "@/shared/types/";
 import AdminBooks from "../components/AdminBooks";
 import AdminOrders from "../components/AdminOrders";
 import AdminAuthors from "../components/AdminAuthors";

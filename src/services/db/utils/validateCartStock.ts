@@ -1,6 +1,6 @@
-import { CartItem } from '../../types/';
+import { CartItem } from '@/shared/types/';
 import { getDoc, doc } from 'firebase/firestore';
-import { db_fs } from '../../lib/firebase';
+import { db_fs } from '@/lib/firebase';
 
 export interface StockValidationResult {
     isValid: boolean;

@@ -5,16 +5,16 @@
  */
 
 import * as core from './core';
-import * as books from './books';
-import * as metadata from './metadata';
-import * as orders from './orders';
-import * as users from './users';
-import * as coupons from './coupons';
-import * as reviews from './reviews';
-import * as system from './system';
+import * as books from './modules/books.service';
+import * as metadata from './modules/metadata.service';
+import * as orders from './modules/orders.service';
+import * as users from './modules/users.service';
+import * as coupons from './modules/coupons.service';
+import * as reviews from './modules/reviews.service';
+import * as system from './modules/system.service';
 
 
-import { Order, OrderItem, Review, SystemLog } from '../../types/';
+import { Order, OrderItem, Review, SystemLog } from '@/shared/types/';
 
 class DataService {
   // Core & Base Utility

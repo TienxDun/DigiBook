@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '@/services/db';
-import { Author, Book } from '@/types';
-import SEO from '@/components/common/SEO';
-import { BookCardSkeleton, Skeleton } from '@/components/common/Skeleton';
+import { Author, Book } from '@/shared/types';
+import { BookCardSkeleton, Skeleton } from '@/shared/components';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AuthorsPage: React.FC = () => {

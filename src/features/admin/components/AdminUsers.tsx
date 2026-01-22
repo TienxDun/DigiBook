@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { db } from '@/services/db';
-import Pagination from '@/components/ui/Pagination';
+import { Pagination } from '@/shared/components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { UserProfile as User } from '@/types';
+import { UserProfile as User } from '@/shared/types';
 
 interface AdminUsersProps {
   users: User[];

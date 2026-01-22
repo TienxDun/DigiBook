@@ -7,7 +7,7 @@ import MobileNav from './MobileNav';
 import { CartSidebar } from '@/features/cart';
 
 import { useAuth } from '@/features/auth';
-import { CartItem, CategoryInfo, Book } from '@/types';
+import { CartItem, CategoryInfo, Book } from '@/shared/types';
 
 export const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Book } from '../../../types/';
+import { Book } from '@/shared/types/';
 
 interface BookCardProps {
   book: Book;

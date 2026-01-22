@@ -3,8 +3,8 @@ import { createPortal } from 'react-dom';
 import { db } from '@/services/db';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Coupon } from '@/types';
-import Pagination from '@/components/ui/Pagination';
+import { Coupon } from '@/shared/types';
+import { Pagination } from '@/shared/components';
 import { ErrorHandler } from '@/services/errorHandler';
 
 // Portal component for rendering modals outside DOM structure

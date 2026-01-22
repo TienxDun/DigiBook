@@ -10,9 +10,9 @@ import {
   orderBy,
   serverTimestamp
 } from "firebase/firestore";
-import { db_fs } from "../../lib/firebase";
-import { Review } from '../../types/';
-import { wrap } from "./core";
+import { db_fs } from "../../../lib/firebase";
+import { Review } from '@/shared/types/';
+import { wrap } from "../core";
 
 export async function getReviewsByBookId(bookId: string): Promise<Review[]> {
   return wrap(

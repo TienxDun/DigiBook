@@ -2,9 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import toast from 'react-hot-toast';
 import { db } from '@/services/db';
-import { Book, CategoryInfo, Author } from '@/types';
+import { Book, CategoryInfo, Author } from '@/shared/types';
 import { ErrorHandler } from '@/services/errorHandler';
-import Pagination from '@/components/ui/Pagination';
+import { Pagination } from '@/shared/components';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface AdminBooksProps {

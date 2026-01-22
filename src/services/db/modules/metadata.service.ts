@@ -8,10 +8,10 @@ import {
   writeBatch,
   serverTimestamp
 } from "firebase/firestore";
-import { db_fs } from "../../lib/firebase";
-import { CategoryInfo, Author, Book } from '../../types/';
-import { wrap, logActivity } from "./core";
-import { INITIAL_CATEGORIES } from '../../constants/categories';
+import { db_fs } from "../../../lib/firebase";
+import { CategoryInfo, Author, Book } from '@/shared/types/';
+import { wrap, logActivity } from "../core";
+import { INITIAL_CATEGORIES } from '@/shared/config/categories';
 
 export async function getCategories(): Promise<CategoryInfo[]> {
   return wrap(

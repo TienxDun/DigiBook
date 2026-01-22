@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, FormEvent } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useBooks } from '@/contexts/BookContext';
+import { useBooks } from '@/features/books';
 import { db } from '@/services/db';
 import { ChatMessage } from '@/services/db/ai';
 import ReactMarkdown from 'react-markdown';

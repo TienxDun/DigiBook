@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Author, Book } from '@/types';
+import { Author, Book } from '@/shared/types';
 import { db } from '@/services/db';
 import toast from 'react-hot-toast';
 import { ErrorHandler } from '@/services/errorHandler';
-import Pagination from '@/components/ui/Pagination';
+import { Pagination } from '@/shared/components';
 
 // Portal component for rendering modals outside DOM structure
 const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {

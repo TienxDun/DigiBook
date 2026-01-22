@@ -1,20 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useBooks } from '@/contexts/BookContext';
+import { useBooks, QuickBuyBar, BookCard } from '@/features/books';
 import { useCart } from '@/features/cart';
 import { useAuth } from '@/features/auth';
 import { db } from '@/services/db';
-import { Book, Review } from '@/types';
-import SEO from '@/components/common/SEO';
-import BookCard from '@/features/books/components/BookCard';
+import { Book, Review } from '@/shared/types';
+import { SEO, BookDetailsSkeleton } from '@/shared/components';
 import { LoginModal } from '@/features/auth';
-import { BookDetailsSkeleton } from '@/components/common/Skeleton';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-
-
-import QuickBuyBar from '@/components/books/QuickBuyBar';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);

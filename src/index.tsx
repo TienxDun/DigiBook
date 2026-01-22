@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from '@/features/auth';
-import { BookProvider } from './contexts/BookContext';
+import { BookProvider } from '@/features/books';
 import { CartProvider } from '@/features/cart';
 import './index.css';
 import App from './App';

@@ -2,16 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import SEO from '@/components/common/SEO';
+import SEO from '@/shared/components/seo/SEO';
 import { db } from '@/services/db';
 import * as booksApi from '@/features/books/api/books'; // Namespace import
-import { Book } from '@/types';
+import { Book } from '@/shared/types';
 import BookCard from '@/features/books/components/BookCard'; // Default import
 import { useAuth } from '@/features/auth';
-import { useBooks } from '@/contexts/BookContext';
+import { useBooks } from '@/features/books';
 import { useCart } from '@/features/cart';
 import { QuickViewModal } from '@/features/books';
-import { BookCardSkeleton } from '@/components/common/Skeleton';
+import { BookCardSkeleton } from '@/shared/components';
 
 const HomePage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickView }) => {
   const { allBooks, categories, hasMore, loadingMore, loadMore } = useBooks();

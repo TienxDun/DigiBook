@@ -12,9 +12,9 @@ import {
   serverTimestamp,
   setDoc
 } from "firebase/firestore";
-import { db_fs } from "../../lib/firebase";
-import { Order, OrderItem, CartItem } from '../../types/';
-import { wrap, logActivity } from "./core";
+import { db_fs } from "../../../lib/firebase";
+import { Order, OrderItem, CartItem } from '@/shared/types/';
+import { wrap, logActivity } from "../core";
 
 export async function createOrder(orderInfo: any, cartItems: CartItem[]) {
   try {

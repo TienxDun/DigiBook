@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Book } from '@/types/';
+import { Book } from '@/shared/types/';
 import {
   auth,
   googleProvider,

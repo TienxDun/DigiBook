@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Book } from '../../types';
+import { Book } from '@/shared/types';
 
 interface QuickBuyBarProps {
     book: Book;

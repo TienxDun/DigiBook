@@ -2,9 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { db } from '@/services/db';
-import { useNavigate } from 'react-router-dom';
-import { Book, Author } from '@/types';
-import { Skeleton } from '@/components/common/Skeleton';
+import { Book, Author } from '@/shared/types';
+import { Skeleton } from '@/shared/components/ui/Skeleton';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/features/auth';
 import { useCart } from '@/features/cart';

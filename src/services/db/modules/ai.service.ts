@@ -1,7 +1,7 @@
 
 /// <reference types="vite/client" />
 
-import { Book, Order } from '../../types/';
+import { Book, Order } from '@/shared/types/';
 import { logActivity } from "./core";
 import { getAIConfig } from "./system";
 import { getOrdersByUserId } from "./orders";

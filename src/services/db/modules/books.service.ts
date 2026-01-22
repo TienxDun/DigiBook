@@ -16,9 +16,9 @@ import {
   orderBy,
   QueryDocumentSnapshot
 } from "firebase/firestore";
-import { db_fs } from "../../lib/firebase";
-import { Book, Author } from '../../types/';
-import { wrap } from "./core";
+import { db_fs } from "../../../lib/firebase";
+import { Book, Author } from '@/shared/types/';
+import { wrap } from "../core";
 
 export async function getBooks(): Promise<Book[]> {
   return wrap(

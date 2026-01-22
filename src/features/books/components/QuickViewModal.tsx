@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
-import { Book } from '../../../types/';
+import { Book } from '@/shared/types/';
 import { useAuth } from '@/features/auth';
 
 interface QuickViewModalProps {

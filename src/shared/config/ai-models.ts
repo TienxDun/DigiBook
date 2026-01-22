@@ -1,4 +1,4 @@
-import { AIModelConfig } from '../types/';
+import { AIModelConfig } from '@/shared/types/';
 
 export const AVAILABLE_AI_MODELS: AIModelConfig[] = [
   // --- GOOGLE GEMINI (Enhanced Free Tier) ---
