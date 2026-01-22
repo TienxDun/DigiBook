@@ -16,41 +16,28 @@ export const VisitorCounter: React.FC<VisitorCounterProps> = ({
 
         const fetchStats = async () => {
             try {
-                // Determine API URL for the specific path
-                // GoatCounter API quirks: 
-                // - For root '/', requesting /counter/%2F.json often returns 404 if no data exists.
-                // - Requesting /counter/.json (empty path) often maps to root on some servers, or returns 404.
-
-                // Strategy:
-                // We use the count.js pixel to WRITE.
-                // Reading specific page counts via public JSON is tricky without a public dashboard enabled.
-
-                // ADJUSTMENT: We will try to fetch without encoding the slash for root, 
-                // or map '/' to the empty path segment which GoatCounter typically normalizes.
+                // UPDATE: Using the 't' endpoint or JSON API with query param is the most documented way for robust path handling.
+                // However, simpler is better: The standard public count API is often just counter.json
+                // But for the root path '/', the most compatible way across different GoatCounter configurations 
+                // is to use the query parameter syntax: /counter.json?p=/
 
                 let fetchPath = path;
+                if (!fetchPath.startsWith('/')) fetchPath = '/' + fetchPath;
 
-                // If path is root '/', utilizing just '' often works better in file-based routing logic or API matching
-                if (fetchPath === '/') fetchPath = '';
-                else if (fetchPath.startsWith('/')) fetchPath = fetchPath.substring(1);
-
-                // If path is empty (root), url becomes .../counter.json
-                // If path is 'about', url becomes .../counter/about.json
-                const url = `https://${siteCode}.goatcounter.com/counter/${encodeURIComponent(fetchPath)}.json`;
+                // Use the query param '?p=' which correctly handles special characters and root path
+                const url = `https://${siteCode}.goatcounter.com/counter.json?p=${encodeURIComponent(fetchPath)}`;
 
                 const response = await fetch(url);
 
                 if (response.ok) {
                     const data = await response.json();
                     setCount(data.count);
-                } else {
-                    // If 404, it simply means this specific path isn't tracked yet.
-                    // We set count to '0' to be helpful.
+                } else if (response.status === 404) {
+                    // API returns 404 if no stats found for this specific path
                     setCount('0');
                 }
             } catch (error) {
-                // Silently fail for network blocks (adblockers)
-                // console.log(error); 
+                // Silently handle network errors
             }
         };
 
