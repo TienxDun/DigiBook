@@ -44,12 +44,12 @@ export default defineConfig(({ mode }) => {
               type: 'image/x-icon'
             },
             {
-              src: 'https://i.ibb.co/3ykf1hG/logo-pwa-192.png',
+              src: 'https://placehold.co/192x192/4f46e5/ffffff?text=DB',
               sizes: '192x192',
               type: 'image/png'
             },
             {
-              src: 'https://i.ibb.co/vzB7pYy/logo-pwa-512.png',
+              src: 'https://placehold.co/512x512/4f46e5/ffffff?text=DigiBook',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'any maskable'

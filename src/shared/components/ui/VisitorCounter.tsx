@@ -23,21 +23,22 @@ export const VisitorCounter: React.FC<VisitorCounterProps> = ({
             try {
                 // GoatCounter JSON API for public view count
                 // URL format: https://[code].goatcounter.com/counter/[path].json
-                // Ensure path starts with / and doesn't end with / unless it's just /
-                let cleanPath = path;
-                if (!cleanPath.startsWith('/')) cleanPath = '/' + cleanPath;
+                const cleanPath = path.startsWith('/') ? path : '/' + path;
 
-                // Handling the root path case which might need simple handling
-                const url = `https://${siteCode}.goatcounter.com/counter${cleanPath}.json`;
+                // For root path '/', GoatCounter API often expects encoded slash %2F or handled via counter//.json
+                // We use encodeURIComponent to be safe for all paths including root.
+                const encodedPath = encodeURIComponent(cleanPath);
+
+                const url = `https://${siteCode}.goatcounter.com/counter/${encodedPath}.json`;
 
                 const response = await fetch(url);
                 if (response.ok) {
                     const data = await response.json();
-                    // The API returns { count: "123", ... }
                     setCount(data.count);
                 }
             } catch (error) {
-                console.error('Error fetching GoatCounter stats:', error);
+                // Suppress generic network errors which are often caused by AdBlockers
+                // We don't want to spam the console for this expected behavior in dev envs
             } finally {
                 setLoading(false);
             }
