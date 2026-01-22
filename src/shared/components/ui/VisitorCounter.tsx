@@ -16,28 +16,30 @@ export const VisitorCounter: React.FC<VisitorCounterProps> = ({
 
         const fetchStats = async () => {
             try {
-                // UPDATE: Using the 't' endpoint or JSON API with query param is the most documented way for robust path handling.
-                // However, simpler is better: The standard public count API is often just counter.json
-                // But for the root path '/', the most compatible way across different GoatCounter configurations 
-                // is to use the query parameter syntax: /counter.json?p=/
-
                 let fetchPath = path;
                 if (!fetchPath.startsWith('/')) fetchPath = '/' + fetchPath;
 
-                // Use the query param '?p=' which correctly handles special characters and root path
-                const url = `https://${siteCode}.goatcounter.com/counter.json?p=${encodeURIComponent(fetchPath)}`;
+                // Original URL causing CORS issues if accessed directly from client without server headers
+                const targetUrl = `https://${siteCode}.goatcounter.com/counter.json?p=${encodeURIComponent(fetchPath)}`;
 
-                const response = await fetch(url);
+                // Use a CORS Proxy to bypass the "No Access-Control-Allow-Origin" error.
+                // This allows us to read the JSON response even if GoatCounter's 404 responses miss CORS headers.
+                // Using api.allorigins.win as a reliable free proxy for public JSON data.
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+
+                // Add a cache buster timestamp to prevent stale data
+                const response = await fetch(`${proxyUrl}&t=${Date.now()}`);
 
                 if (response.ok) {
                     const data = await response.json();
                     setCount(data.count);
-                } else if (response.status === 404) {
-                    // API returns 404 if no stats found for this specific path
+                } else {
+                    // If proxy returns error (e.g. 404 from target), assume 0 views
                     setCount('0');
                 }
             } catch (error) {
-                // Silently handle network errors
+                // If even the proxy fails, just show nothing
+                // console.warn('VisitorCounter check failed');
             }
         };
 
