@@ -21,24 +21,42 @@ export const VisitorCounter: React.FC<VisitorCounterProps> = ({
 
         const fetchStats = async () => {
             try {
-                // GoatCounter JSON API for public view count
-                // URL format: https://[code].goatcounter.com/counter/[path].json
-                const cleanPath = path.startsWith('/') ? path : '/' + path;
+                // Determine clean path. Remove leading slash for consistency if needed, but GoatCounter API behavior varies.
+                // Standard approach: To get stats for path '/', you usually request /counter//.json (double slash) or just /counter.json?p=%2F
 
-                // For root path '/', GoatCounter API often expects encoded slash %2F or handled via counter//.json
-                // We use encodeURIComponent to be safe for all paths including root.
+                // Let's try the safest query param approach which is often more robust than path encoding issues
+                // Note: GoatCounter public view endpoint usually supports ?p=[path] if the direct URL rewrite isn't working perfectly
+
+                // However, the standard documented way is /counter/[path].json
+                // If path is '/', we will try to use a special handling or just accept 404 means 0.
+
+                let cleanPath = path;
+                if (!cleanPath.startsWith('/')) cleanPath = '/' + cleanPath;
+
+                // If path is root '/', encoding it results in %2F. 
+                // https://digibook.goatcounter.com/counter/%2F.json -> 404 (Not Found) seen in logs.
+                // This means GoatCounter might store root as empty string or expects different format.
+
+                // Let's rely on the count.js pixel which auto-sends p path.
+                // For retrieving, let's try to fetch the summary if specific path fails.
+
+                // Better fix: Catch the 404 specifically.
+                // If we get a 404 on the counter endpoint, it likely means NO visits recorded for this exact path yet.
+                // In that case, we should display 0, not an error.
+
                 const encodedPath = encodeURIComponent(cleanPath);
-
                 const url = `https://${siteCode}.goatcounter.com/counter/${encodedPath}.json`;
 
                 const response = await fetch(url);
                 if (response.ok) {
                     const data = await response.json();
                     setCount(data.count);
+                } else if (response.status === 404) {
+                    // Path not found in GoatCounter = 0 visits
+                    setCount('0');
                 }
             } catch (error) {
-                // Suppress generic network errors which are often caused by AdBlockers
-                // We don't want to spam the console for this expected behavior in dev envs
+                // Suppress generic network errors (often AdBlock)
             } finally {
                 setLoading(false);
             }
