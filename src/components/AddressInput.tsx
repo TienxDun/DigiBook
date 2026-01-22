@@ -95,43 +95,49 @@ export const AddressInput: React.FC<AddressInputProps> = ({
     };
 
     return (
-        <div className="relative group" ref={wrapperRef}>
-            <input
-                type="text"
-                value={value}
-                onChange={handleInputChange}
-                placeholder=" "
-                autoComplete="off"
-                className={`peer w-full pt-6 pb-2 px-4 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:bg-white focus:border-indigo-500 transition-all font-bold text-slate-800 placeholder-shown:pt-4 placeholder-shown:pb-4 ${className}`}
-                {...props}
-            />
-            <label className="absolute left-4 top-4 text-slate-400 text-xs font-bold uppercase tracking-wider transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:text-indigo-500 pointer-events-none">
-                {label}
-            </label>
+        <div className="space-y-1.5" ref={wrapperRef}>
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">{label}</label>
+            <div className="relative group w-full">
+                <div className="relative">
+                    <input
+                        type="text"
+                        value={value}
+                        onChange={handleInputChange}
+                        placeholder="Hãy nhập địa chỉ..."
+                        autoComplete="off"
+                        className={`w-full py-2.5 pl-9 pr-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-semibold text-slate-800 text-sm shadow-sm hover:border-indigo-300 ${className}`}
+                        {...props}
+                    />
 
-            {isLoading && (
-                <div className="absolute right-4 top-4">
-                    <i className="fa-solid fa-circle-notch fa-spin text-indigo-500"></i>
-                </div>
-            )}
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                        <i className="fa-solid fa-map-location-dot text-xs"></i>
+                    </div>
 
-            {/* Suggestions Dropdown */}
-            {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute z-[1000] left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-slate-100 max-h-60 overflow-y-auto overflow-hidden">
-                    <ul>
-                        {suggestions.map((item) => (
-                            <li
-                                key={item.place_id}
-                                onClick={() => handleSelect(item)}
-                                className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 text-sm text-slate-700 font-medium transition-colors flex items-start gap-3"
-                            >
-                                <i className="fa-solid fa-location-dot text-indigo-400 mt-1 shrink-0"></i>
-                                <span className="line-clamp-2">{item.display_name}</span>
-                            </li>
-                        ))}
-                    </ul>
+                    {isLoading && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <i className="fa-solid fa-circle-notch fa-spin text-indigo-500 text-xs"></i>
+                        </div>
+                    )}
                 </div>
-            )}
+
+                {/* Suggestions Dropdown */}
+                {showSuggestions && suggestions.length > 0 && (
+                    <div className="absolute z-[1000] left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-slate-100 max-h-60 overflow-y-auto overflow-hidden animate-slideDown">
+                        <ul className="py-2">
+                            {suggestions.map((item) => (
+                                <li
+                                    key={item.place_id}
+                                    onClick={() => handleSelect(item)}
+                                    className="px-4 py-2 hover:bg-indigo-50 cursor-pointer border-b border-slate-50 last:border-0 text-xs text-slate-700 font-medium transition-colors flex items-start gap-3 group/item"
+                                >
+                                    <i className="fa-solid fa-location-dot text-slate-300 group-hover/item:text-indigo-500 mt-0.5 shrink-0 transition-colors"></i>
+                                    <span className="line-clamp-2">{item.display_name}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

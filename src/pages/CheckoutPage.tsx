@@ -16,17 +16,21 @@ const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 };
 
-// Modern Floating Label Input Component (Keeping this for other inputs)
-const FloatingInput = ({ label, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: string }) => (
-  <div className="relative group">
-    <input
-      {...props}
-      placeholder=" "
-      className="peer w-full pt-6 pb-2 px-4 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:bg-white focus:border-indigo-500 transition-all font-bold text-slate-800 placeholder-shown:pt-4 placeholder-shown:pb-4"
-    />
-    <label className="absolute left-4 top-4 text-slate-400 text-xs font-bold uppercase tracking-wider transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:text-indigo-500 pointer-events-none">
-      {label}
-    </label>
+// Modern Static Label Input with Icon
+const FormInput = ({ label, icon, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: string, icon?: string }) => (
+  <div className="space-y-1.5">
+    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">{label}</label>
+    <div className="relative group">
+      <input
+        {...props}
+        className={`w-full py-2.5 ${icon ? 'pl-9' : 'px-3'} pr-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-semibold text-slate-800 text-sm shadow-sm hover:border-indigo-300 ${props.className}`}
+      />
+      {icon && (
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+          <i className={`fa-solid ${icon} text-xs`}></i>
+        </div>
+      )}
+    </div>
   </div>
 );
 
@@ -173,49 +177,61 @@ const CheckoutPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen pt-20 pb-20 fade-in">
-      <div className="max-w-7xl mx-auto px-4 lg:px-6">
-        {/* Minimalist Header Step Indicator */}
-        <div className="flex items-center gap-4 mb-8 text-sm font-bold text-slate-400">
-          <span className="text-slate-900 cursor-pointer hover:underline" onClick={() => navigate('/')}>Trang chủ</span>
-          <i className="fa-solid fa-chevron-right text-[10px]"></i>
-          <span className="text-slate-900 cursor-pointer hover:underline" onClick={() => navigate('/cart')}>Giỏ hàng</span>
-          <i className="fa-solid fa-chevron-right text-[10px]"></i>
-          <span className="text-indigo-600">Thanh toán</span>
-        </div>
+    <div className="bg-slate-50 min-h-screen pt-20 pb-10 xl:overflow-hidden fade-in selection:bg-indigo-100 selection:text-indigo-900 font-sans">
+      <div className="max-w-[1600px] mx-auto px-4 lg:px-6 h-full flex flex-col">
 
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        {/* Modern Breadcrumbs - Compact */}
+        <nav className="flex items-center gap-2 mb-4 xl:mb-6 text-xs font-medium shrink-0">
+          <button onClick={() => navigate('/')} className="text-slate-500 hover:text-indigo-600 transition-colors flex items-center gap-1">
+            <i className="fa-solid fa-house opacity-70"></i>
+            <span className="hidden sm:inline">Trang chủ</span>
+          </button>
+          <i className="fa-solid fa-chevron-right text-[8px] text-slate-300"></i>
+          <button onClick={() => navigate('/cart')} className="text-slate-500 hover:text-indigo-600 transition-colors">
+            Giỏ hàng
+          </button>
+          <i className="fa-solid fa-chevron-right text-[8px] text-slate-300"></i>
+          <span className="text-indigo-600 font-bold px-2 py-0.5 bg-indigo-50 rounded-full text-[10px] uppercase tracking-wide">
+            Thanh toán
+          </span>
+        </nav>
 
-          {/* Left Column: Forms */}
-          <div className="lg:col-span-7 space-y-10">
+        {/* Main Content Grid - 3 Columns Layout for XL (Desktop) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 xl:grid-cols-12 gap-4 lg:gap-6 xl:gap-6 items-start h-full pb-2">
 
-            {/* Shipping Info Section */}
-            <section className="bg-white rounded-[2.5rem] p-8 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-slate-100">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm">
-                  <i className="fa-solid fa-location-dot text-xl"></i>
+          {/* Column 1: Shipping Info (Left) */}
+          <div className="lg:col-span-7 xl:col-span-4 flex flex-col gap-4 h-full xl:overflow-hidden">
+            <section className="bg-white/80 backdrop-blur-md rounded-2xl p-4 xl:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-500 flex flex-col xl:h-full">
+              <div className="flex items-center gap-3 mb-3 relative shrink-0">
+                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-indigo-200 rotate-3 group-hover:rotate-0 transition-transform duration-500">
+                  <i className="fa-solid fa-truck-fast text-sm"></i>
                 </div>
                 <div>
-                  <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Thông tin giao hàng</h2>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mt-1">Nơi nhận bộ sưu tập sách của bạn</p>
+                  <h2 className="text-base font-black text-slate-800 tracking-tight">Thông tin giao hàng</h2>
+                  <p className="text-[10px] font-medium text-slate-500">Nơi nhận bộ sưu tập sách</p>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <FloatingInput
-                  label="Họ và tên người nhận"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                />
-                <FloatingInput
-                  label="Số điện thoại liên lạc"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                />
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="relative z-50">
+              <div className="space-y-4 relative z-10 xl:overflow-y-auto xl:pr-1 custom-scrollbar flex-1 pb-1">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <FormInput
+                    label="Họ và tên"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    icon="fa-user"
+                  />
+                  <FormInput
+                    label="Số điện thoại"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    icon="fa-phone"
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <div className="relative z-20">
                     <AddressInput
                       label="Địa chỉ chi tiết"
                       value={formData.address}
@@ -224,204 +240,245 @@ const CheckoutPage: React.FC = () => {
                     />
                   </div>
 
-                  {/* Map Picker Visual */}
-                  <div className="mt-2">
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2 ml-1">Vị trí trên bản đồ</p>
-                    <MapPicker
-                      onLocationSelect={handleMapLocationSelect}
-                      initialLat={coordinates?.lat}
-                      initialLon={coordinates?.lon}
+                  {/* Map Picker Visual - Compact */}
+                  <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <i className="fa-solid fa-map-location text-indigo-500 text-[10px]"></i>
+                      <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wide">Ghim vị trí</p>
+                    </div>
+                    <div className="rounded-lg overflow-hidden shadow-sm border border-slate-200 h-28 xl:h-32">
+                      <MapPicker
+                        onLocationSelect={handleMapLocationSelect}
+                        initialLat={coordinates?.lat}
+                        initialLon={coordinates?.lon}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Ghi chú (Tùy chọn)</label>
+                  <div className="relative group">
+                    <textarea
+                      name="note"
+                      value={formData.note}
+                      onChange={handleInputChange}
+                      className="w-full py-2.5 pl-9 pr-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium text-slate-800 text-sm shadow-sm hover:border-indigo-300 h-16 xl:h-20 resize-none"
                     />
-                  </div>
-                </div>
-                <div className="relative group">
-                  <textarea
-                    name="note"
-                    value={formData.note}
-                    onChange={handleInputChange}
-                    placeholder=" "
-                    className="peer w-full pt-6 pb-2 px-4 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:bg-white focus:border-indigo-500 transition-all font-bold text-slate-800 h-32 resize-none placeholder-shown:pt-4"
-                  />
-                  <label className="absolute left-4 top-4 text-slate-400 text-xs font-bold uppercase tracking-wider transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:text-indigo-500 pointer-events-none">
-                    Ghi chú cho shipper (Tùy chọn)
-                  </label>
-                </div>
-              </div>
-            </section>
-
-            {/* Payment Method Section */}
-            <section className="bg-white rounded-[2.5rem] p-8 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-slate-100">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm">
-                  <i className="fa-solid fa-wallet text-xl"></i>
-                </div>
-                <div>
-                  <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Phương thức thanh toán</h2>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mt-1">An toàn và bảo mật tuyệt đối</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* COD Option */}
-                <div
-                  onClick={() => setPaymentMethod('cod')}
-                  className={`relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 group ${paymentMethod === 'cod' ? 'border-indigo-600 bg-indigo-50/50 shadow-md' : 'border-slate-100 hover:border-slate-300 bg-slate-50'}`}
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <i className={`fa-solid fa-money-bill-wave text-2xl ${paymentMethod === 'cod' ? 'text-indigo-600' : 'text-slate-300'}`}></i>
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'cod' ? 'border-indigo-600' : 'border-slate-300'}`}>
-                      {paymentMethod === 'cod' && <div className="w-3 h-3 rounded-full bg-indigo-600"></div>}
+                    <div className="absolute left-3 top-3 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                      <i className="fa-solid fa-message text-xs"></i>
                     </div>
                   </div>
-                  <p className="font-extrabold text-slate-900 mb-1">Thanh toán khi nhận hàng</p>
-                  <p className="text-xs font-bold text-slate-400">COD - Cash on Delivery</p>
-                </div>
-
-                {/* Online Payment Option */}
-                <div
-                  onClick={() => setPaymentMethod('online')}
-                  className={`relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 group overflow-hidden ${paymentMethod === 'online' ? 'border-indigo-600 bg-indigo-50/50 shadow-md' : 'border-slate-100 hover:border-slate-300 bg-slate-50'}`}
-                >
-                  <div className="absolute top-0 right-0 p-2 opacity-10 transform translate-x-4 -translate-y-4">
-                    <i className="fa-solid fa-qrcode text-8xl text-indigo-900"></i>
-                  </div>
-                  <div className="flex justify-between items-start mb-4 relative z-10">
-                    <i className={`fa-solid fa-credit-card text-2xl ${paymentMethod === 'online' ? 'text-indigo-600' : 'text-slate-300'}`}></i>
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'online' ? 'border-indigo-600' : 'border-slate-300'}`}>
-                      {paymentMethod === 'online' && <div className="w-3 h-3 rounded-full bg-indigo-600"></div>}
-                    </div>
-                  </div>
-                  <p className="font-extrabold text-slate-900 mb-1 relative z-10">Thanh toán Online / QR</p>
-                  <p className="text-xs font-bold text-slate-400 relative z-10">ZaloPay / MoMo / Banking</p>
-
-                  {paymentMethod === 'online' && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      className="mt-3 pt-3 border-t border-indigo-200"
-                    >
-                      <span className="text-[10px] uppercase font-black tracking-wider text-indigo-600 flex items-center gap-1">
-                        <i className="fa-solid fa-bolt"></i> Giảm thêm 5% tối đa 50k
-                      </span>
-                    </motion.div>
-                  )}
                 </div>
               </div>
             </section>
           </div>
 
-          {/* Right Column: Summary Sticky */}
-          <div className="lg:col-span-5 sticky top-24">
-            <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden relative">
-              {/* Decorative Pattern using CSS radial gradients or similar could go here */}
+          {/* Column 2: Payment Method (Middle) */}
+          <div className="lg:col-span-5 xl:col-span-4 h-full xl:overflow-hidden">
+            <section className="bg-white/80 backdrop-blur-md rounded-2xl p-4 xl:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 relative overflow-hidden flex flex-col xl:h-full">
+              <div className="flex items-center gap-3 mb-3 shrink-0">
+                <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-lg flex items-center justify-center text-white shadow-lg shadow-emerald-200 -rotate-3 hover:rotate-0 transition-transform duration-500">
+                  <i className="fa-solid fa-wallet text-sm"></i>
+                </div>
+                <div>
+                  <h2 className="text-base font-black text-slate-800 tracking-tight">Thanh toán</h2>
+                  <p className="text-[10px] font-medium text-slate-500">An toàn & Bảo mật</p>
+                </div>
+              </div>
 
-              {/* Header */}
-              <div className="p-8 pb-4 border-b border-slate-50">
-                <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight flex items-center justify-between">
-                  Đơn hàng của bạn
-                  <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg text-xs font-bold">{cart.length} món</span>
+              <div className="grid grid-cols-1 gap-2 xl:overflow-y-auto xl:pr-1 custom-scrollbar flex-1 content-start">
+                {/* COD Option */}
+                <label className={`relative flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 group ${paymentMethod === 'cod' ? 'border-indigo-500 bg-indigo-50/50 shadow-md' : 'border-slate-100 hover:border-slate-200 bg-white'}`}>
+                  <input
+                    type="radio"
+                    name="payment"
+                    value="cod"
+                    checked={paymentMethod === 'cod'}
+                    onChange={() => setPaymentMethod('cod')}
+                    className="hidden"
+                  />
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center mr-3 transition-colors shrink-0 ${paymentMethod === 'cod' ? 'border-indigo-600' : 'border-slate-300'}`}>
+                    {paymentMethod === 'cod' && <div className="w-2 h-2 rounded-full bg-indigo-600"></div>}
+                  </div>
+                  <div className="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center text-sm mr-3 shrink-0">
+                    <i className="fa-solid fa-hand-holding-dollar"></i>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-bold text-slate-800 text-xs">Thanh toán khi nhận hàng</p>
+                    <p className="text-[10px] text-slate-500 font-medium">COD - Cash on Delivery</p>
+                  </div>
+                </label>
+
+                {/* Online Payment Option */}
+                <div className="relative">
+                  <label className={`relative flex items-center p-3 rounded-t-xl border-2 cursor-pointer transition-all duration-300 group z-10 ${paymentMethod === 'online' ? 'border-indigo-500 bg-indigo-50/50 shadow-md rounded-b-none border-b-0' : 'border-slate-100 hover:border-slate-200 bg-white rounded-b-xl'}`}>
+                    <input
+                      type="radio"
+                      name="payment"
+                      value="online"
+                      checked={paymentMethod === 'online'}
+                      onChange={() => setPaymentMethod('online')}
+                      className="hidden"
+                    />
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center mr-3 transition-colors shrink-0 ${paymentMethod === 'online' ? 'border-indigo-600' : 'border-slate-300'}`}>
+                      {paymentMethod === 'online' && <div className="w-2 h-2 rounded-full bg-indigo-600"></div>}
+                    </div>
+                    <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-sm mr-3 shrink-0">
+                      <i className="fa-solid fa-building-columns"></i>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold text-slate-800 text-xs">Chuyển khoản / QR</p>
+                        <span className="bg-gradient-to-r from-pink-500 to-rose-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide animate-pulse">
+                          -5%
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 font-medium">Mọi ngân hàng & Ví điện tử</p>
+                    </div>
+                  </label>
+
+                  <AnimatePresence>
+                    {paymentMethod === 'online' && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0, y: -10 }}
+                        animate={{ opacity: 1, height: 'auto', y: 0 }}
+                        exit={{ opacity: 0, height: 0, y: -10 }}
+                        className="bg-indigo-50/30 border-2 border-t-0 border-indigo-500 rounded-b-xl p-3 pl-[3rem] -mt-[2px] relative z-0"
+                      >
+                        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+                          {/* Brand Icons Small */}
+                          <div className="h-5 px-2 bg-white border border-slate-200 rounded flex items-center text-[9px] font-black text-blue-600 italic">ZaloPay</div>
+                          <div className="h-5 px-2 bg-white border border-slate-200 rounded flex items-center text-[9px] font-black text-pink-600">MoMo</div>
+                          <div className="h-5 px-2 bg-white border border-slate-200 rounded flex items-center text-[9px] font-bold text-green-600">VCB</div>
+                        </div>
+                        <p className="text-[9px] text-indigo-600 font-bold mt-2">
+                          <i className="fa-solid fa-circle-info mr-1"></i>
+                          Quét QR sau khi đặt
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* Column 3: Order Summary (Right) */}
+          <div className="lg:col-span-12 xl:col-span-4 h-full xl:overflow-hidden">
+            <div className="bg-white rounded-[1.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-slate-100 overflow-hidden relative flex flex-col xl:h-full">
+              {/* Receipt Top Pattern */}
+              <div className="h-1.5 bg-gradient-to-r from-red-400 via-purple-400 to-indigo-400 shrink-0"></div>
+
+              <div className="p-5 xl:p-6 pb-2 border-b border-slate-50 shrink-0">
+                <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
+                  <i className="fa-solid fa-receipt text-slate-300"></i>
+                  Đơn hàng
+                  <span className="bg-indigo-100 text-indigo-700 w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ml-auto">{cart.length}</span>
                 </h3>
               </div>
 
-              {/* Items List */}
-              <div className="px-8 py-4 max-h-[300px] overflow-y-auto no-scrollbar space-y-5">
+              {/* Items List - Flexible Height */}
+              <div className="px-5 xl:px-6 py-3 overflow-y-auto custom-scrollbar flex-1 space-y-4 max-h-[25vh] xl:max-h-none">
                 {cart.map(item => (
-                  <div key={item.id} className="flex gap-4 group">
-                    <div className="w-14 h-20 rounded-xl overflow-hidden shadow-sm border border-slate-100 shrink-0 relative">
+                  <div key={item.id} className="flex gap-3 group">
+                    <div className="w-12 h-16 rounded-lg overflow-hidden shadow-md border border-slate-100 shrink-0 relative group-hover:scale-105 transition-transform duration-300">
                       <img src={item.cover} alt={item.title} className="w-full h-full object-cover" />
-                      <span className="absolute bottom-0 right-0 bg-slate-900 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-tl-lg">x{item.quantity}</span>
+                      <span className="absolute top-0.5 left-0.5 bg-black/70 text-white text-[8px] font-bold px-1 rounded backdrop-blur-sm">x{item.quantity}</span>
                     </div>
-                    <div className="flex-1 min-w-0 py-1">
-                      <h4 className="font-bold text-sm text-slate-800 line-clamp-2 uppercase tracking-tight leading-snug">{item.title}</h4>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mt-1">{item.author}</p>
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                      <h4 className="font-bold text-slate-800 text-xs leading-tight mb-0.5 line-clamp-2 group-hover:text-indigo-600 transition-colors">{item.title}</h4>
+                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{item.author}</p>
                     </div>
-                    <div className="text-right py-1">
-                      <p className="font-black text-sm text-slate-900">{formatPrice(item.price * item.quantity)}</p>
+                    <div className="text-right flex flex-col justify-center">
+                      <p className="font-black text-slate-900 text-sm">{formatPrice(item.price * item.quantity)}</p>
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* Coupon Input */}
-              <div className="px-8 py-4 bg-slate-50/50 border-t border-b border-slate-50">
-                <div className="relative flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Mã giảm giá (nếu có)"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    className="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold uppercase tracking-wide outline-none focus:border-indigo-500 transition-colors"
-                  />
-                  <button
-                    onClick={handleApplyCoupon}
-                    className="bg-slate-900 text-white px-4 rounded-xl font-bold text-xs uppercase tracking-wide hover:bg-indigo-600 transition-colors"
-                  >
-                    Áp dụng
-                  </button>
-                </div>
-                {appliedCoupon && (
-                  <div className="mt-3 flex items-center justify-between p-3 bg-emerald-50 rounded-xl border border-emerald-100">
-                    <div className="flex items-center gap-2">
-                      <i className="fa-solid fa-ticket text-emerald-600"></i>
-                      <span className="text-xs font-bold text-emerald-800 uppercase tracking-wide">Đã dùng: {appliedCoupon.code}</span>
-                    </div>
-                    <button onClick={() => setAppliedCoupon(null)} className="text-emerald-400 hover:text-emerald-700">
-                      <i className="fa-solid fa-xmark"></i>
+              {/* Coupon & Bottom Fixed section */}
+              <div className="bg-white shrink-0">
+                {/* Coupon Input */}
+                <div className="px-5 xl:px-6 py-3 bg-slate-50/50 border-t border-b border-slate-50">
+                  <div className="relative flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Mã giảm giá"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold uppercase tracking-wide outline-none focus:border-indigo-500 transition-colors"
+                    />
+                    <button
+                      onClick={handleApplyCoupon}
+                      disabled={!couponCode}
+                      className="bg-slate-900 text-white px-3 rounded-lg font-bold text-[10px] uppercase tracking-wide hover:bg-indigo-600 disabled:opacity-50 transition-colors"
+                    >
+                      Áp dụng
                     </button>
                   </div>
-                )}
-                {couponError && (
-                  <p className="text-[10px] font-bold text-rose-500 mt-2 ml-1">{couponError}</p>
-                )}
-              </div>
-
-              {/* Financial Summary */}
-              <div className="p-8 space-y-3 bg-white">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-400 font-bold uppercase tracking-wide text-[11px]">Tạm tính</span>
-                  <span className="font-bold text-slate-900">{formatPrice(subtotal)}</span>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-400 font-bold uppercase tracking-wide text-[11px]">Phí vận chuyển</span>
-                  <span className={`font-bold ${shipping === 0 ? 'text-emerald-600' : 'text-slate-900'}`}>
-                    {shipping === 0 ? 'Miễn phí' : formatPrice(shipping)}
-                  </span>
-                </div>
-                {appliedCoupon && (
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-emerald-600 font-bold uppercase tracking-wide text-[11px]">Giảm giá</span>
-                    <span className="font-bold text-emerald-600">-{formatPrice(discount)}</span>
-                  </div>
-                )}
-
-                <div className="pt-6 mt-3 border-t border-dashed border-slate-200 flex justify-between items-end">
-                  <span className="font-black text-slate-900 uppercase tracking-widest text-xs mb-1">Tổng cộng</span>
-                  <span className="text-3xl font-black text-indigo-600 tracking-tighter leading-none">{formatPrice(total)}</span>
-                </div>
-
-                <button
-                  onClick={handleCompleteOrder}
-                  disabled={isProcessing}
-                  className="w-full mt-6 py-5 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-200 hover:bg-emerald-600 hover:shadow-emerald-200 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed group active:scale-95 flex items-center justify-center gap-3"
-                >
-                  {isProcessing ? (
-                    <>
-                      <i className="fa-solid fa-circle-notch fa-spin"></i>
-                      Đang xử lý...
-                    </>
-                  ) : (
-                    <>
-                      Đặt hàng ngay
-                      <i className="fa-solid fa-arrow-right-long group-hover:translate-x-1 transition-transform"></i>
-                    </>
+                  {appliedCoupon && (
+                    <div className="mt-2 flex items-center justify-between p-2 bg-emerald-50 rounded-lg border border-emerald-100">
+                      <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide flex items-center gap-1">
+                        <i className="fa-solid fa-check text-emerald-600"></i> {appliedCoupon.code}
+                      </span>
+                      <button onClick={() => setAppliedCoupon(null)} className="text-emerald-400 hover:text-emerald-700">
+                        <i className="fa-solid fa-xmark text-xs"></i>
+                      </button>
+                    </div>
                   )}
-                </button>
+                  {couponError && <p className="text-[10px] font-bold text-rose-500 mt-1">{couponError}</p>}
+                </div>
 
-                <div className="flex items-center justify-center gap-2 mt-4 opacity-40 grayscale hover:grayscale-0 transition-all cursor-help">
-                  <i className="fa-brands fa-cc-visa text-2xl"></i>
-                  <i className="fa-brands fa-cc-mastercard text-2xl"></i>
-                  <i className="fa-solid fa-shield-halved text-lg"></i>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide ml-1">Bảo mật thanh toán 100%</span>
+                {/* Financial Summary */}
+                <div className="p-5 xl:p-6 space-y-2">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-400 font-bold uppercase tracking-wide">Tạm tính</span>
+                    <span className="font-bold text-slate-900">{formatPrice(subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-400 font-bold uppercase tracking-wide">Vận chuyển</span>
+                    <span className={`font-bold ${shipping === 0 ? 'text-emerald-600' : 'text-slate-900'}`}>
+                      {shipping === 0 ? 'Miễn phí' : formatPrice(shipping)}
+                    </span>
+                  </div>
+                  {appliedCoupon && (
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-emerald-600 font-bold uppercase tracking-wide">Giảm giá</span>
+                      <span className="font-bold text-emerald-600">-{formatPrice(discount)}</span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between items-end pt-3 mt-2 border-t border-dashed border-slate-200">
+                    <span className="font-black text-slate-900 uppercase tracking-wide text-xs">Tổng cộng</span>
+                    <div className="text-right">
+                      <span className="block text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight leading-none">{formatPrice(total)}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleCompleteOrder}
+                    disabled={isProcessing}
+                    className="w-full mt-3 py-4 bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-[0.15em] shadow-lg shadow-slate-200 hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:shadow-indigo-200 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed group active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    {isProcessing ? (
+                      <>
+                        <i className="fa-solid fa-circle-notch fa-spin"></i>
+                        Xử lý...
+                      </>
+                    ) : (
+                      <>
+                        Đặt hàng ngay
+                        <i className="fa-solid fa-arrow-right-long group-hover:translate-x-1 transition-transform"></i>
+                      </>
+                    )}
+                  </button>
+
+                  <div className="flex items-center justify-center gap-3 mt-3 opacity-40">
+                    <i className="fa-brands fa-cc-visa text-lg"></i>
+                    <i className="fa-brands fa-cc-mastercard text-lg"></i>
+                    <span className="text-[8px] font-bold text-slate-500 uppercase">256-bit SSL Secure</span>
+                  </div>
                 </div>
               </div>
             </div>
