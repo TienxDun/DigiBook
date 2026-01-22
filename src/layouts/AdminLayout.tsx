@@ -1,5 +1,5 @@
 import React from 'react';
-import CartSidebar from '../components/CartSidebar';
+import { CartSidebar } from '@/features/cart';
 
 /**
  * AdminLayout - Layout wrapper cho admin pages

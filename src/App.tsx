@@ -1,35 +1,39 @@
 import React, { Suspense, lazy, useState } from 'react';
 import { HashRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from '@/features/auth';
 import { useBooks } from './contexts/BookContext';
-import { useCart } from './contexts/CartContext';
+import { CartProvider, useCart } from '@/features/cart';
 
 import { MainLayout, AdminRoute, MainContent } from './layouts';
-import LoginModal from './components/LoginModal';
+import { LoginModal } from './features/auth';
 import PageTransition from './components/common/PageTransition';
 import ScrollToTop from './components/common/ScrollToTop';
+import AIAssistant from '@/components/common/AIAssistant';
 import BackToTop from './components/common/BackToTop';
 import { QuickViewModal } from './features/books';
 import { Book } from './types/';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Lazy load pages
-const HomePage = lazy(() => import('./pages/HomePage'));
-const BookDetails = lazy(() => import('./pages/BookDetails'));
-const SearchResults = lazy(() => import('./pages/SearchResults'));
-const CategoryPage = lazy(() => import('./pages/CategoryPage'));
-const AuthorPage = lazy(() => import('./pages/AuthorPage'));
-const AuthorsPage = lazy(() => import('./pages/AuthorsPage'));
-const WishlistPage = lazy(() => import('./pages/WishlistPage'));
-const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
-const OrderSuccess = lazy(() => import('./pages/OrderSuccess'));
-const MyOrdersPage = lazy(() => import('./pages/MyOrdersPage'));
-const OrderDetailPage = lazy(() => import('./pages/OrderDetailPage'));
-const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+// Feature Imports using Lazy Loading with Aliases
+const HomePage = lazy(() => import('@/features/books').then(m => ({ default: m.HomePage })));
+const BookDetails = lazy(() => import('@/features/books').then(m => ({ default: m.BookDetails })));
+const CategoryPage = lazy(() => import('@/features/books').then(m => ({ default: m.CategoryPage })));
+const SearchResults = lazy(() => import('@/features/books').then(m => ({ default: m.SearchResults })));
+const AuthorsPage = lazy(() => import('@/features/books').then(m => ({ default: m.AuthorsPage })));
+const AuthorPage = lazy(() => import('@/features/books').then(m => ({ default: m.AuthorPage })));
+const WishlistPage = lazy(() => import('@/features/books').then(m => ({ default: m.WishlistPage })));
+
+const ProfilePage = lazy(() => import('@/features/auth').then(m => ({ default: m.ProfilePage })));
+const CheckoutPage = lazy(() => import('@/features/cart/pages/CheckoutPage'));
+
+const OrderSuccess = lazy(() => import('@/features/orders').then(m => ({ default: m.OrderSuccess })));
+const MyOrdersPage = lazy(() => import('@/features/orders').then(m => ({ default: m.MyOrdersPage })));
+const OrderDetailPage = lazy(() => import('@/features/orders').then(m => ({ default: m.OrderDetailPage })));
 
 // Lazy load admin routes as separate chunk
-const AdminRoutes = lazy(() => import(/* webpackChunkName: "admin" */ './routes/AdminRoutes'));
+const AdminRoutes = lazy(() => import('@/features/admin/routes/AdminRoutes'));
 
 const AppContent: React.FC = () => {
   const { addToCart } = useCart();
@@ -70,7 +74,7 @@ const AppContent: React.FC = () => {
               <Route path="/authors" element={<PageTransition><AuthorsPage /></PageTransition>} />
               <Route path="/author/:authorName" element={<PageTransition><AuthorPage onQuickView={handleQuickView} /></PageTransition>} />
               <Route path="/wishlist" element={<PageTransition><WishlistPage onQuickView={handleQuickView} /></PageTransition>} />
-              <Route path="/checkout" element={<PageTransition><CheckoutPage /></PageTransition>} />
+              <Route path="/checkout" element={<Suspense fallback={<div className="h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div></div>}><PageTransition><CheckoutPage /></PageTransition></Suspense>} />
               <Route path="/order-success" element={<PageTransition><OrderSuccess /></PageTransition>} />
               <Route path="/my-orders" element={<PageTransition><MyOrdersPage /></PageTransition>} />
               <Route path="/my-orders/:orderId" element={<PageTransition><OrderDetailPage /></PageTransition>} />

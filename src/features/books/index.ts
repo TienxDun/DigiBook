@@ -1,8 +1,10 @@
-/**
- * Books Feature - Barrel Export
- * 
- * Centralized exports for books feature components and API
- */
+export { default as HomePage } from './pages/HomePage';
+export { default as BookDetails } from './pages/BookDetails';
+export { default as CategoryPage } from './pages/CategoryPage';
+export { default as SearchResults } from './pages/SearchResults';
+export { default as AuthorPage } from './pages/AuthorPage';
+export { default as AuthorsPage } from './pages/AuthorsPage';
+export { default as WishlistPage } from './pages/WishlistPage';
 
 // Components
 export { default as BookCard } from './components/BookCard';

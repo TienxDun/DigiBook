@@ -1,12 +1,13 @@
+
 import React from 'react';
 import { useLocation, Navigate } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import MobileNav from './MobileNav';
-import CartSidebar from '../components/CartSidebar';
-import AIAssistant from '../components/AIAssistant';
-import { useAuth } from '../contexts/AuthContext';
-import { CartItem, CategoryInfo, Book } from '../types/';
+import { CartSidebar } from '@/features/cart';
+import AIAssistant from '@/components/common/AIAssistant';
+import { useAuth } from '@/features/auth';
+import { CartItem, CategoryInfo, Book } from '@/types';
 
 export const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
@@ -19,7 +20,7 @@ export const MainContent: React.FC<{ children: React.ReactNode }> = ({ children 
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
   return (
-    <main className={`flex-grow ${isAdmin ? '' : 'pt-16 lg:pt-20'}`}>
+    <main className={`flex-grow flex flex-col w-full ${isAdmin ? '' : 'pt-16 lg:pt-20'} `}>
       {children}
     </main>
   );

@@ -1,8 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ShoppingCart, Eye, Heart, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useCart } from '../../../contexts/CartContext';
 import { Book } from '../../../types/';
 
 interface BookCardProps {
@@ -36,7 +34,7 @@ const getImageSrcSet = (url: string) => {
   return url;
 };
 
-const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) => {
+export const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickView }) => {
   // const { wishlist, toggleWishlist } = useAuth();
   const navigate = useNavigate();
   const [imgLoaded, setImgLoaded] = useState(false);

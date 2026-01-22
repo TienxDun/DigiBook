@@ -1,10 +1,10 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '@/features/auth';
 
 import { useBooks } from '../contexts/BookContext';
-import { useCart } from '../contexts/CartContext';
+import { useCart } from '@/features/cart';
 
 const MobileNav: React.FC = () => {
   const { refreshData: onRefreshData } = useBooks();

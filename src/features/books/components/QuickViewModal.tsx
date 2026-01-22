@@ -1,11 +1,9 @@
 
 import React, { useState, useMemo } from 'react';
-import { X, ShoppingCart, Star, Calendar, Package, BookOpen, Languages, Building2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
-import { useCart } from '../../../contexts/CartContext';
 import { Book } from '../../../types/';
-import { useAuth } from '../../../contexts/AuthContext';
+import { useAuth } from '@/features/auth';
 
 interface QuickViewModalProps {
   book: Book | null;

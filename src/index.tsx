@@ -2,9 +2,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { HelmetProvider } from 'react-helmet-async';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider } from '@/features/auth';
 import { BookProvider } from './contexts/BookContext';
-import { CartProvider } from './contexts/CartContext';
+import { CartProvider } from '@/features/cart';
 import './index.css';
 import App from './App';
 import { registerSW } from 'virtual:pwa-register';

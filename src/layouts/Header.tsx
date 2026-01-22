@@ -3,9 +3,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CartItem, CategoryInfo, Book } from '../types/';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '@/features/auth';
 import { useBooks } from '../contexts/BookContext';
-import { useCart } from '../contexts/CartContext';
+import { useCart } from '@/features/cart';
 
 
 interface HeaderProps {

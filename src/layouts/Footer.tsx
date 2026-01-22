@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '@/features/auth';
 
 const Footer: React.FC = () => {
   const { user } = useAuth();
@@ -64,9 +64,9 @@ const Footer: React.FC = () => {
             <h4 className="text-xs font-bold uppercase tracking-premium text-white mb-8">Đăng ký bản tin</h4>
             <p className="text-slate-400 text-sm mb-6 font-medium">Nhận ngay ưu đãi 10% cho đơn hàng đầu tiên và cập nhật sách mới hàng tuần.</p>
             <form className="relative">
-              <input 
-                type="email" 
-                placeholder="Email của bạn..." 
+              <input
+                type="email"
+                placeholder="Email của bạn..."
                 className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-5 pr-14 text-sm focus:border-primary focus:outline-none transition-all"
               />
               <button className="absolute right-2 top-2 bottom-2 w-10 bg-primary rounded-xl flex items-center justify-center hover:bg-primary/90 transition-all">
