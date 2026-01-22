@@ -39,7 +39,8 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
     minOrderValue: 0,
     usageLimit: 100,
     expiryDate: '',
-    isActive: true
+    isActive: true,
+    usedCount: 0
   });
 
   // Lock scroll when modal is open
@@ -63,7 +64,8 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
       minOrderValue: 0,
       usageLimit: 100,
       expiryDate: '',
-      isActive: true
+      isActive: true,
+      usedCount: 0
     });
     setIsCouponModalOpen(true);
   };

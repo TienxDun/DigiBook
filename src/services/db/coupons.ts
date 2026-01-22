@@ -27,7 +27,7 @@ export async function validateCoupon(code: string, subtotal: number): Promise<{ 
   
   const isValid = data.isActive && 
                   subtotal >= data.minOrderValue && 
-                  data.usedCount < data.usageLimit &&
+                  (data.usedCount || 0) < data.usageLimit &&
                   data.expiryDate >= now;
   
   if (isValid) return { code: data.code, value: data.discountValue, type: data.discountType };
