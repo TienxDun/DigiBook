@@ -139,6 +139,37 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
     }
   };
 
+  const getCouponStatus = (coupon: Coupon) => {
+    if (!coupon.isActive) return {
+      label: 'Tạm dừng',
+      className: 'bg-muted/10 text-muted-foreground border-muted/20',
+      dotColor: 'bg-muted-foreground'
+    };
+
+    const now = new Date();
+    const expiry = new Date(coupon.expiryDate);
+    // Set expiry to end of day to be inclusive if needed, otherwise strict comparison
+    expiry.setHours(23, 59, 59, 999);
+
+    if (expiry < now) return {
+      label: 'Đã hết hạn',
+      className: 'bg-destructive/10 text-destructive border-destructive/20',
+      dotColor: 'bg-destructive'
+    };
+
+    if (coupon.usedCount >= coupon.usageLimit) return {
+      label: 'Hết lượt dùng',
+      className: 'bg-orange-500/10 text-orange-500 border-orange-500/20',
+      dotColor: 'bg-orange-500'
+    };
+
+    return {
+      label: 'Đang hoạt động',
+      className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+      dotColor: 'bg-emerald-500'
+    };
+  };
+
   // Filter & Pagination
   const filteredCoupons = useMemo(() => {
     if (!searchTerm) return coupons;
@@ -157,10 +188,30 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
       {/* Coupons Dashboard Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Tổng mã giảm', value: coupons.length, icon: 'fa-ticket', color: 'primary' },
-          { label: 'Đang hoạt động', value: coupons.filter(c => c.isActive).length, icon: 'fa-circle-check', color: 'chart-1' },
-          { label: 'Đã hết hạn', value: coupons.filter(c => new Date(c.expiryDate) < new Date()).length, icon: 'fa-clock-rotate-left', color: 'destructive' },
-          { label: 'Tạm dừng', value: coupons.filter(c => !c.isActive).length, icon: 'fa-circle-pause', color: 'muted' }
+          {
+            label: 'Tổng mã giảm',
+            value: coupons.length,
+            icon: 'fa-ticket',
+            color: 'primary'
+          },
+          {
+            label: 'Đang hoạt động',
+            value: coupons.filter(c => c.isActive && new Date(c.expiryDate) >= new Date() && c.usedCount < c.usageLimit).length,
+            icon: 'fa-circle-check',
+            color: 'chart-1' // chart-1 seems to be emerald/greenish in many shadcn themes
+          },
+          {
+            label: 'Hết hạn / Hết lượt',
+            value: coupons.filter(c => c.isActive && (new Date(c.expiryDate) < new Date() || c.usedCount >= c.usageLimit)).length,
+            icon: 'fa-clock-rotate-left',
+            color: 'destructive'
+          },
+          {
+            label: 'Tạm dừng',
+            value: coupons.filter(c => !c.isActive).length,
+            icon: 'fa-circle-pause',
+            color: 'muted'
+          }
         ].map((stat, i) => (
           <div key={i} className={`${isMidnight ? 'bg-[#1e293b]/40 border-white/5' : 'bg-card border-border shadow-sm'} p-6 rounded-[2rem] border group transition-all hover:border-primary/50`}>
             <div className="flex items-center justify-between">
@@ -275,10 +326,11 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
                   </div>
                 </th>
                 <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide">Mã Voucher</th>
-                <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide text-center">Loại ưu đãi</th>
-                <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide text-center">Giá trị giảm</th>
+                <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide text-center">Thời hạn</th>
+                <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide text-center">Lượt dùng</th>
+                <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide text-center">Loại & Giá trị</th>
                 <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide text-center">Đơn tối thiểu</th>
-                <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide">Trạng thái</th>
+                <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide text-center">Trạng thái</th>
                 <th className="px-4 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wide text-right">Thao tác</th>
               </tr>
             </thead>
@@ -309,34 +361,49 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
                       </div>
                       <div>
                         <span className="font-black tracking-widest uppercase text-primary text-sm block">{coupon.code}</span>
-                        <span className="text-[10px] text-muted-foreground font-semibold">
-                          Hết hạn: {new Date(coupon.expiryDate).toLocaleDateString('vi-VN')}
-                        </span>
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-4 text-center">
-                    <span className="text-xs font-bold text-muted-foreground bg-secondary/50 px-3 py-1 rounded-lg border border-border/50">
-                      {coupon.discountType === 'percentage' ? 'Phần trăm (%)' : 'Số tiền cố định'}
+                    <span className="text-xs font-bold text-muted-foreground">
+                      {new Date(coupon.expiryDate).toLocaleDateString('vi-VN')}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-center">
-                    <span className="text-sm font-black text-foreground">
-                      {coupon.discountType === 'percentage' ? `${coupon.discountValue}% OFF` : `-${coupon.discountValue.toLocaleString()}đ`}
-                    </span>
+                  <td className="px-4 py-4 text-center">
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-xs font-black text-foreground">{coupon.usedCount} <span className="text-muted-foreground font-normal">/ {coupon.usageLimit}</span></span>
+                      <div className="w-20 h-1.5 bg-secondary rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${coupon.usedCount >= coupon.usageLimit ? 'bg-destructive' : 'bg-primary'}`}
+                          style={{ width: `${Math.min((coupon.usedCount / coupon.usageLimit) * 100, 100)}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-4 text-center">
+                    <div className="flex flex-col items-center">
+                      <span className="text-sm font-black text-foreground">
+                        {coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `-${coupon.discountValue.toLocaleString()}đ`}
+                      </span>
+                      <span className="text-[10px] uppercase font-bold text-muted-foreground">
+                        {coupon.discountType === 'percentage' ? 'Giảm theo %' : 'Giảm trực tiếp'}
+                      </span>
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-center">
                     <span className="text-xs font-bold text-muted-foreground">{coupon.minOrderValue ? `${coupon.minOrderValue.toLocaleString()}đ` : 'Không giới hạn'}</span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 text-center">
                     <div className="flex justify-center">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${coupon.isActive
-                        ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                        : 'bg-destructive/10 text-destructive border-destructive/20'
-                        }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${coupon.isActive ? 'bg-emerald-500' : 'bg-destructive'}`}></span>
-                        {coupon.isActive ? 'Active' : 'Stopped'}
-                      </span>
+                      {(() => {
+                        const status = getCouponStatus(coupon);
+                        return (
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${status.className}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${status.dotColor}`}></span>
+                            {status.label}
+                          </span>
+                        );
+                      })()}
                     </div>
                   </td>
                   <td className="px-4 py-4 text-right">

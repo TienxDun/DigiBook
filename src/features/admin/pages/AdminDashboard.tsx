@@ -9,16 +9,14 @@ import AdminAuthors from "../components/AdminAuthors";
 import AdminCategories from "../components/AdminCategories";
 import AdminCoupons from "../components/AdminCoupons";
 import AdminUsers from "../components/AdminUsers";
-import AdminAI from "../components/AdminAI";
+
 import AdminLogs from "../components/AdminLogs";
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
 };
 
-interface AISettings {
-  activeModelId: string;
-}
+
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"overview" | "books" | "orders" | "categories" | "authors" | "coupons" | "users" | "logs" | "ai">("overview");
   const [adminTheme, setAdminTheme] = useState<"midnight" | "light">(localStorage.getItem("digibook_admin_theme") as any || "midnight");
@@ -32,7 +30,7 @@ const AdminDashboard: React.FC = () => {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [logs, setLogs] = useState<SystemLog[]>([]);
-  const [aiConfig, setAIConfig] = useState<AISettings>({ activeModelId: "gemini-3-flash" });
+
   const [chartView, setChartView] = useState<"week" | "month">("week");
 
   const toggleTheme = () => {
@@ -66,20 +64,19 @@ const AdminDashboard: React.FC = () => {
 
   const refreshData = async () => {
     try {
-      const [booksData, catsData, authorsData, couponsData, usersData, aiConfigData] = await Promise.all([
+      const [booksData, catsData, authorsData, couponsData, usersData] = await Promise.all([
         db.getBooks(),
         db.getCategories(),
         db.getAuthors(),
         db.getCoupons(),
-        db.getAllUsers(),
-        db.getAIConfig()
+        db.getAllUsers()
       ]);
       setBooks(booksData);
       setCategories(catsData);
       setAuthors(authorsData);
       setCoupons(couponsData);
       setUsers(usersData);
-      setAIConfig(aiConfigData);
+
 
       const allOrders = await db.getOrdersByUserId("admin");
       setOrders(allOrders);
@@ -158,8 +155,7 @@ const AdminDashboard: React.FC = () => {
     {
       title: "Hệ thống",
       items: [
-        { id: "logs", label: "Audit Log", icon: "fa-fingerprint" },
-        { id: "ai", label: "AI Core", icon: "fa-microchip" }
+        { id: "logs", label: "Audit Log", icon: "fa-fingerprint" }
       ]
     }
   ];
@@ -362,7 +358,7 @@ const AdminDashboard: React.FC = () => {
                         activeTab === 'categories' ? 'Phân loại danh mục' :
                           activeTab === 'coupons' ? 'Mã giảm giá & KM' :
                             activeTab === 'users' ? 'Quản lý tài khoản' :
-                              activeTab === 'logs' ? 'Lịch sử hệ thống' : 'Cấu hình AI Assistant'}
+                              activeTab === 'logs' ? 'Lịch sử hệ thống' : 'Tổng quan'}
               </h2>
               <div className="flex items-center gap-2 mt-1">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
@@ -696,7 +692,7 @@ const AdminDashboard: React.FC = () => {
           {activeTab === "coupons" && <AdminCoupons theme={adminTheme} coupons={coupons} refreshData={refreshData} />}
           {activeTab === "orders" && <AdminOrders theme={adminTheme} orders={orders} refreshData={refreshData} />}
           {activeTab === "users" && <AdminUsers theme={adminTheme} users={users} refreshData={refreshData} />}
-          {activeTab === "ai" && <AdminAI theme={adminTheme} aiConfig={{ activeModelId: aiConfig.activeModelId }} refreshData={refreshData} />}
+
           {activeTab === "logs" && (
             <AdminLogs
               theme={adminTheme}

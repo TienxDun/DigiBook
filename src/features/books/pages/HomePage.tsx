@@ -18,47 +18,11 @@ const HomePage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickVie
   const { addToCart } = useCart();
   const { user, wishlist, setShowLoginModal, setAuthMode } = useAuth();
 
-  // Giả sử onQuickView được xử lý thông qua state trong App hoặc Context khác, 
-  // nhưng ở đây HomePage nhận nó từ prop. Để đơn giản, tôi sẽ giả định App vẫn truyền nó 
-  // hoặc dùng một cơ chế khác. Trong App.tsx hiện tại, handleQuickView vẫn được định nghĩa.
-  // Tuy nhiên, để đúng tinh thần refactor, tôi sẽ truyền nó qua prop nếu nó là UI state cục bộ của App.
-  // Nhưng kế hoạch là dùng Context cho dữ liệu. UI state như QuickView có thể vẫn ở App hoặc một UIContext.
-  // Cho bây giờ, tôi sẽ giữ onQuickView là prop nếu cần, hoặc bỏ nó nếu nó có thể dùng chung.
-
-  // Tạm thời tôi sẽ bỏ props và nếu cần QuickView thì sẽ tính sau (hoặc dùng prop nếu App vẫn truyền).
-  // Nhìn vào App.tsx mới, AppContent vẫn truyền các hàm này.
-
-  // State for recommendations
-  const [recommendations, setRecommendations] = useState<Book[]>([]);
-  const [loadingRecs, setLoadingRecs] = useState(false);
-
-  useEffect(() => {
-    async function fetchRecommendations() {
-      if (user) {
-        setLoadingRecs(true);
-        try {
-          const recs = await db.getPersonalizedRecommendations(user.id);
-          setRecommendations(recs);
-        } catch (error) {
-          console.error("Failed to fetch recommendations", error);
-        } finally {
-          setLoadingRecs(false);
-        }
-      } else {
-        setRecommendations([]);
-      }
-    }
-
-    fetchRecommendations();
-  }, [user]);
-
-
-
   return (
     <div className="space-y-0 fade-in">
       <SEO
         title="Trang chủ"
-        description="Chào mừng bạn đến với DigiBook - Nhà sách trực tuyến hiện đại nhất Việt Nam. Khám phá kho sách khổng lồ và công nghệ AI phân tích sách."
+        description="Chào mừng bạn đến với DigiBook - Nhà sách trực tuyến hiện đại nhất Việt Nam. Khám phá kho sách khổng lồ."
         url="/"
       />
       {/* Hero Section */}
@@ -212,16 +176,16 @@ const HomePage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickVie
               />
             </div>
 
-            {/* AI Assistant Promo */}
+            {/* REPLACED AI Assistant Promo with Community Promo */}
             <div className="col-span-6 lg:col-span-3 bg-accent rounded-[2rem] p-5 lg:p-8 relative overflow-hidden group">
               <div className="relative z-10 flex items-center justify-between h-full">
                 <div className="max-w-[75%] lg:max-w-[60%]">
-                  <h4 className="text-sm lg:text-lg font-black text-foreground mb-1 lg:mb-2 text-primary uppercase tracking-wider">Trợ lý AI</h4>
-                  <p className="text-[10px] lg:text-sm text-slate-500 font-medium mb-3 lg:mb-4 leading-relaxed">Tìm cuốn sách phù hợp với tâm trạng của bạn ngay tức thì.</p>
-                  <Link to="/admin/ai" className="text-primary font-bold text-[10px] lg:text-xs uppercase tracking-widest flex items-center gap-2 group/link">Thử ngay <i className="fa-solid fa-robot group-hover/link:translate-x-1 transition-transform"></i></Link>
+                  <h4 className="text-sm lg:text-lg font-black text-foreground mb-1 lg:mb-2 text-primary uppercase tracking-wider">Cộng đồng</h4>
+                  <p className="text-[10px] lg:text-sm text-slate-500 font-medium mb-3 lg:mb-4 leading-relaxed">Tham gia cùng 15,000+ độc giả đam mê sách.</p>
+                  <Link to="/category/Tất cả sách" className="text-primary font-bold text-[10px] lg:text-xs uppercase tracking-widest flex items-center gap-2 group/link">Tham gia ngay <i className="fa-solid fa-arrow-right group-hover/link:translate-x-1 transition-transform"></i></Link>
                 </div>
                 <div className="w-10 h-10 lg:w-16 lg:h-16 bg-white rounded-xl lg:rounded-full flex items-center justify-center shadow-xl shadow-accent/20 text-primary text-lg lg:text-2xl animate-bounce">
-                  <i className="fa-solid fa-robot"></i>
+                  <i className="fa-solid fa-users"></i>
                 </div>
               </div>
             </div>
@@ -247,35 +211,6 @@ const HomePage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickVie
           </div>
         </div>
       </section>
-
-      {/* Recommended Section (AI) */}
-      {(user && (recommendations.length > 0 || loadingRecs)) && (
-        <section className="py-10 bg-indigo-50/50">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
-                <i className="fa-solid fa-wand-magic-sparkles animate-pulse"></i>
-              </div>
-              <div>
-                <h2 className="text-xl font-extrabold text-foreground">Gợi ý dành riêng cho bạn <span className="text-indigo-600">AI Pick</span></h2>
-                <p className="text-xs text-slate-500 font-medium">Dựa trên sở thích và lịch sử đọc của bạn</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {loadingRecs ? (
-                [...Array(5)].map((_, i) => (
-                  <BookCardSkeleton key={i} />
-                ))
-              ) : (
-                recommendations.map(book => (
-                  <BookCard key={book.id} book={book} onAddToCart={addToCart} onQuickView={onQuickView} />
-                ))
-              )}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Books Section */}
       <section className="py-12 lg:py-16 bg-secondary/50 relative overflow-hidden">

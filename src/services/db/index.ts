@@ -12,7 +12,7 @@ import * as users from './users';
 import * as coupons from './coupons';
 import * as reviews from './reviews';
 import * as system from './system';
-import * as ai from './ai';
+
 
 import { Order, OrderItem, Review, SystemLog } from '../../types/';
 
@@ -79,21 +79,9 @@ class DataService {
 
   // System & Admin Config
   getSystemLogs = system.getSystemLogs;
-  getAIConfig = system.getAIConfig;
-  updateAIConfig = system.updateAIConfig;
-  getAIModels = system.getAIModels;
-  addAIModel = system.addAIModel;
-  updateAIModelInfo = system.updateAIModelInfo;
-  deleteAIModel = system.deleteAIModel;
-  syncAIModels = system.syncAIModels;
 
-  // AI Insights
-  getAIInsight = ai.getAIInsight;
-  getAuthorAIInsight = ai.getAuthorAIInsight;
-  getAIInsights = ai.getAIInsights;
-  getPersonalizedRecommendations = ai.getPersonalizedRecommendations;
-  chatWithAI = ai.chatWithAI;
-  fetchGroqModels = ai.fetchGroqModels;
+
+
 
   constructor() {
     // Tự động kiểm tra kết nối khi khởi tạo

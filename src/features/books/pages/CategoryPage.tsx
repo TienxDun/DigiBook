@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { db } from '@/services/db';
@@ -9,6 +9,7 @@ import { BookCardSkeleton } from '@/components/common/Skeleton';
 import SEO from '@/components/common/SEO';
 import { AVAILABLE_ICONS } from '@/constants/categories';
 import { useBooks } from '@/contexts/BookContext';
+import { useCart } from '@/features/cart';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -67,7 +68,13 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
       const currentLastDoc = isInitial ? null : lastDoc;
       const result = await db.getBooksPaginated(ITEMS_PER_PAGE, currentLastDoc, categoryName, dbSort);
 
-      setBooks(prev => isInitial ? result.books : [...prev, ...result.books]);
+      setBooks(prev => {
+        if (isInitial) return result.books;
+        // Filter out duplicates based on ID
+        const existingIds = new Set(prev.map(b => b.id));
+        const uniqueNewBooks = result.books.filter(b => !existingIds.has(b.id));
+        return [...prev, ...uniqueNewBooks];
+      });
       setLastDoc(result.lastDoc);
       setHasMore(result.books.length === ITEMS_PER_PAGE);
     } catch (error) {

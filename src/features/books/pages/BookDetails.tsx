@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useBooks } from '@/contexts/BookContext';
@@ -13,7 +13,7 @@ import { BookDetailsSkeleton } from '@/components/common/Skeleton';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-import { AVAILABLE_AI_MODELS } from '@/constants/ai-models';
+
 import QuickBuyBar from '@/components/books/QuickBuyBar';
 
 const formatPrice = (price: number) => {
@@ -61,9 +61,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
   const [newRating, setNewRating] = useState(5);
   const [scrolled, setScrolled] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const [aiInsight, setAiInsight] = useState<string | null>(null);
-  const [loadingAI, setLoadingAI] = useState(false);
-  const [activeModelName, setActiveModelName] = useState('Gemini');
+
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [quantity, setQuantity] = useState(1);
 
@@ -73,10 +71,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
         setLoading(true);
         setError(false);
         // Fetch model config
-        db.getAIConfig().then(config => {
-          const model = AVAILABLE_AI_MODELS.find(m => m.id === config.activeModelId);
-          if (model) setActiveModelName(model.name.split(' (')[0]);
-        });
+
 
         const foundBook = await db.getBookById(id);
         if (foundBook) {
@@ -189,13 +184,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
     if (book) toggleWishlist(book);
   };
 
-  const handleGetAIInsight = async () => {
-    if (!book) return;
-    setLoadingAI(true);
-    const result = await db.getAIInsight(book.title, book.author, book.description);
-    setAiInsight(result);
-    setLoadingAI(false);
-  };
+
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -503,89 +492,41 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
               </button>
             </section>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* 3. AI Intelligence Card - Integrated better */}
-              <div className="bg-slate-900 px-5 py-5 rounded-[2rem] shadow-xl relative overflow-hidden flex flex-col border border-white/5 max-h-[400px]">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 rounded-full blur-[60px] -mr-12 -mt-12"></div>
-
-                <div className="relative z-10 flex flex-col h-full">
-                  <div className="flex items-center gap-2.5 mb-2 lg:mb-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                      <i className="fa-solid fa-wand-magic-sparkles text-white text-xs"></i>
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-black text-white uppercase tracking-widest leading-none mb-0.5">AI INSIGHTS</h4>
-                      <span className="text-xs font-bold text-indigo-300 uppercase tracking-widest">{activeModelName}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex-grow flex flex-col justify-start min-h-[120px] overflow-hidden">
-                    {aiInsight ? (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="bg-white/5 backdrop-blur-xl rounded-lg p-3 border border-white/10 overflow-y-auto dark-scrollbar flex-grow"
-                      >
-                        <div className="prose prose-sm prose-invert max-w-none text-sm text-indigo-50 font-medium leading-relaxed italic">
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {aiInsight}
-                          </ReactMarkdown>
-                        </div>
-                      </motion.div>
-                    ) : (
-                      <div className="text-center py-2">
-                        <p className="text-indigo-200/50 text-xs font-black uppercase tracking-widest leading-relaxed mb-3 px-2">
-                          Phân tích nội dung bằng AI
-                        </p>
-                        <button
-                          onClick={handleGetAIInsight}
-                          disabled={loadingAI}
-                          className="mx-auto w-full py-2 bg-white/10 text-white rounded-lg text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all border border-white/10"
-                        >
-                          {loadingAI ? 'Đang phân tích...' : 'Bắt đầu phân tích'}
-                        </button>
-                      </div>
-                    )}
+            {/* 4. Community & Reviews - Integrated better now taking full width */}
+            <div className="bg-white rounded-[2rem] border border-slate-100 overflow-hidden shadow-sm p-5 flex flex-col">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-0.5 h-4 bg-amber-400 rounded-full"></div>
+                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Đánh giá</h3>
+                </div>
+                <div className="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-lg">
+                  <span className="text-lg font-black text-amber-600 leading-none">{book.rating}</span>
+                  <div className="flex gap-0.5">
+                    {[1, 2, 3, 4, 5].map(s => <i key={s} className={`fa-solid fa-star text-xs ${s <= Math.floor(book.rating) ? 'text-amber-500' : 'text-amber-200'}`}></i>)}
                   </div>
                 </div>
               </div>
 
-              {/* 4. Community & Reviews - Integrated better */}
-              <div className="bg-white rounded-[2rem] border border-slate-100 overflow-hidden shadow-sm p-5 flex flex-col">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-0.5 h-4 bg-amber-400 rounded-full"></div>
-                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Đánh giá</h3>
-                  </div>
-                  <div className="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-lg">
-                    <span className="text-lg font-black text-amber-600 leading-none">{book.rating}</span>
-                    <div className="flex gap-0.5">
-                      {[1, 2, 3, 4, 5].map(s => <i key={s} className={`fa-solid fa-star text-xs ${s <= Math.floor(book.rating) ? 'text-amber-500' : 'text-amber-200'}`}></i>)}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2 flex-grow overflow-y-auto max-h-[140px] pr-1 custom-scrollbar mb-3">
-                  {reviews.length > 0 ? (
-                    reviews.slice(0, 2).map(r => (
-                      <div key={r.id} className="bg-slate-50/50 p-2.5 rounded-lg border border-slate-100">
-                        <div className="flex justify-between items-start mb-0.5">
-                          <span className="text-xs font-black text-slate-900 uppercase truncate max-w-[80px]">{r.userName}</span>
-                          <div className="flex gap-0.5">
-                            {[...Array(5)].map((_, i) => <i key={i} className={`fa-solid fa-star text-[8px] ${i < r.rating ? 'text-amber-400' : 'text-slate-200'}`}></i>)}
-                          </div>
+              <div className="space-y-2 flex-grow overflow-y-auto max-h-[140px] pr-1 custom-scrollbar mb-3">
+                {reviews.length > 0 ? (
+                  reviews.slice(0, 5).map(r => (
+                    <div key={r.id} className="bg-slate-50/50 p-2.5 rounded-lg border border-slate-100">
+                      <div className="flex justify-between items-start mb-0.5">
+                        <span className="text-xs font-black text-slate-900 uppercase truncate max-w-[120px]">{r.userName}</span>
+                        <div className="flex gap-0.5">
+                          {[...Array(5)].map((_, i) => <i key={i} className={`fa-solid fa-star text-[8px] ${i < r.rating ? 'text-amber-400' : 'text-slate-200'}`}></i>)}
                         </div>
-                        <p className="text-sm text-slate-600 line-clamp-2 leading-tight italic">"{r.content}"</p>
                       </div>
-                    ))
-                  ) : (
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest text-center py-2">Chưa có đánh giá</p>
-                  )}
-                </div>
-                <button className="w-full py-2 bg-slate-50 text-xs font-black text-slate-600 uppercase tracking-widest rounded-lg border border-slate-200 hover:bg-slate-900 hover:text-white transition-all">
-                  Xem tất cả
-                </button>
+                      <p className="text-sm text-slate-600 line-clamp-2 leading-tight italic">"{r.content}"</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-xs text-slate-400 font-bold uppercase tracking-widest text-center py-2">Chưa có đánh giá</p>
+                )}
               </div>
+              <button className="w-full py-2 bg-slate-50 text-xs font-black text-slate-600 uppercase tracking-widest rounded-lg border border-slate-200 hover:bg-slate-900 hover:text-white transition-all">
+                Xem tất cả
+              </button>
             </div>
           </article>
         </div>
