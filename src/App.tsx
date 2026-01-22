@@ -7,7 +7,7 @@ import { CartProvider, useCart } from '@/features/cart';
 
 import { MainLayout, AdminRoute, MainContent } from './layouts';
 import { LoginModal } from './features/auth';
-import { PageTransition, ScrollToTop, AIAssistant, BackToTop } from '@/shared/components';
+import { PageTransition, ScrollToTop, BackToTop } from '@/shared/components';
 import { QuickViewModal } from './features/books';
 import { Book } from '@/shared/types/';
 import { motion, AnimatePresence } from 'framer-motion';

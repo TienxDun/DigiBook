@@ -18,7 +18,7 @@ const formatPrice = (price: number) => {
 
 
 const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"overview" | "books" | "orders" | "categories" | "authors" | "coupons" | "users" | "logs" | "ai">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "books" | "orders" | "categories" | "authors" | "coupons" | "users" | "logs">("overview");
   const [adminTheme, setAdminTheme] = useState<"midnight" | "light">(localStorage.getItem("digibook_admin_theme") as any || "midnight");
   const isMidnight = adminTheme === "midnight";
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
