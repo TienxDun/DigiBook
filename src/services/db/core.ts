@@ -9,14 +9,14 @@ import {
   clearIndexedDbPersistence,
   serverTimestamp
 } from "firebase/firestore";
-import { db_fs, auth } from "../firebase";
-import { LogLevel, LogCategory } from '../../types';
+import { db_fs, auth } from "../../lib/firebase";
+import { LogLevel, LogCategory } from '../../types/';
 
 let connectionTested = false;
 
 export async function testConnection() {
   if (connectionTested || !db_fs) return;
-  
+
   try {
     await getDocs(query(collection(db_fs, 'system_logs'), limit(1)));
     connectionTested = true;
@@ -27,7 +27,7 @@ export async function testConnection() {
     }
   } catch (error: any) {
     console.error("❌ Firestore connection failed:", error.message);
-    
+
     if (error.name === 'BloomFilterError' || (error.message && error.message.includes('persistence'))) {
       console.warn("🔄 Attemping to clear Firestore persistence due to cache error...");
       try {
@@ -39,14 +39,14 @@ export async function testConnection() {
         console.error("Failed to clear persistence:", clearErr);
       }
     }
-    
+
     connectionTested = true;
   }
 }
 
 export async function logActivity(
-  action: string, 
-  detail: string, 
+  action: string,
+  detail: string,
   status: 'SUCCESS' | 'ERROR' = 'SUCCESS',
   level: LogLevel = 'INFO',
   category: LogCategory = 'SYSTEM',
@@ -55,8 +55,8 @@ export async function logActivity(
   const time = new Date().toLocaleTimeString('en-US', { hour12: true });
   const userEmail = auth?.currentUser?.email || 'Anonymous';
   const userShort = userEmail.split('@')[0] || 'Guest';
-  
-  let levelColor = 'background: #64748b; color: #fff;'; 
+
+  let levelColor = 'background: #64748b; color: #fff;';
   if (level === 'ERROR' || status === 'ERROR') levelColor = 'background: #ef4444; color: #fff;';
   else if (level === 'WARN') levelColor = 'background: #f59e0b; color: #fff;';
   else if (level === 'DEBUG') levelColor = 'background: #10b981; color: #fff;';
@@ -78,9 +78,9 @@ export async function logActivity(
   }
 
   const criticalCategories: LogCategory[] = ['ADMIN', 'AUTH', 'ORDER', 'AI'];
-  const shouldSaveToDb = 
-    level === 'ERROR' || 
-    level === 'WARN' || 
+  const shouldSaveToDb =
+    level === 'ERROR' ||
+    level === 'WARN' ||
     status === 'ERROR' ||
     criticalCategories.includes(category);
 
@@ -103,16 +103,16 @@ export async function logActivity(
 }
 
 export async function wrap<T>(
-  promise: Promise<T>, 
-  fallback: T, 
-  actionName?: string, 
-  detail?: string, 
+  promise: Promise<T>,
+  fallback: T,
+  actionName?: string,
+  detail?: string,
   category: LogCategory = 'DATABASE'
 ): Promise<T> {
   if (!connectionTested) {
     await testConnection();
   }
-  
+
   try {
     const result = await promise;
     if (actionName) logActivity(actionName, detail || 'Done', 'SUCCESS', 'DEBUG', category);

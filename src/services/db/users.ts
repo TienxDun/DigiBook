@@ -9,8 +9,8 @@ import {
   deleteDoc,
   serverTimestamp
 } from "firebase/firestore";
-import { db_fs } from "../firebase";
-import { UserProfile } from '../../types';
+import { db_fs } from "../../lib/firebase";
+import { UserProfile } from '../../types/';
 import { wrap } from "./core";
 
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
@@ -26,10 +26,10 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
 export async function updateUserProfile(profile: Partial<UserProfile> & { id: string }, actionName: string = 'UPDATE_USER_PROFILE', detail?: string): Promise<void> {
   const userRef = doc(db_fs, 'users', profile.id);
   const snap = await getDoc(userRef);
-  
+
   await wrap(
-    setDoc(userRef, { 
-      ...profile, 
+    setDoc(userRef, {
+      ...profile,
       updatedAt: serverTimestamp(),
       ...(!snap.exists() ? { createdAt: serverTimestamp(), status: 'active' } : {})
     }, { merge: true }),
@@ -41,7 +41,7 @@ export async function updateUserProfile(profile: Partial<UserProfile> & { id: st
 
 export async function updateWishlist(userId: string, bookIds: string[]): Promise<void> {
   await updateUserProfile(
-    { id: userId, wishlistIds: bookIds }, 
+    { id: userId, wishlistIds: bookIds },
     'UPDATE_WISHLIST',
     `Items: ${bookIds.length}`
   );
@@ -51,7 +51,7 @@ export async function getAllUsers(): Promise<UserProfile[]> {
   try {
     const snap = await getDocs(collection(db_fs, 'users'));
     const allUsers = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as UserProfile));
-    
+
     return allUsers.sort((a, b) => {
       const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt ? new Date(a.createdAt) : new Date(0));
       const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : (b.createdAt ? new Date(b.createdAt) : new Date(0));
@@ -65,7 +65,7 @@ export async function getAllUsers(): Promise<UserProfile[]> {
 
 export async function updateUserRole(userId: string, newRole: 'admin' | 'user'): Promise<void> {
   await wrap(
-    updateDoc(doc(db_fs, 'users', userId), { 
+    updateDoc(doc(db_fs, 'users', userId), {
       role: newRole,
       updatedAt: serverTimestamp()
     }),
@@ -77,7 +77,7 @@ export async function updateUserRole(userId: string, newRole: 'admin' | 'user'):
 
 export async function updateUserStatus(userId: string, newStatus: 'active' | 'banned'): Promise<void> {
   await wrap(
-    updateDoc(doc(db_fs, 'users', userId), { 
+    updateDoc(doc(db_fs, 'users', userId), {
       status: newStatus,
       updatedAt: serverTimestamp()
     }),

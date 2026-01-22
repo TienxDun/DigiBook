@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Book } from '../types';
+import { Book } from '../types/';
 import BookCard from '../components/BookCard';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '@/services/db';

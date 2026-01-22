@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Book } from '../types';
+import { Book } from '../types/';
 import { useAuth } from '../contexts/AuthContext';
 
 interface QuickViewModalProps {
@@ -19,8 +19,8 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
   // Kiểm tra trạng thái khả dụng nếu được truyền từ props (ví dụ từ Wishlist)
   const isAvailable = book ? (book as any).isAvailable !== false : true;
 
-  const isWishlisted = useMemo(() => 
-    book ? wishlist.some(b => b.id === book.id) : false, 
+  const isWishlisted = useMemo(() =>
+    book ? wishlist.some(b => b.id === book.id) : false,
     [wishlist, book]
   );
 
@@ -33,7 +33,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
       {book && (
         <div key="quick-view-modal" className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           {/* Backdrop */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -42,14 +42,14 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
           />
 
           {/* Modal */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 40 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 40 }}
             className="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] border border-white/20 overflow-hidden flex flex-col md:flex-row max-h-[90vh]"
           >
             {/* Close Button */}
-            <button 
+            <button
               onClick={onClose}
               className="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-100/80 backdrop-blur-md flex items-center justify-center text-slate-500 hover:bg-rose-500 hover:text-white transition-all z-20 shadow-sm"
             >
@@ -66,30 +66,30 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                 className="relative z-10"
                 whileHover={{ scale: 1.05, y: -5 }}
               >
-                <img 
-                  src={book.cover} 
+                <img
+                  src={book.cover}
                   alt={book.title}
                   className="w-full max-w-[240px] h-auto object-cover rounded-2xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] border border-white/50 relative z-20"
                 />
                 {/* Visual shadow glow */}
                 <div className="absolute inset-0 bg-slate-900/60 blur-2xl rounded-2xl transform translate-y-8 scale-90 -z-10 opacity-30"></div>
               </motion.div>
-              
+
               {/* Image Footer Stats */}
               <div className="mt-8 flex gap-6 text-slate-400 relative z-10">
                 <div className="flex flex-col items-center gap-1">
-                   <span className="text-sm font-black text-slate-900 leading-none">{book.pages}</span>
-                   <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-slate-400">Trang</span>
+                  <span className="text-sm font-black text-slate-900 leading-none">{book.pages}</span>
+                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-slate-400">Trang</span>
                 </div>
                 <div className="w-px h-6 bg-slate-200 self-center"></div>
                 <div className="flex flex-col items-center gap-1">
-                   <span className="text-sm font-black text-slate-900 leading-none">{book.rating}</span>
-                   <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-slate-400">Rating</span>
+                  <span className="text-sm font-black text-slate-900 leading-none">{book.rating}</span>
+                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-slate-400">Rating</span>
                 </div>
                 <div className="w-px h-6 bg-slate-200 self-center"></div>
                 <div className="flex flex-col items-center gap-1">
-                   <span className="text-sm font-black text-slate-900 leading-none">{book.language === 'Tiếng Việt' ? 'VN' : 'EN'}</span>
-                   <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-slate-400">Bản</span>
+                  <span className="text-sm font-black text-slate-900 leading-none">{book.language === 'Tiếng Việt' ? 'VN' : 'EN'}</span>
+                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-slate-400">Bản</span>
                 </div>
               </div>
             </div>
@@ -164,56 +164,54 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                 </div>
 
                 <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-2xl border border-slate-200/50">
-                    <button 
-                      onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                      className="w-11 h-11 rounded-xl bg-white shadow-sm flex items-center justify-center text-slate-600 hover:text-indigo-600 transition-all active:scale-90"
-                    >
-                      <i className="fa-solid fa-minus text-sm"></i>
-                    </button>
-                    <span className="w-10 text-center font-black text-slate-900 text-lg">{quantity}</span>
-                    <button 
-                      onClick={() => setQuantity(q => q + 1)}
-                      className="w-11 h-11 rounded-xl bg-white shadow-sm flex items-center justify-center text-slate-600 hover:text-indigo-600 transition-all active:scale-90"
-                    >
-                      <i className="fa-solid fa-plus text-sm"></i>
-                    </button>
+                  <button
+                    onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                    className="w-11 h-11 rounded-xl bg-white shadow-sm flex items-center justify-center text-slate-600 hover:text-indigo-600 transition-all active:scale-90"
+                  >
+                    <i className="fa-solid fa-minus text-sm"></i>
+                  </button>
+                  <span className="w-10 text-center font-black text-slate-900 text-lg">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity(q => q + 1)}
+                    className="w-11 h-11 rounded-xl bg-white shadow-sm flex items-center justify-center text-slate-600 hover:text-indigo-600 transition-all active:scale-90"
+                  >
+                    <i className="fa-solid fa-plus text-sm"></i>
+                  </button>
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className="mt-auto space-y-3">
-                <button 
+                <button
                   disabled={book.stockQuantity <= 0 || !isAvailable}
                   onClick={(e) => {
                     onAddToCart(book, quantity, { x: e.clientX, y: e.clientY });
                     onClose();
                   }}
-                  className={`w-full py-4 rounded-xl text-sm font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-xl relative overflow-hidden group/btn ${
-                    book.stockQuantity > 0 && isAvailable
-                    ? 'bg-slate-900 text-white hover:bg-indigo-600 shadow-indigo-100'
-                    : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
-                  }`}
+                  className={`w-full py-4 rounded-xl text-sm font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-xl relative overflow-hidden group/btn ${book.stockQuantity > 0 && isAvailable
+                      ? 'bg-slate-900 text-white hover:bg-indigo-600 shadow-indigo-100'
+                      : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                    }`}
                 >
                   {/* Button Shine Effect */}
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 ease-in-out"></div>
-                  
+
                   <i className="fa-solid fa-cart-shopping text-sm group-hover/btn:scale-110 transition-transform"></i>
                   {!isAvailable ? 'Sách ngừng bán' : 'Thêm vào giỏ hàng'}
                 </button>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <button 
+                  <button
                     onClick={handleToggleWishlist}
-                    className={`py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all border-2 active:scale-95 text-xs font-black uppercase tracking-widest ${
-                      isWishlisted 
-                        ? 'bg-rose-50 border-rose-200 text-rose-500' 
+                    className={`py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all border-2 active:scale-95 text-xs font-black uppercase tracking-widest ${isWishlisted
+                        ? 'bg-rose-50 border-rose-200 text-rose-500'
                         : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200 hover:text-rose-500'
-                    }`}
+                      }`}
                   >
                     <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-sm`}></i>
                     {isWishlisted ? 'Đã thích' : 'Yêu thích'}
                   </button>
-                  <button 
+                  <button
                     onClick={() => {
                       onClose();
                       navigate(`/book/${book.id}`);
@@ -228,24 +226,24 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
 
               {/* Trust Badges */}
               <div className="mt-8 pt-8 border-t border-slate-50 grid grid-cols-2 gap-4">
-                 <motion.div 
-                   whileHover={{ y: -3 }}
-                   className="flex items-center gap-3 group"
-                 >
-                    <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs shadow-sm group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
-                       <i className="fa-solid fa-shield-halved"></i>
-                    </div>
-                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none group-hover:text-slate-900 transition-colors">Chính hãng 100%</span>
-                 </motion.div>
-                 <motion.div 
-                   whileHover={{ y: -3 }}
-                   className="flex items-center gap-3 group"
-                 >
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xs shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
-                       <i className="fa-solid fa-rotate"></i>
-                    </div>
-                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none group-hover:text-slate-900 transition-colors">Đổi trả 30 ngày</span>
-                 </motion.div>
+                <motion.div
+                  whileHover={{ y: -3 }}
+                  className="flex items-center gap-3 group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs shadow-sm group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+                    <i className="fa-solid fa-shield-halved"></i>
+                  </div>
+                  <span className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none group-hover:text-slate-900 transition-colors">Chính hãng 100%</span>
+                </motion.div>
+                <motion.div
+                  whileHover={{ y: -3 }}
+                  className="flex items-center gap-3 group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xs shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                    <i className="fa-solid fa-rotate"></i>
+                  </div>
+                  <span className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none group-hover:text-slate-900 transition-colors">Đổi trả 30 ngày</span>
+                </motion.div>
               </div>
             </div>
           </motion.div>

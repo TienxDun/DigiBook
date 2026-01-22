@@ -5,7 +5,7 @@ import { Author } from '@/types';
 import { db } from '@/services/db';
 import { toast } from 'react-hot-toast';
 import { ErrorHandler } from '@/services/errorHandler';
-import Pagination from '../Pagination';
+import Pagination from '../ui/Pagination';
 
 // Portal component for rendering modals outside DOM structure
 const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {

@@ -2,14 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Book, CategoryInfo, CartItem } from '../types';
+import { Book, CategoryInfo, CartItem } from '../types/';
 import { db } from '@/services/db';
 import { useAuth } from '../contexts/AuthContext';
 import { useBooks } from '../contexts/BookContext';
 import { useCart } from '../contexts/CartContext';
 import BookCard from '../components/BookCard';
-import { BookCardSkeleton } from '../components/Skeleton';
-import SEO from '../components/SEO';
+import { BookCardSkeleton } from '../components/common/Skeleton';
+import SEO from '../components/common/SEO';
 
 const HomePage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickView }) => {
   const { allBooks, categories, hasMore, loadingMore, loadMore } = useBooks();

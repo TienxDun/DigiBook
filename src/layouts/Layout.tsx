@@ -3,10 +3,10 @@ import { useLocation, Navigate } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import MobileNav from './MobileNav';
-import CartSidebar from './CartSidebar';
-import AIAssistant from './AIAssistant';
+import CartSidebar from '../components/CartSidebar';
+import AIAssistant from '../components/AIAssistant';
 import { useAuth } from '../contexts/AuthContext';
-import { CartItem, CategoryInfo, Book } from '../types';
+import { CartItem, CategoryInfo, Book } from '../types/';
 
 export const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();

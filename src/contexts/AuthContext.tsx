@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Book } from '../types';
+import { Book } from '../types/';
 import {
   auth,
   googleProvider,
@@ -14,7 +14,7 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider,
   sendPasswordResetEmail
-} from "../services/firebase";
+} from "../lib/firebase";
 import { db } from '@/services/db';
 import { toast } from 'react-hot-toast';
 import ErrorHandler from '../services/errorHandler';

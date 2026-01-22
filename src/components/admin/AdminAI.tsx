@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../../services/db';
 import { AIModelConfig } from '../../types';
 import { AVAILABLE_AI_MODELS } from '../../constants/ai-models';

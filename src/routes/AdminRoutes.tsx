@@ -1,6 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import PageTransition from '../components/PageTransition';
+import PageTransition from '../components/common/PageTransition';
 
 // Lazy load admin components with separate chunk
 const AdminDashboard = lazy(() => import(/* webpackChunkName: "admin" */ '../pages/AdminDashboard'));

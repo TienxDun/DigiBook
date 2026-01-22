@@ -2,8 +2,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '@/services/db';
-import { Author, Book } from '../types';
-import { Skeleton } from '../components/Skeleton';
+import { Author, Book } from '../types/';
+import { Skeleton } from '../components/common/Skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AuthorsPage: React.FC = () => {

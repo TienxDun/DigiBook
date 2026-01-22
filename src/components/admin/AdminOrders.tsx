@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { db } from '@/services/db';
 import { Order, OrderItem } from '@/types';
 import { ErrorHandler } from '@/services/errorHandler';
-import Pagination from '../Pagination';
+import Pagination from '../ui/Pagination';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Portal component for rendering modals outside DOM structure

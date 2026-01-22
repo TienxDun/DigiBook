@@ -13,8 +13,8 @@ import {
   writeBatch,
   serverTimestamp
 } from "firebase/firestore";
-import { db_fs, auth } from "../firebase";
-import { SystemLog, AIModelConfig } from '../../types';
+import { db_fs, auth } from "../../lib/firebase";
+import { SystemLog, AIModelConfig } from '../../types/';
 import { wrap, logActivity } from "./core";
 
 export async function getSystemLogs(offset: number = 0, limitCount: number = 100): Promise<SystemLog[]> {
@@ -44,7 +44,7 @@ export async function getAIConfig(): Promise<{ activeModelId: string }> {
 
 export async function updateAIConfig(modelId: string): Promise<void> {
   await wrap(
-    setDoc(doc(db_fs, 'system_configs', 'ai_settings'), { 
+    setDoc(doc(db_fs, 'system_configs', 'ai_settings'), {
       activeModelId: modelId,
       updatedAt: serverTimestamp(),
       updatedBy: auth.currentUser?.email || 'admin'
@@ -56,13 +56,13 @@ export async function updateAIConfig(modelId: string): Promise<void> {
 }
 
 export async function getAIModels(): Promise<AIModelConfig[]> {
-  const defaultModel: AIModelConfig = { 
-    id: 'gemini-3-flash', 
-    name: 'Gemini 3 Flash', 
-    category: 'Google Gemini', 
-    rpm: '5', 
-    tpm: '250K', 
-    rpd: '20' 
+  const defaultModel: AIModelConfig = {
+    id: 'gemini-3-flash',
+    name: 'Gemini 3 Flash',
+    category: 'Google Gemini',
+    rpm: '5',
+    tpm: '250K',
+    rpd: '20'
   };
 
   try {
@@ -131,7 +131,7 @@ export async function syncAIModels(models: AIModelConfig[]): Promise<number> {
     });
     await batch.commit();
     logActivity(
-      'SYNC_AI_MODELS', 
+      'SYNC_AI_MODELS',
       `Đã làm mới danh mục AI models (${models.length} mục) từ cấu hình hệ thống.`,
       'SUCCESS',
       'INFO',

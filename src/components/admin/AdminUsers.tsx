@@ -1,6 +1,6 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { db } from '@/services/db';
-import Pagination from '../Pagination';
+import Pagination from '../ui/Pagination';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { toast } from 'react-hot-toast';

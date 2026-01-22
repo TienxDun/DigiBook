@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '@/services/db';
-import { UserProfile } from '../types';
+import { UserProfile } from '../types/';
 import { ErrorHandler } from '../services/errorHandler';
 import { AddressInput } from '../components/AddressInput';
 import { MapPicker } from '../components/MapPicker';

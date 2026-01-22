@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { Book, CartItem } from '../types';
+import { Book, CartItem } from '../types/';
 import { toast } from 'react-hot-toast';
 import { useAuth } from './AuthContext';
 import { db } from '@/services/db';
+import { checkBookStock } from '@/services/db/validateCartStock';
 
 interface CartContextType {
     cart: CartItem[];
@@ -70,7 +71,43 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         cart.filter(item => selectedCartItemIds.includes(item.id)),
         [cart, selectedCartItemIds]);
 
-    const addToCart = useCallback((book: Book, quantity: number = 1, startPos?: { x: number, y: number }) => {
+    const addToCart = useCallback(async (book: Book, quantity: number = 1, startPos?: { x: number, y: number }) => {
+        // Kiểm tra số lượng hiện tại trong giỏ
+        const existingInCart = cart.find(item => item.id === book.id);
+        const currentCartQuantity = existingInCart?.quantity || 0;
+        const totalQuantityNeeded = currentCartQuantity + quantity;
+
+        // Kiểm tra số lượng tồn kho
+        const stockCheck = await checkBookStock(book.id, totalQuantityNeeded);
+
+        if (!stockCheck.canFulfill) {
+            if (stockCheck.available === 0) {
+                toast.error(
+                    <div className="flex flex-col gap-1">
+                        <p className="font-semibold">Sản phẩm đã hết hàng!</p>
+                        <p className="text-xs font-normal">{book.title}</p>
+                    </div>
+                );
+            } else if (currentCartQuantity >= stockCheck.available) {
+                toast.error(
+                    <div className="flex flex-col gap-1">
+                        <p className="font-semibold">Bạn đã có số lượng tối đa trong giỏ!</p>
+                        <p className="text-xs font-normal">Chỉ còn {stockCheck.available} sản phẩm trong kho</p>
+                    </div>
+                );
+            } else {
+                const remainingCanAdd = stockCheck.available - currentCartQuantity;
+                toast.error(
+                    <div className="flex flex-col gap-1">
+                        <p className="font-semibold">Không đủ số lượng trong kho!</p>
+                        <p className="text-xs font-normal">Bạn chỉ có thể thêm tối đa {remainingCanAdd} sản phẩm nữa</p>
+                    </div>
+                );
+            }
+            return;
+        }
+
+        // Nếu có đủ hàng, thêm vào giỏ
         setCart(prev => {
             const existing = prev.find(item => item.id === book.id);
             if (existing) {
@@ -104,7 +141,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         );
 
         setIsCartOpen(true);
-    }, []);
+    }, [cart]);
 
     const removeFromCart = useCallback((id: string) => {
         setCart(prev => prev.filter(item => item.id !== id));

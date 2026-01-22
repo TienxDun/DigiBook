@@ -6,7 +6,7 @@ import { toast } from 'react-hot-toast';
 import { ErrorHandler } from '@/services/errorHandler';
 import { AVAILABLE_ICONS } from '@/constants/categories';
 import { motion, AnimatePresence } from 'framer-motion';
-import Pagination from '../Pagination';
+import Pagination from '../ui/Pagination';
 
 // Portal component for rendering modals outside DOM structure
 const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {

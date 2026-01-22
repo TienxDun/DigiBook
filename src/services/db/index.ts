@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file db.ts
  * @description Facade service for Firestore database interactions. 
  * This file aggregates functionality from modular sub-services for better maintainability.
@@ -14,7 +14,7 @@ import * as reviews from './reviews';
 import * as system from './system';
 import * as ai from './ai';
 
-import { Order, OrderItem, Review, SystemLog } from '../../types';
+import { Order, OrderItem, Review, SystemLog } from '../../types/';
 
 class DataService {
   // Core & Base Utility

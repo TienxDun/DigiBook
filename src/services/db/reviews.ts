@@ -10,8 +10,8 @@ import {
   orderBy,
   serverTimestamp
 } from "firebase/firestore";
-import { db_fs } from "../firebase";
-import { Review } from '../../types';
+import { db_fs } from "../../lib/firebase";
+import { Review } from '../../types/';
 import { wrap } from "./core";
 
 export async function getReviewsByBookId(bookId: string): Promise<Review[]> {
@@ -32,11 +32,11 @@ export async function addReview(review: Omit<Review, 'createdAt'>): Promise<void
 
       const allReviewsSnap = await getDocs(reviewRef);
       const reviews = allReviewsSnap.docs.map(d => d.data() as Review);
-      
+
       if (reviews.length > 0) {
         const totalRating = reviews.reduce((sum, r) => sum + r.rating, 0);
         const averageRating = (totalRating / reviews.length).toFixed(1);
-        
+
         await updateDoc(doc(db_fs, 'books', review.bookId), {
           rating: Number(averageRating)
         });

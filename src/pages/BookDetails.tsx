@@ -2,14 +2,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Book } from '../types';
+import { Book } from '../types/';
 import { useAuth } from '../contexts/AuthContext';
 import { useBooks } from '../contexts/BookContext';
 import { db, Review } from '@/services/db';
 import { AVAILABLE_AI_MODELS } from '../constants/ai-models';
 import BookCard from '../components/BookCard';
-import SEO from '../components/SEO';
-import { BookDetailsSkeleton } from '../components/Skeleton';
+import SEO from '../components/common/SEO';
+import { BookDetailsSkeleton } from '../components/common/Skeleton';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 

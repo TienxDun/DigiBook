@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AddressInput } from '../components/AddressInput';
 import { MapPicker } from '../components/MapPicker';
 import { mapService, AddressResult } from '@/services/map';
+import { validateCartStock } from '@/services/db/validateCartStock';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -35,13 +36,16 @@ const FormInput = ({ label, icon, ...props }: React.InputHTMLAttributes<HTMLInpu
 );
 
 const CheckoutPage: React.FC = () => {
-  const { cart, clearCart } = useCart();
+  const { cart, clearCart, updateQuantity, removeFromCart } = useCart();
   const navigate = useNavigate();
   const { user, setShowLoginModal } = useAuth();
 
   // States
   const isSubmittingRef = useRef(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isValidatingStock, setIsValidatingStock] = useState(false);
+  const [stockInfo, setStockInfo] = useState<Record<string, number>>({});
+  const [hasStockErrors, setHasStockErrors] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
     phone: '',
@@ -54,6 +58,101 @@ const CheckoutPage: React.FC = () => {
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string, value: number, type: 'percentage' | 'fixed' } | null>(null);
   const [couponError, setCouponError] = useState('');
+
+  // Validate stock khi load trang checkout
+  useEffect(() => {
+    const checkStockOnLoad = async () => {
+      if (cart.length === 0) return;
+
+      setIsValidatingStock(true);
+      const validation = await validateCartStock(cart);
+      setIsValidatingStock(false);
+
+      // Cập nhật thông tin số lượng kho
+      const stockData: Record<string, number> = {};
+      for (const item of cart) {
+        const found = validation.errors.find(err => err.bookId === item.id);
+        if (found) {
+          stockData[item.id] = found.availableQuantity;
+        } else {
+          // Nếu không có lỗi, lấy thông tin từ DB
+          const book = await db.getBookById(item.id);
+          stockData[item.id] = book?.stockQuantity || 0;
+        }
+      }
+      setStockInfo(stockData);
+      setHasStockErrors(!validation.isValid);
+
+      if (!validation.isValid && validation.errors.length > 0) {
+        const errorMessages = validation.errors.map(err => {
+          if (err.type === 'OUT_OF_STOCK') {
+            return `- ${err.title}: Đã hết hàng`;
+          } else {
+            return `- ${err.title}: Chỉ còn ${err.availableQuantity} sản phẩm (bạn đang chọn ${err.requestedQuantity})`;
+          }
+        }).join('\n');
+
+        toast.error(
+          <div className="flex flex-col gap-2">
+            <p className="font-bold">Số lượng trong kho đã thay đổi!</p>
+            <div className="text-xs whitespace-pre-line">{errorMessages}</div>
+            <p className="text-xs font-semibold">Giỏ hàng sẽ được cập nhật tự động.</p>
+          </div>,
+          { duration: 6000 }
+        );
+
+        // Tự động cập nhật giỏ hàng
+        validation.errors.forEach(err => {
+          if (err.type === 'OUT_OF_STOCK') {
+            removeFromCart(err.bookId);
+          } else {
+            // Cập nhật số lượng về số lượng tối đa có thể
+            const item = cart.find(i => i.id === err.bookId);
+            if (item) {
+              const deltaNeeded = err.availableQuantity - item.quantity;
+              updateQuantity(err.bookId, deltaNeeded);
+            }
+          }
+        });
+      }
+    };
+
+    checkStockOnLoad();
+  }, []); // Chạy 1 lần khi mount
+
+  // Revalidate khi cart thay đổi (sau khi auto-update)
+  useEffect(() => {
+    const revalidateStock = async () => {
+      if (cart.length === 0) {
+        setStockInfo({});
+        setHasStockErrors(false);
+        return;
+      }
+
+      const validation = await validateCartStock(cart);
+
+      // Cập nhật stockInfo
+      const stockData: Record<string, number> = {};
+      for (const item of cart) {
+        const found = validation.errors.find(err => err.bookId === item.id);
+        if (found) {
+          stockData[item.id] = found.availableQuantity;
+        } else {
+          const book = await db.getBookById(item.id);
+          stockData[item.id] = book?.stockQuantity || 0;
+        }
+      }
+      setStockInfo(stockData);
+      setHasStockErrors(!validation.isValid);
+    };
+
+    // Chỉ revalidate nếu không phải lần đầu load
+    const timer = setTimeout(() => {
+      revalidateStock();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [cart]);
 
   // Auto-fill user profile if logged in
   useEffect(() => {
@@ -135,6 +234,25 @@ const CheckoutPage: React.FC = () => {
     setIsProcessing(true);
 
     try {
+      // Kiểm tra lại số lượng kho trước khi đặt hàng
+      const validation = await validateCartStock(cart);
+      if (!validation.isValid) {
+        setIsProcessing(false);
+        const errorMsg = validation.errors.map(err =>
+          err.type === 'OUT_OF_STOCK'
+            ? `${err.title}: Đã hết hàng`
+            : `${err.title}: Chỉ còn ${err.availableQuantity}/${err.requestedQuantity}`
+        ).join(', ');
+        toast.error(
+          <div className="flex flex-col gap-1">
+            <p className="font-bold">Không thể đặt hàng!</p>
+            <p className="text-xs">{errorMsg}</p>
+          </div>,
+          { duration: 5000 }
+        );
+        return;
+      }
+
       // Simulate processing visualization
       await new Promise(r => setTimeout(r, 2000));
 
@@ -380,21 +498,34 @@ const CheckoutPage: React.FC = () => {
 
               {/* Items List - Flexible Height */}
               <div className="px-5 xl:px-6 py-3 overflow-y-auto custom-scrollbar flex-1 space-y-4 max-h-[25vh] xl:max-h-none">
-                {cart.map(item => (
-                  <div key={item.id} className="flex gap-3 group">
-                    <div className="w-12 h-16 rounded-lg overflow-hidden shadow-md border border-slate-100 shrink-0 relative group-hover:scale-105 transition-transform duration-300">
-                      <img src={item.cover} alt={item.title} className="w-full h-full object-cover" />
-                      <span className="absolute top-0.5 left-0.5 bg-black/70 text-white text-[8px] font-bold px-1 rounded backdrop-blur-sm">x{item.quantity}</span>
+                {cart.map(item => {
+                  const availableStock = stockInfo[item.id];
+                  const isLowStock = availableStock !== undefined && availableStock < item.quantity * 2;
+                  const isOutOfStock = availableStock !== undefined && availableStock < item.quantity;
+
+                  return (
+                    <div key={item.id} className="flex gap-3 group">
+                      <div className="w-12 h-16 rounded-lg overflow-hidden shadow-md border border-slate-100 shrink-0 relative group-hover:scale-105 transition-transform duration-300">
+                        <img src={item.cover} alt={item.title} className="w-full h-full object-cover" />
+                        <span className="absolute top-0.5 left-0.5 bg-black/70 text-white text-[8px] font-bold px-1 rounded backdrop-blur-sm">x{item.quantity}</span>
+                      </div>
+                      <div className="flex-1 min-w-0 flex flex-col justify-center">
+                        <h4 className="font-bold text-slate-800 text-xs leading-tight mb-0.5 line-clamp-2 group-hover:text-indigo-600 transition-colors">{item.title}</h4>
+                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{item.author}</p>
+                        {availableStock !== undefined && (
+                          <div className={`text-[9px] font-bold mt-0.5 flex items-center gap-1 ${isOutOfStock ? 'text-red-600' : isLowStock ? 'text-orange-500' : 'text-emerald-600'
+                            }`}>
+                            <i className={`fa-solid ${isOutOfStock ? 'fa-circle-exclamation' : 'fa-box'}`}></i>
+                            <span>Kho: {availableStock}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-right flex flex-col justify-center">
+                        <p className="font-black text-slate-900 text-sm">{formatPrice(item.price * item.quantity)}</p>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0 flex flex-col justify-center">
-                      <h4 className="font-bold text-slate-800 text-xs leading-tight mb-0.5 line-clamp-2 group-hover:text-indigo-600 transition-colors">{item.title}</h4>
-                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{item.author}</p>
-                    </div>
-                    <div className="text-right flex flex-col justify-center">
-                      <p className="font-black text-slate-900 text-sm">{formatPrice(item.price * item.quantity)}</p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Coupon & Bottom Fixed section */}
@@ -458,13 +589,26 @@ const CheckoutPage: React.FC = () => {
 
                   <button
                     onClick={handleCompleteOrder}
-                    disabled={isProcessing}
-                    className="w-full mt-3 py-4 bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-[0.15em] shadow-lg shadow-slate-200 hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:shadow-indigo-200 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed group active:scale-95 flex items-center justify-center gap-2"
+                    disabled={isProcessing || hasStockErrors || isValidatingStock}
+                    className={`w-full mt-3 py-4 rounded-xl font-black text-xs uppercase tracking-[0.15em] shadow-lg transition-all duration-300 disabled:cursor-not-allowed group active:scale-95 flex items-center justify-center gap-2 ${hasStockErrors
+                      ? 'bg-red-500 text-white opacity-60 shadow-red-200'
+                      : 'bg-slate-900 text-white shadow-slate-200 hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:shadow-indigo-200 disabled:opacity-70'
+                      }`}
                   >
                     {isProcessing ? (
                       <>
                         <i className="fa-solid fa-circle-notch fa-spin"></i>
                         Xử lý...
+                      </>
+                    ) : hasStockErrors ? (
+                      <>
+                        <i className="fa-solid fa-triangle-exclamation"></i>
+                        Không đủ hàng trong kho
+                      </>
+                    ) : isValidatingStock ? (
+                      <>
+                        <i className="fa-solid fa-circle-notch fa-spin"></i>
+                        Kiểm tra kho...
                       </>
                     ) : (
                       <>
@@ -473,6 +617,15 @@ const CheckoutPage: React.FC = () => {
                       </>
                     )}
                   </button>
+
+                  {hasStockErrors && (
+                    <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-[10px] font-bold text-red-700 text-center flex items-center justify-center gap-1">
+                        <i className="fa-solid fa-circle-info"></i>
+                        Vui lòng cập nhật số lượng trước khi đặt hàng
+                      </p>
+                    </div>
+                  )}
 
                   <div className="flex items-center justify-center gap-3 mt-3 opacity-40">
                     <i className="fa-brands fa-cc-visa text-lg"></i>

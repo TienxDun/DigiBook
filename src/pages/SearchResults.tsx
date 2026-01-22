@@ -2,9 +2,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { db } from '@/services/db';
-import { Book } from '../types';
+import { Book } from '../types/';
 import BookCard from '../components/BookCard';
-import { BookCardSkeleton } from '../components/Skeleton';
+import { BookCardSkeleton } from '../components/common/Skeleton';
 
 import { useCart } from '../contexts/CartContext';
 import { useBooks } from '../contexts/BookContext';

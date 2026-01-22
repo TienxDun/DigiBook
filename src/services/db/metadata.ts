@@ -8,8 +8,8 @@ import {
   writeBatch,
   serverTimestamp
 } from "firebase/firestore";
-import { db_fs } from "../firebase";
-import { CategoryInfo, Author, Book } from '../../types';
+import { db_fs } from "../../lib/firebase";
+import { CategoryInfo, Author, Book } from '../../types/';
 import { wrap, logActivity } from "./core";
 import { INITIAL_CATEGORIES } from '../../constants/categories';
 

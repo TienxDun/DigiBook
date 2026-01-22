@@ -4,10 +4,10 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { db } from '@/services/db';
 import BookCard from '../components/BookCard';
-import Pagination from '../components/Pagination';
-import { Book, CategoryInfo } from '../types';
-import { BookCardSkeleton } from '../components/Skeleton';
-import SEO from '../components/SEO';
+import Pagination from '../components/ui/Pagination';
+import { Book, CategoryInfo } from '../types/';
+import { BookCardSkeleton } from '../components/common/Skeleton';
+import SEO from '../components/common/SEO';
 
 import { useCart } from '../contexts/CartContext';
 import { useBooks } from '../contexts/BookContext';

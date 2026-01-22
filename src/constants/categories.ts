@@ -1,4 +1,4 @@
-import { CategoryInfo } from '../types';
+import { CategoryInfo } from '../types/';
 
 export const INITIAL_CATEGORIES: CategoryInfo[] = [
   { name: "Tất cả sách", icon: "fa-book-open", description: "Tất cả bộ sưu tập tinh hoa." },

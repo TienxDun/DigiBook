@@ -5,13 +5,13 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useBooks } from './contexts/BookContext';
 import { useCart } from './contexts/CartContext';
 
-import { LayoutWrapper, AdminRoute, MainContent } from './components/Layout';
+import { MainLayout, AdminRoute, MainContent } from './layouts';
 import LoginModal from './components/LoginModal';
-import PageTransition from './components/PageTransition';
-import ScrollToTop from './components/ScrollToTop';
-import BackToTop from './components/BackToTop';
+import PageTransition from './components/common/PageTransition';
+import ScrollToTop from './components/common/ScrollToTop';
+import BackToTop from './components/common/BackToTop';
 import { QuickViewModal } from './components/QuickViewModal';
-import { Book } from './types';
+import { Book } from './types/';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Lazy load pages
@@ -41,7 +41,7 @@ const AppContent: React.FC = () => {
   const handleQuickView = (book: Book) => setQuickViewBook(book);
 
   return (
-    <LayoutWrapper
+    <MainLayout
       onSearch={setSearchQuery}
       searchQuery={searchQuery}
     >
@@ -81,7 +81,7 @@ const AppContent: React.FC = () => {
           </AnimatePresence>
         </Suspense>
       </MainContent>
-    </LayoutWrapper>
+    </MainLayout>
   );
 };
 
