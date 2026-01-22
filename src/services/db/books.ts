@@ -163,82 +163,159 @@ export async function deleteBooksBulk(ids: string[]): Promise<void> {
 
 // --- Google Books Integration ---
 
-export async function fetchBooksFromGoogle(q: string = 'sách tiếng việt', maxResults: number = 20): Promise<Book[]> {
+// --- Tiki API Integration (via Proxy) ---
+
+export async function searchBooksFromTiki(queryStr: string, page: number = 1): Promise<Book[]> {
   try {
-    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=${maxResults}&langRestrict=vi`;
-    const response = await fetch(url);
+    const proxyUrl = 'https://api.allorigins.win/raw?url=';
+    const tikiApiUrl = `https://tiki.vn/api/v2/products?q=${encodeURIComponent(queryStr)}&limit=20&page=${page}`;
+
+    const response = await fetch(proxyUrl + encodeURIComponent(tikiApiUrl));
     const data = await response.json();
 
-    if (!data.items) return [];
+    if (!data.data || !Array.isArray(data.data)) return [];
 
     const existingBooks = await getBooks();
     const existingIsbns = new Set(existingBooks.map(b => b.isbn));
 
-    const books: Book[] = data.items
-      .map((item: any) => {
-        const info = item.volumeInfo;
-        const isbnObj = info.industryIdentifiers?.find((id: any) => id.type === 'ISBN_13' || id.type === 'ISBN_10');
-        const isbn = isbnObj?.identifier || `GB-${item.id}`;
+    const books: Book[] = data.data.map((item: any) => {
+      // Map basic info
+      const authors = item.authors ? item.authors.filter((a: any) => a.name).map((a: any) => a.name).join(', ') : 'Nhiều tác giả';
 
-        if (existingIsbns.has(isbn)) return null;
+      // Tiki images often have a base url, we want high res
+      let coverUrl = item.thumbnail_url || "";
+      // Try to get higher res if possible (Tiki urls are usually like .../cache/280x280/...)
+      // We can remove the /cache/Dimension/ part to get full size or change dimensions
+      // Example: https://salt.tikicdn.com/cache/280x280/ts/product/... -> https://salt.tikicdn.com/ts/product/...
+      if (coverUrl.includes('/cache/')) {
+        coverUrl = coverUrl.replace(/\/cache\/[\d]+x[\d]+\//, '/');
+      }
 
-        const gbCats = info.categories || [];
-        let appCat = 'Văn học';
-        if (gbCats.some((c: string) => c.toLowerCase().includes('business') || c.toLowerCase().includes('economics'))) appCat = 'Kinh tế';
-        else if (gbCats.some((c: string) => c.toLowerCase().includes('history'))) appCat = 'Lịch sử';
-        else if (gbCats.some((c: string) => c.toLowerCase().includes('child') || c.toLowerCase().includes('juvenile'))) appCat = 'Thiếu nhi';
-        else if (gbCats.some((c: string) => c.toLowerCase().includes('self-help') || c.toLowerCase().includes('skill'))) appCat = 'Kỹ năng';
+      // Map Category
+      // Tiki categories are numeric or specific strings. We map roughly to our fixed categories.
+      // This is heuristic.
+      let appCat = 'Văn học';
+      const name = item.name.toLowerCase();
+      if (name.includes('kinh tế') || name.includes('tài chính') || name.includes('doanh nghiệp')) appCat = 'Kinh tế';
+      else if (name.includes('lịch sử') || name.includes('tiểu sử')) appCat = 'Lịch sử';
+      else if (name.includes('thiếu nhi') || name.includes('truyện tranh')) appCat = 'Thiếu nhi';
+      else if (name.includes('kỹ năng') || name.includes('self help') || name.includes('đắc nhân tâm')) appCat = 'Kỹ năng';
+      else if (name.includes('tâm lý')) appCat = 'Tâm lý';
 
-        let coverUrl = info.imageLinks?.thumbnail?.replace('http:', 'https:') || "";
-        if (coverUrl.includes('zoom=1')) {
-          coverUrl = coverUrl.replace('zoom=1', 'zoom=2');
-        }
+      // Calculate fake original price if not present, to show discount
+      const price = item.price;
+      const originalPrice = item.original_price && item.original_price > price ? item.original_price : Math.round(price * 1.2);
 
-        if (!coverUrl) {
-          coverUrl = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=800&auto=format&fit=crop';
-        }
+      // Generate a predictable but unique ID from Tiki ID
+      // We use TikiID as part of our ID to avoid duplicates
+      const bookId = `TK-${item.id}`;
 
-        const finalIsbn = isbn;
-        const finalRating = Number(info.averageRating || (4 + Math.random()).toFixed(1));
+      // Do not filter by ISBN here yet, as fetching ISBN requires detail call.
+      // We will check duplication by Title primarily if ISBN is missing in list view.
 
-        let mappedLang = 'Tiếng Việt';
-        if (info.language === 'en') mappedLang = 'English';
-        else if (info.language === 'ja') mappedLang = '日本語';
-        else if (info.language === 'fr') mappedLang = 'Français';
-        else if (info.language === 'de') mappedLang = 'Deutsch';
-        else if (info.language === 'es') mappedLang = 'Español';
-        else if (info.language === 'zh') mappedLang = '中文';
+      return {
+        id: bookId,
+        title: item.name,
+        author: authors,
+        authorBio: 'Thông tin tác giả đang cập nhật từ Tiki.',
+        category: item.categories && item.categories.name ? item.categories.name : appCat,
+        price: price,
+        originalPrice: originalPrice,
+        stockQuantity: item.stock_item ? item.stock_item.qty : 100, // Tiki often has stock info
+        description: item.short_description || 'Mô tả đang cập nhật...',
+        isbn: item.sku || `TK-${item.id}`, // Fallback to SKU if ISBN not visible in list
+        cover: coverUrl,
+        rating: item.rating_average || 5,
+        pages: 200, // Default, as list view doesn't always have pages
+        publisher: 'Tiki Trading',
+        publishYear: 2024,
+        language: 'Tiếng Việt',
+        badge: item.discount_rate ? `-${item.discount_rate}%` : ''
+      } as Book;
+    });
 
-        let badge = '';
-        if (finalRating >= 4.8) badge = 'Bán chạy';
-        else if (info.pageCount > 500) badge = 'Kinh điển';
+    // Filter out duplicates based on ID or SKU if we have them in existingIsbns
+    // But since we just construct ID, we check if we already have this specific Tiki book
+    // Or if the SKU matches an existing ISBN
+    const validBooks = books.filter(b => !existingIsbns.has(b.isbn));
 
-        return {
-          id: finalIsbn,
-          title: info.title || 'Không có tiêu đề',
-          author: info.authors?.join(', ') || 'Nhiều tác giả',
-          authorBio: info.description?.substring(0, 300) || 'Thông tin tác giả đang được cập nhật.',
-          price: Math.floor(Math.random() * (350000 - 85000) + 85000),
-          originalPrice: Math.floor(Math.random() * (450000 - 400000) + 400000),
-          stockQuantity: Math.floor(Math.random() * 50) + 5,
-          rating: finalRating,
-          cover: coverUrl,
-          category: appCat,
-          description: info.description || 'Chưa có mô tả chi tiết cho cuốn sách này.',
-          isbn: finalIsbn,
-          pages: info.pageCount || 200,
-          publisher: info.publisher || 'Đang cập nhật',
-          publishYear: parseInt(info.publishedDate?.split('-')[0]) || 2023,
-          language: mappedLang,
-          badge: badge
-        } as Book;
-      })
-      .filter((b: any) => b !== null);
-
-    return books;
+    return validBooks;
   } catch (error) {
-    console.error("Error fetching from Google Books:", error);
+    console.error("Error searching Tiki books:", error);
     return [];
+  }
+}
+
+export async function getBookDetailsFromTiki(tikiId: string | number): Promise<Partial<Book> | null> {
+  try {
+    const proxyUrl = 'https://api.allorigins.win/raw?url=';
+    // clean ID if it has TK- prefix
+    const cleanId = String(tikiId).replace('TK-', '');
+    const url = `https://tiki.vn/api/v2/products/${cleanId}`;
+
+    const response = await fetch(proxyUrl + encodeURIComponent(url));
+    const data = await response.json();
+
+    if (!data || data.error) return null;
+
+    // Extract more detailed info
+    const specs = data.specifications || [];
+    let publisher = 'Đang cập nhật';
+    let publishYear = new Date().getFullYear();
+    let dimensions = '';
+    let pages = 0;
+    let bookLayout = ''; // Bìa mềm/bìa cứng
+
+    // Parse specifications
+    const mainSpecs = specs.find((s: any) => s.name === 'Thông tin chi tiết');
+    if (mainSpecs && mainSpecs.attributes) {
+      for (const attr of mainSpecs.attributes) {
+        if (attr.code === 'publisher_vn') publisher = attr.value;
+        if (attr.code === 'publication_date') publishYear = parseInt(attr.value) || publishYear;
+        if (attr.code === 'dimensions') dimensions = attr.value;
+        if (attr.code === 'number_of_page') pages = parseInt(attr.value) || 0;
+        if (attr.code === 'book_cover') bookLayout = attr.value;
+      }
+    }
+
+    let desc = data.description || '';
+
+    // Remove Tiki boilerplate text about shipping/tax
+    const boilerplateIndex = desc.indexOf('Giá sản phẩm trên Tiki đã bao gồm thuế');
+    if (boilerplateIndex > -1) {
+      desc = desc.substring(0, boilerplateIndex);
+    }
+
+    // Replace <br> and <p> with newlines to preserve some structure
+    desc = desc.replace(/<br\s*\/?>/gi, '\n');
+    desc = desc.replace(/<\/p>/gi, '\n\n');
+
+    // Strip all other HTML tags
+    desc = desc.replace(/<[^>]*>/g, '');
+
+    // Decode HTML entities (basic ones)
+    desc = desc.replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+
+    // Trim whitespace
+    desc = desc.trim();
+
+    // If description is too short or empty after cleaning
+    if (!desc) {
+      desc = 'Chưa có mô tả chi tiết cho cuốn sách này.';
+    }
+
+    return {
+      description: desc,
+      publisher: publisher,
+      publishYear: publishYear,
+      pages: pages,
+      language: 'Tiếng Việt', // Most Tiki books are VN, simple assumption or parse
+      cover: data.images && data.images[0] ? data.images[0].base_url : undefined
+    };
+
+  } catch (e) {
+    console.error("Error fetching Tiki details:", e);
+    return null;
   }
 }
 

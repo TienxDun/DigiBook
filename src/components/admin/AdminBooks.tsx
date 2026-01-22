@@ -176,36 +176,187 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     }
   };
 
-  const handleAutoSync = async () => {
-    setIsSyncing(true);
-    setSeedStatus({ msg: "Đang quét dữ liệu từ Google Books & Open Library...", type: 'info' });
+  // Import State
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [activeImportTab, setActiveImportTab] = useState<'search' | 'auto'>('search');
+
+  // Search State
+  const [importSearchTerm, setImportSearchTerm] = useState('');
+  const [importResults, setImportResults] = useState<Book[]>([]);
+  const [isSearchingImport, setIsSearchingImport] = useState(false);
+  const [selectedImportBooks, setSelectedImportBooks] = useState<string[]>([]);
+
+  // Auto Scan State
+  const [autoScanCategory, setAutoScanCategory] = useState('');
+  const [autoScanLimit, setAutoScanLimit] = useState(20);
+  const [isAutoScanning, setIsAutoScanning] = useState(false);
+  const [scanProgress, setScanProgress] = useState({ current: 0, total: 0, status: '' });
+
+  const handleOpenImport = () => {
+    setIsImportModalOpen(true);
+    setImportResults([]);
+    setImportSearchTerm('');
+    setSelectedImportBooks([]);
+    setActiveImportTab('search');
+    setScanProgress({ current: 0, total: 0, status: '' });
+  };
+
+  const handleSearchImport = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!importSearchTerm.trim()) return;
+
+    setIsSearchingImport(true);
+    setSelectedImportBooks([]);
     try {
-      const queries = [
-        'sách kinh tế bán chạy', 'văn học kinh điển', 'tâm lý học hành vi',
-        'lịch sử thế giới', 'triết học phương đông', 'sách thiếu nhi hay',
-        'phát triển bản thân', 'startup khởi nghiệp'
-      ];
-      const randomQuery = queries[Math.floor(Math.random() * queries.length)];
+      const results = await db.searchBooksFromTiki(importSearchTerm);
+      if (results.length === 0) {
+        toast('Không tìm thấy sách nào phù hợp', { icon: '🔍' });
+      }
+      setImportResults(results);
+    } catch (error) {
+      toast.error('Lỗi tìm kiếm sách');
+    } finally {
+      setIsSearchingImport(false);
+    }
+  };
 
-      const newBooks = await db.fetchBooksFromGoogle(randomQuery, 20);
+  const importSingleBook = async (book: Book): Promise<boolean> => {
+    try {
+      const details = await db.getBookDetailsFromTiki(book.id);
+      const fullBook = { ...book, ...details };
 
-      if (newBooks.length === 0) {
-        setSeedStatus({ msg: "Không tìm thấy sách mới phù hợp hoặc tất cả đã tồn tại.", type: 'info' });
-        setIsSyncing(false);
-        return;
+      const matchedAuthor = authors.find(a => a.name.toLowerCase() === fullBook.author.toLowerCase());
+      if (matchedAuthor) {
+        fullBook.authorId = matchedAuthor.id;
       }
 
-      setSeedStatus({ msg: `Đã tìm thấy ${newBooks.length} sách mới. Đang đồng bộ...`, type: 'info' });
-      const count = await db.saveBooksBatch(newBooks);
+      await db.saveBook(fullBook);
+      return true;
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
+  };
 
-      setSeedStatus({ msg: `Đồng bộ thành công ${count} cuốn sách từ Google Books!`, type: 'success' });
+  const handleImportBook = async (book: Book) => {
+    toast.loading('Đang nhập sách...', { id: 'import-loading' });
+    const success = await importSingleBook(book);
+    if (success) {
+      toast.success(`Đã nhập sách "${book.title}"`, { id: 'import-loading' });
       await refreshData();
-    } catch (error: any) {
-      console.error("Auto Sync Error:", error);
-      setSeedStatus({ msg: `Lỗi đồng bộ: ${error.message}`, type: 'error' });
+    } else {
+      toast.error('Lỗi khi nhập sách', { id: 'import-loading' });
+    }
+  };
+
+  const handleBulkImport = async () => {
+    if (selectedImportBooks.length === 0) return;
+
+    setIsAutoScanning(true); // Re-use loading state
+    setScanProgress({ current: 0, total: selectedImportBooks.length, status: 'Đang nhập...' });
+
+    let successCount = 0;
+    const booksToImport = importResults.filter(b => selectedImportBooks.includes(b.id));
+
+    for (let i = 0; i < booksToImport.length; i++) {
+      const book = booksToImport[i];
+      setScanProgress({ current: i + 1, total: booksToImport.length, status: `Đang nhập: ${book.title}...` });
+      const success = await importSingleBook(book);
+      if (success) successCount++;
+      // Small delay to be nice to API
+      await new Promise(r => setTimeout(r, 500));
+    }
+
+    setIsAutoScanning(false);
+    toast.success(`Đã nhập thành công ${successCount}/${selectedImportBooks.length} sách`);
+    setSelectedImportBooks([]);
+    await refreshData();
+  };
+
+  const handleStartAutoScan = async () => {
+    if (!autoScanCategory) {
+      toast.error("Vui lòng chọn danh mục");
+      return;
+    }
+
+    setIsAutoScanning(true);
+    setScanProgress({ current: 0, total: autoScanLimit, status: 'Đang tìm kiếm...' });
+
+    try {
+      // Determine keywords based on Category
+      let keywords = autoScanCategory.toLowerCase();
+      if (keywords === 'kinh tế') keywords = 'sách kinh tế bán chạy';
+      else if (keywords === 'văn học') keywords = 'tiểu thuyết văn học';
+      else if (keywords === 'thiếu nhi') keywords = 'truyện thiếu nhi';
+
+      let importedCount = 0;
+      let page = 1;
+
+      while (importedCount < autoScanLimit && page <= 5) {
+        setScanProgress(prev => ({ ...prev, status: `Đang quét trang ${page}...` }));
+
+        const results = await db.searchBooksFromTiki(keywords, page);
+        if (results.length === 0) break; // End of results
+
+        // Filter duplicates
+        const newBooks = results.filter(b => !books.some(ex => ex.title.toLowerCase() === b.title.toLowerCase())); // Simple Title check locally + checking existing DB in search
+
+        for (const book of newBooks) {
+          if (importedCount >= autoScanLimit) break;
+
+          setScanProgress({ current: importedCount + 1, total: autoScanLimit, status: `Đang nhập: ${book.title}...` });
+          const success = await importSingleBook(book);
+          if (success) importedCount++;
+
+          await new Promise(r => setTimeout(r, 800)); // Delay
+        }
+        page++;
+      }
+
+      toast.success(`Đã tự động nhập ${importedCount} sách mới!`);
+      await refreshData();
+
+    } catch (err) {
+      toast.error("Lỗi trong quá trình quét tự động");
     } finally {
-      setIsSyncing(false);
-      setTimeout(() => setSeedStatus(null), 5000);
+      setIsAutoScanning(false);
+    }
+  };
+
+  const toggleImportSelect = (id: string) => {
+    setSelectedImportBooks(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  const _old_handleImportBook = async (book: Book) => {
+    try {
+      // Check duplicate by title + author loosely if id check passes (Tiki ID is unique enough though)
+      // ID check is handled in searchBooksFromTiki somewhat (filtering existing ISBNs) but let's double check
+
+      // Fetch full details
+      toast.loading('Đang lấy thông tin chi tiết...', { id: 'import-loading' });
+      const details = await db.getBookDetailsFromTiki(book.id);
+
+      const fullBook = { ...book, ...details };
+      // Override author to map to system author if possible or create new?
+      // For now we just save the string. If we want relational, we need more logic.
+      // But AdminBooks save logic usually just handles Book object.
+      // Let's create a new author generic if needed? 
+      // Actually the Book type has 'author' string and optional 'authorId'. 
+      // We will leave authorId blank for imported books or try to match by name.
+      const matchedAuthor = authors.find(a => a.name.toLowerCase() === fullBook.author.toLowerCase());
+      if (matchedAuthor) {
+        fullBook.authorId = matchedAuthor.id;
+      }
+
+      await db.saveBook(fullBook);
+      toast.success(`Đã nhập sách "${fullBook.title}"`, { id: 'import-loading' });
+
+      // Update result list to show imported status visually?
+      // For now just refresh data
+      await refreshData();
+    } catch (error) {
+      toast.error('Lỗi khi nhập sách', { id: 'import-loading' });
+      ErrorHandler.handle(error, 'nhập sách');
     }
   };
 
@@ -473,15 +624,12 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
           </button>
 
           <button
-            onClick={handleAutoSync}
-            disabled={isSyncing}
-            className={`h-12 px-6 rounded-2xl font-bold transition-all shadow-sm border flex items-center gap-2 group ${isSyncing
-              ? (isMidnight ? 'bg-slate-700 text-slate-400 border-slate-600 cursor-not-allowed' : 'bg-muted text-muted-foreground border-border cursor-not-allowed')
-              : (isMidnight ? 'bg-chart-1/10 text-chart-1 hover:bg-chart-1/20 border-chart-1/20' : 'bg-chart-1/10 text-chart-1 hover:bg-chart-1/20 border-chart-1/20')
+            onClick={handleOpenImport}
+            className={`h-12 px-6 rounded-2xl font-bold transition-all shadow-sm border flex items-center gap-2 group ${isMidnight ? 'bg-chart-1/10 text-chart-1 hover:bg-chart-1/20 border-chart-1/20' : 'bg-chart-1/10 text-chart-1 hover:bg-chart-1/20 border-chart-1/20'
               }`}
           >
-            <i className={`fa-solid ${isSyncing ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-down'} text-xs'}`}></i>
-            <span className="text-xs uppercase tracking-wider">{isSyncing ? 'Đang sync...' : 'Auto Sync'}</span>
+            <i className="fa-solid fa-cloud-arrow-down text-xs"></i>
+            <span className="text-xs uppercase tracking-wider">Nhập từ Internet</span>
           </button>
 
           <button
@@ -1016,6 +1164,266 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                     </div>
                   </div>
                 </form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
+
+      {/* Import Book Modal */}
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence mode="wait">
+          {isImportModalOpen && (
+            <motion.div
+              key="import-book-portal"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10"
+            >
+              <div className="absolute inset-0 bg-foreground/40 backdrop-blur-md" onClick={() => !isAutoScanning && setIsImportModalOpen(false)} />
+
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className={`${isMidnight ? 'bg-[#1e293b] border-white/5' : 'bg-card border-border'} w-full max-w-6xl h-full max-h-[90vh] rounded-[3rem] shadow-3xl overflow-hidden border relative z-10 flex`}
+              >
+                {/* Sidebar Navigation */}
+                <div className={`w-64 flex-shrink-0 border-r flex flex-col p-6 ${isMidnight ? 'bg-slate-900/50 border-white/5' : 'bg-muted/30 border-border'}`}>
+                  <h3 className="font-black text-lg mb-8 px-2 flex items-center gap-3">
+                    <i className="fa-solid fa-cloud-arrow-down text-primary"></i>
+                    Nhập Sách
+                  </h3>
+
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => setActiveImportTab('search')}
+                      disabled={isAutoScanning}
+                      className={`w-full text-left px-5 py-4 rounded-2xl font-bold text-sm transition-all flex items-center gap-3 ${activeImportTab === 'search'
+                        ? (isMidnight ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'bg-primary text-primary-foreground shadow-lg shadow-primary/20')
+                        : (isMidnight ? 'text-slate-400 hover:bg-slate-800' : 'text-muted-foreground hover:bg-muted')}`}
+                    >
+                      <i className="fa-solid fa-magnifying-glass"></i>
+                      Tìm kiếm thủ công
+                    </button>
+                    <button
+                      onClick={() => setActiveImportTab('auto')}
+                      disabled={isAutoScanning}
+                      className={`w-full text-left px-5 py-4 rounded-2xl font-bold text-sm transition-all flex items-center gap-3 ${activeImportTab === 'auto'
+                        ? (isMidnight ? 'bg-chart-1 text-white shadow-lg shadow-chart-1/30' : 'bg-chart-1 text-white shadow-lg shadow-chart-1/30')
+                        : (isMidnight ? 'text-slate-400 hover:bg-slate-800' : 'text-muted-foreground hover:bg-muted')}`}
+                    >
+                      <i className="fa-solid fa-robot"></i>
+                      Quét tự động
+                    </button>
+                  </div>
+
+                  <div className="mt-auto px-4 py-6 rounded-3xl bg-background/50 border text-center">
+                    <h4 className="font-bold text-xs uppercase tracking-wide text-muted-foreground mb-2">TIPS</h4>
+                    <p className="text-[11px] text-muted-foreground/80 leading-relaxed">
+                      Sử dụng <strong>Quét tự động</strong> để nhanh chóng làm đầy kho sách theo danh mục.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Main Content Area */}
+                <div className="flex-1 flex flex-col overflow-hidden relative">
+
+                  {/* Header Action Bar */}
+                  <div className={`h-20 border-b flex items-center justify-between px-8 shrink-0 ${isMidnight ? 'border-white/5' : 'border-border'}`}>
+                    <div className="flex items-center gap-4">
+                      {activeImportTab === 'search' ? (
+                        <h2 className="font-bold text-lg">Tìm kiếm trên Tiki</h2>
+                      ) : (
+                        <h2 className="font-bold text-lg flex items-center gap-2">
+                          <i className="fa-solid fa-wand-magic-sparkles text-chart-1"></i>
+                          Auto Scanner
+                        </h2>
+                      )}
+
+                      {isAutoScanning && (
+                        <div className="bg-chart-1/10 text-chart-1 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wide animate-pulse">
+                          Running...
+                        </div>
+                      )}
+                    </div>
+                    <button onClick={() => !isAutoScanning && setIsImportModalOpen(false)} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-destructive/10 hover:text-destructive transition-colors">
+                      <i className="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                  </div>
+
+                  {/* Content Body */}
+                  <div className="flex-1 overflow-hidden relative">
+                    {/* Tab: SEARCH */}
+                    {activeImportTab === 'search' && (
+                      <div className="flex flex-col h-full">
+                        <div className="p-6 border-b shrink-0 flex gap-4">
+                          <form onSubmit={handleSearchImport} className="flex-1 relative group">
+                            <i className="fa-solid fa-magnifying-glass absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground"></i>
+                            <input
+                              type="text"
+                              autoFocus
+                              placeholder="Nhập tên sách..."
+                              value={importSearchTerm}
+                              onChange={(e) => setImportSearchTerm(e.target.value)}
+                              className={`w-full h-14 pl-14 pr-4 rounded-2xl border font-bold outline-none transition-all ${isMidnight ? 'bg-slate-800/50 border-white/5 focus:bg-slate-800' : 'bg-muted/20 border-border focus:border-primary'}`}
+                            />
+                          </form>
+                          <button
+                            onClick={() => handleSearchImport()}
+                            disabled={isSearchingImport}
+                            className="h-14 px-8 rounded-2xl bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+                          >
+                            Tìm
+                          </button>
+                        </div>
+
+                        {/* Toolbar */}
+                        {importResults.length > 0 && (
+                          <div className="px-6 py-3 flex items-center justify-between bg-muted/20 shrink-0">
+                            <div className="flex items-center gap-3">
+                              <input
+                                type="checkbox"
+                                className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
+                                checked={selectedImportBooks.length === importResults.length && importResults.length > 0}
+                                onChange={() => {
+                                  if (selectedImportBooks.length === importResults.length) setSelectedImportBooks([]);
+                                  else setSelectedImportBooks(importResults.map(b => b.id));
+                                }}
+                              />
+                              <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Chọn tất cả</span>
+                            </div>
+
+                            {selectedImportBooks.length > 0 && (
+                              <button
+                                onClick={handleBulkImport}
+                                className="bg-primary text-primary-foreground px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-wide shadow-md hover:bg-primary/90 transition-all animate-slideIn"
+                              >
+                                Nhập {selectedImportBooks.length} sách đã chọn
+                              </button>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                            {importResults.map(book => {
+                              const isExist = books.some(b => b.title.toLowerCase() === book.title.toLowerCase());
+                              const isSelected = selectedImportBooks.includes(book.id);
+                              return (
+                                <div key={book.id} onClick={() => !isExist && toggleImportSelect(book.id)} className={`relative flex gap-4 p-4 rounded-3xl border transition-all cursor-pointer ${isSelected ? 'border-primary bg-primary/5 ring-1 ring-primary/20' : (isMidnight ? 'bg-slate-800/40 border-white/5 hover:border-white/10' : 'bg-card border-border hover:shadow-md')}`}>
+                                  <div className="w-20 aspect-[2/3] rounded-xl overflow-hidden shrink-0 border bg-muted">
+                                    <img src={book.cover} className="w-full h-full object-cover" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="font-bold text-sm leading-tight line-clamp-2 mb-1">{book.title}</h4>
+                                    <div className="text-xs text-muted-foreground mb-2">{book.author}</div>
+                                    <div className="font-black text-chart-1">{formatPrice(book.price)}</div>
+                                  </div>
+
+                                  {isExist ? (
+                                    <div className="absolute top-4 right-4 text-green-500 bg-green-500/10 px-2 py-1 rounded-lg text-[10px] font-black uppercase">Đã có</div>
+                                  ) : (
+                                    <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-primary border-primary' : 'border-muted-foreground/30'}`}>
+                                      {isSelected && <i className="fa-solid fa-check text-white text-[10px]"></i>}
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
+                            {importResults.length === 0 && !isSearchingImport && (
+                              <div className="col-span-full h-64 flex flex-col items-center justify-center text-muted-foreground opacity-50">
+                                <i className="fa-solid fa-magnifying-glass text-4xl mb-4"></i>
+                                <p>Nhập từ khóa để tìm sách...</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tab: AUTO SCAN */}
+                    {activeImportTab === 'auto' && (
+                      <div className="flex flex-col h-full p-10 items-center justify-center">
+                        <div className="max-w-xl w-full">
+                          <div className="text-center mb-10">
+                            <div className="w-20 h-20 rounded-[2.5rem] bg-chart-1/10 text-chart-1 flex items-center justify-center text-4xl mx-auto mb-6 shadow-2xl shadow-chart-1/20 animate-bounce">
+                              <i className="fa-solid fa-robot"></i>
+                            </div>
+                            <h2 className="text-3xl font-black mb-2">Auto Scanner</h2>
+                            <p className="text-muted-foreground">Hệ thống sẽ tự động quét và nhập sách theo danh mục bạn chọn.</p>
+                          </div>
+
+                          <div className={`p-8 rounded-[2.5rem] border space-y-8 ${isMidnight ? 'bg-slate-800/30 border-white/5' : 'bg-card border-border shadow-xl'}`}>
+                            {isAutoScanning ? (
+                              <div className="text-center py-6">
+                                <div className="mb-4 flex items-center justify-between text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                                  <span>Tiến độ</span>
+                                  <span>{Math.round((scanProgress.current / scanProgress.total) * 100)}%</span>
+                                </div>
+                                <div className="h-4 bg-muted/30 rounded-full overflow-hidden mb-6 relative">
+                                  <motion.div
+                                    className="absolute top-0 left-0 bottom-0 bg-chart-1 rounded-full"
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${(scanProgress.current / scanProgress.total) * 100}%` }}
+                                    transition={{ duration: 0.5 }}
+                                  />
+                                </div>
+                                <p className="font-bold text-chart-1 animate-pulse">{scanProgress.status}</p>
+                                <p className="text-xs text-muted-foreground mt-2">{scanProgress.current} / {scanProgress.total} sách</p>
+                              </div>
+                            ) : (
+                              <>
+                                <div>
+                                  <label className="block text-xs font-black uppercase tracking-wide text-muted-foreground mb-3">Chọn danh mục</label>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    {['Kinh tế', 'Văn học', 'Thiếu nhi', 'Tâm lý', 'Lịch sử', 'Kỹ năng'].map(cat => (
+                                      <button
+                                        key={cat}
+                                        onClick={() => setAutoScanCategory(cat)}
+                                        className={`h-14 rounded-2xl font-bold transition-all border ${autoScanCategory === cat
+                                          ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20'
+                                          : 'hover:bg-muted bg-background'}`}
+                                      >
+                                        {cat}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <label className="block text-xs font-black uppercase tracking-wide text-muted-foreground mb-3">Số lượng cần nhập</label>
+                                  <div className="flex items-center gap-4">
+                                    {[10, 20, 50, 100].map(num => (
+                                      <button
+                                        key={num}
+                                        onClick={() => setAutoScanLimit(num)}
+                                        className={`flex-1 h-12 rounded-xl font-bold border transition-all ${autoScanLimit === num
+                                          ? 'bg-chart-1 text-white border-chart-1 ring-2 ring-chart-1/20'
+                                          : 'hover:bg-muted bg-background'}`}
+                                      >
+                                        {num}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                <button
+                                  onClick={handleStartAutoScan}
+                                  className="w-full h-16 bg-chart-1 text-white rounded-2xl font-black text-lg uppercase tracking-widest hover:bg-chart-1/90 transition-all shadow-xl shadow-chart-1/30 active:scale-95"
+                                >
+                                  Bắt đầu quét
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </motion.div>
             </motion.div>
           )}

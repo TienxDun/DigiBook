@@ -31,7 +31,9 @@ class DataService {
   updateBook = books.updateBook;
   deleteBook = books.deleteBook;
   deleteBooksBulk = books.deleteBooksBulk;
-  fetchBooksFromGoogle = books.fetchBooksFromGoogle;
+  // fetchBooksFromGoogle = books.fetchBooksFromGoogle; // Deprecated
+  searchBooksFromTiki = books.searchBooksFromTiki;
+  getBookDetailsFromTiki = books.getBookDetailsFromTiki;
   fetchBookByISBN = books.fetchBookByISBN;
 
   // Metadata (Categories, Authors, Seed)
