@@ -126,11 +126,4 @@ export interface Coupon {
   isActive: boolean;
 }
 
-export interface AIModelConfig {
-  id: string;
-  name: string;
-  category: string;
-  rpm: string;
-  tpm: string;
-  rpd: string;
-}
+
