@@ -1,9 +1,11 @@
 
 import React, { useState, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { X, ShoppingCart, Star, Calendar, Package, BookOpen, Languages, Building2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Book } from '../types/';
-import { useAuth } from '../contexts/AuthContext';
+import { useNavigate, Link } from 'react-router-dom';
+import { useCart } from '../../../contexts/CartContext';
+import { Book } from '../../../types/';
+import { useAuth } from '../../../contexts/AuthContext';
 
 interface QuickViewModalProps {
   book: Book | null;
@@ -189,8 +191,8 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                     onClose();
                   }}
                   className={`w-full py-4 rounded-xl text-sm font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-xl relative overflow-hidden group/btn ${book.stockQuantity > 0 && isAvailable
-                      ? 'bg-slate-900 text-white hover:bg-indigo-600 shadow-indigo-100'
-                      : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                    ? 'bg-slate-900 text-white hover:bg-indigo-600 shadow-indigo-100'
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
                     }`}
                 >
                   {/* Button Shine Effect */}
@@ -204,8 +206,8 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                   <button
                     onClick={handleToggleWishlist}
                     className={`py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all border-2 active:scale-95 text-xs font-black uppercase tracking-widest ${isWishlisted
-                        ? 'bg-rose-50 border-rose-200 text-rose-500'
-                        : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200 hover:text-rose-500'
+                      ? 'bg-rose-50 border-rose-200 text-rose-500'
+                      : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200 hover:text-rose-500'
                       }`}
                   >
                     <i className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-sm`}></i>

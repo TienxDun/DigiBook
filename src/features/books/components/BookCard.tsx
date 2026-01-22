@@ -1,9 +1,9 @@
-
 import React, { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { ShoppingCart, Eye, Heart, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Book } from '../types/';
-import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../../../contexts/CartContext';
+import { Book } from '../../../types/';
 
 interface BookCardProps {
   book: Book;

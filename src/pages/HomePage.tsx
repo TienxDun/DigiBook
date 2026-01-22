@@ -7,7 +7,8 @@ import { db } from '@/services/db';
 import { useAuth } from '../contexts/AuthContext';
 import { useBooks } from '../contexts/BookContext';
 import { useCart } from '../contexts/CartContext';
-import BookCard from '../components/BookCard';
+import { QuickViewModal } from '../features/books';
+import { BookCard } from '../features/books';
 import { BookCardSkeleton } from '../components/common/Skeleton';
 import SEO from '../components/common/SEO';
 

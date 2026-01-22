@@ -10,7 +10,7 @@ import LoginModal from './components/LoginModal';
 import PageTransition from './components/common/PageTransition';
 import ScrollToTop from './components/common/ScrollToTop';
 import BackToTop from './components/common/BackToTop';
-import { QuickViewModal } from './components/QuickViewModal';
+import { QuickViewModal } from './features/books';
 import { Book } from './types/';
 import { motion, AnimatePresence } from 'framer-motion';
 

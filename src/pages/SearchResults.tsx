@@ -3,11 +3,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { db } from '@/services/db';
 import { Book } from '../types/';
-import BookCard from '../components/BookCard';
-import { BookCardSkeleton } from '../components/common/Skeleton';
-
-import { useCart } from '../contexts/CartContext';
 import { useBooks } from '../contexts/BookContext';
+import { useCart } from '../contexts/CartContext';
+import { BookCard } from '../features/books';
+import { BookCardSkeleton } from '../components/common/Skeleton';
+import { QuickViewModal } from '../features/books';
 
 const SearchResults: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickView }) => {
   const { addToCart } = useCart();

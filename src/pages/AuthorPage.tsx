@@ -2,11 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { db } from '@/services/db';
-import { AVAILABLE_AI_MODELS } from '../constants/ai-models';
-import BookCard from '../components/BookCard';
+import { AVAILABLE_AI_MODELS } from '@/constants/ai-models';
+import { BookCard } from '../features/books';
 import { Book, Author } from '../types/';
 import { BookCardSkeleton, Skeleton } from '../components/common/Skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
+import { QuickViewModal } from '../features/books';
 import { useAuth } from '../contexts/AuthContext';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';

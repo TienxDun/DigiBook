@@ -3,7 +3,7 @@ import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { db } from '@/services/db';
-import BookCard from '../components/BookCard';
+import { BookCard, QuickViewModal } from '../features/books';
 import Pagination from '../components/ui/Pagination';
 import { Book, CategoryInfo } from '../types/';
 import { BookCardSkeleton } from '../components/common/Skeleton';
