@@ -10,7 +10,7 @@ import {
   serverTimestamp
 } from "firebase/firestore";
 import { db_fs } from "../../../lib/firebase";
-import { UserProfile } from '@/shared/types/';
+import { UserProfile, Address } from '@/shared/types/';
 import { wrap } from "../core";
 
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
@@ -44,6 +44,87 @@ export async function updateWishlist(userId: string, bookIds: string[]): Promise
     { id: userId, wishlistIds: bookIds },
     'UPDATE_WISHLIST',
     `Items: ${bookIds.length}`
+  );
+}
+
+// --- Address Management ---
+export async function addUserAddress(userId: string, address: Omit<Address, 'id'>): Promise<void> {
+  const userRef = doc(db_fs, 'users', userId);
+  const snap = await getDoc(userRef);
+  if (!snap.exists()) throw new Error("User not found");
+
+  const userData = snap.data() as UserProfile;
+  const currentAddresses = userData.addresses || [];
+
+  // If this is the first address, make it default automatically
+  const isDefault = currentAddresses.length === 0 ? true : address.isDefault;
+
+  // If new address is default, unset others
+  let updatedAddresses = [...currentAddresses];
+  if (isDefault) {
+    updatedAddresses = updatedAddresses.map(a => ({ ...a, isDefault: false }));
+  }
+
+  const newAddress: Address = {
+    ...address,
+    id: `addr-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+    isDefault
+  };
+
+  updatedAddresses.push(newAddress);
+
+  await wrap(
+    updateDoc(userRef, {
+      addresses: updatedAddresses,
+      updatedAt: serverTimestamp()
+    }),
+    undefined,
+    'ADD_ADDRESS',
+    newAddress.label
+  );
+}
+
+export async function removeUserAddress(userId: string, addressId: string): Promise<void> {
+  const userRef = doc(db_fs, 'users', userId);
+  const snap = await getDoc(userRef);
+  if (!snap.exists()) throw new Error("User not found");
+
+  const userData = snap.data() as UserProfile;
+  const currentAddresses = userData.addresses || [];
+  const updatedAddresses = currentAddresses.filter(a => a.id !== addressId);
+
+  await wrap(
+    updateDoc(userRef, {
+      addresses: updatedAddresses,
+      updatedAt: serverTimestamp()
+    }),
+    undefined,
+    'REMOVE_ADDRESS',
+    addressId
+  );
+}
+
+export async function setDefaultAddress(userId: string, addressId: string): Promise<void> {
+  const userRef = doc(db_fs, 'users', userId);
+  const snap = await getDoc(userRef);
+  if (!snap.exists()) throw new Error("User not found");
+
+  const userData = snap.data() as UserProfile;
+  const currentAddresses = userData.addresses || [];
+
+  const updatedAddresses = currentAddresses.map(a => ({
+    ...a,
+    isDefault: a.id === addressId
+  }));
+
+  await wrap(
+    updateDoc(userRef, {
+      addresses: updatedAddresses,
+      updatedAt: serverTimestamp()
+    }),
+    undefined,
+    'SET_DEFAULT_ADDRESS',
+    addressId
   );
 }
 

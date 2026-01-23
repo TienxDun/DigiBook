@@ -77,7 +77,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
   const { addToCart } = useCart();
   const { setViewingBook } = useBooks();
 
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { wishlist, toggleWishlist, user, setShowLoginModal } = useAuth();
 
@@ -99,49 +99,59 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
 
   useEffect(() => {
     const fetchData = async () => {
-      if (id) {
+      if (slug) {
         setLoading(true);
         setError(false);
         // Fetch model config
 
+        // Try fetch by slug first
+        let foundBook = await db.getBookBySlug(slug);
 
-        const foundBook = await db.getBookById(id);
+        // Fallback: Try fetch by ID if slug not found (for legacy links or if slug matches ID)
+        if (!foundBook) {
+          foundBook = await db.getBookById(slug);
+        }
+
         if (foundBook) {
-          setBook(foundBook);
-          setViewingBook(foundBook);
+          const bookData = foundBook; // Ensure typing
+          setBook(bookData);
+          setViewingBook(bookData);
+
+          // Increment view count (fire and forget)
+          db.incrementBookView(bookData.id);
 
           // Fetch author info
           db.getAuthors().then(authors => {
-            const info = authors.find(a => a.name.toLowerCase() === foundBook.author.toLowerCase());
+            const info = authors.find(a => a.name.toLowerCase() === bookData.author.toLowerCase());
             if (info) setAuthorInfo(info as any);
           });
 
-          const bookReviews = await db.getReviewsByBookId(id);
+          const bookReviews = await db.getReviewsByBookId(bookData.id);
 
           // Kiểm tra xem mỗi người review đã mua sách chưa
           const reviewsWithPurchaseInfo = await Promise.all(bookReviews.map(async (r) => {
-            const isPurchased = await db.checkIfUserPurchasedBook(r.userId, id);
+            const isPurchased = await db.checkIfUserPurchasedBook(r.userId, bookData.id);
             return { ...r, isPurchased };
           }));
 
           setReviews(reviewsWithPurchaseInfo);
 
           // Gợi ý sách liên quan - Tăng lên 5 cuốn để lấp đầy grid
-          const related = await db.getRelatedBooks(foundBook.category, id, foundBook.author, 5);
+          const related = await db.getRelatedBooks(bookData.category, bookData.id, bookData.author, 5);
           setRelatedBooks(related);
 
           // Fetch sách cùng tác giả
-          const byAuthor = await db.getBooksByAuthor(foundBook.author, id, 5);
+          const byAuthor = await db.getBooksByAuthor(bookData.author, bookData.id, 5);
           setAuthorBooks(byAuthor);
 
           // Update recent books in localStorage
           const stored = localStorage.getItem('digibook_recent');
           let recent: Book[] = stored ? JSON.parse(stored) : [];
           // Lưu 10 cuốn gần nhất để khi filter cuốn hiện tại vẫn còn đủ hiển thị
-          recent = [foundBook, ...recent.filter(b => b.id !== foundBook.id)].slice(0, 10);
+          recent = [bookData, ...recent.filter(b => b.id !== bookData.id)].slice(0, 10);
           localStorage.setItem('digibook_recent', JSON.stringify(recent));
           // Hiển thị 5 cuốn khác để lấp đầy grid xl:grid-cols-5
-          setRecentBooks(recent.filter(b => b.id !== foundBook.id).slice(0, 5));
+          setRecentBooks(recent.filter(b => b.id !== bookData.id).slice(0, 5));
         } else {
           setError(true);
         }
@@ -153,28 +163,29 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
     return () => {
       setViewingBook(null);
     };
-  }, [id, setViewingBook]);
+  }, [slug, setViewingBook]);
 
-  const isWishlisted = useMemo(() => wishlist.some(b => b.id === id), [wishlist, id]);
+  const isWishlisted = useMemo(() => wishlist.some(b => b.id === book?.id), [wishlist, book]);
 
   const handleAddReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) { setShowLoginModal(true); return; }
     if (!newComment.trim()) return;
+    if (!book) return;
 
     await db.addReview({
-      bookId: id!,
+      bookId: book.id,
       userId: user.id,
       userName: user.name,
       rating: newRating,
       content: newComment
     });
     setNewComment('');
-    const updatedReviews = await db.getReviewsByBookId(id!);
+    const updatedReviews = await db.getReviewsByBookId(book.id);
 
     // Refresh with purchase info
     const reviewsWithPurchaseInfo = await Promise.all(updatedReviews.map(async (r) => {
-      const isPurchased = await db.checkIfUserPurchasedBook(r.userId, id!);
+      const isPurchased = await db.checkIfUserPurchasedBook(r.userId, book.id);
       return { ...r, isPurchased };
     }));
     setReviews(reviewsWithPurchaseInfo);

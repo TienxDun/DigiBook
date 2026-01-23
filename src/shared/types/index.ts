@@ -27,6 +27,11 @@ export interface Book {
   badge?: string;
   isAvailable?: boolean;
   createdAt?: any;
+
+  // New Fields (Phase 1 Upgrade)
+  slug?: string;
+  viewCount?: number;
+  searchKeywords?: string[];
 }
 
 export interface CartItem extends Book {
@@ -39,12 +44,23 @@ export interface CategoryInfo {
   description: string;
 }
 
+export interface Address {
+  id: string;
+  label: string; // "Nhà riêng", "Công ty"
+  recipientName: string;
+  phone: string;
+  fullAddress: string; // Địa chỉ chi tiết
+  isDefault: boolean;
+}
+
 export interface UserProfile {
   id: string;
   name: string;
   email: string;
   phone?: string;
+  /** @deprecated Use addresses array instead */
   address?: string;
+  addresses?: Address[];
   avatar?: string;
   bio?: string;
   gender?: string;

@@ -7,32 +7,14 @@ import { db } from '@/services/db';
 import { ErrorHandler } from '@/services/errorHandler';
 import { useCart } from '@/features/cart';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Address } from '@/shared/types';
+import { AddressList, AddressFormModal } from '@/features/auth';
 
-import { AddressInput, MapPicker } from '@/shared/components';
-import { mapService, AddressResult } from '@/services/map';
 import { validateCartStock } from '@/services/db/utils/validateCartStock';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 };
-
-// Modern Static Label Input with Icon
-const FormInput = ({ label, icon, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: string, icon?: string }) => (
-  <div className="space-y-1.5">
-    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">{label}</label>
-    <div className="relative group">
-      <input
-        {...props}
-        className={`w-full py-2.5 ${icon ? 'pl-9' : 'px-3'} pr-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-semibold text-slate-800 text-sm shadow-sm hover:border-indigo-300 ${props.className}`}
-      />
-      {icon && (
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
-          <i className={`fa-solid ${icon} text-xs`}></i>
-        </div>
-      )}
-    </div>
-  </div>
-);
 
 const CheckoutPage: React.FC = () => {
   const { cart, clearCart, updateQuantity, removeFromCart } = useCart();
@@ -45,20 +27,103 @@ const CheckoutPage: React.FC = () => {
   const [isValidatingStock, setIsValidatingStock] = useState(false);
   const [stockInfo, setStockInfo] = useState<Record<string, number>>({});
   const [hasStockErrors, setHasStockErrors] = useState(false);
+
+  // Address Management
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [selectedAddrId, setSelectedAddrId] = useState<string | null>(null);
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<any>(null);
+
+  // Order Form Data - Will be auto-filled from selected address
   const [formData, setFormData] = useState({
-    name: user?.name || '',
+    name: '',
     phone: '',
     address: '',
     note: ''
   });
-  const [coordinates, setCoordinates] = useState<{ lat: number, lon: number } | null>(null);
 
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'online'>('cod');
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string, value: number, type: 'percentage' | 'fixed' } | null>(null);
   const [couponError, setCouponError] = useState('');
 
-  // Validate stock khi load trang checkout
+  // 1. Load User Addresses & Profile
+  const fetchUserData = async () => {
+    if (!user) return;
+    try {
+      const profile = await db.getUserProfile(user.id);
+      if (profile?.addresses && profile.addresses.length > 0) {
+        setAddresses(profile.addresses);
+        // Auto-select default address
+        const defaultAddr = profile.addresses.find(a => a.isDefault) || profile.addresses[0];
+        handleSelectAddress(defaultAddr);
+      } else {
+        // Fallback or empty state
+        setAddresses([]);
+      }
+    } catch (e) {
+      console.error("Error fetching user data:", e);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserData();
+  }, [user]);
+
+  // Handle Address Selection
+  const handleSelectAddress = (addr: Address) => {
+    setSelectedAddrId(addr.id);
+    setFormData(prev => ({
+      ...prev,
+      name: addr.recipientName,
+      phone: addr.phone,
+      address: addr.fullAddress
+    }));
+  };
+
+  // Address CRUD Handlers
+  const handleAddAddress = async (newAddr: any) => {
+    if (!user) return;
+    try {
+      await db.addUserAddress(user.id, newAddr);
+      await fetchUserData(); // Refresh list
+      toast.success('Thêm địa chỉ thành công');
+      // Auto select new address? logic in fetchUserData might override, but Default usually wins.
+      // Ideally we select the newly added one. But fetchUserData selects default.
+    } catch (error) {
+      ErrorHandler.handle(error, 'thêm địa chỉ');
+    }
+  };
+
+  const handleDeleteAddress = async (id: string) => {
+    if (!user) return;
+    if (!window.confirm('Bạn có chắc muốn xóa địa chỉ này?')) return;
+    try {
+      await db.removeUserAddress(user.id, id);
+      await fetchUserData();
+      if (selectedAddrId === id) {
+        setFormData(prev => ({ ...prev, name: '', phone: '', address: '' }));
+        setSelectedAddrId(null);
+      }
+      toast.success('Đã xóa địa chỉ');
+    } catch (error) {
+      ErrorHandler.handle(error, 'xóa địa chỉ');
+    }
+  };
+
+  const handleSetDefaultAddress = async (id: string) => {
+    if (!user) return;
+    try {
+      await db.setDefaultAddress(user.id, id);
+      await fetchUserData();
+      toast.success('Đã thay đổi địa chỉ mặc định');
+    } catch (error) {
+      ErrorHandler.handle(error, 'đặt địa chỉ mặc định');
+    }
+  };
+
+
+  // 2. Validate stock logic (Unchanged mostly)
   useEffect(() => {
     const checkStockOnLoad = async () => {
       if (cart.length === 0) return;
@@ -67,14 +132,12 @@ const CheckoutPage: React.FC = () => {
       const validation = await validateCartStock(cart);
       setIsValidatingStock(false);
 
-      // Cập nhật thông tin số lượng kho
       const stockData: Record<string, number> = {};
       for (const item of cart) {
         const found = validation.errors.find(err => err.bookId === item.id);
         if (found) {
           stockData[item.id] = found.availableQuantity;
         } else {
-          // Nếu không có lỗi, lấy thông tin từ DB
           const book = await db.getBookById(item.id);
           stockData[item.id] = book?.stockQuantity || 0;
         }
@@ -87,7 +150,7 @@ const CheckoutPage: React.FC = () => {
           if (err.type === 'OUT_OF_STOCK') {
             return `- ${err.title}: Đã hết hàng`;
           } else {
-            return `- ${err.title}: Chỉ còn ${err.availableQuantity} sản phẩm (bạn đang chọn ${err.requestedQuantity})`;
+            return `- ${err.title}: Chỉ còn ${err.availableQuantity} sản phẩm`;
           }
         }).join('\n');
 
@@ -95,17 +158,14 @@ const CheckoutPage: React.FC = () => {
           <div className="flex flex-col gap-2">
             <p className="font-bold">Số lượng trong kho đã thay đổi!</p>
             <div className="text-xs whitespace-pre-line">{errorMessages}</div>
-            <p className="text-xs font-semibold">Giỏ hàng sẽ được cập nhật tự động.</p>
           </div>,
           { duration: 6000 }
         );
 
-        // Tự động cập nhật giỏ hàng
         validation.errors.forEach(err => {
           if (err.type === 'OUT_OF_STOCK') {
             removeFromCart(err.bookId);
           } else {
-            // Cập nhật số lượng về số lượng tối đa có thể
             const item = cart.find(i => i.id === err.bookId);
             if (item) {
               const deltaNeeded = err.availableQuantity - item.quantity;
@@ -115,66 +175,14 @@ const CheckoutPage: React.FC = () => {
         });
       }
     };
-
     checkStockOnLoad();
-  }, []); // Chạy 1 lần khi mount
+  }, []);
 
-  // Revalidate khi cart thay đổi (sau khi auto-update)
   useEffect(() => {
-    const revalidateStock = async () => {
-      if (cart.length === 0) {
-        setStockInfo({});
-        setHasStockErrors(false);
-        return;
-      }
-
-      const validation = await validateCartStock(cart);
-
-      // Cập nhật stockInfo
-      const stockData: Record<string, number> = {};
-      for (const item of cart) {
-        const found = validation.errors.find(err => err.bookId === item.id);
-        if (found) {
-          stockData[item.id] = found.availableQuantity;
-        } else {
-          const book = await db.getBookById(item.id);
-          stockData[item.id] = book?.stockQuantity || 0;
-        }
-      }
-      setStockInfo(stockData);
-      setHasStockErrors(!validation.isValid);
-    };
-
-    // Chỉ revalidate nếu không phải lần đầu load
-    const timer = setTimeout(() => {
-      revalidateStock();
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [cart]);
-
-  // Auto-fill user profile if logged in
-  useEffect(() => {
-    const fillProfile = async () => {
-      if (user) {
-        try {
-          const profile = await db.getUserProfile(user.id);
-          setFormData(prev => ({
-            ...prev,
-            name: profile?.name || user.name || '',
-            phone: profile?.phone || '',
-            address: profile?.address || ''
-          }));
-        } catch (e) {
-          console.error("Error auto-filling profile:", e);
-        }
-      }
-    };
-
-    fillProfile();
-    // Only redirect if cart is empty AND we are not currently submitting an order
+    // Only redirect if cart is empty AND we are not currently submitting
     if (cart.length === 0 && !isSubmittingRef.current) navigate('/');
-  }, [user, cart, navigate]);
+  }, [cart, navigate]);
+
 
   // Calculations
   const subtotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
@@ -188,30 +196,10 @@ const CheckoutPage: React.FC = () => {
   }, [appliedCoupon, subtotal]);
   const total = subtotal + shipping - discount;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleAddressSelect = (result: AddressResult) => {
-    if (result.lat && result.lon) {
-      setCoordinates({ lat: parseFloat(result.lat), lon: parseFloat(result.lon) });
-    }
-  };
-
-  const handleMapLocationSelect = async (lat: number, lon: number) => {
-    setCoordinates({ lat, lon });
-    // Reverse geocode to get address text
-    const details = await mapService.getAddressDetails(lat, lon);
-    if (details && details.display_name) {
-      setFormData(prev => ({ ...prev, address: details.display_name }));
-    }
-  };
-
   const handleApplyCoupon = async () => {
     setCouponError('');
     if (!couponCode.trim()) return;
 
-    // Simulate API delay for UX
     const coupon = await db.validateCoupon(couponCode, subtotal);
     if (coupon) {
       setAppliedCoupon({ code: coupon.code, value: coupon.value, type: coupon.type });
@@ -225,35 +213,31 @@ const CheckoutPage: React.FC = () => {
 
   const handleCompleteOrder = async () => {
     if (!user) { setShowLoginModal(true); return; }
+
+    // Validation
     if (!formData.name || !formData.phone || !formData.address) {
-      toast.error('Vui lòng nhập đầy đủ thông tin giao hàng.');
+      if (addresses.length === 0) {
+        toast.error('Vui lòng thêm địa chỉ giao hàng.');
+      } else if (!selectedAddrId) {
+        toast.error('Vui lòng chọn địa chỉ giao hàng.');
+      } else {
+        toast.error('Thông tin giao hàng không hợp lệ.');
+      }
       return;
     }
 
     setIsProcessing(true);
 
     try {
-      // Kiểm tra lại số lượng kho trước khi đặt hàng
+      // Stock check
       const validation = await validateCartStock(cart);
       if (!validation.isValid) {
         setIsProcessing(false);
-        const errorMsg = validation.errors.map(err =>
-          err.type === 'OUT_OF_STOCK'
-            ? `${err.title}: Đã hết hàng`
-            : `${err.title}: Chỉ còn ${err.availableQuantity}/${err.requestedQuantity}`
-        ).join(', ');
-        toast.error(
-          <div className="flex flex-col gap-1">
-            <p className="font-bold">Không thể đặt hàng!</p>
-            <p className="text-xs">{errorMsg}</p>
-          </div>,
-          { duration: 5000 }
-        );
+        toast.error('Có thay đổi về tồn kho. Vui lòng kiểm tra lại giỏ hàng.');
         return;
       }
 
-      // Simulate processing visualization
-      await new Promise(r => setTimeout(r, 2000));
+      await new Promise(r => setTimeout(r, 1500)); // UX delay
 
       const order = await db.createOrder({
         userId: user.id,
@@ -279,13 +263,13 @@ const CheckoutPage: React.FC = () => {
         await db.incrementCouponUsage(appliedCoupon.code);
       }
 
-      isSubmittingRef.current = true; // Prevent redirect when cart is cleared
+      isSubmittingRef.current = true;
       clearCart();
       setIsProcessing(false);
       navigate('/order-success', { state: { orderId: order.id } });
     } catch (error: any) {
       if (error.code === 'OUT_OF_STOCK') {
-        toast.error(`KHO HÀNG THAY ĐỔI: ${error.message}. Vui lòng kiểm tra lại giỏ hàng.`);
+        toast.error(`KHO HÀNG THAY ĐỔI: ${error.message}.`);
       } else {
         ErrorHandler.handle(error, 'thanh toán');
       }
@@ -297,7 +281,7 @@ const CheckoutPage: React.FC = () => {
     <div className="bg-slate-50 min-h-screen pt-20 pb-10 xl:overflow-hidden fade-in selection:bg-indigo-100 selection:text-indigo-900 font-sans">
       <div className="max-w-[1600px] mx-auto px-4 lg:px-6 h-full flex flex-col">
 
-        {/* Modern Breadcrumbs - Compact */}
+        {/* Breadcrumbs */}
         <nav className="flex items-center gap-2 mb-4 xl:mb-6 text-xs font-medium shrink-0">
           <button onClick={() => navigate('/')} className="text-slate-500 hover:text-indigo-600 transition-colors flex items-center gap-1">
             <i className="fa-solid fa-house opacity-70"></i>
@@ -313,77 +297,56 @@ const CheckoutPage: React.FC = () => {
           </span>
         </nav>
 
-        {/* Main Content Grid - 3 Columns Layout for XL (Desktop) */}
+        {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 xl:grid-cols-12 gap-4 lg:gap-6 xl:gap-6 items-start h-full pb-2">
 
-          {/* Column 1: Shipping Info (Left) */}
-          <div className="lg:col-span-7 xl:col-span-4 flex flex-col gap-4 h-full xl:overflow-hidden">
+          {/* Column 1: Shipping Info (Addresses) */}
+          <div className="lg:col-span-12 xl:col-span-4 flex flex-col gap-4 h-full xl:overflow-hidden">
             <section className="bg-white/80 backdrop-blur-md rounded-2xl p-4 xl:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-500 flex flex-col xl:h-full">
-              <div className="flex items-center gap-3 mb-3 relative shrink-0">
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-indigo-200 rotate-3 group-hover:rotate-0 transition-transform duration-500">
-                  <i className="fa-solid fa-truck-fast text-sm"></i>
+              <div className="flex items-center justify-between mb-4 shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+                    <i className="fa-solid fa-map-location-dot text-sm"></i>
+                  </div>
+                  <div>
+                    <h2 className="text-base font-black text-slate-800 tracking-tight">Địa chỉ nhận hàng</h2>
+                    <p className="text-[10px] font-medium text-slate-500">Chọn địa chỉ đã lưu</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-base font-black text-slate-800 tracking-tight">Thông tin giao hàng</h2>
-                  <p className="text-[10px] font-medium text-slate-500">Nơi nhận bộ sưu tập sách</p>
-                </div>
+                <button
+                  onClick={() => { setEditingAddress(null); setShowAddressModal(true); }}
+                  className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white flex items-center justify-center transition-all shadow-sm"
+                  title="Thêm địa chỉ mới"
+                >
+                  <i className="fa-solid fa-plus text-xs"></i>
+                </button>
               </div>
 
-              <div className="space-y-4 relative z-10 xl:overflow-y-auto xl:pr-1 custom-scrollbar flex-1 pb-1">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <FormInput
-                    label="Họ và tên"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    icon="fa-user"
-                  />
-                  <FormInput
-                    label="Số điện thoại"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    icon="fa-phone"
-                  />
-                </div>
+              <div className="flex-1 overflow-y-auto custom-scrollbar space-y-4 pr-1">
+                <AddressList
+                  addresses={addresses}
+                  selectable={true}
+                  selectedId={selectedAddrId || undefined}
+                  onSelect={handleSelectAddress}
+                  onDelete={handleDeleteAddress}
+                  onSetDefault={handleSetDefaultAddress}
+                  onEdit={(addr) => { setEditingAddress(addr); setShowAddressModal(true); }}
+                />
 
-                <div className="space-y-4">
-                  <div className="relative z-20">
-                    <AddressInput
-                      label="Địa chỉ chi tiết"
-                      value={formData.address}
-                      onChange={(val) => setFormData(prev => ({ ...prev, address: val }))}
-                      onSelect={handleAddressSelect}
-                    />
-                  </div>
-
-                  {/* Map Picker Visual - Compact */}
-                  <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <i className="fa-solid fa-map-location text-indigo-500 text-[10px]"></i>
-                      <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wide">Ghim vị trí</p>
-                    </div>
-                    <div className="rounded-lg overflow-hidden shadow-sm border border-slate-200 h-28 xl:h-32">
-                      <MapPicker
-                        onLocationSelect={handleMapLocationSelect}
-                        initialLat={coordinates?.lat}
-                        initialLon={coordinates?.lon}
+                <div className="pt-4 border-t border-slate-100">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Ghi chú vận chuyển (Tùy chọn)</label>
+                    <div className="relative group">
+                      <textarea
+                        name="note"
+                        value={formData.note}
+                        onChange={(e) => setFormData({ ...formData, note: e.target.value })}
+                        placeholder="Lời nhắn cho shipper..."
+                        className="w-full py-2.5 pl-9 pr-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium text-slate-800 text-sm shadow-sm hover:border-indigo-300 h-16 xl:h-20 resize-none"
                       />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Ghi chú (Tùy chọn)</label>
-                  <div className="relative group">
-                    <textarea
-                      name="note"
-                      value={formData.note}
-                      onChange={handleInputChange}
-                      className="w-full py-2.5 pl-9 pr-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium text-slate-800 text-sm shadow-sm hover:border-indigo-300 h-16 xl:h-20 resize-none"
-                    />
-                    <div className="absolute left-3 top-3 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
-                      <i className="fa-solid fa-message text-xs"></i>
+                      <div className="absolute left-3 top-3 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                        <i className="fa-solid fa-message text-xs"></i>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -391,11 +354,11 @@ const CheckoutPage: React.FC = () => {
             </section>
           </div>
 
-          {/* Column 2: Payment Method (Middle) */}
-          <div className="lg:col-span-5 xl:col-span-4 h-full xl:overflow-hidden">
+          {/* Column 2: Payment Method */}
+          <div className="lg:col-span-6 xl:col-span-4 h-full xl:overflow-hidden">
             <section className="bg-white/80 backdrop-blur-md rounded-2xl p-4 xl:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 relative overflow-hidden flex flex-col xl:h-full">
               <div className="flex items-center gap-3 mb-3 shrink-0">
-                <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-lg flex items-center justify-center text-white shadow-lg shadow-emerald-200 -rotate-3 hover:rotate-0 transition-transform duration-500">
+                <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-lg flex items-center justify-center text-white shadow-lg shadow-emerald-200">
                   <i className="fa-solid fa-wallet text-sm"></i>
                 </div>
                 <div>
@@ -481,8 +444,8 @@ const CheckoutPage: React.FC = () => {
             </section>
           </div>
 
-          {/* Column 3: Order Summary (Right) */}
-          <div className="lg:col-span-12 xl:col-span-4 h-full xl:overflow-hidden">
+          {/* Column 3: Order Summary */}
+          <div className="lg:col-span-6 xl:col-span-4 h-full xl:overflow-hidden">
             <div className="bg-white rounded-[1.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-slate-100 overflow-hidden relative flex flex-col xl:h-full">
               {/* Receipt Top Pattern */}
               <div className="h-1.5 bg-gradient-to-r from-red-400 via-purple-400 to-indigo-400 shrink-0"></div>
@@ -495,8 +458,8 @@ const CheckoutPage: React.FC = () => {
                 </h3>
               </div>
 
-              {/* Items List - Flexible Height */}
-              <div className="px-5 xl:px-6 py-3 overflow-y-auto custom-scrollbar flex-1 space-y-4 max-h-[25vh] xl:max-h-none">
+              {/* Items List */}
+              <div className="px-5 xl:px-6 py-3 overflow-y-auto custom-scrollbar flex-1 space-y-4 max-h-[30vh] xl:max-h-none">
                 {cart.map(item => {
                   const availableStock = stockInfo[item.id];
                   const isLowStock = availableStock !== undefined && availableStock < item.quantity * 2;
@@ -527,9 +490,8 @@ const CheckoutPage: React.FC = () => {
                 })}
               </div>
 
-              {/* Coupon & Bottom Fixed section */}
+              {/* Financial & Actions */}
               <div className="bg-white shrink-0">
-                {/* Coupon Input */}
                 <div className="px-5 xl:px-6 py-3 bg-slate-50/50 border-t border-b border-slate-50">
                   <div className="relative flex gap-2">
                     <input
@@ -560,7 +522,6 @@ const CheckoutPage: React.FC = () => {
                   {couponError && <p className="text-[10px] font-bold text-rose-500 mt-1">{couponError}</p>}
                 </div>
 
-                {/* Financial Summary */}
                 <div className="p-5 xl:p-6 space-y-2">
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-400 font-bold uppercase tracking-wide">Tạm tính</span>
@@ -617,15 +578,6 @@ const CheckoutPage: React.FC = () => {
                     )}
                   </button>
 
-                  {hasStockErrors && (
-                    <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
-                      <p className="text-[10px] font-bold text-red-700 text-center flex items-center justify-center gap-1">
-                        <i className="fa-solid fa-circle-info"></i>
-                        Vui lòng cập nhật số lượng trước khi đặt hàng
-                      </p>
-                    </div>
-                  )}
-
                   <div className="flex items-center justify-center gap-3 mt-3 opacity-40">
                     <i className="fa-brands fa-cc-visa text-lg"></i>
                     <i className="fa-brands fa-cc-mastercard text-lg"></i>
@@ -638,6 +590,13 @@ const CheckoutPage: React.FC = () => {
 
         </div>
       </div>
+
+      <AddressFormModal
+        isOpen={showAddressModal}
+        onClose={() => setShowAddressModal(false)}
+        onSave={handleAddAddress}
+        initialData={editingAddress}
+      />
     </div>
   );
 };

@@ -65,7 +65,7 @@ const AppContent: React.FC = () => {
           <AnimatePresence mode="wait">
             <Routes location={location}>
               <Route path="/" element={<PageTransition><HomePage onQuickView={handleQuickView} /></PageTransition>} />
-              <Route path="/book/:id" element={<PageTransition><BookDetails onQuickView={handleQuickView} /></PageTransition>} />
+              <Route path="/book/:slug" element={<PageTransition><BookDetails onQuickView={handleQuickView} /></PageTransition>} />
               <Route path="/search/:query" element={<PageTransition><SearchResults onQuickView={handleQuickView} /></PageTransition>} />
               <Route path="/category/:categoryName" element={<PageTransition><CategoryPage onQuickView={handleQuickView} /></PageTransition>} />
               <Route path="/authors" element={<PageTransition><AuthorsPage /></PageTransition>} />

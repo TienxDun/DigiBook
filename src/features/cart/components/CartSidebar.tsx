@@ -74,13 +74,13 @@ interface CartItemRowProps {
   navigate: any;
 }
 
-const CartItemRow: React.FC<CartItemRowProps> = ({ 
-  item, 
-  isSelected, 
-  onToggle, 
-  onUpdateQty, 
+const CartItemRow: React.FC<CartItemRowProps> = ({
+  item,
+  isSelected,
+  onToggle,
+  onUpdateQty,
   onRemove,
-  navigate 
+  navigate
 }) => {
   return (
     <motion.div
@@ -94,25 +94,24 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
       <div className="flex items-center">
         <button
           onClick={() => onToggle(item.id)}
-          className={`w-5 h-5 rounded border flex items-center justify-center transition-all duration-200 ${
-            isSelected 
-            ? 'bg-indigo-600 border-indigo-600 text-white' 
-            : 'border-slate-300 hover:border-indigo-400 text-transparent'
-          }`}
+          className={`w-5 h-5 rounded border flex items-center justify-center transition-all duration-200 ${isSelected
+              ? 'bg-indigo-600 border-indigo-600 text-white'
+              : 'border-slate-300 hover:border-indigo-400 text-transparent'
+            }`}
         >
           <i className="fa-solid fa-check text-xs"></i>
         </button>
       </div>
 
       {/* Image */}
-      <div 
+      <div
         className="w-20 aspect-[3/4] rounded-lg overflow-hidden shadow-sm shrink-0 cursor-pointer bg-slate-100"
-        onClick={() => navigate(`/book/${item.id}`)}
+        onClick={() => navigate(`/book/${item.slug || item.id}`)}
       >
-        <img 
-          src={item.cover} 
-          alt={item.title} 
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+        <img
+          src={item.cover}
+          alt={item.title}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
       </div>
 
@@ -120,48 +119,48 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
       <div className="flex-1 flex flex-col justify-between min-w-0">
         <div>
           <div className="flex justify-between items-start gap-3">
-             <h4 
-                className="font-medium text-slate-900 text-sm leading-snug line-clamp-2 cursor-pointer hover:text-indigo-600 transition-colors"
-                onClick={() => navigate(`/book/${item.id}`)}
-             >
-                {item.title}
-             </h4>
-             <button
-               onClick={() => onRemove(item.id)}
-               className="text-slate-300 hover:text-rose-500 transition-colors px-1"
-               title="Xóa sản phẩm"
-             >
-               <i className="fa-solid fa-xmark"></i>
-             </button>
+            <h4
+              className="font-medium text-slate-900 text-sm leading-snug line-clamp-2 cursor-pointer hover:text-indigo-600 transition-colors"
+              onClick={() => navigate(`/book/${item.slug || item.id}`)}
+            >
+              {item.title}
+            </h4>
+            <button
+              onClick={() => onRemove(item.id)}
+              className="text-slate-300 hover:text-rose-500 transition-colors px-1"
+              title="Xóa sản phẩm"
+            >
+              <i className="fa-solid fa-xmark"></i>
+            </button>
           </div>
           <p className="text-xs text-slate-500 mt-1 truncate">{item.author}</p>
         </div>
 
         <div className="flex items-end justify-between mt-3">
-           {/* Price */}
-           <div className="font-semibold text-slate-900 text-sm">
-             {formatPrice(item.price)}
-           </div>
+          {/* Price */}
+          <div className="font-semibold text-slate-900 text-sm">
+            {formatPrice(item.price)}
+          </div>
 
-           {/* Quantity Control */}
-           <div className="flex items-center bg-white border border-slate-200 rounded-lg h-8 shadow-sm">
-             <button
-               onClick={() => onUpdateQty(item.id, -1)}
-               className="w-8 h-full flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-l-lg transition-colors"
-               disabled={item.quantity <= 1}
-             >
-               <i className="fa-solid fa-minus text-[10px]"></i>
-             </button>
-             <span className="w-8 text-center text-xs font-semibold text-slate-700 select-none">
-               {item.quantity}
-             </span>
-             <button
-               onClick={() => onUpdateQty(item.id, 1)}
-               className="w-8 h-full flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-r-lg transition-colors"
-             >
-               <i className="fa-solid fa-plus text-[10px]"></i>
-             </button>
-           </div>
+          {/* Quantity Control */}
+          <div className="flex items-center bg-white border border-slate-200 rounded-lg h-8 shadow-sm">
+            <button
+              onClick={() => onUpdateQty(item.id, -1)}
+              className="w-8 h-full flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-l-lg transition-colors"
+              disabled={item.quantity <= 1}
+            >
+              <i className="fa-solid fa-minus text-[10px]"></i>
+            </button>
+            <span className="w-8 text-center text-xs font-semibold text-slate-700 select-none">
+              {item.quantity}
+            </span>
+            <button
+              onClick={() => onUpdateQty(item.id, 1)}
+              className="w-8 h-full flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-r-lg transition-colors"
+            >
+              <i className="fa-solid fa-plus text-[10px]"></i>
+            </button>
+          </div>
         </div>
       </div>
     </motion.div>
@@ -180,7 +179,7 @@ const CartSidebar: React.FC = () => {
     removeFromCart: onRemove,
     updateQuantity: onUpdateQty
   } = useCart();
-  
+
   const onClose = () => setIsCartOpen(false);
   const navigate = useNavigate();
   const { user, setShowLoginModal } = useAuth();
@@ -194,18 +193,18 @@ const CartSidebar: React.FC = () => {
 
   const FREE_SHIPPING_THRESHOLD = 500000;
 
-  const selectedItems = useMemo(() => 
-    items.filter(item => selectedIds.includes(item.id)), 
+  const selectedItems = useMemo(() =>
+    items.filter(item => selectedIds.includes(item.id)),
     [items, selectedIds]
   );
 
-  const subtotal = useMemo(() => 
-    selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0), 
+  const subtotal = useMemo(() =>
+    selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [selectedItems]
   );
 
-  const isAllSelected = useMemo(() => 
-    items.length > 0 && selectedIds.length === items.length, 
+  const isAllSelected = useMemo(() =>
+    items.length > 0 && selectedIds.length === items.length,
     [items, selectedIds]
   );
 
@@ -243,10 +242,10 @@ const CartSidebar: React.FC = () => {
             {/* Header */}
             <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100 bg-white/80 backdrop-blur-md z-10">
               <div className="flex items-center gap-3">
-                 <h2 className="text-xl font-bold text-slate-900">Giỏ hàng</h2>
-                 <span className="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-1 rounded-full">
-                   {items.length}
-                 </span>
+                <h2 className="text-xl font-bold text-slate-900">Giỏ hàng</h2>
+                <span className="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-1 rounded-full">
+                  {items.length}
+                </span>
               </div>
               <button
                 onClick={onClose}
@@ -257,76 +256,75 @@ const CartSidebar: React.FC = () => {
             </div>
 
             {items.length > 0 ? (
-               <>
+              <>
                 {/* Shipping Progress */}
                 <ShippingProgressBar subtotal={subtotal} threshold={FREE_SHIPPING_THRESHOLD} />
 
                 {/* Toolbar */}
                 <div className="px-6 py-3 flex items-center justify-between bg-slate-50/30 border-b border-slate-100/50">
-                   <button 
-                     onClick={() => onToggleAll(!isAllSelected)}
-                     className="flex items-center gap-2 text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors"
-                   >
-                     <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
-                       isAllSelected ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-300'
-                     }`}>
-                       {isAllSelected && <i className="fa-solid fa-check text-[10px] text-white"></i>}
-                     </div>
-                     Chọn tất cả
-                   </button>
-                   <button 
-                     onClick={() => items.forEach(item => onRemove(item.id))}
-                     className="text-xs font-medium text-slate-400 hover:text-rose-500 transition-colors flex items-center gap-1.5"
-                   >
-                     <i className="fa-regular fa-trash-can"></i> Xóa hết
-                   </button>
+                  <button
+                    onClick={() => onToggleAll(!isAllSelected)}
+                    className="flex items-center gap-2 text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors"
+                  >
+                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isAllSelected ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-300'
+                      }`}>
+                      {isAllSelected && <i className="fa-solid fa-check text-[10px] text-white"></i>}
+                    </div>
+                    Chọn tất cả
+                  </button>
+                  <button
+                    onClick={() => items.forEach(item => onRemove(item.id))}
+                    className="text-xs font-medium text-slate-400 hover:text-rose-500 transition-colors flex items-center gap-1.5"
+                  >
+                    <i className="fa-regular fa-trash-can"></i> Xóa hết
+                  </button>
                 </div>
 
                 {/* Item List */}
                 <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar">
                   <AnimatePresence mode='popLayout'>
-                   {items.map(item => (
-                     <CartItemRow 
-                       key={item.id}
-                       item={item}
-                       isSelected={selectedIds.includes(item.id)}
-                       onToggle={onToggleSelection}
-                       onUpdateQty={onUpdateQty}
-                       onRemove={onRemove}
-                       navigate={navigate}
-                     />
-                   ))}
+                    {items.map(item => (
+                      <CartItemRow
+                        key={item.id}
+                        item={item}
+                        isSelected={selectedIds.includes(item.id)}
+                        onToggle={onToggleSelection}
+                        onUpdateQty={onUpdateQty}
+                        onRemove={onRemove}
+                        navigate={navigate}
+                      />
+                    ))}
                   </AnimatePresence>
                 </div>
 
                 {/* Footer */}
                 <div className="p-6 bg-white border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-20">
-                   <div className="space-y-3 mb-6">
-                      <div className="flex justify-between items-center">
-                         <span className="text-slate-500 text-sm">Tạm tính</span>
-                         <span className="font-semibold text-slate-900">{formatPrice(subtotal)}</span>
+                  <div className="space-y-3 mb-6">
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-500 text-sm">Tạm tính</span>
+                      <span className="font-semibold text-slate-900">{formatPrice(subtotal)}</span>
+                    </div>
+                    <div className="flex justify-between items-end pt-3 border-t border-slate-100">
+                      <span className="font-bold text-slate-900 text-lg">Tổng cộng</span>
+                      <div className="text-right">
+                        <span className="block text-2xl font-bold text-indigo-600 leading-none">
+                          {formatPrice(subtotal)}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-medium">Đã bao gồm VAT</span>
                       </div>
-                      <div className="flex justify-between items-end pt-3 border-t border-slate-100">
-                         <span className="font-bold text-slate-900 text-lg">Tổng cộng</span>
-                         <div className="text-right">
-                           <span className="block text-2xl font-bold text-indigo-600 leading-none">
-                             {formatPrice(subtotal)}
-                           </span>
-                           <span className="text-[10px] text-slate-400 font-medium">Đã bao gồm VAT</span>
-                         </div>
-                      </div>
-                   </div>
+                    </div>
+                  </div>
 
-                   <button
-                     onClick={handleCheckoutClick}
-                     disabled={selectedItems.length === 0}
-                     className="w-full py-4 px-6 bg-slate-900 hover:bg-indigo-600 text-white rounded-xl font-bold transition-all shadow-lg shadow-slate-200 hover:shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
-                   >
-                     <span>Thanh toán ngay</span>
-                     <i className="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                   </button>
+                  <button
+                    onClick={handleCheckoutClick}
+                    disabled={selectedItems.length === 0}
+                    className="w-full py-4 px-6 bg-slate-900 hover:bg-indigo-600 text-white rounded-xl font-bold transition-all shadow-lg shadow-slate-200 hover:shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
+                  >
+                    <span>Thanh toán ngay</span>
+                    <i className="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                  </button>
                 </div>
-               </>
+              </>
             ) : (
               <EmptyState onClose={onClose} />
             )}

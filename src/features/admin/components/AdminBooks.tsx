@@ -186,7 +186,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
   const [selectedImportBooks, setSelectedImportBooks] = useState<string[]>([]);
 
   // Auto Scan State
-  const [autoScanCategory, setAutoScanCategory] = useState('');
+  const [autoScanCategories, setAutoScanCategories] = useState<string[]>([]);
   const [autoScanLimit, setAutoScanLimit] = useState(20);
   const [isAutoScanning, setIsAutoScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState({ current: 0, total: 0, status: '' });
@@ -273,49 +273,70 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
   };
 
   const handleStartAutoScan = async () => {
-    if (!autoScanCategory) {
-      toast.error("Vui lòng chọn danh mục");
+    if (autoScanCategories.length === 0) {
+      toast.error("Vui lòng chọn ít nhất một danh mục");
       return;
     }
 
     setIsAutoScanning(true);
-    setScanProgress({ current: 0, total: autoScanLimit, status: 'Đang tìm kiếm...' });
+    // Limit per category * number of categories
+    const totalEstimate = autoScanLimit * autoScanCategories.length;
+    setScanProgress({ current: 0, total: totalEstimate, status: 'Đang khởi tạo...' });
 
     try {
-      // Determine keywords based on Category
-      let keywords = autoScanCategory.toLowerCase();
-      if (keywords === 'kinh tế') keywords = 'sách kinh tế bán chạy';
-      else if (keywords === 'văn học') keywords = 'tiểu thuyết văn học';
-      else if (keywords === 'thiếu nhi') keywords = 'truyện thiếu nhi';
+      let grandTotalImported = 0;
 
-      let importedCount = 0;
-      let page = 1;
+      for (const category of autoScanCategories) {
+        // Determine keywords based on Category
+        let keywords = category.toLowerCase();
+        if (keywords === 'kinh tế') keywords = 'sách kinh tế bán chạy';
+        else if (keywords === 'văn học') keywords = 'tiểu thuyết văn học';
+        else if (keywords === 'thiếu nhi') keywords = 'truyện thiếu nhi';
+        else if (keywords === 'tâm lý') keywords = 'sách tâm lý hay';
+        else if (keywords === 'lịch sử') keywords = 'sách lịch sử việt nam';
+        else if (keywords === 'kỹ năng') keywords = 'sách kỹ năng sống';
 
-      while (importedCount < autoScanLimit && page <= 5) {
-        setScanProgress(prev => ({ ...prev, status: `Đang quét trang ${page}...` }));
+        let categoryImportedCount = 0;
+        let page = 1;
 
-        const results = await db.searchBooksFromTiki(keywords, page);
-        if (results.length === 0) break; // End of results
+        // Reset page for each category
+        while (categoryImportedCount < autoScanLimit && page <= 5) {
+          setScanProgress(prev => ({
+            ...prev,
+            status: `Đang quét danh mục "${category}" (Trang ${page})...`
+          }));
 
-        // Filter duplicates
-        const newBooks = results.filter(b => !books.some(ex => ex.title.toLowerCase() === b.title.toLowerCase())); // Simple Title check locally + checking existing DB in search
+          const results = await db.searchBooksFromTiki(keywords, page);
+          if (results.length === 0) break; // End of results
 
-        for (const book of newBooks) {
-          if (importedCount >= autoScanLimit) break;
+          // Filter duplicates
+          const newBooks = results.filter(b => !books.some(ex => ex.title.toLowerCase() === b.title.toLowerCase()));
 
-          setScanProgress({ current: importedCount + 1, total: autoScanLimit, status: `Đang nhập: ${book.title}...` });
-          const success = await importSingleBook(book);
-          if (success) importedCount++;
+          for (const book of newBooks) {
+            if (categoryImportedCount >= autoScanLimit) break;
 
-          await new Promise(r => setTimeout(r, 800)); // Delay
+            grandTotalImported++;
+            categoryImportedCount++;
+
+            setScanProgress({
+              current: grandTotalImported,
+              total: totalEstimate, // Keep total as estimate
+              status: `[${category}] Đang nhập: ${book.title}...`
+            });
+
+            const success = await importSingleBook(book);
+
+            await new Promise(r => setTimeout(r, 800)); // Delay
+          }
+          page++;
         }
-        page++;
       }
 
-      toast.success(`Đã tự động nhập ${importedCount} sách mới!`);
+      toast.success(`Đã hoàn tất! Nhập tổng cộng ${grandTotalImported} sách mới.`);
       await refreshData();
 
     } catch (err) {
+      console.error(err);
       toast.error("Lỗi trong quá trình quét tự động");
     } finally {
       setIsAutoScanning(false);
@@ -1376,19 +1397,25 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                             ) : (
                               <>
                                 <div>
-                                  <label className="block text-xs font-black uppercase tracking-wide text-muted-foreground mb-3">Chọn danh mục</label>
+                                  <label className="block text-xs font-black uppercase tracking-wide text-muted-foreground mb-3">Chọn các danh mục cần quét</label>
                                   <div className="grid grid-cols-2 gap-4">
-                                    {['Kinh tế', 'Văn học', 'Thiếu nhi', 'Tâm lý', 'Lịch sử', 'Kỹ năng'].map(cat => (
-                                      <button
-                                        key={cat}
-                                        onClick={() => setAutoScanCategory(cat)}
-                                        className={`h-14 rounded-2xl font-bold transition-all border ${autoScanCategory === cat
-                                          ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20'
-                                          : 'hover:bg-muted bg-background'}`}
-                                      >
-                                        {cat}
-                                      </button>
-                                    ))}
+                                    {['Kinh tế', 'Văn học', 'Thiếu nhi', 'Tâm lý', 'Lịch sử', 'Kỹ năng'].map(cat => {
+                                      const isSelected = autoScanCategories.includes(cat);
+                                      return (
+                                        <button
+                                          key={cat}
+                                          onClick={() => setAutoScanCategories(prev =>
+                                            prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
+                                          )}
+                                          className={`h-14 rounded-2xl font-bold transition-all border relative ${isSelected
+                                            ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20'
+                                            : 'hover:bg-muted bg-background'}`}
+                                        >
+                                          {cat}
+                                          {isSelected && <i className="fa-solid fa-check-circle absolute top-2 right-2 text-xs"></i>}
+                                        </button>
+                                      );
+                                    })}
                                   </div>
                                 </div>
 

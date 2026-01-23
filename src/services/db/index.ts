@@ -36,6 +36,8 @@ class DataService {
   searchBooksFromTiki = books.searchBooksFromTiki;
   getBookDetailsFromTiki = books.getBookDetailsFromTiki;
   fetchBookByISBN = books.fetchBookByISBN;
+  getBookBySlug = books.getBookBySlug;
+  incrementBookView = books.incrementBookView;
 
   // Metadata (Categories, Authors, Seed)
   getCategories = metadata.getCategories;
@@ -67,6 +69,9 @@ class DataService {
   updateUserRole = users.updateUserRole;
   updateUserStatus = users.updateUserStatus;
   deleteUser = users.deleteUser;
+  addUserAddress = users.addUserAddress;
+  removeUserAddress = users.removeUserAddress;
+  setDefaultAddress = users.setDefaultAddress;
 
   // Coupons
   validateCoupon = coupons.validateCoupon;

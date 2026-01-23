@@ -95,7 +95,7 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickVi
           </div>
 
           {/* Book Image */}
-          <Link to={`/book/${book.id}`} className="block w-full h-full">
+          <Link to={`/book/${book.slug || book.id}`} className="block w-full h-full">
             {!imgLoaded && (
               <div className="absolute inset-0 bg-slate-100 animate-pulse flex items-center justify-center">
                 <i className="fa-solid fa-book-open text-slate-300"></i>
@@ -152,7 +152,7 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickVi
 
         {/* Info Container */}
         <div
-          onClick={() => navigate(`/book/${book.id}`)}
+          onClick={() => navigate(`/book/${book.slug || book.id}`)}
           className="flex flex-col flex-grow min-h-0 justify-between cursor-pointer group/info"
         >
           <div className="space-y-1">

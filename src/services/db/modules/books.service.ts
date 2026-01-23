@@ -14,7 +14,8 @@ import {
   serverTimestamp,
   startAfter,
   orderBy,
-  QueryDocumentSnapshot
+  QueryDocumentSnapshot,
+  increment
 } from "firebase/firestore";
 import { db_fs } from "../../../lib/firebase";
 import { Book, Author } from '@/shared/types/';
@@ -90,6 +91,19 @@ export async function getBookById(id: string): Promise<Book | undefined> {
   );
 }
 
+export async function getBookBySlug(slug: string): Promise<Book | undefined> {
+  return wrap(
+    (async () => {
+      const q = query(collection(db_fs, 'books'), where('slug', '==', slug), limit(1));
+      const snap = await getDocs(q);
+      if (snap.empty) return undefined;
+      const d = snap.docs[0];
+      return { id: d.id, ...d.data() } as Book;
+    })(),
+    undefined
+  );
+}
+
 export async function getBooksByIds(ids: string[]): Promise<Book[]> {
   if (!ids.length) return [];
   const books = await getBooks();
@@ -135,10 +149,71 @@ export async function getBooksByAuthor(authorName: string, excludeId?: string, l
   );
 }
 
+// --- Helper Functions ---
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[đĐ]/g, "d")
+    .replace(/([^0-9a-z-\s])/g, "")
+    .replace(/(\s+)/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function generateKeywords(title: string, author: string, category: string): string[] {
+  const text = `${title} ${author} ${category}`.toLowerCase();
+  // Normalize
+  const normalized = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d");
+
+  // Create variations
+  const keywords = new Set<string>();
+
+  // 1. Full words
+  text.split(/\s+/).forEach(w => {
+    if (w.length > 1) keywords.add(w);
+  });
+
+  // 2. Normalized words
+  normalized.split(/\s+/).forEach(w => {
+    if (w.length > 1) keywords.add(w);
+  });
+
+  // 3. Edge n-grams for title (prefix search)
+  const titleWords = title.toLowerCase().split(/\s+/);
+  let currentPhrase = "";
+  titleWords.forEach(word => {
+    currentPhrase = currentPhrase ? `${currentPhrase} ${word}` : word;
+    keywords.add(currentPhrase);
+    const normWord = word.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d");
+    if (normWord !== word) keywords.add(normWord);
+  });
+
+  return Array.from(keywords);
+}
+
 export async function saveBook(book: Book): Promise<void> {
   const cleanBook = Object.fromEntries(
     Object.entries(book).filter(([_, v]) => v !== undefined)
   );
+
+  // Auto-generate fields if missing
+  if (!cleanBook.slug) {
+    cleanBook.slug = generateSlug(cleanBook.title);
+  }
+
+  // Always regenerate keywords to ensure freshness
+  cleanBook.searchKeywords = generateKeywords(
+    cleanBook.title,
+    cleanBook.author || '',
+    cleanBook.category || ''
+  );
+
+  if (cleanBook.viewCount === undefined) {
+    cleanBook.viewCount = 0;
+  }
+
   await wrap(
     setDoc(doc(db_fs, 'books', book.id), { ...cleanBook, updatedAt: serverTimestamp() }, { merge: true }),
     undefined,
@@ -179,6 +254,18 @@ export async function deleteBooksBulk(ids: string[]): Promise<void> {
     'DELETE_BOOKS_BULK',
     `${ids.length} items`
   );
+}
+
+export async function incrementBookView(id: string): Promise<void> {
+  // Use atomic increment
+  const bookRef = doc(db_fs, 'books', id);
+  // We don't wrap this strictly as it's a background "fire and forget" action usually
+  try {
+    await updateDoc(bookRef, { viewCount: increment(1) });
+  } catch (e) {
+    // Silent fail for view stats
+    console.warn("Failed to increment view count", e);
+  }
 }
 
 // --- Google Books Integration ---
@@ -233,6 +320,8 @@ export async function searchBooksFromTiki(queryStr: string, page: number = 1): P
       // Do not filter by ISBN here yet, as fetching ISBN requires detail call.
       // We will check duplication by Title primarily if ISBN is missing in list view.
 
+      const isAvailable = item.badget_price ? true : (item.inventory_status === 'available' || (item.stock_item && item.stock_item.qty > 0));
+
       return {
         id: bookId,
         title: item.name,
@@ -241,16 +330,17 @@ export async function searchBooksFromTiki(queryStr: string, page: number = 1): P
         category: item.categories && item.categories.name ? item.categories.name : appCat,
         price: price,
         originalPrice: originalPrice,
-        stockQuantity: item.stock_item ? item.stock_item.qty : 100, // Tiki often has stock info
+        stockQuantity: (item.stock_item && item.stock_item.qty > 0) ? item.stock_item.qty : 100,
         description: item.short_description || 'Mô tả đang cập nhật...',
         isbn: item.sku || `TK-${item.id}`, // Fallback to SKU if ISBN not visible in list
         cover: coverUrl,
         rating: item.rating_average || 5,
-        pages: 200, // Default, as list view doesn't always have pages
+        pages: 0, // Will be updated in detail view
         publisher: 'Tiki Trading',
-        publishYear: 2024,
+        publishYear: new Date().getFullYear(),
         language: 'Tiếng Việt',
-        badge: item.discount_rate ? `-${item.discount_rate}%` : ''
+        badge: item.discount_rate ? `-${item.discount_rate}%` : '',
+        isAvailable: isAvailable
       } as Book;
     });
 
@@ -279,22 +369,29 @@ export async function getBookDetailsFromTiki(tikiId: string | number): Promise<P
     if (!data || data.error) return null;
 
     // Extract more detailed info
+    // Extract more detailed info with safer defaults
     const specs = data.specifications || [];
     let publisher = 'Đang cập nhật';
     let publishYear = new Date().getFullYear();
-    let dimensions = '';
     let pages = 0;
-    let bookLayout = ''; // Bìa mềm/bìa cứng
+    let language = 'Tiếng Việt';
+    let bookLayout = '';
 
     // Parse specifications
     const mainSpecs = specs.find((s: any) => s.name === 'Thông tin chi tiết');
     if (mainSpecs && mainSpecs.attributes) {
       for (const attr of mainSpecs.attributes) {
-        if (attr.code === 'publisher_vn') publisher = attr.value;
-        if (attr.code === 'publication_date') publishYear = parseInt(attr.value) || publishYear;
-        if (attr.code === 'dimensions') dimensions = attr.value;
-        if (attr.code === 'number_of_page') pages = parseInt(attr.value) || 0;
-        if (attr.code === 'book_cover') bookLayout = attr.value;
+        const code = attr.code;
+        const value = attr.value;
+
+        if (code === 'publisher_vn') publisher = value;
+        if (code === 'publication_date') {
+          const yearStr = value.split(' ')[0].split('-')[0].split('/')[0]; // Handle different date formats
+          publishYear = parseInt(yearStr) || publishYear;
+        }
+        if (code === 'number_of_page') pages = parseInt(value) || 0;
+        if (code === 'book_cover') bookLayout = value;
+        if (code === 'languages') language = value === 'Tiếng Việt' ? 'Tiếng Việt' : value;
       }
     }
 
@@ -309,27 +406,48 @@ export async function getBookDetailsFromTiki(tikiId: string | number): Promise<P
     // Replace <br> and <p> with newlines to preserve some structure
     desc = desc.replace(/<br\s*\/?>/gi, '\n');
     desc = desc.replace(/<\/p>/gi, '\n\n');
+    desc = desc.replace(/<\/div>/gi, '\n');
 
     // Strip all other HTML tags
     desc = desc.replace(/<[^>]*>/g, '');
 
-    // Decode HTML entities (basic ones)
-    desc = desc.replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+    // Decode HTML entities (extended)
+    desc = desc.replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
 
-    // Trim whitespace
-    desc = desc.trim();
+    // Aggressive whitespace cleanup:
+    // 1. Split by newlines
+    // 2. Trim each line
+    // 3. Remove empty lines
+    // 4. Join with double newlines for clear paragraphs
+    desc = desc.split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .join('\n\n');
+
+    // Append extra info to description if relevant
+    if (bookLayout) {
+      desc = `${desc}\n\nLoại bìa: ${bookLayout}`;
+    }
 
     // If description is too short or empty after cleaning
     if (!desc) {
       desc = 'Chưa có mô tả chi tiết cho cuốn sách này.';
     }
 
+    // Try to extract author bio from description if possible (heuristic)
+    // Tiki doesn't have a structured author bio field usually
+
     return {
       description: desc,
       publisher: publisher,
       publishYear: publishYear,
       pages: pages,
-      language: 'Tiếng Việt', // Most Tiki books are VN, simple assumption or parse
+      language: language,
       cover: data.images && data.images[0] ? data.images[0].base_url : undefined
     };
 
@@ -365,13 +483,16 @@ export async function fetchBookByISBN(isbn: string): Promise<Book | null> {
       coverUrl = `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`;
     }
 
+    const saleInfo = data.items[0].saleInfo;
+    const isAvailable = saleInfo?.saleability === 'FOR_SALE';
+
     return {
       id: isbn,
       title: info.title || 'Không có tiêu đề',
       author: info.authors?.join(', ') || 'Nhiều tác giả',
       authorBio: info.description?.substring(0, 300) || 'Thông tin tác giả đang được cập nhật.',
-      price: 0,
-      stockQuantity: 10,
+      price: saleInfo?.listPrice?.amount || 0,
+      stockQuantity: 100,
       rating: Number(info.averageRating || 5),
       cover: coverUrl,
       category: appCat,
@@ -380,8 +501,9 @@ export async function fetchBookByISBN(isbn: string): Promise<Book | null> {
       pages: info.pageCount || 0,
       publisher: info.publisher || 'Đang cập nhật',
       publishYear: parseInt(info.publishedDate?.split('-')[0]) || new Date().getFullYear(),
-      language: info.language === 'vi' ? 'Tiếng Việt' : (info.language === 'en' ? 'English' : (info.language === 'ja' ? '日本語' : (info.language === 'fr' ? 'Français' : 'Tiếng Việt'))),
-      badge: ''
+      language: info.language === 'vi' ? 'Tiếng Việt' : (info.language === 'en' ? 'English' : (info.language === 'ja' ? '日本語' : (info.language === 'fr' ? 'Français' : info.language.toUpperCase()))),
+      badge: '',
+      isAvailable: isAvailable
     } as Book;
   } catch (error) {
     console.error("Error fetching book by ISBN:", error);
