@@ -130,7 +130,7 @@
 
 /* Performance optimization */
 .optimized-card {
-  will-change: transform, box-shadow;
+  will-change: transform;
   backface-visibility: hidden;
 }
 
@@ -139,20 +139,59 @@
 }
 
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-
   100% {
-    background-position: 200% 0;
+    transform: translateX(100%);
   }
 }
 
 .animate-shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: #f1f5f9;
+}
+
+.animate-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
   background: linear-gradient(90deg,
-      #f1f5f9 25%,
-      #f8fafc 50%,
-      #f1f5f9 75%);
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite linear;
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.2) 20%,
+      rgba(255, 255, 255, 0.5) 60%,
+      rgba(255, 255, 255, 0) 100%);
+  animation: shimmer 2s infinite;
+}
+
+/* Page Transition - Pure CSS replacement for Framer Motion */
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-enter {
+  animation: pageEnter 0.3s ease-out forwards;
+}
+
+/* QuickViewModal Image Animation */
+@keyframes imageEnter {
+  from {
+    opacity: 0;
+    transform: scale(1.2) rotate(-5deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
 }

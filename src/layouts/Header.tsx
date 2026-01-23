@@ -35,14 +35,21 @@ const Header: React.FC<HeaderProps> = ({
   }, [searchQuery]);
 
   useEffect(() => {
+    let ticking = false;
     const handleScrollProgress = () => {
-      const totalScroll = document.documentElement.scrollTop;
-      const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      const scroll = totalScroll / windowHeight;
-      setScrollProgress(scroll * 100);
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const totalScroll = document.documentElement.scrollTop;
+          const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+          const scroll = totalScroll / windowHeight;
+          setScrollProgress(scroll * 100);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
-    window.addEventListener('scroll', handleScrollProgress);
+    window.addEventListener('scroll', handleScrollProgress, { passive: true });
     return () => window.removeEventListener('scroll', handleScrollProgress);
   }, []);
 
@@ -119,7 +126,7 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <header
-      className={`fixed top-0 w-full z-50 transition-all duration-500 ease-in-out ${scrolled
+      className={`fixed top-0 w-full z-50 transition-[height,background-color,border-color,padding,box-shadow] duration-300 ease-in-out ${scrolled
         ? 'h-16 bg-background/80 backdrop-blur-xl border-b border-border shadow-sm px-3 sm:px-4'
         : 'h-20 sm:h-24 bg-transparent border-b border-transparent px-4 sm:px-6'
         }`}
@@ -141,10 +148,10 @@ const Header: React.FC<HeaderProps> = ({
               onRefreshData?.();
             }}
           >
-            <div className={`transition-all duration-700 bg-foreground group-hover:bg-primary rounded-xl sm:rounded-2xl flex items-center justify-center text-primary-foreground shadow-2xl shadow-primary/20 ${scrolled ? 'w-9 h-9 sm:w-10 sm:h-10 rotate-0' : 'w-10 h-10 sm:w-11 sm:h-11 -rotate-3 group-hover:rotate-0'}`}>
+            <div className={`transition-[width,height,transform,background-color,box-shadow] duration-500 bg-foreground group-hover:bg-primary rounded-xl sm:rounded-2xl flex items-center justify-center text-primary-foreground shadow-2xl shadow-primary/20 ${scrolled ? 'w-9 h-9 sm:w-10 sm:h-10 rotate-0' : 'w-10 h-10 sm:w-11 sm:h-11 -rotate-3 group-hover:rotate-0'}`}>
               <i className={`fa-solid fa-book-bookmark ${scrolled ? 'text-[10px] sm:text-xs' : 'text-base sm:text-lg'}`}></i>
             </div>
-            <span className={`font-extrabold tracking-tighter text-foreground hidden sm:block transition-all duration-500 ${scrolled ? 'text-lg' : 'text-xl'}`}>
+            <span className={`font-extrabold tracking-tighter text-foreground hidden sm:block transition-[font-size] duration-300 ${scrolled ? 'text-lg' : 'text-xl'}`}>
               Digi<span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">Book</span>
             </span>
           </Link>
@@ -153,7 +160,7 @@ const Header: React.FC<HeaderProps> = ({
             <div className="relative" ref={categoryMenuRef}>
               <button
                 onClick={() => setShowCategoryMenu(!showCategoryMenu)}
-                className={`flex items-center gap-2 text-micro font-bold uppercase tracking-premium transition-all py-1 ${showCategoryMenu ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                className={`flex items-center gap-2 text-micro font-bold uppercase tracking-premium transition-colors py-1 ${showCategoryMenu ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
               >
                 <i className="fa-solid fa-shapes text-xs"></i>
                 Danh mục
@@ -168,9 +175,9 @@ const Header: React.FC<HeaderProps> = ({
                         key={cat.name}
                         to={`/category/${cat.name}`}
                         onClick={() => setShowCategoryMenu(false)}
-                        className="group flex items-center gap-4 p-3 rounded-2xl hover:bg-secondary transition-all border border-transparent hover:border-border"
+                        className="group flex items-center gap-4 p-3 rounded-2xl hover:bg-secondary transition-[background-color,border-color] border border-transparent hover:border-border"
                       >
-                        <div className="w-10 h-10 bg-secondary group-hover:bg-white rounded-xl flex items-center justify-center text-muted-foreground group-hover:text-primary transition-all shadow-sm group-hover:shadow-md">
+                        <div className="w-10 h-10 bg-secondary group-hover:bg-white rounded-xl flex items-center justify-center text-muted-foreground group-hover:text-primary transition-[background-color,color,box-shadow] shadow-sm group-hover:shadow-md">
                           <i className={`fa-solid ${cat.icon} text-lg`}></i>
                         </div>
                         <div className="flex-1">
@@ -200,7 +207,7 @@ const Header: React.FC<HeaderProps> = ({
                     onRefreshData?.();
                   }
                 }}
-                className={`text-micro font-bold uppercase tracking-premium transition-all relative py-1
+                className={`text-micro font-bold uppercase tracking-premium transition-colors relative py-1
                   ${location.pathname === link.path ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}
                 `}
               >
@@ -212,7 +219,7 @@ const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Center: Search Bar */}
-        <div ref={searchContainerRef} className={`relative flex-1 hidden md:block transition-all duration-700 ${isSearchFocused ? 'max-w-xl' : 'max-w-md'}`}>
+        <div ref={searchContainerRef} className={`relative flex-1 hidden md:block transition-[max-width] duration-500 ${isSearchFocused ? 'max-w-xl' : 'max-w-md'}`}>
           <div className="relative group">
             <input
               ref={searchInputRef}
@@ -222,12 +229,12 @@ const Header: React.FC<HeaderProps> = ({
               onChange={(e) => setSearchValue(e.target.value)}
               onKeyDown={handleKeyDown}
               onFocus={() => setIsSearchFocused(true)}
-              className={`w-full py-3.5 pl-12 pr-6 rounded-2xl text-label font-bold outline-none transition-all duration-500 border ${isSearchFocused
+              className={`w-full py-3.5 pl-12 pr-6 rounded-2xl text-label font-bold outline-none transition-[background-color,border-color,box-shadow] duration-300 border ${isSearchFocused
                 ? 'bg-background border-primary/20 ring-[6px] ring-primary/5 shadow-2xl shadow-primary/10'
                 : 'bg-secondary/50 border-transparent hover:bg-secondary hover:border-secondary'
                 }`}
             />
-            <div className={`absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center transition-all duration-500 ${isSearchFocused ? 'text-primary scale-110' : 'text-muted-foreground'}`}>
+            <div className={`absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center transition-[color,transform] duration-300 ${isSearchFocused ? 'text-primary scale-110' : 'text-muted-foreground'}`}>
               {isSearchFocused ? (
                 <i className="fa-solid fa-wand-magic-sparkles text-sm"></i>
               ) : (

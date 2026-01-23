@@ -44,9 +44,9 @@ const MobileNav: React.FC = () => {
               }}
               className="flex-1 flex flex-col items-center justify-center h-full relative group"
             >
-              <div className={`flex flex-col items-center justify-center w-11 h-11 rounded-2xl transition-all duration-500 relative ${isActive ? `${item.glow} scale-110 shadow-[0_0_20px_rgba(0,0,0,0.2)]` : 'hover:bg-white/5'
+              <div className={`flex flex-col items-center justify-center w-11 h-11 rounded-2xl transition-[transform,background-color,box-shadow] duration-300 relative ${isActive ? `${item.glow} scale-110 shadow-[0_0_20px_rgba(0,0,0,0.2)]` : 'hover:bg-white/5'
                 }`}>
-                <i className={`fa-solid ${item.icon} text-xl transition-all duration-500 ${isActive ? `${item.color} ${item.dropShadow}` : 'text-slate-400 opacity-60'}`}></i>
+                <i className={`fa-solid ${item.icon} text-xl transition-[color,opacity,filter] duration-300 ${isActive ? `${item.color} ${item.dropShadow}` : 'text-slate-400 opacity-60'}`}></i>
                 {ripples[item.path] && <span className="absolute inset-0 bg-white/10 rounded-2xl animate-ping opacity-0"></span>}
               </div>
             </Link>
@@ -60,10 +60,10 @@ const MobileNav: React.FC = () => {
           }}
           className="flex-1 flex flex-col items-center justify-center h-full relative group"
         >
-          <div className={`flex flex-col items-center justify-center w-11 h-11 rounded-2xl transition-all duration-500 relative ${cartCount > 0 ? 'bg-amber-400/20 scale-110 shadow-[0_0_20px_rgba(0,0,0,0.3)]' : 'hover:bg-white/5'
+          <div className={`flex flex-col items-center justify-center w-11 h-11 rounded-2xl transition-[transform,background-color,box-shadow] duration-300 relative ${cartCount > 0 ? 'bg-amber-400/20 scale-110 shadow-[0_0_20px_rgba(0,0,0,0.3)]' : 'hover:bg-white/5'
             }`}>
             <div className="relative">
-              <i className={`fa-solid fa-bag-shopping text-xl transition-all duration-500 ${cartCount > 0 ? 'text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]' : 'text-slate-400 opacity-60'}`}></i>
+              <i className={`fa-solid fa-bag-shopping text-xl transition-[color,opacity,filter] duration-300 ${cartCount > 0 ? 'text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]' : 'text-slate-400 opacity-60'}`}></i>
               {cartCount > 0 && (
                 <span className="absolute -top-2 -right-2 w-4 h-4 bg-amber-400 text-[9px] text-slate-900 flex items-center justify-center rounded-full font-black shadow-lg border-2 border-slate-900/20 animate-bounce">
                   {cartCount}
@@ -86,14 +86,14 @@ const MobileNav: React.FC = () => {
         >
           {user ? (
             <Link to="/profile" onClick={() => { if (isCartOpen) onCloseCart(); }} className="flex flex-col items-center relative h-full justify-center w-full">
-              <div className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-500 ${location.pathname === '/profile' ? 'bg-indigo-400/20 scale-110 shadow-[0_0_20px_rgba(0,0,0,0.3)]' : 'hover:bg-white/5'}`}>
-                <div className={`w-6 h-6 rounded-full overflow-hidden border-2 transition-all duration-500 ${location.pathname === '/profile' ? 'border-indigo-400 shadow-[0_0_10px_rgba(129,140,248,0.5)]' : 'border-white/20 opacity-60'}`}>
+              <div className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-[transform,background-color,box-shadow] duration-300 ${location.pathname === '/profile' ? 'bg-indigo-400/20 scale-110 shadow-[0_0_20px_rgba(0,0,0,0.3)]' : 'hover:bg-white/5'}`}>
+                <div className={`w-6 h-6 rounded-full overflow-hidden border-2 transition-[border-color,box-shadow,opacity] duration-300 ${location.pathname === '/profile' ? 'border-indigo-400 shadow-[0_0_10px_rgba(129,140,248,0.5)]' : 'border-white/20 opacity-60'}`}>
                   <img src={user.avatar} className="w-full h-full object-cover" alt="" />
                 </div>
               </div>
             </Link>
           ) : (
-            <div className="flex flex-col items-center justify-center w-11 h-11 rounded-2xl hover:bg-white/5 transition-all duration-500" onClick={() => { setShowLoginModal(true); if (isCartOpen) onCloseCart(); }}>
+            <div className="flex flex-col items-center justify-center w-11 h-11 rounded-2xl hover:bg-white/5 transition-background-color duration-300" onClick={() => { setShowLoginModal(true); if (isCartOpen) onCloseCart(); }}>
               <i className="fa-solid fa-user text-xl text-slate-400 opacity-60"></i>
               {ripples['user'] && <span className="absolute inset-0 bg-white/10 rounded-2xl animate-ping opacity-0"></span>}
             </div>

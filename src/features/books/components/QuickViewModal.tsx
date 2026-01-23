@@ -59,12 +59,8 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
             {/* Left: Image Section */}
             <div className="w-full md:w-5/12 bg-slate-50 p-6 flex flex-col items-center justify-center overflow-hidden relative group/img">
               <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-rose-500/5 to-purple-500/10 opacity-60"></div>
-              <motion.div
-                initial={{ opacity: 0, scale: 1.2, rotate: -5 }}
-                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                className="relative z-10"
-                whileHover={{ scale: 1.05, y: -5 }}
+              <div
+                className="relative z-10 transition-[transform,opacity] duration-500 opacity-0 scale-110 -rotate-3 animate-[imageEnter_0.8s_ease-out_forwards] group-hover/img:scale-105 group-hover/img:-translate-y-1"
               >
                 <img
                   src={book.cover}
@@ -73,7 +69,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                 />
                 {/* Visual shadow glow */}
                 <div className="absolute inset-0 bg-slate-900/60 blur-2xl rounded-2xl transform translate-y-8 scale-90 -z-10 opacity-30"></div>
-              </motion.div>
+              </div>
 
               {/* Image Footer Stats */}
               <div className="mt-8 flex gap-6 text-slate-400 relative z-10">
@@ -226,24 +222,22 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
 
               {/* Trust Badges */}
               <div className="mt-8 pt-8 border-t border-slate-50 grid grid-cols-2 gap-4">
-                <motion.div
-                  whileHover={{ y: -3 }}
-                  className="flex items-center gap-3 group"
+                <div
+                  className="flex items-center gap-3 group hover:-translate-y-1 transition-transform duration-200"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs shadow-sm group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs shadow-sm group-hover:bg-emerald-600 group-hover:text-white transition-[background-color,color] duration-200">
                     <i className="fa-solid fa-shield-halved"></i>
                   </div>
                   <span className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none group-hover:text-slate-900 transition-colors">Chính hãng 100%</span>
-                </motion.div>
-                <motion.div
-                  whileHover={{ y: -3 }}
-                  className="flex items-center gap-3 group"
+                </div>
+                <div
+                  className="flex items-center gap-3 group hover:-translate-y-1 transition-transform duration-200"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xs shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xs shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-[background-color,color] duration-200">
                     <i className="fa-solid fa-rotate"></i>
                   </div>
                   <span className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none group-hover:text-slate-900 transition-colors">Đổi trả 30 ngày</span>
-                </motion.div>
+                </div>
               </div>
             </div>
           </motion.div>

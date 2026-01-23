@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Book } from '@/shared/types/';
 
 interface BookCardProps {
@@ -38,7 +37,6 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickVi
   // const { wishlist, toggleWishlist } = useAuth();
   const navigate = useNavigate();
   const [imgLoaded, setImgLoaded] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
   // const isWishlisted = useMemo(() => wishlist.some(b => b.id === book.id), [wishlist, book.id]);
   const isAvailable = book.isAvailable !== false;
@@ -51,32 +49,17 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickVi
   // };
 
   return (
-    <motion.div
-      initial={{ opacity: 0.8, scale: 0.9, y: 10 }}
-      animate={{ opacity: 0.8, scale: 0.9, y: 0 }}
-      whileHover={{
-        opacity: 1,
-        scale: 1,
-        y: -10,
-        transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] }
-      }}
-      exit={{ opacity: 0, scale: 0.98 }}
-      className="w-full h-full"
+    <div
+      className={`w-full h-full group cursor-pointer transition-transform duration-300 hover:-translate-y-2 ${(!isAvailable || !hasStock) ? 'grayscale opacity-60' : ''}`}
     >
       <div
-        className={`relative group flex flex-col min-h-[320px] lg:min-h-[340px] bg-white rounded-3xl sm:rounded-[2rem] p-2.5 sm:p-3 border border-secondary shadow-sm transition-all duration-500 w-full ${(!isAvailable || !hasStock) ? 'grayscale opacity-60' : 'hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/20 hover:ring-4 hover:ring-primary/10'}`}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onClick={() => setIsHovered(!isHovered)} // Toggle on mobile tap
+        className={`relative flex flex-col min-h-[320px] lg:min-h-[340px] bg-white rounded-3xl sm:rounded-[2rem] p-2.5 sm:p-3 border border-secondary shadow-sm transition-[box-shadow,border-color] duration-200 w-full ${(!isAvailable || !hasStock) ? '' : 'group-hover:shadow-xl group-hover:shadow-primary/5 group-hover:border-primary/30'}`}
       >
-        {/* Glow Effect on Hover */}
-        <div className="absolute -inset-0.5 bg-gradient-to-tr from-primary/10 via-purple-500/10 to-rose-500/10 rounded-3xl sm:rounded-[2rem] blur opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-
         {/* Media Container - Improved Aspect Ratio */}
         <div className="relative aspect-[2/3] w-full rounded-[1.2rem] sm:rounded-[1.5rem] overflow-hidden bg-secondary mb-3 flex-shrink-0">
 
           {/* Status Badges */}
-          <div className={`absolute top-2 left-2 z-30 flex flex-col gap-1.5 items-start transition-all duration-300 ${isHovered ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`}>
+          <div className="absolute top-2 left-2 z-30 flex flex-col gap-1.5 items-start transition-opacity duration-150 group-hover:opacity-0">
             {!isAvailable && (
               <div className="px-1.5 py-0.5 sm:px-2.5 sm:py-1 bg-foreground/90 text-white text-[8px] sm:text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-foreground/20 border border-white/10 backdrop-blur-md flex items-center gap-1.5">
                 <i className="fa-solid fa-ban text-[7px] sm:text-[9px] text-slate-400"></i>
@@ -106,7 +89,7 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickVi
           {/* Wishlist Button - Top Right (Đã xóa theo yêu cầu) */}
 
           {/* Rating Badge on Image */}
-          <div className={`absolute bottom-2 right-2 z-30 px-1.5 py-0.5 bg-white/90 backdrop-blur-sm rounded-md flex items-center gap-1 shadow-sm border border-white/50 transition-all duration-300 ${isHovered ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+          <div className="absolute bottom-2 right-2 z-30 px-1.5 py-0.5 bg-white/90 backdrop-blur-sm rounded-md flex items-center gap-1 shadow-sm border border-white/50 transition-opacity duration-150 group-hover:opacity-0">
             <i className="fa-solid fa-star text-xs text-amber-400"></i>
             <span className="text-xs font-bold text-slate-700">{book.rating}</span>
           </div>
@@ -118,74 +101,53 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickVi
                 <i className="fa-solid fa-book-open text-slate-300"></i>
               </div>
             )}
-            <motion.img
+            <img
               src={getOptimizedImageUrl(book.cover)}
               srcSet={getImageSrcSet(book.cover)}
               sizes="(max-width: 640px) 200px, (max-width: 1024px) 300px, 500px"
               alt={book.title}
               onLoad={() => setImgLoaded(true)}
               loading="lazy"
-              animate={isHovered ? { scale: 1.1, filter: 'blur(2px) brightness(0.8)' } : { scale: 1, filter: 'blur(0px) brightness(1)' }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className={`w-full h-full object-cover ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-full h-full object-cover transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
             />
           </Link>
 
-          {/* Quick Info Overlay on Hover - Redesigned for Premium Look */}
-          <AnimatePresence>
-            {isHovered && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-foreground/60 backdrop-blur-[4px] z-20 flex flex-col items-center justify-center p-4 pb-16"
-              >
-                {/* Center Button: Clear & Primary Action */}
-                <motion.button
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.1, duration: 0.4 }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (onQuickView) onQuickView(book);
-                  }}
-                  className="flex flex-col items-center gap-2 group/btn"
-                >
-                  <div className="w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-full flex items-center justify-center group-hover/btn:bg-white group-hover/btn:text-foreground transition-all duration-300 shadow-xl">
-                    <i className="fa-solid fa-eye text-sm"></i>
-                  </div>
-                </motion.button>
+          {/* Quick Info Overlay on Hover - Optimized with CSS */}
+          <div className="absolute inset-0 bg-foreground/80 z-20 flex flex-col items-center justify-center p-4 pb-16 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
+            {/* Center Button: Clear & Primary Action */}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (onQuickView) onQuickView(book);
+              }}
+              className="flex flex-col items-center gap-2 group/btn"
+            >
+              <div className="w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-full flex items-center justify-center group-hover/btn:bg-white group-hover/btn:text-foreground transition-[background-color,color] duration-200 shadow-xl group-hover/btn:scale-105">
+                <i className="fa-solid fa-eye text-sm"></i>
+              </div>
+            </button>
 
-                {/* Bottom Quick Stats: Integrated & Clean */}
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2, duration: 0.4 }}
-                  className="absolute bottom-4 left-4 right-4"
-                >
-                  <div className="flex justify-around items-center bg-white/10 backdrop-blur-xl rounded-2xl py-2 px-1 border border-white/10">
-                    <div className="flex flex-col items-center flex-1">
-                      <span className="text-[11px] font-black text-white leading-none mb-1">{book.pages}</span>
-                      <span className="text-[8px] uppercase text-white/50 font-bold tracking-widest">Trang</span>
-                    </div>
-                    <div className="w-px h-6 bg-white/10"></div>
-                    <div className="flex flex-col items-center flex-1">
-                      <span className="text-[11px] font-black text-white leading-none mb-1">FREE</span>
-                      <span className="text-[8px] uppercase text-white/50 font-bold tracking-widest">Ship</span>
-                    </div>
-                    <div className="w-px h-6 bg-white/10"></div>
-                    <div className="flex flex-col items-center flex-1">
-                      <span className="text-[11px] font-black text-white leading-none mb-1">{book.language === 'Tiếng Việt' ? 'VN' : 'EN'}</span>
-                      <span className="text-[8px] uppercase text-white/50 font-bold tracking-widest">Bản</span>
-                    </div>
-                  </div>
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+            {/* Bottom Quick Stats: Integrated & Clean */}
+            <div className="absolute bottom-4 left-4 right-4">
+              <div className="flex justify-around items-center bg-white/10 backdrop-blur-xl rounded-2xl py-2 px-1 border border-white/10">
+                <div className="flex flex-col items-center flex-1">
+                  <span className="text-[11px] font-black text-white leading-none mb-1">{book.pages}</span>
+                  <span className="text-[8px] uppercase text-white/50 font-bold tracking-widest">Trang</span>
+                </div>
+                <div className="w-px h-6 bg-white/10"></div>
+                <div className="flex flex-col items-center flex-1">
+                  <span className="text-[11px] font-black text-white leading-none mb-1">FREE</span>
+                  <span className="text-[8px] uppercase text-white/50 font-bold tracking-widest">Ship</span>
+                </div>
+                <div className="w-px h-6 bg-white/10"></div>
+                <div className="flex flex-col items-center flex-1">
+                  <span className="text-[11px] font-black text-white leading-none mb-1">{book.language === 'Tiếng Việt' ? 'VN' : 'EN'}</span>
+                  <span className="text-[8px] uppercase text-white/50 font-bold tracking-widest">Bản</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Info Container */}
@@ -221,7 +183,7 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickVi
                 onAddToCart(book, 1, { x: e.clientX, y: e.clientY });
               }}
               disabled={!hasStock || !isAvailable}
-              className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center transition-all duration-300 ${(!hasStock || !isAvailable)
+              className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center transition-[background-color,color,transform,box-shadow] duration-200 ${(!hasStock || !isAvailable)
                 ? 'bg-secondary text-slate-300 cursor-not-allowed'
                 : 'bg-primary text-white hover:bg-foreground hover:scale-105 active:scale-95 shadow-md shadow-primary/10'
                 }`}
@@ -231,7 +193,7 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickVi
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

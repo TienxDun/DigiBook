@@ -90,7 +90,7 @@ const CartSidebar: React.FC<CartSidebarProps> = () => {
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 28, stiffness: 300, mass: 0.8 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
               className="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-[150] flex flex-col overflow-hidden"
             >
               {/* Decorative Background Elements */}
@@ -112,7 +112,7 @@ const CartSidebar: React.FC<CartSidebarProps> = () => {
                 </div>
                 <button
                   onClick={onClose}
-                  className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-all flex items-center justify-center active:scale-95 active:rotate-90 duration-300"
+                  className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-[background-color,color,transform] flex items-center justify-center active:scale-95 active:rotate-90 duration-200"
                 >
                   <i className="fa-solid fa-xmark text-lg"></i>
                 </button>
@@ -156,7 +156,7 @@ const CartSidebar: React.FC<CartSidebarProps> = () => {
                     onClick={() => onToggleAll(!isAllSelected)}
                     className="flex items-center gap-2 group cursor-pointer"
                   >
-                    <div className={`w-4 h-4 rounded-md border transition-all flex items-center justify-center ${isAllSelected ? 'bg-slate-900 border-slate-900' : 'border-slate-300 bg-white group-hover:border-indigo-500'}`}>
+                    <div className={`w-4 h-4 rounded-md border transition-[background-color,border-color] flex items-center justify-center ${isAllSelected ? 'bg-slate-900 border-slate-900' : 'border-slate-300 bg-white group-hover:border-indigo-500'}`}>
                       {isAllSelected && <i className="fa-solid fa-check text-[10px] text-white"></i>}
                     </div>
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-slate-900 transition-colors">
@@ -204,7 +204,7 @@ const CartSidebar: React.FC<CartSidebarProps> = () => {
                         <div className="absolute top-3 left-3 z-20">
                           <button
                             onClick={(e) => { e.stopPropagation(); onToggleSelection(item.id); }}
-                            className={`w-5 h-5 rounded-full border shadow-sm flex items-center justify-center transition-all ${selectedIds.includes(item.id) ? 'bg-indigo-500 border-indigo-500 text-white scale-110' : 'bg-white border-slate-200 text-transparent opacity-0 group-hover:opacity-100 hover:scale-110'}`}
+                            className={`w-5 h-5 rounded-full border shadow-sm flex items-center justify-center transition-[background-color,border-color,color,transform,opacity] ${selectedIds.includes(item.id) ? 'bg-indigo-500 border-indigo-500 text-white scale-110' : 'bg-white border-slate-200 text-transparent opacity-0 group-hover:opacity-100 hover:scale-110'}`}
                           >
                             <i className="fa-solid fa-check text-[10px]"></i>
                           </button>
@@ -245,14 +245,14 @@ const CartSidebar: React.FC<CartSidebarProps> = () => {
                             <div className="flex items-center bg-white rounded-xl shadow-sm border border-slate-100 p-0.5">
                               <button
                                 onClick={(e) => { e.stopPropagation(); onUpdateQty(item.id, -1); }}
-                                className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-lg transition-all"
+                                className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-lg transition-[color,background-color]"
                               >
                                 <i className="fa-solid fa-minus text-[10px]"></i>
                               </button>
                               <span className="w-6 text-center text-xs font-black text-slate-700">{item.quantity}</span>
                               <button
                                 onClick={(e) => { e.stopPropagation(); onUpdateQty(item.id, 1); }}
-                                className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-lg transition-all"
+                                className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-lg transition-[color,background-color]"
                               >
                                 <i className="fa-solid fa-plus text-[10px]"></i>
                               </button>
