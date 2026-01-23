@@ -31,7 +31,7 @@ const AuthorBookCard: React.FC<{
     >
       <div className="flex gap-5">
         {/* Book Cover */}
-        <Link 
+        <Link
           to={`/book/${book.id}`}
           className="relative w-28 h-40 flex-shrink-0 rounded-2xl overflow-hidden shadow-lg group-hover:scale-105 transition-transform duration-500 block"
         >
@@ -134,19 +134,22 @@ const AuthorPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickV
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!authorName) return;
       setLoading(true);
 
-      const [allBooks, allAuthors] = await Promise.all([
-        db.getBooks(),
-        db.getAuthors()
-      ]);
+      try {
+        const [books, info] = await Promise.all([
+          db.getBooksByAuthor(authorName, undefined, 100), // Fetch up to 100 books
+          db.getAuthorByName(authorName)
+        ]);
 
-      const filtered = allBooks.filter(b => b.author.toLowerCase() === authorName?.toLowerCase());
-      const info = allAuthors.find(a => a.name.toLowerCase() === authorName?.toLowerCase());
-
-      setAuthorBooks(filtered);
-      setAuthorInfo(info || null);
-      setLoading(false);
+        setAuthorBooks(books);
+        setAuthorInfo(info || null);
+      } catch (error) {
+        console.error("Error fetching author data:", error);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
     window.scrollTo(0, 0);
@@ -280,15 +283,17 @@ const AuthorPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickV
 
               <div className="prose prose-slate max-w-none">
                 <p className="text-sm text-slate-600 leading-[1.7] font-medium space-y-3">
-                  {authorInfo?.bio?.split('\n').map((para, i) => (
-                    <span key={i} className="block mb-3">
-                      {para}
-                    </span>
-                  )) || (
-                      <span className="italic opacity-80">
-                        {authorName} là một trong những cây bút có sức ảnh hưởng sâu rộng trong nền văn học hiện đại. Với khả năng quan sát tinh tế và ngôn từ sắc sảo, các tác phẩm của tác giả không chỉ là những câu chuyện kể mà còn là những bản chiêm nghiệm sâu sắc về cuộc sống, con người và những giá trị nhân bản vĩnh cửu.
+                  {authorInfo?.bio ? (
+                    authorInfo.bio.split('\n').map((para, i) => (
+                      <span key={i} className="block mb-3">
+                        {para}
                       </span>
-                    )}
+                    ))
+                  ) : (
+                    <span className="italic opacity-80">
+                      Thông tin tiểu sử tác giả đang được cập nhật.
+                    </span>
+                  )}
                 </p>
               </div>
 

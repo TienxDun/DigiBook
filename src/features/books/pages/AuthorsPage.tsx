@@ -188,7 +188,7 @@ const AuthorsPage: React.FC = () => {
                     <h3 className="text-base font-black text-slate-900 mb-1">{author.name}</h3>
                     <p className="text-micro font-bold text-indigo-500 uppercase tracking-premium mb-3">{authorStats[author.name.toLowerCase()] || 0} Tác phẩm</p>
                     <p className="text-[11px] text-slate-400 line-clamp-2 text-center leading-relaxed">
-                      {author.bio || "Tác giả ưu tú với nhiều tác phẩm có giá trị cao đang được yêu thích tại DigiBook."}
+                      {author.bio || "Thông tin tác giả đang cập nhật."}
                     </p>
                   </Link>
                 </motion.div>

@@ -109,32 +109,32 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
         url={`/category/${categoryName}`}
       />
       {isPromotionPage && (
-        <section className="bg-indigo-600 pt-10 pb-8 relative overflow-hidden">
+        <section className="bg-indigo-600 pt-6 pb-4 sm:pt-10 sm:pb-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-1/2 h-full bg-white/5 skew-x-12 translate-x-20"></div>
           <div className="max-w-7xl mx-auto px-4 relative z-10">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-12">
               <div className="text-white text-center lg:text-left">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-rose-500 rounded-full text-micro font-bold uppercase tracking-premium mb-4 animate-bounce">
+                <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-rose-500 rounded-full text-[9px] sm:text-micro font-bold uppercase tracking-premium mb-3 sm:mb-4 animate-bounce">
                   <i className="fa-solid fa-bolt"></i>
                   Flash Sale Đang Diễn Ra
                 </div>
-                <h1 className="text-4xl lg:text-6xl font-extrabold mb-4 tracking-tight">
+                <h1 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold mb-2 sm:mb-4 tracking-tight">
                   Đại Tiệc <span className="text-amber-400">Ưu Đãi</span>
                 </h1>
-                <p className="text-indigo-100 text-base max-w-lg mb-8 font-medium opacity-90">
+                <p className="text-indigo-100 text-[11px] sm:text-base max-w-lg mb-6 sm:mb-8 font-medium opacity-90">
                   Cơ hội sở hữu những tựa sách tinh hoa với mức giá cực kỳ hấp dẫn. Giảm giá lên đến 50%!
                 </p>
-                <div className="flex items-center justify-center lg:justify-start gap-3">
+                <div className="flex items-center justify-center lg:justify-start gap-2 sm:gap-3">
                   {[
                     { label: 'Giờ', value: timeLeft.hours },
                     { label: 'Phút', value: timeLeft.minutes },
                     { label: 'Giây', value: timeLeft.seconds }
                   ].map((unit, i) => (
                     <div key={i} className="flex flex-col items-center">
-                      <div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center text-xl font-extrabold mb-1.5 border border-white/20">
+                      <div className="w-11 h-11 sm:w-14 sm:h-14 bg-white/10 backdrop-blur-md rounded-lg sm:rounded-xl flex items-center justify-center text-lg sm:text-xl font-extrabold mb-1 sm:mb-1.5 border border-white/20">
                         {String(unit.value).padStart(2, '0')}
                       </div>
-                      <span className="text-micro font-bold uppercase tracking-premium opacity-60">{unit.label}</span>
+                      <span className="text-[9px] sm:text-micro font-bold uppercase tracking-premium opacity-60">{unit.label}</span>
                     </div>
                   ))}
                 </div>
@@ -156,13 +156,13 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
         ref={topRef}
         className={`max-w-7xl mx-auto px-4 relative z-20 scroll-mt-20 lg:scroll-mt-24 ${isPromotionPage ? '-mt-8' : 'mt-2'}`}
       >
-        <div className="sticky top-[64px] lg:top-[80px] z-40 mb-4 p-2.5 bg-white/80 backdrop-blur-lg rounded-[2rem] border border-white/50 shadow-xl shadow-slate-200/50 flex items-center gap-3 overflow-hidden group transition-all duration-300">
-          <div className="flex-shrink-0 flex items-center gap-2 px-5 py-3 border-r border-slate-200 mr-2 bg-white/50 rounded-l-[1.8rem]">
-            <i className="fa-solid fa-layer-group text-indigo-500"></i>
-            <span className="text-xs font-black text-slate-800 uppercase tracking-widest hidden sm:block">Chân dung tri thức</span>
+        <div className="sticky top-[64px] lg:top-[80px] z-40 mb-3 sm:mb-4 p-1.5 sm:p-2.5 bg-white/80 backdrop-blur-lg rounded-2xl sm:rounded-[2rem] border border-white/50 shadow-xl shadow-slate-200/50 flex items-center gap-2 sm:gap-3 overflow-hidden group transition-all duration-300">
+          <div className="flex-shrink-0 flex items-center gap-2 px-3 py-2 sm:px-5 sm:py-3 border-r border-slate-200 mr-1 sm:mr-2 bg-white/50 rounded-l-xl sm:rounded-l-[1.8rem]">
+            <i className="fa-solid fa-layer-group text-indigo-500 text-sm"></i>
+            <span className="text-[10px] sm:text-xs font-black text-slate-800 uppercase tracking-widest hidden sm:block">Chân dung tri thức</span>
           </div>
 
-          <div className="flex-1 flex overflow-x-auto pb-1 gap-3 no-scrollbar scroll-smooth py-1 relative pr-12">
+          <div className="flex-1 flex overflow-x-auto pb-0.5 sm:pb-1 gap-2 sm:gap-3 no-scrollbar scroll-smooth py-1 relative pr-10 sm:pr-12">
             {[{ name: 'Tất cả sách', icon: 'fa-book-open' }, ...categories].map((cat, i) => {
               const isActive = categoryName === cat.name || (!categoryName && cat.name === 'Tất cả sách');
               const color = [
@@ -178,10 +178,10 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
                 <Link
                   key={i}
                   to={`/category/${cat.name}`}
-                  className={`flex-shrink-0 px-6 py-3.5 rounded-2xl font-bold text-xs uppercase tracking-premium flex items-center gap-3 transition-all duration-500 border border-slate-100 relative group/cat ${isActive ? `${color.active} z-10 -translate-y-1` : `${color.inactive} hover:-translate-y-0.5 shadow-sm`
+                  className={`flex-shrink-0 px-3.5 py-2 sm:px-6 sm:py-3.5 rounded-xl sm:rounded-2xl font-bold text-[10px] sm:text-xs uppercase tracking-premium flex items-center gap-2 sm:gap-3 transition-all duration-500 border border-slate-100 relative group/cat ${isActive ? `${color.active} z-10 -translate-y-0.5 sm:-translate-y-1` : `${color.inactive} hover:-translate-y-0.5 shadow-sm`
                     }`}
                 >
-                  <i className={`fa-solid ${cat.icon} ${isActive ? 'scale-110 text-white' : 'text-slate-400 group-hover/cat:scale-110 group-hover/cat:text-current transition-all'}`}></i>
+                  <i className={`fa-solid ${cat.icon} text-[10px] sm:text-xs ${isActive ? 'scale-110 text-white' : 'text-slate-400 group-hover/cat:scale-110 group-hover/cat:text-current transition-all'}`}></i>
                   <span>{cat.name}</span>
                 </Link>
               );
@@ -191,22 +191,22 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
           </div>
         </div>
 
-        <div className="bg-white p-3 sm:p-4 rounded-3xl shadow-lg shadow-slate-200/50 border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 mb-4">
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="bg-white p-2.5 sm:p-4 rounded-2xl sm:rounded-3xl shadow-lg shadow-slate-200/50 border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-6 mb-4">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
             {!isPromotionPage && (
-              <div className="flex items-center gap-3.5 mr-4">
-                <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-inner">
-                  <i className={`fa-solid ${currentCategory.icon} text-xl`}></i>
+              <div className="flex items-center gap-2 sm:gap-3.5 mr-2 sm:mr-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-50 rounded-xl sm:rounded-2xl flex items-center justify-center text-indigo-600 shadow-inner">
+                  <i className={`fa-solid ${currentCategory.icon} text-lg sm:text-xl`}></i>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <p className="text-micro font-bold uppercase tracking-premium text-indigo-500">Danh mục</p>
-                    <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                    <p className="text-micro font-bold uppercase tracking-premium text-slate-400">
+                  <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5">
+                    <p className="text-[9px] sm:text-micro font-bold uppercase tracking-premium text-indigo-500">Danh mục</p>
+                    <span className="w-0.5 h-0.5 bg-slate-300 rounded-full"></span>
+                    <p className="text-[9px] sm:text-micro font-bold uppercase tracking-premium text-slate-400">
                       {books.length}{hasMore ? '+' : ''} sản phẩm
                     </p>
                   </div>
-                  <h1 className="text-xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">{categoryName || 'Tất cả sách'}</h1>
+                  <h1 className="text-lg sm:text-xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">{categoryName || 'Tất cả sách'}</h1>
                 </div>
               </div>
             )}
@@ -233,7 +233,7 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
               <span className="text-xs font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Sắp xếp</span>
             </div>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1 sm:gap-1.5">
               {[
                 { id: 'newest', label: 'Mới nhất', icon: 'fa-clock' },
                 { id: 'price-low', label: 'Giá thấp', icon: 'fa-chevron-up' },
@@ -243,7 +243,7 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
                 <button
                   key={option.id}
                   onClick={() => setSortBy(option.id)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${sortBy === option.id
+                  className={`flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${sortBy === option.id
                     ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100'
                     : 'bg-white text-slate-500 hover:text-indigo-600 hover:bg-slate-50 border border-slate-100 shadow-sm'
                     }`}

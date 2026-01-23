@@ -6,6 +6,9 @@ import {
   setDoc,
   deleteDoc,
   writeBatch,
+  where,
+  query,
+  limit,
   serverTimestamp
 } from "firebase/firestore";
 import { db_fs } from "../../../lib/firebase";
@@ -24,6 +27,24 @@ export async function getAuthors(): Promise<Author[]> {
   return wrap(
     getDocs(collection(db_fs, 'authors')).then(snap => snap.docs.map(d => ({ id: d.id, ...d.data() } as Author))),
     []
+  );
+}
+
+export async function getAuthorByName(name: string): Promise<Author | undefined> {
+  if (!name) return undefined;
+  return wrap(
+    (async () => {
+      const q = query(
+        collection(db_fs, 'authors'),
+        where('name', '==', name),
+        limit(1)
+      );
+      const snap = await getDocs(q);
+      if (snap.empty) return undefined;
+      const doc = snap.docs[0];
+      return { id: doc.id, ...doc.data() } as Author;
+    })(),
+    undefined
   );
 }
 

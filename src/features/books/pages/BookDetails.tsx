@@ -16,9 +16,46 @@ const formatPrice = (price: number) => {
 
 // Social Share Component
 const SocialShare: React.FC<{ title: string }> = ({ title }) => {
-  const copyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    toast.success('Đã sao chép liên kết!');
+  const copyLink = async () => {
+    const url = window.location.href;
+
+    // Check if Clipboard API is supported
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success('Đã sao chép liên kết!');
+        return;
+      } catch (err) {
+        console.error('Clipboard API failed, trying fallback...');
+      }
+    }
+
+    // Fallback using legacy execCommand
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = url;
+
+      // Ensure textarea is not visible but part of DOM
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      textArea.style.top = "0";
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+
+      if (successful) {
+        toast.success('Đã sao chép liên kết!');
+      } else {
+        toast.error('Không thể sao chép liên kết trên trình duyệt này');
+      }
+    } catch (err) {
+      console.error('Copy failed', err);
+      toast.error('Có lỗi xảy ra khi sao chép');
+    }
   };
 
   return (

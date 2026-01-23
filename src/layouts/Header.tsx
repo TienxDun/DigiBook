@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CartItem, CategoryInfo, Book } from '../types/';
+import { CartItem, CategoryInfo, Book } from '@/shared/types/';
 import { useAuth } from '@/features/auth';
 import { useBooks } from '@/features/books/contexts/BookContext';
 import { useCart } from '@/features/cart';

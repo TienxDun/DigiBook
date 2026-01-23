@@ -40,6 +40,7 @@ class DataService {
   // Metadata (Categories, Authors, Seed)
   getCategories = metadata.getCategories;
   getAuthors = metadata.getAuthors;
+  getAuthorByName = metadata.getAuthorByName;
   saveAuthor = metadata.saveAuthor;
   deleteAuthor = metadata.deleteAuthor;
   saveCategory = metadata.saveCategory;

@@ -57,8 +57,7 @@ const StickyBuyBar: React.FC = () => {
   return (
     <AnimatePresence>
       {isVisible && isBookDetails && viewingBook && (
-        /* Fixed wrapper - chỉ dùng flexbox để căn giữa, không phụ thuộc transform */
-        <div className="fixed inset-x-0 bottom-4 z-[110] flex justify-center pointer-events-none px-4">
+        <div className="fixed bottom-28 left-6 right-6 z-[110] lg:hidden pointer-events-none">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -71,23 +70,23 @@ const StickyBuyBar: React.FC = () => {
             dragConstraints={{
               top: -window.innerHeight + 150,
               bottom: 0,
-              left: -window.innerWidth / 2 + 100,
-              right: window.innerWidth / 2 - 100,
+              left: 0,
+              right: 0,
             }}
-            className="bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl shadow-slate-900/10 border border-slate-200/60 overflow-hidden pointer-events-auto max-w-2xl"
+            className="bg-white/90 backdrop-blur-2xl rounded-[2rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.2)] border border-slate-200/50 overflow-hidden pointer-events-auto w-full"
           >
-            <div className="flex items-center gap-1.5 md:gap-2 p-1.5 md:p-2">
+            <div className="flex items-center gap-2 p-2">
               {/* Drag Handle */}
               <div
-                className="flex items-center justify-center w-5 h-8 md:w-6 md:h-10 bg-slate-50 text-slate-400 rounded-md cursor-grab active:cursor-grabbing hover:bg-slate-100 hover:text-slate-600 transition-colors flex-shrink-0 touch-none"
+                className="flex items-center justify-center w-6 h-10 bg-slate-100/50 text-slate-400 rounded-2xl cursor-grab active:cursor-grabbing hover:bg-slate-100 hover:text-slate-600 transition-colors flex-shrink-0 touch-none"
                 onPointerDown={(e) => dragControls.start(e)}
                 title="Kéo để di chuyển"
               >
-                <i className="fa-solid fa-grip-vertical text-[10px] md:text-xs"></i>
+                <i className="fa-solid fa-grip-vertical text-xs"></i>
               </div>
 
               {/* Book Cover */}
-              <div className="relative w-8 h-11 md:w-10 md:h-14 rounded-md overflow-hidden shadow-sm flex-shrink-0 border border-slate-100">
+              <div className="relative w-10 h-14 rounded-xl overflow-hidden shadow-sm flex-shrink-0 border border-slate-100">
                 <img
                   src={viewingBook.cover}
                   alt={viewingBook.title}
@@ -96,79 +95,30 @@ const StickyBuyBar: React.FC = () => {
               </div>
 
               {/* Title & Price */}
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-slate-900 text-[10px] md:text-xs line-clamp-1 leading-tight mb-0.5">
+              <div className="flex-1 min-w-0 px-1">
+                <h3 className="font-bold text-slate-900 text-xs line-clamp-1 leading-tight mb-0.5">
                   {viewingBook.title}
                 </h3>
-                <div className="flex items-center gap-1 md:gap-1.5">
-                  <span className="text-xs md:text-sm font-bold text-rose-600 tracking-tight">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-black text-indigo-600 tracking-tight">
                     {formatPrice(viewingBook.price)}
                   </span>
-                  {viewingBook.originalPrice && viewingBook.originalPrice > viewingBook.price && (
-                    <span className="text-[7px] md:text-[9px] font-bold text-rose-600 bg-rose-50 px-1 py-0.5 rounded-full uppercase tracking-wide">
-                      -{Math.round((1 - viewingBook.price / viewingBook.originalPrice) * 100)}%
-                    </span>
-                  )}
                 </div>
               </div>
 
-              {/* Quantity Selector */}
-              {!isCompact && (
-                <div className="flex items-center gap-1 bg-slate-50 rounded-lg px-1.5 py-1 flex-shrink-0">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center bg-white rounded hover:bg-slate-100 text-slate-600 transition-colors border border-slate-200"
-                    disabled={quantity <= 1}
-                  >
-                    <i className="fa-solid fa-minus text-[8px] md:text-[9px]"></i>
-                  </button>
-                  <span className="text-[10px] md:text-xs font-bold text-slate-700 min-w-[16px] md:min-w-[20px] text-center">
-                    {quantity}
-                  </span>
-                  <button
-                    onClick={() => setQuantity(Math.min(viewingBook.stockQuantity, quantity + 1))}
-                    className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center bg-white rounded hover:bg-slate-100 text-slate-600 transition-colors border border-slate-200"
-                    disabled={quantity >= viewingBook.stockQuantity}
-                  >
-                    <i className="fa-solid fa-plus text-[8px] md:text-[9px]"></i>
-                  </button>
-                </div>
-              )}
-
               {/* Actions */}
-              <div className="flex items-center gap-1 md:gap-1.5 flex-shrink-0 border-l border-slate-100 pl-1.5 md:pl-2">
-                {/* Compact Toggle */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsCompact(!isCompact)}
-                  className="w-6 h-6 md:w-7 md:h-7 rounded-lg flex items-center justify-center transition-all bg-slate-50 text-slate-400 hover:text-slate-600 hover:bg-slate-100 border border-slate-200"
-                  title={isCompact ? 'Mở rộng' : 'Thu gọn'}
-                >
-                  <i className={`fa-solid ${isCompact ? 'fa-chevron-down' : 'fa-chevron-up'} text-[9px] md:text-[10px]`}></i>
-                </motion.button>
-
+              <div className="flex items-center gap-1.5 flex-shrink-0 ml-auto">
                 {/* Wishlist Button */}
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleToggleWishlist}
-                  className={`w-6 h-6 md:w-7 md:h-7 rounded-lg flex items-center justify-center transition-all border shadow-sm ${isWishlisted
+                  className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all border shadow-sm ${isWishlisted
                     ? 'bg-rose-50 text-rose-500 border-rose-100'
                     : 'bg-white text-slate-400 border-slate-200 hover:text-rose-500 hover:bg-rose-50 hover:border-rose-100'
                     }`}
-                  title={isWishlisted ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}
                 >
-                  <AnimatePresence mode="wait">
-                    <motion.i
-                      key={isWishlisted ? 'solid' : 'regular'}
-                      initial={{ scale: 0.7, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 1.2, opacity: 0 }}
-                      transition={{ duration: 0.15 }}
-                      className={`fa-${isWishlisted ? 'solid' : 'regular'} fa-heart text-[9px] md:text-[11px]`}
-                    ></motion.i>
-                  </AnimatePresence>
+                  <i className={`fa-${isWishlisted ? 'solid' : 'regular'} fa-heart text-sm`}></i>
                 </motion.button>
 
                 {/* Add to Cart Button */}
@@ -177,10 +127,10 @@ const StickyBuyBar: React.FC = () => {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleAddToCart}
                   disabled={viewingBook.stockQuantity === 0}
-                  className="h-6 md:h-7 px-2 md:px-4 bg-slate-900 text-white rounded-lg font-bold text-[9px] md:text-[10px] uppercase tracking-wider hover:bg-indigo-600 transition-all shadow-md shadow-slate-900/20 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed flex items-center gap-1 group"
+                  className="h-10 px-4 bg-slate-900 text-white rounded-2xl font-bold text-xs uppercase tracking-wider hover:bg-indigo-600 transition-all shadow-md shadow-slate-900/20 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  <i className="fa-solid fa-cart-shopping text-[9px] md:text-[11px] group-hover:scale-110 transition-transform"></i>
-                  <span className="hidden md:inline">Mua</span>
+                  <i className="fa-solid fa-cart-shopping text-sm"></i>
+                  <span>Mua</span>
                 </motion.button>
               </div>
             </div>

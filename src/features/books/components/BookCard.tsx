@@ -113,7 +113,7 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onAddToCart, onQuickVi
           </Link>
 
           {/* Quick Info Overlay on Hover - Optimized with CSS */}
-          <div className="absolute inset-0 bg-foreground/80 z-20 flex flex-col items-center justify-center p-4 pb-16 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
+          <div className="absolute inset-0 bg-foreground/80 z-20 flex flex-col items-center justify-center p-4 pb-16 opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200 pointer-events-none lg:group-hover:pointer-events-auto hidden lg:flex">
             {/* Center Button: Clear & Primary Action */}
             <button
               onClick={(e) => {
