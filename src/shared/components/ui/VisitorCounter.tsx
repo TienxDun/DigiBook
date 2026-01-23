@@ -7,7 +7,7 @@ interface VisitorCounterProps {
 
 export const VisitorCounter: React.FC<VisitorCounterProps> = ({
     siteCode = '',
-    path = '/'
+    path = '/' // Unused for TOTAL.json but kept for interface compatibility
 }) => {
     const [count, setCount] = useState<string | null>(null);
 
@@ -16,47 +16,40 @@ export const VisitorCounter: React.FC<VisitorCounterProps> = ({
 
         const fetchStats = async () => {
             try {
-                let fetchPath = path;
-                if (!fetchPath.startsWith('/')) fetchPath = '/' + fetchPath;
+                // Using TOTAL.json to get total site views as per requirements.
+                // rnd param prevents caching.
+                const url = `https://${siteCode}.goatcounter.com/counter/TOTAL.json?rnd=${Math.random()}`;
 
-                // Original URL causing CORS issues if accessed directly from client without server headers
-                const targetUrl = `https://${siteCode}.goatcounter.com/counter.json?p=${encodeURIComponent(fetchPath)}`;
+                const response = await fetch(url);
 
-                // Use a CORS Proxy to bypass the "No Access-Control-Allow-Origin" error.
-                // This allows us to read the JSON response even if GoatCounter's 404 responses miss CORS headers.
-                // Using api.allorigins.win as a reliable free proxy for public JSON data.
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
-
-                // Add a cache buster timestamp to prevent stale data
-                const response = await fetch(`${proxyUrl}&t=${Date.now()}`);
-
-                if (response.ok) {
-                    const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data && data.count) {
                     setCount(data.count);
-                } else {
-                    // If proxy returns error (e.g. 404 from target), assume 0 views
-                    setCount('0');
                 }
             } catch (error) {
-                // If even the proxy fails, just show nothing
-                // console.warn('VisitorCounter check failed');
+                console.warn('Không thể lấy lượt truy cập:', error);
             }
         };
 
         fetchStats();
-    }, [siteCode, path]);
+    }, [siteCode]);
 
     // Format count: if null, show loading dash, else number
     const displayCount = count ? parseInt(count).toLocaleString() : '---';
 
     return (
         <div
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group cursor-help"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group cursor-help visit-count-container"
             title="Lượt truy cập"
         >
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
             <i className="fa-solid fa-users-viewfinder text-slate-400 group-hover:text-emerald-400 transition-colors text-xs"></i>
-            <span className="text-xs font-bold font-mono text-slate-300 group-hover:text-white transition-colors">
+            <span className="text-xs font-bold font-mono text-slate-300 group-hover:text-white transition-colors visit-count-value">
                 {displayCount}
             </span>
         </div>

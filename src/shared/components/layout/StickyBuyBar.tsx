@@ -4,7 +4,6 @@ import { useLocation } from 'react-router-dom';
 import { useBooks } from '@/features/books';
 import { useCart } from '@/features/cart';
 import { useAuth } from '@/features/auth';
-import toast from '@/shared/utils/toast';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -41,12 +40,10 @@ const StickyBuyBar: React.FC = () => {
 
   const isWishlisted = viewingBook ? wishlist.some(b => b.id === viewingBook.id) : false;
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (viewingBook) {
       addToCart(viewingBook, quantity);
-      toast.success(`Đã thêm ${quantity}x "${viewingBook.title}" vào giỏ hàng!`, {
-        duration: 3000,
-      });
       setQuantity(1); // Reset về 1 sau khi thêm
     }
   };
@@ -156,11 +153,10 @@ const StickyBuyBar: React.FC = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleToggleWishlist}
-                  className={`w-6 h-6 md:w-7 md:h-7 rounded-lg flex items-center justify-center transition-all border shadow-sm ${
-                    isWishlisted
-                      ? 'bg-rose-50 text-rose-500 border-rose-100'
-                      : 'bg-white text-slate-400 border-slate-200 hover:text-rose-500 hover:bg-rose-50 hover:border-rose-100'
-                  }`}
+                  className={`w-6 h-6 md:w-7 md:h-7 rounded-lg flex items-center justify-center transition-all border shadow-sm ${isWishlisted
+                    ? 'bg-rose-50 text-rose-500 border-rose-100'
+                    : 'bg-white text-slate-400 border-slate-200 hover:text-rose-500 hover:bg-rose-50 hover:border-rose-100'
+                    }`}
                   title={isWishlisted ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}
                 >
                   <AnimatePresence mode="wait">

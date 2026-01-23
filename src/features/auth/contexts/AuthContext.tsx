@@ -222,15 +222,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const toggleWishlist = useCallback(async (book: Book) => {
+    const isExist = wishlist.some(b => b.id === book.id);
     let updated: Book[] = [];
 
-    setWishlist(prev => {
-      const exists = prev.find(b => b.id === book.id);
-      updated = exists ? prev.filter(b => b.id !== book.id) : [...prev, book];
-      return updated;
-    });
+    if (isExist) {
+        updated = wishlist.filter(b => b.id !== book.id);
+        toast.info(
+            <div className="flex flex-col gap-1">
+                <span className="font-bold text-sm">Đã xóa khỏi yêu thích</span>
+                <span className="text-xs line-clamp-1">{book.title}</span>
+            </div>
+        );
+    } else {
+        updated = [...wishlist, book];
+        toast.success(
+            <div className="flex flex-col gap-1">
+                <span className="font-bold text-sm">Đã thêm vào yêu thích</span>
+                <span className="text-xs line-clamp-1">{book.title}</span>
+            </div>
+        );
+    }
 
-    // Sycn to cloud IF user is logged in - OUTSIDE of state updater
+    setWishlist(updated);
+
+    // Sync to cloud IF user is logged in
     if (user) {
       try {
         await db.updateWishlist(user.id, updated.map(b => b.id));
@@ -238,7 +253,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error("Wishlist sync error:", err);
       }
     }
-  }, [user]);
+  }, [user, wishlist]);
 
   const clearWishlist = useCallback(async () => {
     setWishlist([]);

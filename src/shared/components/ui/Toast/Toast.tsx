@@ -6,8 +6,9 @@ export type ToastType = 'success' | 'error' | 'info' | 'warning';
 export interface ToastData {
   id: string;
   type: ToastType;
-  title: string;
+  title?: string | React.ReactNode;
   message?: string;
+  content?: React.ReactNode;
   duration?: number;
 }
 
@@ -82,13 +83,21 @@ const Toast: React.FC<ToastProps> = ({ toast, onDismiss }) => {
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <h4 className="font-semibold text-slate-800 text-[14px] leading-5">
-            {toast.title}
-          </h4>
-          {toast.message && (
-            <p className="text-slate-500 text-[13px] leading-5 mt-0.5">
-              {toast.message}
-            </p>
+          {toast.content ? (
+            <div>{toast.content}</div>
+          ) : (
+            <>
+              {toast.title && (
+                 <div className="font-semibold text-slate-800 text-[14px] leading-5">
+                  {toast.title}
+                 </div>
+              )}
+              {toast.message && (
+                <p className="text-slate-500 text-[13px] leading-5 mt-0.5">
+                  {toast.message}
+                </p>
+              )}
+            </>
           )}
         </div>
 

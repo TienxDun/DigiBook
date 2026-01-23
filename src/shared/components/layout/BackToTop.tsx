@@ -39,7 +39,7 @@ const BackToTop: React.FC = () => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.5, y: 20 }}
           onClick={scrollToTop}
-          className={`fixed ${isBookDetails ? 'bottom-40' : 'bottom-24'} right-6 z-[110] lg:bottom-24 lg:right-8 w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-2xl shadow-slate-900/20 hover:bg-indigo-600 transition-colors group`}
+          className={`fixed ${isBookDetails ? 'bottom-36' : 'bottom-28'} right-6 z-[110] lg:bottom-10 lg:right-10 w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-2xl shadow-slate-900/20 hover:bg-indigo-600 transition-colors group`}
           aria-label="Back to top"
         >
           <i className="fa-solid fa-arrow-up group-hover:-translate-y-1 transition-transform"></i>

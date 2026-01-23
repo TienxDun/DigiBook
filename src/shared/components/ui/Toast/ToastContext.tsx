@@ -3,7 +3,7 @@ import { AnimatePresence } from 'framer-motion';
 import Toast, { ToastData, ToastType } from './Toast';
 
 interface ToastContextValue {
-  showToast: (type: ToastType, title: string, message?: string, duration?: number) => void;
+  showToast: (type: ToastType, title: string | ReactNode, message?: string, duration?: number, content?: ReactNode) => void;
   success: (title: string, message?: string, duration?: number) => void;
   error: (title: string, message?: string, duration?: number) => void;
   info: (title: string, message?: string, duration?: number) => void;
@@ -21,13 +21,14 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   const [toasts, setToasts] = useState<ToastData[]>([]);
 
   const showToast = useCallback(
-    (type: ToastType, title: string, message?: string, duration?: number) => {
+    (type: ToastType, title: string | ReactNode, message?: string, duration?: number, content?: ReactNode) => {
       const id = `toast-${Date.now()}-${Math.random()}`;
       const newToast: ToastData = {
         id,
         type,
         title,
         message,
+        content,
         duration: duration || 4000,
       };
 

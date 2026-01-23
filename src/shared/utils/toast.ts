@@ -23,48 +23,11 @@ import React from 'react';
 
 // Singleton instance để lưu trữ hàm showToast từ context
 let toastInstance: {
-  showToast: (type: ToastType, title: string, message?: string, duration?: number) => void;
+  showToast: (type: ToastType, title: string | React.ReactNode, message?: string, duration?: number, content?: React.ReactNode) => void;
 } | null = null;
 
 export const setToastInstance = (instance: typeof toastInstance) => {
   toastInstance = instance;
-};
-
-// Helper để extract text từ JSX elements
-const extractTextFromJSX = (node: any): { title: string; description?: string } => {
-  if (typeof node === 'string') {
-    return parseMessage(node);
-  }
-  
-  // Nếu là React element với props.children
-  if (React.isValidElement(node)) {
-    const children = (node.props as any).children;
-    
-    if (Array.isArray(children)) {
-      // Lấy text từ các p tags
-      const texts = children
-        .filter((child: any) => React.isValidElement(child) && (child as any).type === 'p')
-        .map((child: any) => {
-          const childProps = (child as any).props;
-          return typeof childProps.children === 'string' ? childProps.children : '';
-        })
-        .filter(Boolean);
-      
-      if (texts.length >= 2) {
-        return { title: texts[0], description: texts.slice(1).join(' ') };
-      }
-      if (texts.length === 1) {
-        return { title: texts[0] };
-      }
-    }
-    
-    // Fallback: lấy text content đơn giản
-    if (typeof children === 'string') {
-      return { title: children };
-    }
-  }
-  
-  return { title: String(node) };
 };
 
 // Helper function để parse message (có thể là string đơn giản hoặc có title)
@@ -92,6 +55,15 @@ const parseMessage = (message: string): { title: string; description?: string } 
   return { title: message };
 };
 
+// Helper để xử lý message (string hoặc ReactNode)
+const processMessage = (message: string | React.ReactNode): { title?: string, description?: string, content?: React.ReactNode } => {
+  if (typeof message === 'string') {
+    return parseMessage(message);
+  }
+  // Nếu là ReactNode, trả về content để render trực tiếp
+  return { content: message };
+};
+
 // Main toast function
 const toast = (message: string | React.ReactNode, options?: { duration?: number }) => {
   if (!toastInstance) {
@@ -99,11 +71,9 @@ const toast = (message: string | React.ReactNode, options?: { duration?: number 
     return '';
   }
   
-  const { title, description } = typeof message === 'string' 
-    ? parseMessage(message)
-    : extractTextFromJSX(message);
+  const { title, description, content } = processMessage(message);
   
-  toastInstance.showToast('info', title, description, options?.duration);
+  toastInstance.showToast('info', title || '', description, options?.duration, content);
   return `toast-${Date.now()}`;
 };
 
@@ -114,11 +84,9 @@ toast.success = (message: string | React.ReactNode, options?: { duration?: numbe
     return '';
   }
   
-  const { title, description } = typeof message === 'string'
-    ? parseMessage(message)
-    : extractTextFromJSX(message);
+  const { title, description, content } = processMessage(message);
   
-  toastInstance.showToast('success', title, description, options?.duration);
+  toastInstance.showToast('success', title || '', description, options?.duration, content);
   return `toast-${Date.now()}`;
 };
 
@@ -128,11 +96,21 @@ toast.error = (message: string | React.ReactNode, options?: { duration?: number 
     return '';
   }
   
-  const { title, description } = typeof message === 'string'
-    ? parseMessage(message)
-    : extractTextFromJSX(message);
+  const { title, description, content } = processMessage(message);
   
-  toastInstance.showToast('error', title, description, options?.duration);
+  toastInstance.showToast('error', title || '', description, options?.duration, content);
+  return `toast-${Date.now()}`;
+};
+
+toast.info = (message: string | React.ReactNode, options?: { duration?: number }) => {
+  if (!toastInstance) {
+    console.warn('Toast system not initialized');
+    return '';
+  }
+  
+  const { title, description, content } = processMessage(message);
+  
+  toastInstance.showToast('info', title || '', description, options?.duration, content);
   return `toast-${Date.now()}`;
 };
 

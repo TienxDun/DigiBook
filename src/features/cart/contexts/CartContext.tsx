@@ -140,7 +140,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             </div>
         );
 
-        setIsCartOpen(true);
+        // setIsCartOpen(true); // Không tự động mở giỏ hàng nữa
     }, [cart]);
 
     const removeFromCart = useCallback((id: string) => {
