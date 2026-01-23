@@ -1,15 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useSearchParams, Link, useParams } from 'react-router-dom';
 import { db } from '@/services/db';
 import { Book } from '@/shared/types';
 import { BookCard } from '@/features/books/components/BookCard';
 import { BookCardSkeleton } from '@/shared/components';
-import { SEO } from '@/shared/components';
 import { useBooks } from '@/features/books';
 import { useCart } from '@/features/cart';
-import { QuickViewModal } from '../features/books';
 
 const SearchResults: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickView }) => {
   const { addToCart } = useCart();

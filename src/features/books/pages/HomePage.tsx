@@ -7,7 +7,6 @@ import BookCard from '@/features/books/components/BookCard'; // Default import
 import { useAuth } from '@/features/auth';
 import { useBooks } from '@/features/books';
 import { useCart } from '@/features/cart';
-import { QuickViewModal } from '@/features/books';
 import { BookCardSkeleton } from '@/shared/components';
 
 const HomePage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickView }) => {

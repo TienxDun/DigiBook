@@ -16,7 +16,7 @@ import {
   sendPasswordResetEmail
 } from "@/lib/firebase";
 import { db } from '@/services/db';
-import { toast } from 'react-hot-toast';
+import toast from '@/shared/utils/toast';
 import ErrorHandler from '@/services/errorHandler';
 
 export interface User {
@@ -64,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (profile?.status === 'banned') {
         if (auth) await signOut(auth);
         setUser(null);
-        toast.error('Tài khoản của bạn đã bị khóa bởi quản trị viên.', { id: 'auth-banned' });
+        toast.error('Tài khoản của bạn đã bị khóa bởi quản trị viên.');
         db.logActivity('AUTH_BANNED_BLOCK', `User ${firebaseUser.email} tried to login but is banned`, 'ERROR');
         return false;
       }

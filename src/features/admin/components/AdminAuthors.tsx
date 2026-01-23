@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Author, Book } from '@/shared/types';
 import { db } from '@/services/db';
-import toast from 'react-hot-toast';
+import toast from '@/shared/utils/toast';
 import { ErrorHandler } from '@/services/errorHandler';
 import { Pagination } from '@/shared/components';
 

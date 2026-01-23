@@ -21,11 +21,11 @@ vi.mock('@/features/auth', () => ({
     useAuth: vi.fn().mockReturnValue({ user: null }),
 }));
 
-vi.mock('react-hot-toast', () => ({
-    toast: {
+vi.mock('@/shared/utils/toast', () => ({
+    default: {
         success: vi.fn(),
         error: vi.fn(),
-    }
+    },
 }));
 
 // Mock localStorage

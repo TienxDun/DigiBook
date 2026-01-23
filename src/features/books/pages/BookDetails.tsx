@@ -7,6 +7,7 @@ import { useAuth } from '@/features/auth';
 import { db } from '@/services/db';
 import { Book, Review } from '@/shared/types';
 import { SEO, BookDetailsSkeleton } from '@/shared/components';
+import toast from '@/shared/utils/toast';
 
 
 const formatPrice = (price: number) => {
@@ -17,7 +18,7 @@ const formatPrice = (price: number) => {
 const SocialShare: React.FC<{ title: string }> = ({ title }) => {
   const copyLink = () => {
     navigator.clipboard.writeText(window.location.href);
-    import('react-hot-toast').then(({ toast }) => toast.success('Đã sao chép liên kết!'));
+    toast.success('Đã sao chép liên kết!');
   };
 
   return (

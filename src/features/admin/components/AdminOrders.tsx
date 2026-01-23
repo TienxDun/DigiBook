@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import toast from 'react-hot-toast';
+import toast from '@/shared/utils/toast';
 import { db } from '@/services/db';
 import { Order, OrderItem } from '@/shared/types';
 import { ErrorHandler } from '@/services/errorHandler';

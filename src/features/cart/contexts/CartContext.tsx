@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Book, CartItem } from '@/shared/types/';
-import { toast } from 'react-hot-toast';
+import toast from '@/shared/utils/toast';
 import { useAuth } from '@/features/auth';
 import { db } from '@/services/db';
 import { checkBookStock } from '@/services/db/utils/validateCartStock';

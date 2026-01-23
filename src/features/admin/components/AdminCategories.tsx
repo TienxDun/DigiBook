@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { CategoryInfo, Book } from '@/shared/types';
 import { db } from '@/services/db';
-import toast from 'react-hot-toast';
+import toast from '@/shared/utils/toast';
 import { ErrorHandler } from '@/services/errorHandler';
 import { AVAILABLE_ICONS } from '@/shared/config';
 import { motion, AnimatePresence } from 'framer-motion';

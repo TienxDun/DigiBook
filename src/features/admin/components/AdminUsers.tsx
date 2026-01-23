@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import toast from 'react-hot-toast';
+import toast from '@/shared/utils/toast';
 import { db } from '@/services/db';
 import { Pagination } from '@/shared/components';
 import { motion, AnimatePresence } from 'framer-motion';

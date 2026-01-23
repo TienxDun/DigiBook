@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { db } from '@/services/db';
-import toast from 'react-hot-toast';
+import toast from '@/shared/utils/toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Coupon } from '@/shared/types';
 import { Pagination } from '@/shared/components';

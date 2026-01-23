@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import toast from '@/shared/utils/toast';
 import { useAuth } from '@/features/auth';
 import { db } from '@/services/db';
 import { ErrorHandler } from '@/services/errorHandler';

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
+import toast from '@/shared/utils/toast';
 import { useAuth } from '@/features/auth';
 import { db } from '@/services/db';
 import { UserProfile } from '@/shared/types';
