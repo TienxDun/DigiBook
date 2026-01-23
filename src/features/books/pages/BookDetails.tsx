@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useBooks, QuickBuyBar, BookCard } from '@/features/books';
+import { useBooks, BookCard } from '@/features/books';
 import { useCart } from '@/features/cart';
 import { useAuth } from '@/features/auth';
 import { db } from '@/services/db';
@@ -22,7 +22,7 @@ const SocialShare: React.FC<{ title: string }> = ({ title }) => {
   };
 
   return (
-    <div className="flex items-center gap-2 mt-4">
+    <div className="flex items-center gap-2">
       <button onClick={copyLink} className="w-11 h-11 rounded-xl bg-white flex items-center justify-center text-slate-500 hover:bg-slate-900 hover:text-white transition-all shadow-sm border border-slate-200 active:scale-90" title="Sao chép liên kết">
         <i className="fa-solid fa-link text-sm"></i>
       </button>
@@ -53,7 +53,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
   const [recentBooks, setRecentBooks] = useState<Book[]>([]);
   const [newComment, setNewComment] = useState('');
   const [newRating, setNewRating] = useState(5);
-  const [scrolled, setScrolled] = useState(false);
+
   const [imageError, setImageError] = useState(false);
 
   const [showFullDescription, setShowFullDescription] = useState(false);
@@ -108,10 +108,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
     };
     fetchData();
     window.scrollTo(0, 0);
-    const handleScroll = () => setScrolled(window.scrollY > 100);
-    window.addEventListener('scroll', handleScroll);
     return () => {
-      window.removeEventListener('scroll', handleScroll);
       setViewingBook(null);
     };
   }, [id, setViewingBook]);
@@ -217,7 +214,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
       />
 
       {/* Dynamic Background */}
-      <div className="fixed inset-0 pointer-events-none -z-10">
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
         <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-100/30 blur-[150px] rounded-full -translate-y-1/2 translate-x-1/3"></div>
         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-rose-50/50 blur-[120px] rounded-full translate-y-1/3 -translate-x-1/4"></div>
       </div>
@@ -486,46 +483,79 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
               </button>
             </section>
 
-            {/* 4. Community & Reviews - Integrated better now taking full width */}
-            <div className="bg-white rounded-[2rem] border border-slate-100 overflow-hidden shadow-sm p-5 flex flex-col">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-0.5 h-4 bg-amber-400 rounded-full"></div>
-                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Đánh giá</h3>
-                </div>
-                <div className="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-lg">
-                  <span className="text-lg font-black text-amber-600 leading-none">{book.rating}</span>
-                  <div className="flex gap-0.5">
-                    {[1, 2, 3, 4, 5].map(s => <i key={s} className={`fa-solid fa-star text-xs ${s <= Math.floor(book.rating) ? 'text-amber-500' : 'text-amber-200'}`}></i>)}
-                  </div>
-                </div>
-              </div>
 
-              <div className="space-y-2 flex-grow overflow-y-auto max-h-[140px] pr-1 custom-scrollbar mb-3">
-                {reviews.length > 0 ? (
-                  reviews.slice(0, 5).map(r => (
-                    <div key={r.id} className="bg-slate-50/50 p-2.5 rounded-lg border border-slate-100">
-                      <div className="flex justify-between items-start mb-0.5">
-                        <span className="text-xs font-black text-slate-900 uppercase truncate max-w-[120px]">{r.userName}</span>
-                        <div className="flex gap-0.5">
-                          {[...Array(5)].map((_, i) => <i key={i} className={`fa-solid fa-star text-[8px] ${i < r.rating ? 'text-amber-400' : 'text-slate-200'}`}></i>)}
-                        </div>
-                      </div>
-                      <p className="text-sm text-slate-600 line-clamp-2 leading-tight italic">"{r.content}"</p>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-widest text-center py-2">Chưa có đánh giá</p>
-                )}
-              </div>
-              <button className="w-full py-2 bg-slate-50 text-xs font-black text-slate-600 uppercase tracking-widest rounded-lg border border-slate-200 hover:bg-slate-900 hover:text-white transition-all">
-                Xem tất cả
-              </button>
-            </div>
           </article>
         </div>
 
-        {/* 5. Add Review - Compact horizontal version */}
+        {/* 5. Reviews & Community - Full Width Section */}
+        <section className="mt-8 bg-white rounded-[2rem] border border-slate-100 overflow-hidden shadow-sm p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-6 bg-amber-400 rounded-full"></div>
+              <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Đánh giá từ cộng đồng</h3>
+            </div>
+            <div className="flex items-center gap-2 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-100">
+              <span className="text-2xl font-black text-amber-500 leading-none">{book.rating}</span>
+              <div className="flex flex-col items-start leading-none">
+                <div className="flex gap-0.5 mb-1">
+                  {[1, 2, 3, 4, 5].map(s => <i key={s} className={`fa-solid fa-star text-[10px] ${s <= Math.floor(book.rating) ? 'text-amber-500' : 'text-amber-200'}`}></i>)}
+                </div>
+                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">{reviews.length} đánh giá</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            {reviews.length > 0 ? (
+              reviews.slice(0, 6).map(r => (
+                <div key={r.id} className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100 hover:border-slate-200 transition-all hover:shadow-sm">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-slate-400 border border-slate-200 shadow-sm">
+                        <i className="fa-solid fa-user text-xs"></i>
+                      </div>
+                      <div>
+                        <p className="text-xs font-black text-slate-900 uppercase tracking-wide">{r.userName}</p>
+                        {r.isPurchased && (
+                          <p className="text-[9px] text-emerald-600 font-bold uppercase tracking-wider flex items-center gap-1">
+                            <i className="fa-solid fa-circle-check"></i> Đã mua
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex gap-0.5">
+                      {[...Array(5)].map((_, i) => <i key={i} className={`fa-solid fa-star text-[10px] ${i < r.rating ? 'text-amber-400' : 'text-slate-200'}`}></i>)}
+                    </div>
+                  </div>
+                  <p className="text-sm text-slate-600 leading-relaxed italic line-clamp-3">"{r.content}"</p>
+                  <p className="text-[10px] text-slate-400 font-bold mt-2 text-right">
+                    {r.createdAt?.seconds
+                      ? new Date(r.createdAt.seconds * 1000).toLocaleDateString('vi-VN')
+                      : new Date(r.createdAt).toLocaleDateString('vi-VN')}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full py-8 text-center bg-slate-50/50 rounded-2xl border-2 border-dashed border-slate-200">
+                <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-300 mx-auto mb-2">
+                  <i className="fa-regular fa-comment-dots text-xl"></i>
+                </div>
+                <p className="text-sm font-bold text-slate-500">Chưa có đánh giá nào</p>
+                <p className="text-xs text-slate-400 mt-1">Hãy là người đầu tiên chia sẻ cảm nhận về cuốn sách này!</p>
+              </div>
+            )}
+          </div>
+
+          {reviews.length > 6 && (
+            <div className="text-center">
+              <button className="px-6 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all shadow-sm">
+                Xem tất cả đánh giá
+              </button>
+            </div>
+          )}
+        </section>
+
+        {/* 6. Add Review Form */}
         <section className="mt-6 bg-white p-4 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col md:flex-row items-center md:items-center gap-4">
           <div className="flex items-center gap-3 shrink-0 w-full md:w-auto">
             <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
@@ -607,16 +637,6 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
         )}
       </div>
 
-      {/* FIXED BUY BAR: Componentized and Improved */}
-      <QuickBuyBar
-        book={book}
-        quantity={quantity}
-        setQuantity={setQuantity}
-        isWishlisted={isWishlisted}
-        toggleWishlist={handleToggleWishlist as any}
-        addToCart={addToCart}
-        scrolled={scrolled}
-      />
 
     </div>
   );

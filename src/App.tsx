@@ -104,6 +104,12 @@ const App: React.FC = () => {
       <AppContent />
       <Toaster
         position="top-right"
+        containerStyle={{
+          top: 24,
+          right: 24,
+          bottom: 'auto',
+          left: 'auto',
+        }}
         toastOptions={{
           duration: 3000,
           style: {
