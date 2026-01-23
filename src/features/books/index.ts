@@ -15,7 +15,6 @@ export { default as WishlistPage } from './pages/WishlistPage';
 // Components
 export { default as BookCard } from './components/BookCard';
 export { QuickViewModal } from './components/QuickViewModal';
-export { default as QuickBuyBar } from './components/QuickBuyBar';
 
 // API
 export * from './api/books';

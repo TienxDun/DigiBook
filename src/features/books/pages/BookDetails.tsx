@@ -7,7 +7,6 @@ import { useAuth } from '@/features/auth';
 import { db } from '@/services/db';
 import { Book, Review } from '@/shared/types';
 import { SEO, BookDetailsSkeleton } from '@/shared/components';
-import { LoginModal } from '@/features/auth';
 
 
 const formatPrice = (price: number) => {
@@ -50,6 +49,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
   const [authorInfo, setAuthorInfo] = useState<{ id: string, name: string, bio: string, avatar: string } | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [relatedBooks, setRelatedBooks] = useState<Book[]>([]);
+  const [authorBooks, setAuthorBooks] = useState<Book[]>([]);
   const [recentBooks, setRecentBooks] = useState<Book[]>([]);
   const [newComment, setNewComment] = useState('');
   const [newRating, setNewRating] = useState(5);
@@ -91,6 +91,10 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
           // Gợi ý sách liên quan - Tăng lên 5 cuốn để lấp đầy grid
           const related = await db.getRelatedBooks(foundBook.category, id, foundBook.author, 5);
           setRelatedBooks(related);
+
+          // Fetch sách cùng tác giả
+          const byAuthor = await db.getBooksByAuthor(foundBook.author, id, 5);
+          setAuthorBooks(byAuthor);
 
           // Update recent books in localStorage
           const stored = localStorage.getItem('digibook_recent');
@@ -301,14 +305,14 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
               {/* Quick Props Mirror - Reduced Size */}
               <div className="grid grid-cols-3 gap-0.5 mt-1.5 p-0.5 border-t border-slate-50">
                 {[
-                  { l: 'Bìa', v: 'Cứng', i: 'fa-book-bookmark' },
-                  { l: 'Khổ', v: '14x20', i: 'fa-ruler' },
-                  { l: 'Nặng', v: '450g', i: 'fa-weight' }
+                  { l: 'NXB', v: book.publisher || 'N/A', i: 'fa-building-columns' },
+                  { l: 'Năm', v: book.publishYear || '2024', i: 'fa-calendar' },
+                  { l: 'ISBN', v: book.isbn?.split('-').pop() || 'N/A', i: 'fa-barcode' }
                 ].map((p, i) => (
                   <div key={i} className="text-center p-1 rounded-lg hover:bg-slate-50 transition-all">
-                    <i className={`fa-solid ${p.i} text-slate-300 text-xs mb-0.5`}></i>
-                    <p className="text-xs font-black text-slate-400 uppercase tracking-tight mb-0">{p.l}</p>
-                    <p className="text-xs font-extrabold text-slate-800 leading-tight">{p.v}</p>
+                    <i className={`fa-solid ${p.i} text-slate-300 text-[10px] mb-0.5`}></i>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-tight mb-0">{p.l}</p>
+                    <p className="text-[10px] font-extrabold text-slate-800 leading-tight truncate px-0.5">{p.v}</p>
                   </div>
                 ))}
               </div>
@@ -396,13 +400,28 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
                   </motion.button>
                 </div>
               </div>
+
+              {/* Trust Badges - Enhanced for conversion */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-100">
+                {[
+                  { l: 'Chính hãng 100%', i: 'fa-certificate', c: 'text-blue-500' },
+                  { l: 'Đổi trả 15 ngày', i: 'fa-rotate-left', c: 'text-indigo-500' },
+                  { l: 'Giao hàng nhanh', i: 'fa-truck-fast', c: 'text-emerald-500' },
+                  { l: 'Kiểm hàng khi nhận', i: 'fa-box-open', c: 'text-amber-500' }
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-2 px-2">
+                    <i className={`fa-solid ${item.i} ${item.c} text-sm`}></i>
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-tight">{item.l}</span>
+                  </div>
+                ))}
+              </div>
             </section>
 
             {/* 2. Metadata Grid Dashboard - Compact icons */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
                 { l: 'Tác giả', v: book.author, i: 'fa-feather-pointed', color: 'bg-orange-50 text-orange-600' },
-                { l: 'Xuất bản', v: book.publishYear || 2024, i: 'fa-calendar-check', color: 'bg-blue-50 text-blue-600' },
+                { l: 'Nhà xuất bản', v: book.publisher || 'N/A', i: 'fa-house-chimney', color: 'bg-indigo-50 text-indigo-600' },
                 { l: 'Số trang', v: book.pages, i: 'fa-file-lines', color: 'bg-emerald-50 text-emerald-600' },
                 { l: 'Ngôn ngữ', v: book.language, i: 'fa-globe', color: 'bg-purple-50 text-purple-600' }
               ].map((m, i) => (
@@ -599,6 +618,26 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
         </section>
 
         {/* 6. Suggestions Sections - Optimized grid gaps */}
+        {authorBooks.length > 0 && (
+          <section className="mt-12 pt-8 border-t border-slate-200/50">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">Sách cùng tác giả</h2>
+                <p className="text-xs font-black text-indigo-500 uppercase tracking-widest">Từ {book.author}</p>
+              </div>
+              <Link to={`/author/${book.author}`} className="text-xs font-black text-slate-500 uppercase tracking-widest hover:text-indigo-600 transition-all flex items-center gap-2">
+                Xem tất cả của tác giả <i className="fa-solid fa-arrow-right"></i>
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {authorBooks.map(b => (
+                <BookCard key={b.id} book={b} onAddToCart={addToCart} onQuickView={onQuickView} />
+              ))}
+            </div>
+          </section>
+        )}
+
         {relatedBooks.length > 0 && (
           <section className="mt-12 pt-8 border-t border-slate-200/50">
             <div className="flex items-center justify-between mb-6">
@@ -636,8 +675,6 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
           </section>
         )}
       </div>
-
-
     </div>
   );
 };

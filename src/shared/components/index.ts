@@ -7,6 +7,7 @@ export { default as VisitorCounter } from './ui/VisitorCounter';
 
 // Layout Components
 export { default as BackToTop } from './layout/BackToTop';
+export { default as StickyBuyBar } from './layout/StickyBuyBar';
 export { default as ScrollToTop } from './layout/ScrollToTop';
 export { default as PageTransition } from './layout/PageTransition';
 

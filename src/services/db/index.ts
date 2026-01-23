@@ -27,6 +27,7 @@ class DataService {
   getBookById = books.getBookById;
   getBooksByIds = books.getBooksByIds;
   getRelatedBooks = books.getRelatedBooks;
+  getBooksByAuthor = books.getBooksByAuthor;
   saveBook = books.saveBook;
   updateBook = books.updateBook;
   deleteBook = books.deleteBook;

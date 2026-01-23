@@ -31,7 +31,10 @@ const AuthorBookCard: React.FC<{
     >
       <div className="flex gap-5">
         {/* Book Cover */}
-        <div className="relative w-28 h-40 flex-shrink-0 rounded-2xl overflow-hidden shadow-lg group-hover:scale-105 transition-transform duration-500">
+        <Link 
+          to={`/book/${book.id}`}
+          className="relative w-28 h-40 flex-shrink-0 rounded-2xl overflow-hidden shadow-lg group-hover:scale-105 transition-transform duration-500 block"
+        >
           <img src={book.cover} alt={book.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
@@ -40,16 +43,17 @@ const AuthorBookCard: React.FC<{
               {book.badge}
             </div>
           )}
-        </div>
+        </Link>
 
         {/* Book Info */}
         <div className="flex-1 flex flex-col justify-between py-1">
           <div>
             <div className="flex justify-between items-start gap-2 mb-1">
-              <h3 className="font-extrabold text-slate-800 text-sm lg:text-base leading-tight line-clamp-2 hover:text-indigo-600 cursor-pointer transition-colors"
-                onClick={() => window.location.href = `/book/${book.id}`}>
-                {book.title}
-              </h3>
+              <Link to={`/book/${book.id}`} className="flex-1">
+                <h3 className="font-extrabold text-slate-800 text-sm lg:text-base leading-tight line-clamp-2 hover:text-indigo-600 cursor-pointer transition-colors">
+                  {book.title}
+                </h3>
+              </Link>
               <button
                 onClick={() => toggleWishlist(book)}
                 className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isWishlisted ? 'text-rose-500 bg-rose-50' : 'text-slate-300 hover:text-rose-500 hover:bg-rose-50'}`}

@@ -1,10 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { motion, useScroll, useTransform } from 'framer-motion';
 import SEO from '@/shared/components/seo/SEO';
-import { db } from '@/services/db';
-import * as booksApi from '@/features/books/api/books'; // Namespace import
 import { Book } from '@/shared/types';
 import BookCard from '@/features/books/components/BookCard'; // Default import
 import { useAuth } from '@/features/auth';

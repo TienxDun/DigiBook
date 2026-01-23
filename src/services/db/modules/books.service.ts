@@ -115,6 +115,26 @@ export async function getRelatedBooks(category: string, currentBookId: string, a
   );
 }
 
+export async function getBooksByAuthor(authorName: string, excludeId?: string, limitCount: number = 5): Promise<Book[]> {
+  return wrap(
+    (async () => {
+      const booksRef = collection(db_fs, 'books');
+      const q = query(
+        booksRef,
+        where('author', '==', authorName),
+        limit(limitCount + (excludeId ? 1 : 0))
+      );
+      const snap = await getDocs(q);
+      let books = snap.docs.map(d => ({ id: d.id, ...d.data() } as Book));
+      if (excludeId) {
+        books = books.filter(b => b.id !== excludeId);
+      }
+      return books.slice(0, limitCount);
+    })(),
+    []
+  );
+}
+
 export async function saveBook(book: Book): Promise<void> {
   const cleanBook = Object.fromEntries(
     Object.entries(book).filter(([_, v]) => v !== undefined)

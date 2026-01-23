@@ -24,6 +24,5 @@ dist-ssr
 *.sln
 *.sw?
 
-# Agent
-.agent
-
+#Agent
+.Agent
