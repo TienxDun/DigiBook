@@ -91,7 +91,15 @@ export async function removeUserAddress(userId: string, addressId: string): Prom
 
   const userData = snap.data() as UserProfile;
   const currentAddresses = userData.addresses || [];
+
+  // Tìm địa chỉ sắp bị xóa để check xem nó có phải default không
+  const removedAddress = currentAddresses.find(a => a.id === addressId);
   const updatedAddresses = currentAddresses.filter(a => a.id !== addressId);
+
+  // Nếu xóa địa chỉ default và còn địa chỉ khác, set địa chỉ đầu tiên làm default
+  if (removedAddress?.isDefault && updatedAddresses.length > 0) {
+    updatedAddresses[0].isDefault = true;
+  }
 
   await wrap(
     updateDoc(userRef, {
@@ -103,6 +111,7 @@ export async function removeUserAddress(userId: string, addressId: string): Prom
     addressId
   );
 }
+
 
 export async function setDefaultAddress(userId: string, addressId: string): Promise<void> {
   const userRef = doc(db_fs, 'users', userId);

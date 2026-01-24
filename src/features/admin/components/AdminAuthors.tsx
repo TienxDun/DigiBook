@@ -135,12 +135,11 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
   return (
     <div className="space-y-8 animate-fadeIn text-foreground">
       {/* Authors Dashboard Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
           { label: 'Tổng tác giả', value: authors.length, icon: 'fa-user-pen', color: 'primary' },
           { label: 'Có sách xuất bản', value: authors.filter(a => true).length, icon: 'fa-book-open', color: 'chart-1' }, // Logic placeholder
-          { label: 'Mới thêm', value: authors.slice(0, 5).length, icon: 'fa-plus', color: 'chart-2' },
-          { label: 'Top quan tâm', value: '12', icon: 'fa-star', color: 'chart-3' }
+          { label: 'Mới thêm', value: authors.slice(0, 5).length, icon: 'fa-plus', color: 'chart-2' }
         ].map((stat, i) => (
           <div key={i} className={`${isMidnight ? 'bg-[#1e293b]/40 border-white/5' : 'bg-card border-border shadow-sm'} p-6 rounded-[2rem] border group transition-all hover:border-primary/50`}>
             <div className="flex items-center justify-between">

@@ -2,6 +2,7 @@
 import {
   collection,
   getDocs,
+  getDoc,
   doc,
   setDoc,
   deleteDoc,
@@ -11,9 +12,10 @@ import {
   limit,
   serverTimestamp
 } from "firebase/firestore";
+
 import { db_fs } from "../../../lib/firebase";
 import { CategoryInfo, Author, Book } from '@/shared/types/';
-import { wrap, logActivity } from "../core";
+import { wrap, logActivity, fetchWithProxy } from "../core";
 import { INITIAL_CATEGORIES } from '@/shared/config/categories';
 
 export async function getCategories(): Promise<CategoryInfo[]> {
@@ -30,7 +32,37 @@ export async function getAuthors(): Promise<Author[]> {
   );
 }
 
+// --- Wikipedia Enrichment ---
+export async function enrichAuthorFromWiki(name: string): Promise<Partial<Author> | null> {
+  try {
+    // 1. Search for generic page
+    const searchUrl = `https://vi.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(name)}&limit=1&namespace=0&format=json&origin=*`;
+    const searchRes = await fetchWithProxy(searchUrl);
+
+    // Wiki opensearch returns [search, [titles], [descriptions], [urls]]
+    if (!searchRes || !searchRes[1] || searchRes[1].length === 0) return null;
+
+    const pageTitle = searchRes[1][0];
+
+    // 2. Get details (summary & thumbnail)
+    const detailUrl = `https://vi.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(pageTitle)}`;
+    const detailRes = await fetchWithProxy(detailUrl);
+
+    if (!detailRes) return null;
+
+    return {
+      bio: detailRes.extract || undefined,
+      avatar: detailRes.thumbnail ? detailRes.thumbnail.source : undefined
+    };
+
+  } catch (error) {
+    console.warn("Wiki enrichment failed:", error);
+    return null;
+  }
+}
+
 export async function getAuthorByName(name: string): Promise<Author | undefined> {
+
   if (!name) return undefined;
   return wrap(
     (async () => {
@@ -50,6 +82,43 @@ export async function getAuthorByName(name: string): Promise<Author | undefined>
 
 export async function saveAuthor(author: Author): Promise<string> {
   const id = author.id || Date.now().toString();
+
+  // Nếu đang update author có sẵn, kiểm tra xem name có thay đổi không
+  if (author.id) {
+    const existingSnap = await getDoc(doc(db_fs, 'authors', author.id));
+    if (existingSnap.exists()) {
+      const existingData = existingSnap.data() as Author;
+
+      // Nếu name thay đổi, cần sync tất cả books
+      if (existingData.name !== author.name) {
+        return wrap(
+          (async () => {
+            const batch = writeBatch(db_fs);
+
+            // 1. Update author
+            batch.set(doc(db_fs, 'authors', id), { ...author, id }, { merge: true });
+
+            // 2. Find and update all books with this authorId
+            const booksSnap = await getDocs(
+              query(collection(db_fs, 'books'), where('authorId', '==', author.id))
+            );
+
+            booksSnap.docs.forEach(d => {
+              batch.update(d.ref, { author: author.name });
+            });
+
+            await batch.commit();
+            return id;
+          })(),
+          id,
+          'SAVE_AUTHOR_AND_SYNC',
+          `${author.name} (synced ${0} books)`
+        );
+      }
+    }
+  }
+
+  // Normal save (no name change or new author)
   return wrap(
     setDoc(doc(db_fs, 'authors', id), { ...author, id }, { merge: true }).then(() => id),
     id,
@@ -57,6 +126,7 @@ export async function saveAuthor(author: Author): Promise<string> {
     author.name
   );
 }
+
 
 export async function deleteAuthor(id: string): Promise<void> {
   await wrap(

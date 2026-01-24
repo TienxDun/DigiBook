@@ -27,13 +27,13 @@ const AuthorBookCard: React.FC<AuthorBookCardProps> = ({ book, index, onQuickVie
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.1 }}
-      className="group relative bg-white rounded-3xl p-4 border border-slate-200/60 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 hover:border-indigo-200 transition-all duration-500"
+      className="group relative bg-white rounded-3xl p-3 md:p-4 border border-slate-200/60 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 hover:border-indigo-200 transition-all duration-500"
     >
-      <div className="flex gap-5">
+      <div className="flex gap-3 md:gap-5">
         {/* Book Cover */}
         <Link
           to={`/book/${book.slug || book.id}`}
-          className="relative w-28 h-40 flex-shrink-0 rounded-2xl overflow-hidden shadow-lg group-hover:scale-105 transition-transform duration-500 block"
+          className="relative w-24 md:w-28 h-36 md:h-40 flex-shrink-0 rounded-2xl overflow-hidden shadow-lg group-hover:scale-105 transition-transform duration-500 block"
         >
           <img src={book.cover} alt={book.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -55,7 +55,7 @@ const AuthorBookCard: React.FC<AuthorBookCardProps> = ({ book, index, onQuickVie
         </Link>
 
         {/* Book Info */}
-        <div className="flex-1 flex flex-col justify-between py-1">
+        <div className="flex-1 flex flex-col justify-between py-0.5 md:py-1 min-w-0">
           <div>
             <div className="flex justify-between items-start gap-2 mb-1">
               <Link to={`/book/${book.slug || book.id}`} className="flex-1">

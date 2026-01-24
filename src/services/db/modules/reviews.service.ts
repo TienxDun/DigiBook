@@ -8,8 +8,10 @@ import {
   updateDoc,
   query,
   orderBy,
-  serverTimestamp
+  serverTimestamp,
+  increment
 } from "firebase/firestore";
+
 import { db_fs } from "../../../lib/firebase";
 import { Review } from '@/shared/types/';
 import { wrap } from "../core";
@@ -30,20 +32,25 @@ export async function addReview(review: Omit<Review, 'createdAt'>): Promise<void
       const reviewRef = collection(db_fs, 'books', review.bookId, 'reviews');
       await addDoc(reviewRef, { ...review, createdAt: serverTimestamp() });
 
-      const allReviewsSnap = await getDocs(reviewRef);
-      const reviews = allReviewsSnap.docs.map(d => d.data() as Review);
+      // Incremental rating calculation (O(1) instead of O(n))
+      // Formula: newRating = (currentRating * currentCount + newRating) / (currentCount + 1)
+      const bookRef = doc(db_fs, 'books', review.bookId);
+      const bookSnap = await getDoc(bookRef);
+      const bookData = bookSnap.data();
 
-      if (reviews.length > 0) {
-        const totalRating = reviews.reduce((sum, r) => sum + r.rating, 0);
-        const averageRating = (totalRating / reviews.length).toFixed(1);
+      const currentRating = bookData?.rating || 0;
+      const currentCount = bookData?.reviewCount || 0;
+      const newCount = currentCount + 1;
+      const newRating = ((currentRating * currentCount) + review.rating) / newCount;
 
-        await updateDoc(doc(db_fs, 'books', review.bookId), {
-          rating: Number(averageRating)
-        });
-      }
+      await updateDoc(bookRef, {
+        rating: Number(newRating.toFixed(1)),
+        reviewCount: increment(1)
+      });
     })(),
     undefined,
     'ADD_REVIEW',
     review.bookId
   );
 }
+

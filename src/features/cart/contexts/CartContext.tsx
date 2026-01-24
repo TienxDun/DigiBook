@@ -43,14 +43,35 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (user) {
                 const cloudCart = await db.getUserCart(user.id);
                 if (cloudCart && cloudCart.length > 0) {
-                    // Ưu tiên giỏ hàng cloud nếu có
-                    setCart(cloudCart);
+                    // Merge local và cloud cart thay vì ghi đè
+                    const localCart: CartItem[] = JSON.parse(localStorage.getItem('digibook_cart') || '[]');
+
+                    const merged = new Map<string, CartItem>();
+
+                    // Add cloud items first
+                    cloudCart.forEach(item => merged.set(item.id, item));
+
+                    // Merge local items - keep higher quantity nếu trùng
+                    localCart.forEach(item => {
+                        const existing = merged.get(item.id);
+                        if (existing) {
+                            merged.set(item.id, {
+                                ...item,
+                                quantity: Math.max(existing.quantity, item.quantity)
+                            });
+                        } else {
+                            merged.set(item.id, item);
+                        }
+                    });
+
+                    setCart(Array.from(merged.values()));
                 }
             }
             setIsLoadedFromCloud(true);
         };
         syncFromCloud();
     }, [user]);
+
 
     // Đồng bộ lên Cloud khi giỏ hàng thay đổi
     useEffect(() => {
@@ -147,11 +168,32 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCart(prev => prev.filter(item => item.id !== id));
     }, []);
 
-    const updateQuantity = useCallback((id: string, delta: number) => {
+    const updateQuantity = useCallback(async (id: string, delta: number) => {
+        // Nếu tăng số lượng, cần kiểm tra tồn kho
+        if (delta > 0) {
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                const newQuantity = item.quantity + delta;
+                const stockCheck = await checkBookStock(id, newQuantity);
+
+                if (!stockCheck.canFulfill) {
+                    if (stockCheck.available === 0) {
+                        toast.error('Sản phẩm đã hết hàng!');
+                    } else if (item.quantity >= stockCheck.available) {
+                        toast.error(`Bạn đã có số lượng tối đa (${stockCheck.available}) trong giỏ!`);
+                    } else {
+                        toast.error(`Chỉ còn ${stockCheck.available} sản phẩm trong kho`);
+                    }
+                    return;
+                }
+            }
+        }
+
         setCart(prev => prev.map(item =>
             item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
         ));
-    }, []);
+    }, [cart]);
+
 
     const clearCart = useCallback(() => {
         setCart([]);

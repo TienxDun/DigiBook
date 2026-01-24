@@ -33,15 +33,17 @@ const AuthorsPage: React.FC = () => {
   const authorStats = useMemo(() => {
     const stats: Record<string, number> = {};
     allBooks.forEach(book => {
-      const authorKey = book.author.toLowerCase();
-      stats[authorKey] = (stats[authorKey] || 0) + 1;
+      if (book.author) {
+        const authorKey = book.author.toLowerCase();
+        stats[authorKey] = (stats[authorKey] || 0) + 1;
+      }
     });
     return stats;
   }, [allBooks]);
 
   const filteredAuthors = useMemo(() => {
     return authors.filter(author =>
-      author.name.toLowerCase().includes(searchQuery.toLowerCase())
+      author.name && author.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [authors, searchQuery]);
 
@@ -49,9 +51,11 @@ const AuthorsPage: React.FC = () => {
     if (searchQuery) return {};
     const groups: Record<string, Author[]> = {};
     authors.forEach(author => {
-      const firstLetter = author.name.charAt(0).toUpperCase();
-      if (!groups[firstLetter]) groups[firstLetter] = [];
-      groups[firstLetter].push(author);
+      if (author.name) {
+        const firstLetter = author.name.charAt(0).toUpperCase();
+        if (!groups[firstLetter]) groups[firstLetter] = [];
+        groups[firstLetter].push(author);
+      }
     });
     return Object.fromEntries(
       Object.entries(groups).sort(([a], [b]) => a.localeCompare(b))
@@ -60,6 +64,7 @@ const AuthorsPage: React.FC = () => {
 
   const featuredAuthors = useMemo(() => {
     return [...authors]
+      .filter(a => a.name) // Ensure name exists
       .sort((a, b) => (authorStats[b.name.toLowerCase()] || 0) - (authorStats[a.name.toLowerCase()] || 0))
       .slice(0, 4);
   }, [authors, authorStats]);

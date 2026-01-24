@@ -19,7 +19,8 @@ import {
 } from "firebase/firestore";
 import { db_fs } from "../../../lib/firebase";
 import { Book, Author } from '@/shared/types/';
-import { wrap } from "../core";
+import { wrap, logActivity, fetchWithProxy } from "../core";
+import { enrichAuthorFromWiki } from "./metadata.service";
 
 export async function getBooks(): Promise<Book[]> {
   return wrap(
@@ -27,6 +28,54 @@ export async function getBooks(): Promise<Book[]> {
     []
   );
 }
+
+// ... (keep intermediate code if any, but replace logic in saveBook)
+
+// Inside saveBook function logic replacement:
+/*
+      // 1. Check and Auto-create Author if needed
+      if (cleanBook.author) { // Only if author name is provided
+        const authorName = cleanBook.author.trim();
+        
+        // Check if author exists by name (case-insensitive approximation via query)
+        const authorsRef = collection(db_fs, 'authors');
+        const q = query(authorsRef, where('name', '==', authorName), limit(1));
+        const authorSnap = await getDocs(q);
+
+        let authorId: string;
+
+        if (!authorSnap.empty) {
+          // Author exists, use their ID
+          authorId = authorSnap.docs[0].id;
+        } else {
+          // Create new Author
+          // Try to enrich from Wikipedia first
+          let wikiData = null;
+          try {
+             wikiData = await enrichAuthorFromWiki(authorName);
+             if (wikiData) {
+                logActivity('AUTO_ENRICH_AUTHOR', `Found Wiki info for: ${authorName}`, 'SUCCESS', 'INFO', 'SYSTEM');
+             }
+          } catch(err) {
+             console.warn("Wiki enrich failed silently", err);
+          }
+
+          authorId = `author-${Date.now()}`;
+          const newAuthor: Author = {
+            id: authorId,
+            name: authorName,
+            bio: wikiData?.bio || cleanBook.authorBio || `Tác giả của cuốn sách "${cleanBook.title}".`,
+            avatar: wikiData?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=random&size=256`
+          };
+          await setDoc(doc(db_fs, 'authors', authorId), { ...newAuthor, createdAt: serverTimestamp() });
+          logActivity('AUTO_CREATE_AUTHOR', `Created author: ${authorName}`, 'SUCCESS', 'INFO', 'SYSTEM');
+        }
+        
+        // Link book to author
+        cleanBook.authorId = authorId;
+      }
+*/
+
 
 export async function getBooksPaginated(
   limitCount: number = 10,
@@ -215,12 +264,52 @@ export async function saveBook(book: Book): Promise<void> {
   }
 
   await wrap(
-    setDoc(doc(db_fs, 'books', book.id), { ...cleanBook, updatedAt: serverTimestamp() }, { merge: true }),
+    (async () => {
+      // 1. Check and Auto-create Author if needed
+      if (cleanBook.author) { // Only if author name is provided
+        const authorName = cleanBook.author.trim();
+        const authorKey = authorName.toLowerCase();
+
+        // Check if author exists by name (case-insensitive approximation via query)
+        const authorsRef = collection(db_fs, 'authors');
+        // Note: Firestore queries are case-sensitive usually, but we check exact match on 'name' field first
+        // Ideally we should have a normalized 'nameLower' field, but for now we query by standard name
+        // Or we use the existing helper from metadata service if we could import it, but let's do direct query to avoid circ dep
+
+        const q = query(authorsRef, where('name', '==', authorName), limit(1));
+        const authorSnap = await getDocs(q);
+
+        let authorId: string;
+
+        if (!authorSnap.empty) {
+          // Author exists, use their ID
+          authorId = authorSnap.docs[0].id;
+        } else {
+          // Create new Author
+          authorId = `author-${Date.now()}`;
+          const newAuthor: Author = {
+            id: authorId,
+            name: authorName,
+            bio: cleanBook.authorBio || `Tác giả của cuốn sách "${cleanBook.title}".`,
+            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=random&size=256`
+          };
+          await setDoc(doc(db_fs, 'authors', authorId), { ...newAuthor, createdAt: serverTimestamp() });
+          logActivity('AUTO_CREATE_AUTHOR', `Created author: ${authorName}`, 'SUCCESS', 'INFO', 'SYSTEM');
+        }
+
+        // Link book to author
+        cleanBook.authorId = authorId;
+      }
+
+      // 2. Save Book
+      await setDoc(doc(db_fs, 'books', book.id), { ...cleanBook, updatedAt: serverTimestamp() }, { merge: true });
+    })(),
     undefined,
-    'SAVE_BOOK',
+    'SAVE_BOOK_WITH_ID_SYNC',
     book.title
   );
 }
+
 
 export async function updateBook(id: string, data: Partial<Book>): Promise<void> {
   await wrap(
@@ -233,28 +322,50 @@ export async function updateBook(id: string, data: Partial<Book>): Promise<void>
 
 export async function deleteBook(id: string): Promise<void> {
   await wrap(
-    deleteDoc(doc(db_fs, 'books', id)),
+    (async () => {
+      const batch = writeBatch(db_fs);
+
+      // 1. Xóa tất cả reviews của book (sub-collection)
+      const reviewsSnap = await getDocs(
+        collection(db_fs, 'books', id, 'reviews')
+      );
+      reviewsSnap.docs.forEach(d => batch.delete(d.ref));
+
+      // 2. Xóa book document
+      batch.delete(doc(db_fs, 'books', id));
+
+      await batch.commit();
+    })(),
     undefined,
-    'DELETE_BOOK',
-    id
+    'DELETE_BOOK_CASCADE',
+    `${id} with ${0} reviews`
   );
 }
+
 
 export async function deleteBooksBulk(ids: string[]): Promise<void> {
   if (ids.length === 0) return;
   await wrap(
     (async () => {
       const batch = writeBatch(db_fs);
-      ids.forEach(id => {
+
+      // Cascade delete: xóa reviews của từng book trước
+      for (const id of ids) {
+        const reviewsSnap = await getDocs(
+          collection(db_fs, 'books', id, 'reviews')
+        );
+        reviewsSnap.docs.forEach(d => batch.delete(d.ref));
         batch.delete(doc(db_fs, 'books', id));
-      });
+      }
+
       await batch.commit();
     })(),
     undefined,
-    'DELETE_BOOKS_BULK',
-    `${ids.length} items`
+    'DELETE_BOOKS_BULK_CASCADE',
+    `${ids.length} books with reviews`
   );
 }
+
 
 export async function incrementBookView(id: string): Promise<void> {
   // Use atomic increment
@@ -274,11 +385,10 @@ export async function incrementBookView(id: string): Promise<void> {
 
 export async function searchBooksFromTiki(queryStr: string, page: number = 1): Promise<Book[]> {
   try {
-    const proxyUrl = 'https://api.allorigins.win/raw?url=';
     const tikiApiUrl = `https://tiki.vn/api/v2/products?q=${encodeURIComponent(queryStr)}&limit=20&page=${page}`;
 
-    const response = await fetch(proxyUrl + encodeURIComponent(tikiApiUrl));
-    const data = await response.json();
+    // Use multi-proxy fetcher
+    const data = await fetchWithProxy(tikiApiUrl);
 
     if (!data.data || !Array.isArray(data.data)) return [];
 
@@ -291,16 +401,11 @@ export async function searchBooksFromTiki(queryStr: string, page: number = 1): P
 
       // Tiki images often have a base url, we want high res
       let coverUrl = item.thumbnail_url || "";
-      // Try to get higher res if possible (Tiki urls are usually like .../cache/280x280/...)
-      // We can remove the /cache/Dimension/ part to get full size or change dimensions
-      // Example: https://salt.tikicdn.com/cache/280x280/ts/product/... -> https://salt.tikicdn.com/ts/product/...
       if (coverUrl.includes('/cache/')) {
         coverUrl = coverUrl.replace(/\/cache\/[\d]+x[\d]+\//, '/');
       }
 
       // Map Category
-      // Tiki categories are numeric or specific strings. We map roughly to our fixed categories.
-      // This is heuristic.
       let appCat = 'Văn học';
       const name = item.name.toLowerCase();
       if (name.includes('kinh tế') || name.includes('tài chính') || name.includes('doanh nghiệp')) appCat = 'Kinh tế';
@@ -309,17 +414,9 @@ export async function searchBooksFromTiki(queryStr: string, page: number = 1): P
       else if (name.includes('kỹ năng') || name.includes('self help') || name.includes('đắc nhân tâm')) appCat = 'Kỹ năng';
       else if (name.includes('tâm lý')) appCat = 'Tâm lý';
 
-      // Calculate fake original price if not present, to show discount
       const price = item.price;
       const originalPrice = item.original_price && item.original_price > price ? item.original_price : Math.round(price * 1.2);
-
-      // Generate a predictable but unique ID from Tiki ID
-      // We use TikiID as part of our ID to avoid duplicates
       const bookId = `TK-${item.id}`;
-
-      // Do not filter by ISBN here yet, as fetching ISBN requires detail call.
-      // We will check duplication by Title primarily if ISBN is missing in list view.
-
       const isAvailable = item.badget_price ? true : (item.inventory_status === 'available' || (item.stock_item && item.stock_item.qty > 0));
 
       return {
@@ -332,10 +429,10 @@ export async function searchBooksFromTiki(queryStr: string, page: number = 1): P
         originalPrice: originalPrice,
         stockQuantity: (item.stock_item && item.stock_item.qty > 0) ? item.stock_item.qty : 100,
         description: item.short_description || 'Mô tả đang cập nhật...',
-        isbn: item.sku || `TK-${item.id}`, // Fallback to SKU if ISBN not visible in list
+        isbn: item.sku || `TK-${item.id}`,
         cover: coverUrl,
         rating: item.rating_average || 5,
-        pages: 0, // Will be updated in detail view
+        pages: 0,
         publisher: 'Tiki Trading',
         publishYear: new Date().getFullYear(),
         language: 'Tiếng Việt',
@@ -344,11 +441,8 @@ export async function searchBooksFromTiki(queryStr: string, page: number = 1): P
       } as Book;
     });
 
-    // Filter out duplicates based on ID or SKU if we have them in existingIsbns
-    // But since we just construct ID, we check if we already have this specific Tiki book
-    // Or if the SKU matches an existing ISBN
+    // Filter out duplicates (optional, done at display level usually)
     const validBooks = books.filter(b => !existingIsbns.has(b.isbn));
-
     return validBooks;
   } catch (error) {
     console.error("Error searching Tiki books:", error);
@@ -358,18 +452,15 @@ export async function searchBooksFromTiki(queryStr: string, page: number = 1): P
 
 export async function getBookDetailsFromTiki(tikiId: string | number): Promise<Partial<Book> | null> {
   try {
-    const proxyUrl = 'https://api.allorigins.win/raw?url=';
-    // clean ID if it has TK- prefix
     const cleanId = String(tikiId).replace('TK-', '');
     const url = `https://tiki.vn/api/v2/products/${cleanId}`;
 
-    const response = await fetch(proxyUrl + encodeURIComponent(url));
-    const data = await response.json();
+    // Use multi-proxy fetcher
+    const data = await fetchWithProxy(url);
 
     if (!data || data.error) return null;
 
     // Extract more detailed info
-    // Extract more detailed info with safer defaults
     const specs = data.specifications || [];
     let publisher = 'Đang cập nhật';
     let publishYear = new Date().getFullYear();
@@ -386,7 +477,7 @@ export async function getBookDetailsFromTiki(tikiId: string | number): Promise<P
 
         if (code === 'publisher_vn') publisher = value;
         if (code === 'publication_date') {
-          const yearStr = value.split(' ')[0].split('-')[0].split('/')[0]; // Handle different date formats
+          const yearStr = value.split(' ')[0].split('-')[0].split('/')[0];
           publishYear = parseInt(yearStr) || publishYear;
         }
         if (code === 'number_of_page') pages = parseInt(value) || 0;
@@ -396,51 +487,27 @@ export async function getBookDetailsFromTiki(tikiId: string | number): Promise<P
     }
 
     let desc = data.description || '';
-
-    // Remove Tiki boilerplate text about shipping/tax
     const boilerplateIndex = desc.indexOf('Giá sản phẩm trên Tiki đã bao gồm thuế');
-    if (boilerplateIndex > -1) {
-      desc = desc.substring(0, boilerplateIndex);
-    }
+    if (boilerplateIndex > -1) desc = desc.substring(0, boilerplateIndex);
 
-    // Replace <br> and <p> with newlines to preserve some structure
-    desc = desc.replace(/<br\s*\/?>/gi, '\n');
-    desc = desc.replace(/<\/p>/gi, '\n\n');
-    desc = desc.replace(/<\/div>/gi, '\n');
-
-    // Strip all other HTML tags
-    desc = desc.replace(/<[^>]*>/g, '');
-
-    // Decode HTML entities (extended)
-    desc = desc.replace(/&nbsp;/g, ' ')
+    desc = desc.replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/p>/gi, '\n\n')
+      .replace(/<\/div>/gi, '\n')
+      .replace(/<[^>]*>/g, '')
+      .replace(/&nbsp;/g, ' ')
       .replace(/&amp;/g, '&')
       .replace(/&lt;/g, '<')
       .replace(/&gt;/g, '>')
       .replace(/&quot;/g, '"')
       .replace(/&#39;/g, "'");
 
-    // Aggressive whitespace cleanup:
-    // 1. Split by newlines
-    // 2. Trim each line
-    // 3. Remove empty lines
-    // 4. Join with double newlines for clear paragraphs
     desc = desc.split('\n')
       .map(line => line.trim())
       .filter(line => line.length > 0)
       .join('\n\n');
 
-    // Append extra info to description if relevant
-    if (bookLayout) {
-      desc = `${desc}\n\nLoại bìa: ${bookLayout}`;
-    }
-
-    // If description is too short or empty after cleaning
-    if (!desc) {
-      desc = 'Chưa có mô tả chi tiết cho cuốn sách này.';
-    }
-
-    // Try to extract author bio from description if possible (heuristic)
-    // Tiki doesn't have a structured author bio field usually
+    if (bookLayout) desc = `${desc}\n\nLoại bìa: ${bookLayout}`;
+    if (!desc) desc = 'Chưa có mô tả chi tiết cho cuốn sách này.';
 
     return {
       description: desc,
@@ -456,6 +523,7 @@ export async function getBookDetailsFromTiki(tikiId: string | number): Promise<P
     return null;
   }
 }
+
 
 export async function fetchBookByISBN(isbn: string): Promise<Book | null> {
   try {

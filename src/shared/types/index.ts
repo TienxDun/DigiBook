@@ -32,7 +32,9 @@ export interface Book {
   slug?: string;
   viewCount?: number;
   searchKeywords?: string[];
+  reviewCount?: number; // Số lượng reviews để tính rating incremental
 }
+
 
 export interface CartItem extends Book {
   quantity: number;
@@ -58,8 +60,7 @@ export interface UserProfile {
   name: string;
   email: string;
   phone?: string;
-  /** @deprecated Use addresses array instead */
-  address?: string;
+
   addresses?: Address[];
   avatar?: string;
   bio?: string;

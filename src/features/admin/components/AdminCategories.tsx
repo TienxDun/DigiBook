@@ -139,12 +139,10 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
   return (
     <div className="space-y-8 animate-fadeIn text-foreground">
       {/* Categories Dashboard Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {[
           { label: 'Tổng danh mục', value: categories.length, icon: 'fa-shapes', color: 'primary' },
-          { label: 'Hoạt động', value: categories.length, icon: 'fa-check-circle', color: 'chart-1' },
-          { label: 'Mới cập nhật', value: '3', icon: 'fa-clock', color: 'chart-2' },
-          { label: 'Sách liên quan', value: '150+', icon: 'fa-book', color: 'chart-3' }
+          { label: 'Hoạt động', value: categories.length, icon: 'fa-check-circle', color: 'chart-1' }
         ].map((stat, i) => (
           <div key={i} className={`${isMidnight ? 'bg-[#1e293b]/40 border-white/5' : 'bg-card border-border shadow-sm'} p-6 rounded-[2rem] border group transition-all hover:border-primary/50`}>
             <div className="flex items-center justify-between">

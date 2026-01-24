@@ -209,7 +209,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     try {
       const results = await db.searchBooksFromTiki(importSearchTerm);
       if (results.length === 0) {
-        toast('Không tìm thấy sách nào phù hợp', { icon: '🔍' });
+        toast('🔍 Không tìm thấy sách nào phù hợp');
       }
       setImportResults(results);
     } catch (error) {
@@ -219,15 +219,11 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     }
   };
 
+  /* Redundant author matching removed - handled by saveBook auto-sync */
   const importSingleBook = async (book: Book): Promise<boolean> => {
     try {
       const details = await db.getBookDetailsFromTiki(book.id);
       const fullBook = { ...book, ...details };
-
-      const matchedAuthor = authors.find(a => a.name.toLowerCase() === fullBook.author.toLowerCase());
-      if (matchedAuthor) {
-        fullBook.authorId = matchedAuthor.id;
-      }
 
       await db.saveBook(fullBook);
       return true;
@@ -238,13 +234,13 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
   };
 
   const handleImportBook = async (book: Book) => {
-    toast.loading('Đang nhập sách...', { id: 'import-loading' });
+    toast.loading('Đang nhập sách...');
     const success = await importSingleBook(book);
     if (success) {
-      toast.success(`Đã nhập sách "${book.title}"`, { id: 'import-loading' });
+      toast.success(`Đã nhập sách "${book.title}"`);
       await refreshData();
     } else {
-      toast.error('Lỗi khi nhập sách', { id: 'import-loading' });
+      toast.error('Lỗi khi nhập sách');
     }
   };
 
@@ -263,7 +259,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
       const success = await importSingleBook(book);
       if (success) successCount++;
       // Small delay to be nice to API
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise(r => setTimeout(r, 1500));
     }
 
     setIsAutoScanning(false);
@@ -326,8 +322,9 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
 
             const success = await importSingleBook(book);
 
-            await new Promise(r => setTimeout(r, 800)); // Delay
+            await new Promise(r => setTimeout(r, 2000)); // Delay
           }
+
           page++;
         }
       }
@@ -347,38 +344,6 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     setSelectedImportBooks(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
 
-  const _old_handleImportBook = async (book: Book) => {
-    try {
-      // Check duplicate by title + author loosely if id check passes (Tiki ID is unique enough though)
-      // ID check is handled in searchBooksFromTiki somewhat (filtering existing ISBNs) but let's double check
-
-      // Fetch full details
-      toast.loading('Đang lấy thông tin chi tiết...', { id: 'import-loading' });
-      const details = await db.getBookDetailsFromTiki(book.id);
-
-      const fullBook = { ...book, ...details };
-      // Override author to map to system author if possible or create new?
-      // For now we just save the string. If we want relational, we need more logic.
-      // But AdminBooks save logic usually just handles Book object.
-      // Let's create a new author generic if needed? 
-      // Actually the Book type has 'author' string and optional 'authorId'. 
-      // We will leave authorId blank for imported books or try to match by name.
-      const matchedAuthor = authors.find(a => a.name.toLowerCase() === fullBook.author.toLowerCase());
-      if (matchedAuthor) {
-        fullBook.authorId = matchedAuthor.id;
-      }
-
-      await db.saveBook(fullBook);
-      toast.success(`Đã nhập sách "${fullBook.title}"`, { id: 'import-loading' });
-
-      // Update result list to show imported status visually?
-      // For now just refresh data
-      await refreshData();
-    } catch (error) {
-      toast.error('Lỗi khi nhập sách', { id: 'import-loading' });
-      ErrorHandler.handle(error, 'nhập sách');
-    }
-  };
 
   const handleFetchBookByISBN = async () => {
     if (!bookFormData.isbn || bookFormData.isbn.trim().length < 10) {

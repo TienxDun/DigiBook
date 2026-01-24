@@ -333,8 +333,9 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
                         )}
                         <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground max-w-[200px] truncate">
                           <i className="fa-solid fa-location-dot text-muted-foreground/40 text-[10px]"></i>
-                          {user.address || 'Chưa cập nhật địa chỉ'}
+                          {user.addresses?.find(a => a.isDefault)?.fullAddress || user.addresses?.[0]?.fullAddress || 'Chưa cập nhật địa chỉ'}
                         </div>
+
                       </div>
                     </td>
                     <td className="px-6 py-4 text-center">
