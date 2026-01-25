@@ -79,7 +79,7 @@ const SearchResults: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQui
   }, [loading, displayBooks.length, allResults.length]);
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-16 lg:pt-20 pb-16 px-4 overflow-hidden">
+    <div className="min-h-screen bg-slate-50 pt-16 lg:pt-20 pb-32 lg:pb-16 px-4 overflow-hidden">
       <div className="max-w-7xl mx-auto mb-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>

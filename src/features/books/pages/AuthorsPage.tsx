@@ -92,7 +92,7 @@ const AuthorsPage: React.FC = () => {
   }
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-20 relative overflow-hidden">
+    <div className="bg-slate-50 min-h-screen pb-32 relative overflow-hidden">
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-[600px] bg-gradient-to-b from-indigo-600/5 to-transparent -z-10 pointer-events-none"></div>
       <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-500/5 rounded-full blur-[120px] -z-10"></div>

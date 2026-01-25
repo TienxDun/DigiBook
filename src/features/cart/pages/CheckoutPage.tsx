@@ -305,7 +305,7 @@ const CheckoutPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen pt-20 pb-10 xl:overflow-hidden fade-in selection:bg-indigo-100 selection:text-indigo-900 font-sans">
+    <div className="bg-slate-50 min-h-screen pt-20 pb-32 lg:pb-10 xl:overflow-hidden fade-in selection:bg-indigo-100 selection:text-indigo-900 font-sans">
       <div className="max-w-[1600px] mx-auto px-4 lg:px-6 h-full flex flex-col">
 
         {/* Breadcrumbs */}

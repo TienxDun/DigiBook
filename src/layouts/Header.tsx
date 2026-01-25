@@ -529,7 +529,7 @@ const Header: React.FC<HeaderProps> = ({
                       setIsSearchFocused(false);
                     }
                   }}
-                  className="w-full py-3.5 px-5 bg-secondary rounded-2xl text-label font-bold outline-none border border-transparent focus:border-primary/20 focus:bg-background transition-all"
+                  className="w-full py-3.5 px-5 bg-secondary rounded-2xl text-base font-bold outline-none border border-transparent focus:border-primary/20 focus:bg-background transition-all"
                 />
               </div>
             </div>

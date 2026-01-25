@@ -96,7 +96,7 @@ const AuthorPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickV
     : "Văn học";
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-20">
+    <div className="bg-slate-50 min-h-screen pb-32">
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-[500px] bg-indigo-600 -z-10 opacity-[0.03] pointer-events-none"></div>
 

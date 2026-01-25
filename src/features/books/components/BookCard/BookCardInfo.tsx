@@ -46,12 +46,12 @@ export const BookCardInfo: React.FC<BookCardInfoProps> = ({ book, onAddToCart })
                         onAddToCart(book, 1, { x: e.clientX, y: e.clientY });
                     }}
                     disabled={!hasStock || !isAvailable}
-                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center transition-[background-color,color,transform,box-shadow] duration-200 ${(!hasStock || !isAvailable)
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center transition-[background-color,color,transform,box-shadow] duration-200 ${(!hasStock || !isAvailable)
                         ? 'bg-secondary text-slate-300 cursor-not-allowed'
                         : 'bg-primary text-white hover:bg-foreground hover:scale-105 active:scale-95 shadow-md shadow-primary/10'
                         }`}
                 >
-                    <i className="fa-solid fa-cart-shopping text-[10px] sm:text-xs"></i>
+                    <i className="fa-solid fa-cart-shopping text-xs"></i>
                 </button>
             </div>
         </div>

@@ -77,7 +77,7 @@ export const AddressList: React.FC<AddressListProps> = ({
                                             </span>
                                         )}
                                         {isSelected && (
-                                            <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest bg-indigo-600 text-white flex items-center gap-1 ml-auto lg:ml-0">
+                                            <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest bg-indigo-600 text-white flex items-center gap-1">
                                                 <i className="fa-solid fa-check"></i> Đang chọn
                                             </span>
                                         )}
@@ -88,28 +88,28 @@ export const AddressList: React.FC<AddressListProps> = ({
                                 </div>
 
                                 {(onEdit || onDelete) && (
-                                    <div className="flex flex-col gap-2 shrink-0">
+                                    <div className="flex flex-col gap-2.5 shrink-0">
                                         {onEdit && (
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); onEdit(addr); }}
-                                                className="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 flex items-center justify-center transition-all shadow-sm"
+                                                className="w-9 h-9 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 flex items-center justify-center transition-all shadow-sm"
                                             >
-                                                <i className="fa-solid fa-pen text-[10px]"></i>
+                                                <i className="fa-solid fa-pen text-xs"></i>
                                             </button>
                                         )}
                                         {!selectable && onDelete && (
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); onDelete(addr.id); }}
                                                 disabled={!!loadingId || addr.isDefault}
-                                                className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-all shadow-sm ${addr.isDefault
+                                                className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all shadow-sm ${addr.isDefault
                                                         ? 'bg-slate-50 border-slate-100 text-slate-300 cursor-not-allowed'
                                                         : 'bg-white border-slate-200 text-slate-400 hover:text-rose-500 hover:border-rose-200 hover:bg-rose-50'
                                                     }`}
                                             >
                                                 {loadingId === addr.id ? (
-                                                    <i className="fa-solid fa-spinner fa-spin text-[10px]"></i>
+                                                    <i className="fa-solid fa-spinner fa-spin text-xs"></i>
                                                 ) : (
-                                                    <i className="fa-regular fa-trash-can text-[10px]"></i>
+                                                    <i className="fa-regular fa-trash-can text-xs"></i>
                                                 )}
                                             </button>
                                         )}

@@ -280,7 +280,7 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
         </div>
 
         {!hasMore && books.length > 0 && (
-          <div className="text-center mt-10 text-slate-400 text-sm pb-8">
+          <div className="text-center mt-10 text-slate-400 text-sm pb-32 lg:pb-8">
             Bạn đã xem hết danh sách.
           </div>
         )}
@@ -294,7 +294,7 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
         )}
 
         {isPromotionPage && (
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 pb-24">
             <div className="bg-white p-6 rounded-3xl border border-slate-100 flex items-start gap-5 group hover:shadow-lg transition-all">
               <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 text-lg group-hover:scale-110 transition-transform">
                 <i className="fa-solid fa-truck-fast"></i>

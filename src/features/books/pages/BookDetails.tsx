@@ -337,7 +337,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-6 pb-12 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-6 pb-32 lg:pb-12 relative z-10">
 
         {/* Navigation & Header - Compacted */}
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b border-slate-200/50 pb-4">

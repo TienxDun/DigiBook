@@ -25,7 +25,7 @@ const MobileNav: React.FC = () => {
   const navItems = [
     { path: '/', icon: 'fa-house', color: 'text-indigo-400', glow: 'bg-indigo-400/20', dropShadow: 'drop-shadow-[0_0_8px_rgba(129,140,248,0.5)]' },
     { path: '/category/Tất cả sách', icon: 'fa-compass', color: 'text-cyan-400', glow: 'bg-cyan-400/20', dropShadow: 'drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]' },
-    { path: '/wishlist', icon: 'fa-heart', color: 'text-rose-400', glow: 'bg-rose-400/20', dropShadow: 'drop-shadow-[0_0_8px_rgba(251,113,133,0.5)]' },
+    { path: '/authors', icon: 'fa-feather', color: 'text-fuchsia-400', glow: 'bg-fuchsia-400/20', dropShadow: 'drop-shadow-[0_0_8px_rgba(232,121,249,0.5)]' },
   ];
 
   return (
@@ -65,7 +65,7 @@ const MobileNav: React.FC = () => {
             <div className="relative">
               <i className={`fa-solid fa-bag-shopping text-xl transition-[color,opacity,filter] duration-300 ${cartCount > 0 ? 'text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]' : 'text-slate-200'}`}></i>
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 w-4 h-4 bg-amber-400 text-[9px] text-slate-900 flex items-center justify-center rounded-full font-black shadow-lg border-2 border-slate-900/20 animate-bounce">
+                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-amber-400 text-[9px] text-slate-900 flex items-center justify-center rounded-full font-black shadow-lg border-2 border-slate-900/20 animate-bounce">
                   {cartCount}
                 </span>
               )}

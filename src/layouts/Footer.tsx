@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
   if (location.pathname.startsWith('/admin')) return null;
 
   return (
-    <footer className="bg-foreground text-white pt-12 pb-8">
+    <footer className="bg-foreground text-white pt-12 pb-32 lg:pb-8">
       <div className="w-[92%] xl:w-[60%] mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           <div className="space-y-6">

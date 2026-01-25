@@ -194,7 +194,7 @@ const ProfilePage: React.FC = () => {
     if (loading) return <div className="min-h-[70vh] flex items-center justify-center"><div className="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div></div>;
 
     return (
-        <div className="bg-slate-50 min-h-screen py-10 lg:py-12">
+        <div className="bg-slate-50 min-h-screen pt-10 pb-32 lg:py-12">
             <div className="w-[94%] xl:w-[75%] 2xl:w-[65%] mx-auto px-4">
                 <div className="max-w-6xl mx-auto">
                     {/* Header: Unchanged */}

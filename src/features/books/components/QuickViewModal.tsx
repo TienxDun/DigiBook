@@ -31,7 +31,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
   return (
     <AnimatePresence>
       {book && (
-        <div key="quick-view-modal" className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div key="quick-view-modal" className="fixed inset-0 z-[160] flex items-center justify-center p-4">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
