@@ -84,6 +84,33 @@ export async function addUserAddress(userId: string, address: Omit<Address, 'id'
   );
 }
 
+export async function updateUserAddress(userId: string, address: Address): Promise<void> {
+  const userRef = doc(db_fs, 'users', userId);
+  const snap = await getDoc(userRef);
+  if (!snap.exists()) throw new Error("User not found");
+
+  const userData = snap.data() as UserProfile;
+  const currentAddresses = userData.addresses || [];
+
+  // If this address is set to default, unset others
+  let updatedAddresses = [...currentAddresses];
+  if (address.isDefault) {
+    updatedAddresses = updatedAddresses.map(a => ({ ...a, isDefault: false }));
+  }
+
+  updatedAddresses = updatedAddresses.map(a => a.id === address.id ? address : a);
+
+  await wrap(
+    updateDoc(userRef, {
+      addresses: updatedAddresses,
+      updatedAt: serverTimestamp()
+    }),
+    undefined,
+    'UPDATE_ADDRESS',
+    address.label
+  );
+}
+
 export async function removeUserAddress(userId: string, addressId: string): Promise<void> {
   const userRef = doc(db_fs, 'users', userId);
   const snap = await getDoc(userRef);

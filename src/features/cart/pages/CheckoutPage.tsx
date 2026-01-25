@@ -46,6 +46,7 @@ const CheckoutPage: React.FC = () => {
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string, value: number, type: 'percentage' | 'fixed' } | null>(null);
   const [couponError, setCouponError] = useState('');
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
 
   // 1. Load User Addresses & Profile
   const fetchUserData = async () => {
@@ -88,10 +89,19 @@ const CheckoutPage: React.FC = () => {
       await db.addUserAddress(user.id, newAddr);
       await fetchUserData(); // Refresh list
       toast.success('Thêm địa chỉ thành công');
-      // Auto select new address? logic in fetchUserData might override, but Default usually wins.
-      // Ideally we select the newly added one. But fetchUserData selects default.
     } catch (error) {
       ErrorHandler.handle(error, 'thêm địa chỉ');
+    }
+  };
+
+  const handleUpdateAddress = async (addr: any) => {
+    if (!user) return;
+    try {
+      await db.updateUserAddress(user.id, addr);
+      await fetchUserData();
+      toast.success('Cập nhật địa chỉ thành công');
+    } catch (error) {
+      ErrorHandler.handle(error, 'cập nhật địa chỉ');
     }
   };
 
@@ -200,14 +210,31 @@ const CheckoutPage: React.FC = () => {
     setCouponError('');
     if (!couponCode.trim()) return;
 
-    const coupon = await db.validateCoupon(couponCode, subtotal);
-    if (coupon) {
-      setAppliedCoupon({ code: coupon.code, value: coupon.value, type: coupon.type });
-      setCouponCode('');
-      toast.success('Áp dụng mã giảm giá thành công!');
-    } else {
-      setCouponError('Mã giảm giá không hợp lệ hoặc không đủ điều kiện.');
-      toast.error('Mã giảm giá không hợp lệ');
+    setIsApplyingCoupon(true);
+    try {
+      const coupon = await db.validateCoupon(couponCode, subtotal);
+      // Simulate a small delay for UX so spinner is visible
+      await new Promise(r => setTimeout(r, 600));
+
+      if (coupon) {
+        setAppliedCoupon({ code: coupon.code, value: coupon.value, type: coupon.type });
+        setCouponCode('');
+        toast.success('Áp dụng mã giảm giá thành công!');
+      } else {
+        setCouponError('Mã giảm giá không hợp lệ hoặc không đủ điều kiện.');
+        toast.error('Mã giảm giá không hợp lệ');
+      }
+    } catch (e) {
+      setCouponError('Lỗi khi kiểm tra mã.');
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
+
+  const handleCouponKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleApplyCoupon();
     }
   };
 
@@ -499,14 +526,17 @@ const CheckoutPage: React.FC = () => {
                       placeholder="Mã giảm giá"
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value)}
-                      className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold uppercase tracking-wide outline-none focus:border-indigo-500 transition-colors"
+                      onKeyDown={handleCouponKeyDown}
+                      disabled={isApplyingCoupon}
+                      className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold uppercase tracking-wide outline-none focus:border-indigo-500 transition-colors disabled:opacity-70"
                     />
                     <button
                       onClick={handleApplyCoupon}
-                      disabled={!couponCode}
-                      className="bg-slate-900 text-white px-3 rounded-lg font-bold text-[10px] uppercase tracking-wide hover:bg-indigo-600 disabled:opacity-50 transition-colors"
+                      disabled={!couponCode || isApplyingCoupon}
+                      className="bg-slate-900 text-white px-3 rounded-lg font-bold text-xs uppercase tracking-wide hover:bg-indigo-600 disabled:opacity-50 transition-all min-w-[80px] flex items-center justify-center gap-1"
                     >
-                      Áp dụng
+                      {isApplyingCoupon && <i className="fa-solid fa-circle-notch fa-spin text-[10px]"></i>}
+                      {isApplyingCoupon ? 'Kiểm tra' : 'Áp dụng'}
                     </button>
                   </div>
                   {appliedCoupon && (
@@ -593,8 +623,17 @@ const CheckoutPage: React.FC = () => {
 
       <AddressFormModal
         isOpen={showAddressModal}
-        onClose={() => setShowAddressModal(false)}
-        onSave={handleAddAddress}
+        onClose={() => {
+          setShowAddressModal(false);
+          setEditingAddress(null);
+        }}
+        onSave={async (data) => {
+          if (editingAddress) {
+            await handleUpdateAddress({ ...data, id: editingAddress.id });
+          } else {
+            await handleAddAddress(data);
+          }
+        }}
         initialData={editingAddress}
       />
     </div>

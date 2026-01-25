@@ -98,6 +98,8 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
 
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
 
   // Image Gallery State
   const [activeImage, setActiveImage] = useState<string | null>(null);
@@ -275,8 +277,19 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
     </div>
   );
 
-  const handleToggleWishlist = () => {
-    if (book) toggleWishlist(book);
+  const handleToggleWishlist = async () => {
+    if (book) {
+      setIsTogglingWishlist(true);
+      await toggleWishlist(book);
+      setIsTogglingWishlist(false);
+    }
+  };
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    if (!book) return;
+    setIsAddingToCart(true);
+    await addToCart(book, quantity, { x: e.clientX, y: e.clientY });
+    setIsAddingToCart(false);
   };
 
 
@@ -538,12 +551,16 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
                   </div>
 
                   <button
-                    onClick={(e) => addToCart(book, quantity, { x: e.clientX, y: e.clientY })}
-                    disabled={book.stockQuantity <= 0}
-                    className="md:w-[160px] flex-grow md:flex-none h-12 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg shadow-slate-200 active:scale-[0.98] disabled:bg-slate-200 flex items-center justify-center gap-2 whitespace-nowrap"
+                    onClick={handleAddToCart}
+                    disabled={book.stockQuantity <= 0 || isAddingToCart}
+                    className="md:w-[160px] flex-grow md:flex-none h-12 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg shadow-slate-200 active:scale-[0.98] disabled:bg-slate-200 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
                   >
-                    <i className="fa-solid fa-cart-shopping text-sm"></i>
-                    Mua ngay
+                    {isAddingToCart ? (
+                      <i className="fa-solid fa-spinner fa-spin text-sm"></i>
+                    ) : (
+                      <i className="fa-solid fa-cart-shopping text-sm"></i>
+                    )}
+                    {isAddingToCart ? 'Đang thêm...' : 'Mua ngay'}
                   </button>
 
                   <motion.button
@@ -552,18 +569,27 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
                     onClick={handleToggleWishlist}
                     className={`h-12 w-12 rounded-xl border flex items-center justify-center transition-all ${isWishlisted ? 'bg-rose-50 border-rose-100 text-rose-500' : 'bg-white border-slate-100 text-slate-400 hover:border-rose-100 hover:text-rose-500'
                       }`}
+                    disabled={isTogglingWishlist}
                     aria-label={isWishlisted ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
                   >
-                    <AnimatePresence mode="wait">
-                      <motion.i
-                        key={isWishlisted ? 'solid' : 'regular'}
-                        initial={{ scale: 0.7, opacity: 0 }}
+                    {isTogglingWishlist ? (
+                      <motion.div
+                        initial={{ scale: 0.5, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 1.2, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-lg`}
-                      ></motion.i>
-                    </AnimatePresence>
+                        className="w-5 h-5 border-2 border-slate-300 border-t-rose-500 rounded-full animate-spin"
+                      />
+                    ) : (
+                      <AnimatePresence mode="wait">
+                        <motion.i
+                          key={isWishlisted ? 'solid' : 'regular'}
+                          initial={{ scale: 0.7, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 1.2, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-lg`}
+                        ></motion.i>
+                      </AnimatePresence>
+                    )}
                   </motion.button>
                 </div>
               </div>

@@ -69,6 +69,7 @@ class DataService {
   updateUserStatus = users.updateUserStatus;
   deleteUser = users.deleteUser;
   addUserAddress = users.addUserAddress;
+  updateUserAddress = users.updateUserAddress;
   removeUserAddress = users.removeUserAddress;
   setDefaultAddress = users.setDefaultAddress;
 

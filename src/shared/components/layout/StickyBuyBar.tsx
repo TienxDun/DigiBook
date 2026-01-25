@@ -12,6 +12,7 @@ const formatPrice = (price: number) => {
 const StickyBuyBar: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isCompact, setIsCompact] = useState(false);
   const location = useLocation();
   const isBookDetails = location.pathname.startsWith('/book/');
@@ -40,11 +41,13 @@ const StickyBuyBar: React.FC = () => {
 
   const isWishlisted = viewingBook ? wishlist.some(b => b.id === viewingBook.id) : false;
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (viewingBook) {
-      addToCart(viewingBook, quantity);
+      setIsAddingToCart(true);
+      await addToCart(viewingBook, quantity);
       setQuantity(1); // Reset về 1 sau khi thêm
+      setIsAddingToCart(false);
     }
   };
 
@@ -126,11 +129,15 @@ const StickyBuyBar: React.FC = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleAddToCart}
-                  disabled={viewingBook.stockQuantity === 0}
+                  disabled={viewingBook.stockQuantity === 0 || isAddingToCart}
                   className="h-10 px-4 bg-slate-900 text-white rounded-2xl font-bold text-xs uppercase tracking-wider hover:bg-indigo-600 transition-all shadow-md shadow-slate-900/20 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  <i className="fa-solid fa-cart-shopping text-sm"></i>
-                  <span>Mua</span>
+                  {isAddingToCart ? (
+                    <i className="fa-solid fa-spinner fa-spin text-sm"></i>
+                  ) : (
+                    <i className="fa-solid fa-cart-shopping text-sm"></i>
+                  )}
+                  <span>{isAddingToCart ? 'Đang thêm...' : 'Mua'}</span>
                 </motion.button>
               </div>
             </div>

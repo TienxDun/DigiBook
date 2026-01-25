@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Address } from '@/shared/types';
 import { AddressInput, MapPicker } from '@/shared/components';
@@ -86,23 +87,24 @@ export const AddressFormModal: React.FC<AddressFormModalProps> = ({
         }
     };
 
-    return (
+    return createPortal(
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden">
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                        className="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
                     />
 
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="relative w-full max-w-2xl bg-white rounded-[2rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+                        initial={{ opacity: 0, y: "100%" }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: "100%" }}
+                        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                        className="relative w-full h-full lg:h-[90vh] lg:max-w-4xl bg-white lg:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col z-10"
                     >
                         {/* Header */}
                         <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-white z-10">
@@ -232,6 +234,7 @@ export const AddressFormModal: React.FC<AddressFormModalProps> = ({
                     </motion.div>
                 </div>
             )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 };

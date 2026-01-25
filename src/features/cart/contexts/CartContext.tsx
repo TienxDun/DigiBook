@@ -11,7 +11,7 @@ interface CartContextType {
     selectedCartItemIds: string[];
     isCartOpen: boolean;
     setIsCartOpen: (open: boolean) => void;
-    addToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => void;
+    addToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => Promise<boolean>;
     removeFromCart: (id: string) => void;
     updateQuantity: (id: string, delta: number) => void;
     clearCart: () => void;
@@ -92,7 +92,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         cart.filter(item => selectedCartItemIds.includes(item.id)),
         [cart, selectedCartItemIds]);
 
-    const addToCart = useCallback(async (book: Book, quantity: number = 1, startPos?: { x: number, y: number }) => {
+    const addToCart = useCallback(async (book: Book, quantity: number = 1, startPos?: { x: number, y: number }): Promise<boolean> => {
         // Kiểm tra số lượng hiện tại trong giỏ
         const existingInCart = cart.find(item => item.id === book.id);
         const currentCartQuantity = existingInCart?.quantity || 0;
@@ -125,7 +125,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     </div>
                 );
             }
-            return;
+            return false;
         }
 
         // Nếu có đủ hàng, thêm vào giỏ
@@ -162,6 +162,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         );
 
         // setIsCartOpen(true); // Không tự động mở giỏ hàng nữa
+        return true;
     }, [cart]);
 
     const removeFromCart = useCallback((id: string) => {

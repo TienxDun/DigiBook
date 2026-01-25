@@ -8,7 +8,7 @@ interface QuickBuyBarProps {
     setQuantity: (q: number) => void;
     isWishlisted: boolean;
     toggleWishlist: (book: Book) => void;
-    addToCart: (book: Book, quantity: number, pos: { x: number; y: number }) => void;
+    addToCart: (book: Book, quantity: number, pos: { x: number; y: number }) => Promise<boolean>;
 }
 
 const formatPrice = (price: number) => {
@@ -24,7 +24,8 @@ const QuickBuyBar: React.FC<QuickBuyBarProps> = ({
     addToCart
 }) => {
     const [isVisible, setIsVisible] = useState(false);
-    
+    const [isAddingToCart, setIsAddingToCart] = useState(false);
+
     // Hiển thị khi scroll xuống một khoảng nhất định (giống BackToTop)
     const toggleVisibility = () => {
         if (window.pageYOffset > 300) {
@@ -106,8 +107,8 @@ const QuickBuyBar: React.FC<QuickBuyBarProps> = ({
                             <button
                                 onClick={() => toggleWishlist(book)}
                                 className={`h-10 w-10 rounded-xl flex items-center justify-center transition-all border ${isWishlisted
-                                        ? 'bg-rose-500 border-rose-400 text-white shadow-[0_0_15px_rgba(244,63,94,0.3)]'
-                                        : 'bg-white/5 border-white/10 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/30'
+                                    ? 'bg-rose-500 border-rose-400 text-white shadow-[0_0_15px_rgba(244,63,94,0.3)]'
+                                    : 'bg-white/5 border-white/10 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/30'
                                     }`}
                                 title={isWishlisted ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
                             >
@@ -116,12 +117,20 @@ const QuickBuyBar: React.FC<QuickBuyBarProps> = ({
 
                             {/* Add to Cart */}
                             <button
-                                onClick={(e) => addToCart(book, quantity, { x: e.clientX, y: e.clientY })}
-                                disabled={book.stockQuantity <= 0}
+                                onClick={async (e) => {
+                                    setIsAddingToCart(true);
+                                    await addToCart(book, quantity, { x: e.clientX, y: e.clientY });
+                                    setIsAddingToCart(false);
+                                }}
+                                disabled={book.stockQuantity <= 0 || isAddingToCart}
                                 className="h-10 px-6 bg-indigo-500 text-white rounded-xl text-xs font-black uppercase tracking-[0.1em] hover:bg-indigo-400 hover:shadow-[0_0_25px_rgba(99,102,241,0.3)] transition-all flex items-center justify-center gap-2 disabled:bg-slate-700 disabled:text-slate-500 disabled:shadow-none active:scale-[0.97] whitespace-nowrap shadow-xl shadow-indigo-500/10 group/btn"
                             >
-                                <i className="fa-solid fa-cart-shopping text-xs group-hover:rotate-12 transition-transform"></i>
-                                <span>{book.stockQuantity > 0 ? 'Thêm giỏ hàng' : 'Hết hàng'}</span>
+                                {isAddingToCart ? (
+                                    <i className="fa-solid fa-spinner fa-spin text-xs"></i>
+                                ) : (
+                                    <i className="fa-solid fa-cart-shopping text-xs group-hover:rotate-12 transition-transform"></i>
+                                )}
+                                <span>{isAddingToCart ? 'Đang thêm...' : (book.stockQuantity > 0 ? 'Thêm giỏ hàng' : 'Hết hàng')}</span>
                             </button>
                         </div>
                     </div>

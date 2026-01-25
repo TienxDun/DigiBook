@@ -87,28 +87,32 @@ export const AddressList: React.FC<AddressListProps> = ({
                                     <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">{addr.fullAddress}</p>
                                 </div>
 
-                                {!selectable && (
+                                {(onEdit || onDelete) && (
                                     <div className="flex flex-col gap-2 shrink-0">
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); onEdit && onEdit(addr); }}
-                                            className="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 flex items-center justify-center transition-all shadow-sm"
-                                        >
-                                            <i className="fa-solid fa-pen text-[10px]"></i>
-                                        </button>
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); onDelete && onDelete(addr.id); }}
-                                            disabled={!!loadingId || addr.isDefault}
-                                            className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-all shadow-sm ${addr.isDefault
-                                                    ? 'bg-slate-50 border-slate-100 text-slate-300 cursor-not-allowed'
-                                                    : 'bg-white border-slate-200 text-slate-400 hover:text-rose-500 hover:border-rose-200 hover:bg-rose-50'
-                                                }`}
-                                        >
-                                            {loadingId === addr.id ? (
-                                                <i className="fa-solid fa-spinner fa-spin text-[10px]"></i>
-                                            ) : (
-                                                <i className="fa-regular fa-trash-can text-[10px]"></i>
-                                            )}
-                                        </button>
+                                        {onEdit && (
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); onEdit(addr); }}
+                                                className="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 flex items-center justify-center transition-all shadow-sm"
+                                            >
+                                                <i className="fa-solid fa-pen text-[10px]"></i>
+                                            </button>
+                                        )}
+                                        {!selectable && onDelete && (
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); onDelete(addr.id); }}
+                                                disabled={!!loadingId || addr.isDefault}
+                                                className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-all shadow-sm ${addr.isDefault
+                                                        ? 'bg-slate-50 border-slate-100 text-slate-300 cursor-not-allowed'
+                                                        : 'bg-white border-slate-200 text-slate-400 hover:text-rose-500 hover:border-rose-200 hover:bg-rose-50'
+                                                    }`}
+                                            >
+                                                {loadingId === addr.id ? (
+                                                    <i className="fa-solid fa-spinner fa-spin text-[10px]"></i>
+                                                ) : (
+                                                    <i className="fa-regular fa-trash-can text-[10px]"></i>
+                                                )}
+                                            </button>
+                                        )}
                                     </div>
                                 )}
                             </div>

@@ -117,6 +117,18 @@ const ProfilePage: React.FC = () => {
         }
     };
 
+    const handleUpdateAddress = async (addr: any) => {
+        if (!user) return;
+        try {
+            await db.updateUserAddress(user.id, addr);
+            await refreshProfile();
+            toast.success('Cập nhật địa chỉ thành công');
+        } catch (error) {
+            ErrorHandler.handle(error, 'cập nhật địa chỉ');
+            throw error;
+        }
+    };
+
     const handleDeleteAddress = async (id: string) => {
         if (!user) return;
         if (!window.confirm('Bạn có chắc muốn xóa địa chỉ này?')) return;
@@ -296,8 +308,17 @@ const ProfilePage: React.FC = () => {
 
             <AddressFormModal
                 isOpen={showAddressModal}
-                onClose={() => setShowAddressModal(false)}
-                onSave={handleAddAddress}
+                onClose={() => {
+                    setShowAddressModal(false);
+                    setEditingAddress(null);
+                }}
+                onSave={async (data) => {
+                    if (editingAddress) {
+                        await handleUpdateAddress({ ...data, id: editingAddress.id });
+                    } else {
+                        await handleAddAddress(data);
+                    }
+                }}
                 initialData={editingAddress}
             />
 
@@ -312,7 +333,10 @@ const ProfilePage: React.FC = () => {
                             <div className="space-y-2"><label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Mật khẩu cũ</label><input type="password" value={passwords.current} onChange={e => setPasswords({ ...passwords, current: e.target.value })} className="w-full px-4 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:border-indigo-600 font-bold" /></div>
                             <div className="space-y-2"><label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Mật khẩu mới</label><input type="password" value={passwords.new} onChange={e => setPasswords({ ...passwords, new: e.target.value })} className="w-full px-4 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:border-indigo-600 font-bold" /></div>
                             <div className="space-y-2"><label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Xác nhận</label><input type="password" value={passwords.confirm} onChange={e => setPasswords({ ...passwords, confirm: e.target.value })} className="w-full px-4 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:border-indigo-600 font-bold" /></div>
-                            <button type="submit" disabled={pwLoading} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-extrabold uppercase tracking-premium text-micro hover:bg-indigo-700 transition-all">{pwLoading ? 'Đang cập nhật...' : 'Cập nhật mật khẩu'}</button>
+                            <button type="submit" disabled={pwLoading} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-extrabold uppercase tracking-premium text-micro hover:bg-indigo-700 transition-all flex items-center justify-center gap-2">
+                                {pwLoading && <i className="fa-solid fa-spinner fa-spin"></i>}
+                                {pwLoading ? 'Đang cập nhật...' : 'Cập nhật mật khẩu'}
+                            </button>
                         </form>
                     </div>
                 </div>

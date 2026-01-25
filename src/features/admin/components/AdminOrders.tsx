@@ -95,28 +95,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
     }
   };
 
-  const renderStatusPill = (step: number) => {
-    const status = orderStatusOptions.find(s => s.step === step) || orderStatusOptions[0];
-    const styles = {
-      0: 'bg-chart-1/10 text-chart-1 border-chart-1/20',
-      1: 'bg-chart-2/10 text-chart-2 border-chart-2/20',
-      2: 'bg-primary/10 text-primary border-primary/20',
-      3: 'bg-chart-4/10 text-chart-4 border-chart-4/20',
-    };
-    const colors = {
-      0: 'bg-chart-1',
-      1: 'bg-chart-2',
-      2: 'bg-primary',
-      3: 'bg-chart-4',
-    };
 
-    return (
-      <div className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide border flex items-center gap-2 justify-center ${styles[step as keyof typeof styles]}`}>
-        <span className={`w-1.5 h-1.5 rounded-full ${colors[step as keyof typeof colors]}`}></span>
-        {status.label}
-      </div>
-    );
-  };
 
   return (
     <>
@@ -231,18 +210,28 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                       <span className="text-base font-black text-foreground">{formatPrice(order.payment.total)}</span>
                     </td>
                     <td className="px-8 py-4">
-                      <div className="flex justify-center group/status relative">
-                        {renderStatusPill(order.statusStep)}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all">
-                          <select
-                            value={order.statusStep}
-                            onChange={(e) => handleUpdateOrderStatus(order.id, Number(e.target.value))}
-                            className="opacity-0 absolute inset-0 w-full h-full cursor-pointer"
-                          >
-                            {orderStatusOptions.map(opt => (
-                              <option key={opt.step} value={opt.step}>{opt.label}</option>
-                            ))}
-                          </select>
+                      <div className="relative min-w-[140px]">
+                        <select
+                          value={order.statusStep}
+                          onChange={(e) => handleUpdateOrderStatus(order.id, Number(e.target.value))}
+                          className={`w-full appearance-none pl-4 pr-10 py-2 rounded-xl text-xs font-bold uppercase tracking-wide border outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer ${order.statusStep === 0 ? 'bg-chart-1/10 text-chart-1 border-chart-1/20 hover:bg-chart-1/20' :
+                            order.statusStep === 1 ? 'bg-chart-2/10 text-chart-2 border-chart-2/20 hover:bg-chart-2/20' :
+                              order.statusStep === 2 ? 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/20' :
+                                'bg-chart-4/10 text-chart-4 border-chart-4/20 hover:bg-chart-4/20'
+                            }`}
+                        >
+                          {orderStatusOptions.map(opt => (
+                            <option key={opt.step} value={opt.step} className={isMidnight ? "bg-slate-800 text-slate-200" : "bg-white text-foreground"}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-70">
+                          <i className={`fa-solid fa-chevron-down text-[10px] ${order.statusStep === 0 ? 'text-chart-1' :
+                            order.statusStep === 1 ? 'text-chart-2' :
+                              order.statusStep === 2 ? 'text-primary' :
+                                'text-chart-4'
+                            }`}></i>
                         </div>
                       </div>
                     </td>
