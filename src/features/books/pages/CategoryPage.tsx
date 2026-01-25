@@ -3,10 +3,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { db } from '@/services/db';
 import { Book, CategoryInfo } from '@/shared/types';
-import { BookCard } from '@/features/books/components/BookCard';
 import { BookCardSkeleton } from '@/shared/components';
 import SEO from '@/shared/components/seo/SEO';
 import { useBooks } from '@/features/books';
+import BookCard from '../components/BookCard/index';
 import { useCart } from '@/features/cart';
 
 const ITEMS_PER_PAGE = 10;

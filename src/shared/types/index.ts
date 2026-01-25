@@ -33,6 +33,25 @@ export interface Book {
   viewCount?: number;
   searchKeywords?: string[];
   reviewCount?: number; // Số lượng reviews để tính rating incremental
+
+  // Tiki Integration Fields
+  quantitySold?: {
+    text: string;
+    value: number;
+  };
+  badges?: {
+    code: string;
+    text?: string;
+    type?: string;
+  }[];
+  discountRate?: number;
+
+  // Rich Data Fields (Phase 2 Upgrade)
+  images?: string[];       // Gallery ảnh
+  dimensions?: string;     // Kích thước (13x19 cm)
+  translator?: string;     // Dịch giả
+  bookLayout?: string;     // Loại bìa (Bìa mềm/Bìa cứng)
+  manufacturer?: string;   // Nhà xuất bản gốc (VD: NXB Trẻ)
 }
 
 

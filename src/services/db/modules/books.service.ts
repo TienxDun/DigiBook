@@ -9,7 +9,6 @@ import {
   limit,
   setDoc,
   updateDoc,
-  deleteDoc,
   writeBatch,
   serverTimestamp,
   startAfter,
@@ -18,9 +17,8 @@ import {
   increment
 } from "firebase/firestore";
 import { db_fs } from "../../../lib/firebase";
-import { Book, Author } from '@/shared/types/';
-import { wrap, logActivity, fetchWithProxy } from "../core";
-import { enrichAuthorFromWiki } from "./metadata.service";
+import { Book } from '@/shared/types/';
+import { wrap, fetchWithProxy } from "../core";
 
 export async function getBooks(): Promise<Book[]> {
   return wrap(
@@ -31,50 +29,7 @@ export async function getBooks(): Promise<Book[]> {
 
 // ... (keep intermediate code if any, but replace logic in saveBook)
 
-// Inside saveBook function logic replacement:
-/*
-      // 1. Check and Auto-create Author if needed
-      if (cleanBook.author) { // Only if author name is provided
-        const authorName = cleanBook.author.trim();
-        
-        // Check if author exists by name (case-insensitive approximation via query)
-        const authorsRef = collection(db_fs, 'authors');
-        const q = query(authorsRef, where('name', '==', authorName), limit(1));
-        const authorSnap = await getDocs(q);
 
-        let authorId: string;
-
-        if (!authorSnap.empty) {
-          // Author exists, use their ID
-          authorId = authorSnap.docs[0].id;
-        } else {
-          // Create new Author
-          // Try to enrich from Wikipedia first
-          let wikiData = null;
-          try {
-             wikiData = await enrichAuthorFromWiki(authorName);
-             if (wikiData) {
-                logActivity('AUTO_ENRICH_AUTHOR', `Found Wiki info for: ${authorName}`, 'SUCCESS', 'INFO', 'SYSTEM');
-             }
-          } catch(err) {
-             console.warn("Wiki enrich failed silently", err);
-          }
-
-          authorId = `author-${Date.now()}`;
-          const newAuthor: Author = {
-            id: authorId,
-            name: authorName,
-            bio: wikiData?.bio || cleanBook.authorBio || `Tác giả của cuốn sách "${cleanBook.title}".`,
-            avatar: wikiData?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=random&size=256`
-          };
-          await setDoc(doc(db_fs, 'authors', authorId), { ...newAuthor, createdAt: serverTimestamp() });
-          logActivity('AUTO_CREATE_AUTHOR', `Created author: ${authorName}`, 'SUCCESS', 'INFO', 'SYSTEM');
-        }
-        
-        // Link book to author
-        cleanBook.authorId = authorId;
-      }
-*/
 
 
 export async function getBooksPaginated(
@@ -265,41 +220,7 @@ export async function saveBook(book: Book): Promise<void> {
 
   await wrap(
     (async () => {
-      // 1. Check and Auto-create Author if needed
-      if (cleanBook.author) { // Only if author name is provided
-        const authorName = cleanBook.author.trim();
-        const authorKey = authorName.toLowerCase();
 
-        // Check if author exists by name (case-insensitive approximation via query)
-        const authorsRef = collection(db_fs, 'authors');
-        // Note: Firestore queries are case-sensitive usually, but we check exact match on 'name' field first
-        // Ideally we should have a normalized 'nameLower' field, but for now we query by standard name
-        // Or we use the existing helper from metadata service if we could import it, but let's do direct query to avoid circ dep
-
-        const q = query(authorsRef, where('name', '==', authorName), limit(1));
-        const authorSnap = await getDocs(q);
-
-        let authorId: string;
-
-        if (!authorSnap.empty) {
-          // Author exists, use their ID
-          authorId = authorSnap.docs[0].id;
-        } else {
-          // Create new Author
-          authorId = `author-${Date.now()}`;
-          const newAuthor: Author = {
-            id: authorId,
-            name: authorName,
-            bio: cleanBook.authorBio || `Tác giả của cuốn sách "${cleanBook.title}".`,
-            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=random&size=256`
-          };
-          await setDoc(doc(db_fs, 'authors', authorId), { ...newAuthor, createdAt: serverTimestamp() });
-          logActivity('AUTO_CREATE_AUTHOR', `Created author: ${authorName}`, 'SUCCESS', 'INFO', 'SYSTEM');
-        }
-
-        // Link book to author
-        cleanBook.authorId = authorId;
-      }
 
       // 2. Save Book
       await setDoc(doc(db_fs, 'books', book.id), { ...cleanBook, updatedAt: serverTimestamp() }, { merge: true });
@@ -396,6 +317,12 @@ export async function searchBooksFromTiki(queryStr: string, page: number = 1): P
     const existingIsbns = new Set(existingBooks.map(b => b.isbn));
 
     const books: Book[] = data.data.map((item: any) => {
+      // Map badges to internal DigiBook branding
+      const mappedBadges = (item.badges_new || []).map((b: any) => {
+        if (b.code === 'tikinow') return { code: 'digibook_express', text: 'DigiBook Now' };
+        if (b.code === 'authentic_brand') return { code: 'digibook_guarantee', text: 'Chính hãng DigiBook' };
+        return { code: b.code || 'badge', text: b.text || '' };
+      });
       // Map basic info
       const authors = item.authors ? item.authors.filter((a: any) => a.name).map((a: any) => a.name).join(', ') : 'Nhiều tác giả';
 
@@ -437,7 +364,13 @@ export async function searchBooksFromTiki(queryStr: string, page: number = 1): P
         publishYear: new Date().getFullYear(),
         language: 'Tiếng Việt',
         badge: item.discount_rate ? `-${item.discount_rate}%` : '',
-        isAvailable: isAvailable
+        isAvailable: isAvailable,
+        quantitySold: item.quantity_sold,
+        badges: item.badges_new,
+        discountRate: item.discount_rate,
+
+        // Phase 2 Fields
+        images: item.images ? item.images.map((img: any) => img.base_url || img.large_url) : [coverUrl],
       } as Book;
     });
 
@@ -452,70 +385,90 @@ export async function searchBooksFromTiki(queryStr: string, page: number = 1): P
 
 export async function getBookDetailsFromTiki(tikiId: string | number): Promise<Partial<Book> | null> {
   try {
+    // clean ID if it has TK- prefix
     const cleanId = String(tikiId).replace('TK-', '');
     const url = `https://tiki.vn/api/v2/products/${cleanId}`;
 
-    // Use multi-proxy fetcher
     const data = await fetchWithProxy(url);
 
     if (!data || data.error) return null;
 
-    // Extract more detailed info
-    const specs = data.specifications || [];
+    let dimensions = '';
+    let translator = '';
+    let manufacturer = '';
     let publisher = 'Đang cập nhật';
     let publishYear = new Date().getFullYear();
     let pages = 0;
-    let language = 'Tiếng Việt';
     let bookLayout = '';
 
     // Parse specifications
-    const mainSpecs = specs.find((s: any) => s.name === 'Thông tin chi tiết');
+    const specs = data.specifications || [];
+    const mainSpecs = specs.find((s: any) => s.name === 'Thông tin chi tiết' || s.name === 'Thông tin chung');
+
     if (mainSpecs && mainSpecs.attributes) {
       for (const attr of mainSpecs.attributes) {
         const code = attr.code;
         const value = attr.value;
 
         if (code === 'publisher_vn') publisher = value;
+        if (code === 'manufacturer') manufacturer = value;
+        if (code === 'dich_gia') translator = value;
+        if (code === 'dimensions') dimensions = value;
+        if (code === 'book_cover') bookLayout = value;
+
         if (code === 'publication_date') {
-          const yearStr = value.split(' ')[0].split('-')[0].split('/')[0];
-          publishYear = parseInt(yearStr) || publishYear;
+          const yearStr = String(value).split(' ')[0].split('-')[0].split('/')[0];
+          const parsedYear = parseInt(yearStr);
+          if (!isNaN(parsedYear)) publishYear = parsedYear;
         }
         if (code === 'number_of_page') pages = parseInt(value) || 0;
-        if (code === 'book_cover') bookLayout = value;
-        if (code === 'languages') language = value === 'Tiếng Việt' ? 'Tiếng Việt' : value;
       }
     }
 
     let desc = data.description || '';
     const boilerplateIndex = desc.indexOf('Giá sản phẩm trên Tiki đã bao gồm thuế');
-    if (boilerplateIndex > -1) desc = desc.substring(0, boilerplateIndex);
+    if (boilerplateIndex > -1) {
+      desc = desc.substring(0, boilerplateIndex);
+    }
+    desc = desc.replace(/<br\s*\/?>/gi, '\n');
+    desc = desc.replace(/<\/p>/gi, '\n\n');
+    desc = desc.replace(/<[^>]*>/g, '');
+    desc = desc.replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+    desc = desc.trim();
+    if (bookLayout && !desc.includes('Loại bìa')) {
+      desc = `${desc}\n\nLoại bìa: ${bookLayout}`;
+    }
+    if (!desc) {
+      desc = 'Chưa có mô tả chi tiết cho cuốn sách này.';
+    }
 
-    desc = desc.replace(/<br\s*\/?>/gi, '\n')
-      .replace(/<\/p>/gi, '\n\n')
-      .replace(/<\/div>/gi, '\n')
-      .replace(/<[^>]*>/g, '')
-      .replace(/&nbsp;/g, ' ')
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'");
-
-    desc = desc.split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0)
-      .join('\n\n');
-
-    if (bookLayout) desc = `${desc}\n\nLoại bìa: ${bookLayout}`;
-    if (!desc) desc = 'Chưa có mô tả chi tiết cho cuốn sách này.';
+    let images: string[] = [];
+    if (data.images && Array.isArray(data.images)) {
+      images = data.images.map((img: any) => img.base_url || img.large_url).filter(Boolean);
+    }
+    let cover = undefined;
+    if (images.length > 0) cover = images[0];
 
     return {
       description: desc,
       publisher: publisher,
+      manufacturer: manufacturer,
       publishYear: publishYear,
       pages: pages,
-      language: language,
-      cover: data.images && data.images[0] ? data.images[0].base_url : undefined
+      language: 'Tiếng Việt',
+      cover: cover,
+      images: images,
+      dimensions: dimensions,
+      translator: translator,
+      bookLayout: bookLayout,
+
+      rating: data.rating_average || 0,
+      reviewCount: data.review_count || 0,
+      badges: (data.badges_new || []).map((b: any) => {
+        if (b.code === 'tikinow') return { code: 'digibook_express', text: 'DigiBook Now' };
+        if (b.code === 'authentic_brand') return { code: 'digibook_guarantee', text: 'Chính hãng DigiBook' };
+        return { code: b.code, text: b.text };
+      })
     };
 
   } catch (e) {
@@ -524,60 +477,20 @@ export async function getBookDetailsFromTiki(tikiId: string | number): Promise<P
   }
 }
 
-
-export async function fetchBookByISBN(isbn: string): Promise<Book | null> {
+export async function getRawTikiData(tikiId: string | number): Promise<any | null> {
   try {
-    if (!isbn || isbn.length < 10) return null;
+    const cleanId = String(tikiId).replace('TK-', '');
+    const url = `https://tiki.vn/api/v2/products/${cleanId}`;
 
-    const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${encodeURIComponent(isbn)}`;
-    const response = await fetch(url);
-    const data = await response.json();
-
-    if (!data.items || data.items.length === 0) return null;
-
-    const info = data.items[0].volumeInfo;
-
-    const gbCats = info.categories || [];
-    let appCat = "Văn học";
-    if (gbCats.some((c: string) => c.toLowerCase().includes('business') || c.toLowerCase().includes('economics'))) appCat = 'Kinh tế';
-    else if (gbCats.some((c: string) => c.toLowerCase().includes('history'))) appCat = 'Lịch sử';
-    else if (gbCats.some((c: string) => c.toLowerCase().includes('child') || c.toLowerCase().includes('juvenile'))) appCat = 'Thiếu nhi';
-    else if (gbCats.some((c: string) => c.toLowerCase().includes('self-help') || c.toLowerCase().includes('skill'))) appCat = 'Kỹ năng';
-
-    let coverUrl = info.imageLinks?.thumbnail?.replace('http:', 'https:') || "";
-    if (coverUrl.includes('zoom=1')) coverUrl = coverUrl.replace('zoom=1', 'zoom=2');
-
-    if (!coverUrl) {
-      coverUrl = `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`;
-    }
-
-    const saleInfo = data.items[0].saleInfo;
-    const isAvailable = saleInfo?.saleability === 'FOR_SALE';
-
-    return {
-      id: isbn,
-      title: info.title || 'Không có tiêu đề',
-      author: info.authors?.join(', ') || 'Nhiều tác giả',
-      authorBio: info.description?.substring(0, 300) || 'Thông tin tác giả đang được cập nhật.',
-      price: saleInfo?.listPrice?.amount || 0,
-      stockQuantity: 100,
-      rating: Number(info.averageRating || 5),
-      cover: coverUrl,
-      category: appCat,
-      description: info.description || 'Chưa có mô tả.',
-      isbn: isbn,
-      pages: info.pageCount || 0,
-      publisher: info.publisher || 'Đang cập nhật',
-      publishYear: parseInt(info.publishedDate?.split('-')[0]) || new Date().getFullYear(),
-      language: info.language === 'vi' ? 'Tiếng Việt' : (info.language === 'en' ? 'English' : (info.language === 'ja' ? '日本語' : (info.language === 'fr' ? 'Français' : info.language.toUpperCase()))),
-      badge: '',
-      isAvailable: isAvailable
-    } as Book;
+    return await fetchWithProxy(url);
   } catch (error) {
-    console.error("Error fetching book by ISBN:", error);
-    return null;
+    console.error("Error fetching raw Tiki data:", error);
+    return { error: String(error) };
   }
 }
+
+
+
 
 // Bổ sung các function khác cần thiết để giữ trọn vẹn logic trong db.ts
 // Ví dụ saveBooksBatch cần truy cập getAuthors (sẽ được import từ metadata.ts sau này)

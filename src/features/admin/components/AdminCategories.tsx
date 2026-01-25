@@ -27,6 +27,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSeeding, setIsSeeding] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   // Khóa cuộn trang khi mở popup
@@ -102,6 +103,25 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
       toast.error('Lỗi: ' + (err.message || 'Không thể lưu danh mục'));
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleSeedCategories = async () => {
+    if (window.confirm("Khởi tạo danh mục mặc định từ hệ thống?")) {
+      setIsSeeding(true);
+      try {
+        const result = await db.seedDatabase();
+        if (result.success) {
+          toast.success(`Đã khởi tạo thành công ${result.count} danh mục`);
+          refreshData();
+        } else {
+          toast.error(`Lỗi: ${result.error}`);
+        }
+      } catch (err) {
+        ErrorHandler.handle(err, 'khởi tạo danh mục');
+      } finally {
+        setIsSeeding(false);
+      }
     }
   };
 
@@ -196,6 +216,15 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
 
         {/* Actions Group */}
         <div className="flex items-center gap-3">
+          <button
+            onClick={handleSeedCategories}
+            disabled={isSeeding}
+            className={`h-12 px-4 border ${isMidnight ? 'border-white/10 text-slate-300 hover:bg-white/5' : 'border-border text-muted-foreground hover:bg-muted'} rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50`}
+            title="Khởi tạo danh mục mặc định"
+          >
+            <i className={`fa-solid ${isSeeding ? 'fa-spinner fa-spin' : 'fa-wand-magic-sparkles'}`}></i>
+            <span className="hidden sm:inline">Khởi tạo nhanh</span>
+          </button>
           <button
             onClick={handleOpenAddCategory}
             className="h-12 px-6 bg-primary text-primary-foreground rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center gap-3 group active:scale-95"

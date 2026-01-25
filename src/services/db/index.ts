@@ -35,7 +35,8 @@ class DataService {
   // fetchBooksFromGoogle = books.fetchBooksFromGoogle; // Deprecated
   searchBooksFromTiki = books.searchBooksFromTiki;
   getBookDetailsFromTiki = books.getBookDetailsFromTiki;
-  fetchBookByISBN = books.fetchBookByISBN;
+  getRawTikiData = books.getRawTikiData;
+
   getBookBySlug = books.getBookBySlug;
   incrementBookView = books.incrementBookView;
 
@@ -49,8 +50,6 @@ class DataService {
   deleteCategory = metadata.deleteCategory;
   deleteAuthorsBulk = metadata.deleteAuthorsBulk;
   deleteCategoriesBulk = metadata.deleteCategoriesBulk;
-  seedDatabase = metadata.seedDatabase;
-  saveBooksBatch = metadata.saveBooksBatch;
 
   // Orders & Transactions
   createOrder = orders.createOrder;

@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import SEO from '@/shared/components/seo/SEO';
 import { Book } from '@/shared/types';
-import BookCard from '@/features/books/components/BookCard'; // Default import
-import { useAuth } from '@/features/auth';
+import BookCard from '../components/BookCard/index';
 import { useBooks } from '@/features/books';
+import { useAuth } from '@/features/auth';
+
 import { useCart } from '@/features/cart';
 import { BookCardSkeleton } from '@/shared/components';
 

@@ -27,7 +27,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
   const [selectedBooks, setSelectedBooks] = useState<string[]>([]);
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [isFetchingISBN, setIsFetchingISBN] = useState(false);
+
   const [seedStatus, setSeedStatus] = useState<{ msg: string, type: 'success' | 'error' | 'info' } | null>(null);
   const [isFormProcessing, setIsFormProcessing] = useState(false);
 
@@ -200,6 +200,28 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     setScanProgress({ current: 0, total: 0, status: '' });
   };
 
+  // Raw Viewer State
+  const [isRawModalOpen, setIsRawModalOpen] = useState(false);
+  const [rawViewerContent, setRawViewerContent] = useState<any | null>(null);
+  const [loadingRaw, setLoadingRaw] = useState(false);
+
+  const handleInspectRaw = async (bookId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent selection
+    setLoadingRaw(true);
+    setRawViewerContent(null);
+    setIsRawModalOpen(true);
+
+    try {
+      const raw = await db.getRawTikiData(bookId);
+      setRawViewerContent(raw);
+    } catch (error) {
+      toast.error("Lỗi khi tải dữ liệu thô");
+      setIsRawModalOpen(false);
+    } finally {
+      setLoadingRaw(false);
+    }
+  };
+
   const handleSearchImport = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!importSearchTerm.trim()) return;
@@ -345,40 +367,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
   };
 
 
-  const handleFetchBookByISBN = async () => {
-    if (!bookFormData.isbn || bookFormData.isbn.trim().length < 10) {
-      toast.error("Vui lòng nhập mã ISBN hợp lệ (10 hoặc 13 số)");
-      return;
-    }
 
-    setIsFetchingISBN(true);
-    try {
-      const fetchedBook = await db.fetchBookByISBN(bookFormData.isbn);
-      if (fetchedBook) {
-        setBookFormData(prev => ({
-          ...prev,
-          title: fetchedBook.title,
-          author: fetchedBook.author,
-          authorBio: fetchedBook.authorBio,
-          cover: fetchedBook.cover,
-          category: fetchedBook.category,
-          description: fetchedBook.description,
-          pages: fetchedBook.pages,
-          publisher: fetchedBook.publisher,
-          publishYear: fetchedBook.publishYear,
-          language: fetchedBook.language,
-          rating: fetchedBook.rating
-        }));
-        toast.success("Đã tìm thấy thông tin sách từ Internet!");
-      } else {
-        toast.error("Không tìm thấy thông tin cho mã ISBN này.");
-      }
-    } catch (error) {
-      toast.error("Lỗi khi tìm kiếm dữ liệu.");
-    } finally {
-      setIsFetchingISBN(false);
-    }
-  };
 
   const handleOpenAddBook = () => {
     setEditingBook(null);
@@ -802,7 +791,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
       </div>
 
       {/* Add/Edit Book Modal */}
-      {typeof document !== 'undefined' && createPortal(
+      {createPortal(
         <AnimatePresence mode="wait">
           {isBookModalOpen && (
             <motion.div
@@ -980,15 +969,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                             <div className="col-span-12 md:col-span-6">
                               <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1 flex items-center justify-between">
                                 Mã ISBN
-                                <button
-                                  type="button"
-                                  onClick={handleFetchBookByISBN}
-                                  disabled={isFetchingISBN}
-                                  className="text-[10px] text-primary hover:text-primary/70 font-black flex items-center gap-2 bg-primary/5 px-3 py-1 rounded-full transition-all"
-                                >
-                                  {isFetchingISBN ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
-                                  Tự động điền
-                                </button>
+
                               </label>
                               <input
                                 type="text"
@@ -1021,6 +1002,56 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                                 className={`w-full h-14 px-6 rounded-2xl border transition-all font-bold text-foreground text-sm outline-none focus:border-primary focus:bg-card ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
                                   }`}
                                 placeholder="2024"
+                              />
+                            </div>
+
+                            <div className="col-span-12 md:col-span-3">
+                              <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1">Kích thước</label>
+                              <input
+                                type="text"
+                                value={bookFormData.dimensions || ''}
+                                onChange={(e) => setBookFormData({ ...bookFormData, dimensions: e.target.value })}
+                                className={`w-full h-14 px-6 rounded-2xl border transition-all font-bold text-foreground text-sm outline-none focus:border-primary focus:bg-card ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
+                                  }`}
+                                placeholder="13x20 cm"
+                              />
+                            </div>
+
+                            <div className="col-span-12 md:col-span-3">
+                              <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1">Loại bìa</label>
+                              <select
+                                value={bookFormData.bookLayout || ''}
+                                onChange={(e) => setBookFormData({ ...bookFormData, bookLayout: e.target.value })}
+                                className={`w-full h-14 px-6 rounded-2xl border transition-all text-sm font-bold text-foreground outline-none appearance-none cursor-pointer focus:border-primary focus:ring-4 focus:ring-primary/10 ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
+                                  }`}
+                              >
+                                <option value="">Khác</option>
+                                <option value="Bìa mềm">Bìa mềm</option>
+                                <option value="Bìa cứng">Bìa cứng</option>
+                              </select>
+                            </div>
+
+                            <div className="col-span-12 md:col-span-6">
+                              <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1">Dịch giả</label>
+                              <input
+                                type="text"
+                                value={bookFormData.translator || ''}
+                                onChange={(e) => setBookFormData({ ...bookFormData, translator: e.target.value })}
+                                className={`w-full h-14 px-6 rounded-2xl border transition-all font-bold text-foreground text-sm outline-none focus:border-primary focus:bg-card ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
+                                  }`}
+                                placeholder="Tên dịch giả..."
+                              />
+                            </div>
+
+                            <div className="col-span-12 md:col-span-6">
+                              <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1">Nhà xuất bản (Gốc)</label>
+                              <input
+                                type="text"
+                                value={bookFormData.manufacturer || ''}
+                                onChange={(e) => setBookFormData({ ...bookFormData, manufacturer: e.target.value })}
+                                className={`w-full h-14 px-6 rounded-2xl border transition-all font-bold text-foreground text-sm outline-none focus:border-primary focus:bg-card ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
+                                  }`}
+                                placeholder="VD: NXB Trẻ (nếu khác Cty phát hành)..."
                               />
                             </div>
 
@@ -1298,7 +1329,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                               const isExist = books.some(b => b.title.toLowerCase() === book.title.toLowerCase());
                               const isSelected = selectedImportBooks.includes(book.id);
                               return (
-                                <div key={book.id} onClick={() => !isExist && toggleImportSelect(book.id)} className={`relative flex gap-4 p-4 rounded-3xl border transition-all cursor-pointer ${isSelected ? 'border-primary bg-primary/5 ring-1 ring-primary/20' : (isMidnight ? 'bg-slate-800/40 border-white/5 hover:border-white/10' : 'bg-card border-border hover:shadow-md')}`}>
+                                <div key={book.id} onClick={() => !isExist && toggleImportSelect(book.id)} className={`relative group/item flex gap-4 p-4 rounded-3xl border transition-all cursor-pointer ${isSelected ? 'border-primary bg-primary/5 ring-1 ring-primary/20' : (isMidnight ? 'bg-slate-800/40 border-white/5 hover:border-white/10' : 'bg-card border-border hover:shadow-md')}`}>
                                   <div className="w-20 aspect-[2/3] rounded-xl overflow-hidden shrink-0 border bg-muted">
                                     <img src={book.cover} className="w-full h-full object-cover" />
                                   </div>
@@ -1307,6 +1338,16 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                                     <div className="text-xs text-muted-foreground mb-2">{book.author}</div>
                                     <div className="font-black text-chart-1">{formatPrice(book.price)}</div>
                                   </div>
+
+                                  {/* Inspect Action */}
+                                  <button
+                                    onClick={(e) => handleInspectRaw(book.id, e)}
+                                    className={`absolute bottom-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center transition-all opacity-0 group-hover/item:opacity-100 z-20 ${isMidnight ? 'bg-slate-700 text-slate-300 hover:bg-primary hover:text-white' : 'bg-muted text-muted-foreground hover:bg-primary hover:text-white'
+                                      }`}
+                                    title="Xem Raw Data (Inspector)"
+                                  >
+                                    <i className="fa-solid fa-microscope text-xs"></i>
+                                  </button>
 
                                   {isExist ? (
                                     <div className="absolute top-4 right-4 text-green-500 bg-green-500/10 px-2 py-1 rounded-lg text-[10px] font-black uppercase">Đã có</div>
@@ -1421,7 +1462,53 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
         </AnimatePresence>,
         document.body
       )}
-    </div>
+      {/* Raw Data Inspector Modal (Nested) */}
+      {
+        typeof document !== 'undefined' && createPortal(
+          <AnimatePresence mode="wait">
+            {isRawModalOpen && (
+              <motion.div
+                key="raw-data-portal"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[120] flex items-center justify-center p-4 md:p-10"
+              >
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setIsRawModalOpen(false)} />
+                <motion.div
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.95, opacity: 0 }}
+                  className={`${isMidnight ? 'bg-[#1e293b] border-white/10' : 'bg-card border-border'} w-full max-w-4xl h-[80vh] rounded-[2rem] shadow-3xl overflow-hidden border relative z-10 flex flex-col`}
+                >
+                  <div className={`h-16 border-b flex items-center justify-between px-6 shrink-0 ${isMidnight ? 'border-white/5' : 'border-border'}`}>
+                    <h3 className="font-black uppercase tracking-wide flex items-center gap-3">
+                      <i className="fa-solid fa-code text-chart-1"></i>
+                      Raw Tiki JSON
+                    </h3>
+                    <button onClick={() => setIsRawModalOpen(false)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors">
+                      <i className="fa-solid fa-xmark"></i>
+                    </button>
+                  </div>
+                  <div className={`flex-1 overflow-auto custom-scrollbar p-6 font-mono text-xs ${isMidnight ? 'text-slate-300' : 'text-slate-700'}`}>
+                    {loadingRaw ? (
+                      <div className="flex items-center justify-center h-full gap-3 text-muted-foreground">
+                        <i className="fa-solid fa-circle-notch fa-spin"></i>
+                        <span>Đang tải dữ liệu từ Tiki...</span>
+                      </div>
+                    ) : (
+                      <pre>{JSON.stringify(rawViewerContent, null, 2)}</pre>
+                    )}
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )
+      }
+
+    </div >
   );
 };
 

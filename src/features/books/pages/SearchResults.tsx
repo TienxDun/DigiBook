@@ -3,9 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link, useParams } from 'react-router-dom';
 import { db } from '@/services/db';
 import { Book } from '@/shared/types';
-import { BookCard } from '@/features/books/components/BookCard';
 import { BookCardSkeleton } from '@/shared/components';
 import { useBooks } from '@/features/books';
+import BookCard from '../components/BookCard/index';
 import { useCart } from '@/features/cart';
 
 const SearchResults: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickView }) => {

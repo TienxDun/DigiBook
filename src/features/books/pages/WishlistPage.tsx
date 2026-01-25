@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Book } from '@/shared/types/';
-import { BookCard } from '@/features/books';
+import BookCard from '../components/BookCard/index';
 import { useAuth } from '@/features/auth';
 import { db } from '@/services/db';
 import toast from '@/shared/utils/toast';
