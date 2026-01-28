@@ -328,6 +328,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
         url={`/book/${book.id}`}
         type="book"
         author={book.author}
+        schemaMarkup={jsonLd}
       />
 
       {/* Dynamic Background */}

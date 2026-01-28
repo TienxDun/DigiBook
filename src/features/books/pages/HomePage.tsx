@@ -15,12 +15,37 @@ const HomePage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickVie
   const { addToCart } = useCart();
   const { user, wishlist, setShowLoginModal, setAuthMode } = useAuth();
 
+  const homeSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "url": "https://tienxdun.github.io/DigiBook/",
+    "name": "DigiBook",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://tienxdun.github.io/DigiBook/#/search/{search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  };
+
+  const orgSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "DigiBook",
+    "url": "https://tienxdun.github.io/DigiBook/",
+    "logo": "https://tienxdun.github.io/DigiBook/favicon.ico",
+    "sameAs": [
+      "https://facebook.com/digibook",
+      "https://twitter.com/digibook"
+    ]
+  };
+
   return (
     <div className="space-y-0 fade-in">
       <SEO
         title="Trang chủ"
         description="Chào mừng bạn đến với DigiBook - Nhà sách trực tuyến hiện đại nhất Việt Nam. Khám phá kho sách khổng lồ."
         url="/"
+        schemaMarkup={{ "@graph": [homeSchema, orgSchema] }}
       />
       {/* Hero Section */}
       <section className="relative min-h-[35vh] sm:min-h-[40vh] lg:min-h-[60vh] flex items-center overflow-hidden bg-background mt-[-80px] lg:mt-[-80px]">
