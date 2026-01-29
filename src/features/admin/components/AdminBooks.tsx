@@ -983,7 +983,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                           </h3>
                           <div className="grid grid-cols-12 gap-8">
                             <div className="col-span-12 md:col-span-6">
-                              <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1 flex items-center justify-between">
+                              <label className="text-micro font-black uppercase tracking-premium mb-2.5 text-muted-foreground ml-1 flex items-center justify-between">
                                 Mã ISBN
 
                               </label>

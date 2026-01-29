@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/features/auth';
 import { db, Order } from '@/services/db';
+import { ordersService } from '@/services/db/adapter';
 import { SEO } from '@/shared/components';
 
 const formatPrice = (price: number) => {
@@ -32,15 +33,15 @@ const MyOrdersPage: React.FC = () => {
       if (user) {
         setLoading(true);
         try {
-          const userOrders = await db.getOrdersByUserId(user.id);
+          const userOrders = await ordersService.getUserOrders(user.id);
           // Sort by date descending
           userOrders.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
           setOrders(userOrders);
 
           const counts: Record<string, number> = {};
           for (const order of userOrders) {
-            const detail = await db.getOrderWithItems(order.id);
-            counts[order.id] = detail?.items.length || 0;
+            const detail = await ordersService.getOrderById(order.id);
+            counts[order.id] = detail?.items?.length || 0;
           }
           setOrderItemsCounts(counts);
         } catch (error) {

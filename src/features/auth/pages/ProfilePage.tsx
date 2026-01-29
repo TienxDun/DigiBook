@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import toast from '@/shared/utils/toast';
 import { useAuth } from '@/features/auth';
 import { db } from '@/services/db';
+import { ordersService } from '@/services/db/adapter';
 import { UserProfile } from '@/shared/types';
 import { ErrorHandler } from '@/services/errorHandler';
 import { AddressList, AddressFormModal } from '@/features/auth';
@@ -56,7 +57,7 @@ const ProfilePage: React.FC = () => {
             try {
                 const [profileData, ordersData] = await Promise.all([
                     db.getUserProfile(user.id),
-                    db.getOrdersByUserId(user.id)
+                    ordersService.getUserOrders(user.id)
                 ]);
 
                 if (profileData) {

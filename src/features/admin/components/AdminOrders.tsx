@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import toast from '@/shared/utils/toast';
-import { db } from '@/services/db';
+import { ordersApi } from '@/services/api';
 import { Order, OrderItem } from '@/shared/types';
 import { ErrorHandler } from '@/services/errorHandler';
 import { Pagination } from '@/shared/components';
@@ -65,9 +65,11 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
 
   const handleViewOrderDetails = async (order: Order) => {
     try {
-      const orderWithItems = await db.getOrderWithItems(order.id);
+      const orderWithItems = await ordersApi.getById(order.id);
+      console.log('Fetched Order Details:', orderWithItems);
       if (orderWithItems) {
-        setSelectedOrder(orderWithItems);
+        // cast to respect expected type if API ensures items are present
+        setSelectedOrder(orderWithItems as Order & { items: OrderItem[] });
         setIsOrderModalOpen(true);
       }
     } catch (error) {
@@ -82,7 +84,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
 
     setUpdatingOrderStatus(true);
     try {
-      await db.updateOrderStatus(orderId, newStatusLabel, newStatusStep);
+      await ordersApi.updateStatus(orderId, newStatusLabel, newStatusStep);
       if (selectedOrder && selectedOrder.id === orderId) {
         setSelectedOrder({ ...selectedOrder, status: newStatusLabel, statusStep: newStatusStep });
       }
@@ -311,12 +313,12 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                     </div>
                     <div>
                       <h2 className={`text-2xl font-black tracking-tight ${isMidnight ? 'text-slate-100' : 'text-foreground'}`}>
-                        Đơn #{selectedOrder.id.slice(-8).toUpperCase()}
+                        Đơn #{selectedOrder?.id?.slice(-8).toUpperCase() || 'UNKNOWN'}
                       </h2>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50"></span>
                         <p className="text-sm font-medium text-muted-foreground">
-                          Ngày đặt: {selectedOrder.createdAt?.toDate ? selectedOrder.createdAt.toDate().toLocaleString('vi-VN') : selectedOrder.date}
+                          Ngày đặt: {selectedOrder?.createdAt?.toDate ? selectedOrder.createdAt.toDate().toLocaleString('vi-VN') : (selectedOrder?.date || 'N/A')}
                         </p>
                       </div>
                     </div>

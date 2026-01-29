@@ -66,5 +66,120 @@ export const usersApi = {
     } catch (error) {
       throw new Error(handleApiError(error));
     }
+  },
+
+  // ===== Phase 1: New Wishlist Methods (RESTful) =====
+
+  /**
+   * Add book to wishlist (RESTful individual operation)
+   * Note: Also keep updateWishlist() for bulk operations
+   */
+  async addToWishlist(userId: string, bookId: string): Promise<void> {
+    try {
+      await apiClient.post(`/api/users/${userId}/wishlist/${bookId}`);
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+
+  /**
+   * Remove book from wishlist (RESTful individual operation)
+   */
+  async removeFromWishlist(userId: string, bookId: string): Promise<void> {
+    try {
+      await apiClient.delete(`/api/users/${userId}/wishlist/${bookId}`);
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+
+  /**
+   * Get wishlist book IDs
+   */
+  async getWishlist(userId: string): Promise<string[]> {
+    try {
+      const { data } = await apiClient.get<ApiResponse<string[]>>(`/api/users/${userId}/wishlist`);
+      return data.data || [];
+    } catch (error) {
+      console.error('Error fetching wishlist:', handleApiError(error));
+      return [];
+    }
+  },
+
+  // ===== Phase 2: Admin User Management Methods =====
+
+  /**
+   * Get all users (admin only)
+   */
+  async getAll(): Promise<UserProfile[]> {
+    try {
+      const { data } = await apiClient.get<ApiResponse<UserProfile[]>>('/api/users');
+      return data.data || [];
+    } catch (error) {
+      console.error('Error fetching all users:', handleApiError(error));
+      return [];
+    }
+  },
+
+  /**
+   * Get user by email (admin search)
+   */
+  async getByEmail(email: string): Promise<UserProfile | null> {
+    try {
+      const { data } = await apiClient.get<ApiResponse<UserProfile>>(`/api/users/email/${email}`);
+      return data.data || null;
+    } catch (error) {
+      console.error('Error fetching user by email:', handleApiError(error));
+      return null;
+    }
+  },
+
+  /**
+   * Get users by role (filter by admin/user)
+   */
+  async getByRole(role: string): Promise<UserProfile[]> {
+    try {
+      const { data } = await apiClient.get<ApiResponse<UserProfile[]>>(`/api/users/role/${role}`);
+      return data.data || [];
+    } catch (error) {
+      console.error('Error fetching users by role:', handleApiError(error));
+      return [];
+    }
+  },
+
+  /**
+   * Get users by status (active/banned)
+   */
+  async getByStatus(status: string): Promise<UserProfile[]> {
+    try {
+      const { data } = await apiClient.get<ApiResponse<UserProfile[]>>(`/api/users/status/${status}`);
+      return data.data || [];
+    } catch (error) {
+      console.error('Error fetching users by status:', handleApiError(error));
+      return [];
+    }
+  },
+
+  /**
+   * Create new user (admin)
+   */
+  async create(user: Omit<UserProfile, 'id'>): Promise<string | null> {
+    try {
+      const { data } = await apiClient.post<ApiResponse<UserProfile>>('/api/users', user);
+      return data.data?.id || null;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+
+  /**
+   * Delete user (admin)
+   */
+  async delete(userId: string): Promise<void> {
+    try {
+      await apiClient.delete(`/api/users/${userId}`);
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
   }
 };

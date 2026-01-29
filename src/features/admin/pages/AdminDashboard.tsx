@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, PieChart, Pie, Legend } from 'recharts';
 import { db } from "@/services/db";
+import { ordersApi } from "@/services/api";
 import { Book, CategoryInfo, Author, Coupon, UserProfile, Order, SystemLog } from "@/shared/types/";
 import AdminBooks from "../components/AdminBooks";
 import AdminOrders from "../components/AdminOrders";
@@ -63,9 +64,12 @@ const AdminDashboard: React.FC = () => {
     return () => resizeObserver.disconnect();
   }, []);
 
-
   const refreshData = async () => {
     try {
+      // Use API for orders to get real data
+      const allOrders = await ordersApi.getAll();
+      setOrders(allOrders || []);
+
       const [booksData, catsData, authorsData, couponsData, usersData] = await Promise.all([
         db.getBooks(),
         db.getCategories(),
@@ -78,10 +82,6 @@ const AdminDashboard: React.FC = () => {
       setAuthors(authorsData);
       setCoupons(couponsData);
       setUsers(usersData);
-
-
-      const allOrders = await db.getOrdersByUserId("admin");
-      setOrders(allOrders);
 
       // Lấy 5 logs mới nhất cho Overview
       const latestLogs = await db.getSystemLogs(0, 5);

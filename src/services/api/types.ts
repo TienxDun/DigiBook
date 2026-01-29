@@ -52,3 +52,57 @@ export interface DiscountResponse {
   description: string;
   appliedDiscounts: string[];
 }
+
+// ===== Phase 1: New Types for API Integration =====
+
+// Checkout Calculation (Discount API)
+export interface CheckoutCalculationRequest {
+  userId: string;
+  items: CheckoutItem[];
+  couponCode?: string;
+}
+
+export interface CheckoutItem {
+  bookId: string;
+  quantity: number;
+  basePrice: number;
+}
+
+export interface CheckoutResponse {
+  subtotal: number;
+  membershipDiscount: number;
+  couponDiscount: number;
+  seasonalDiscount: number;
+  total: number;
+  discountsApplied: string[];
+}
+
+// Coupon Application (Discount API)
+export interface CouponApplyRequest {
+  code: string;
+  price: number;
+}
+
+export interface CouponApplyResponse {
+  valid: boolean;
+  discount: number;
+  finalPrice: number;
+  message: string;
+}
+
+// Black Friday Sale (Discount API)
+export interface BlackFridayRequest {
+  items: Array<{
+    name: string;
+    price: number;
+    quantity: number;
+  }>;
+}
+
+export interface BlackFridayResponse {
+  originalTotal: number;
+  finalTotal: number;
+  totalSavings: number;
+  savingsPercentage: number;
+  message: string;
+}

@@ -93,5 +93,65 @@ export const booksApi = {
     } catch (error) {
       console.error('Error incrementing view count:', handleApiError(error));
     }
+  },
+
+  // ===== Phase 1: New Methods =====
+
+  /**
+   * Get books by category
+   */
+  async getByCategory(category: string): Promise<Book[]> {
+    try {
+      const { data } = await apiClient.get<ApiResponse<Book[]>>(`/api/books/category/${category}`);
+      return data.data || [];
+    } catch (error) {
+      console.error('Error fetching books by category:', handleApiError(error));
+      return [];
+    }
+  },
+
+  /**
+   * Search books by title
+   */
+  async searchByTitle(title: string): Promise<Book[]> {
+    try {
+      const { data } = await apiClient.get<ApiResponse<Book[]>>('/api/books/search', {
+        params: { title }
+      });
+      return data.data || [];
+    } catch (error) {
+      console.error('Error searching books by title:', handleApiError(error));
+      return [];
+    }
+  },
+
+  /**
+   * Get top rated books
+   */
+  async getTopRated(count: number = 10): Promise<Book[]> {
+    try {
+      const { data } = await apiClient.get<ApiResponse<Book[]>>('/api/books/top-rated', {
+        params: { count }
+      });
+      return data.data || [];
+    } catch (error) {
+      console.error('Error fetching top rated books:', handleApiError(error));
+      return [];
+    }
+  },
+
+  /**
+   * Get multiple books by IDs (for wishlist display)
+   */
+  async getBooksByIds(bookIds: string[]): Promise<Book[]> {
+    try {
+      const { data } = await apiClient.post<ApiResponse<Book[]>>('/api/books/by-ids', {
+        bookIds
+      });
+      return data.data || [];
+    } catch (error) {
+      console.error('Error fetching books by IDs:', handleApiError(error));
+      return [];
+    }
   }
 };

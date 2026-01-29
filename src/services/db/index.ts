@@ -1,7 +1,7 @@
 /**
  * @file db.ts
- * @description Facade service for Firestore database interactions. 
- * This file aggregates functionality from modular sub-services for better maintainability.
+ * @description Facade service for database interactions.
+ * This file uses adapters to route to either API backend or Firebase based on configuration.
  */
 
 import * as core from './core';
@@ -13,6 +13,17 @@ import * as coupons from './modules/coupons.service';
 import * as reviews from './modules/reviews.service';
 import * as system from './modules/system.service';
 
+// Import adapters for API integration
+import {
+  booksService,
+  usersService,
+  ordersService,
+  reviewsService,
+  couponsService,
+  categoriesService,
+  authorsService,
+  logsService
+} from './adapter';
 
 import { Order, OrderItem, Review, SystemLog } from '@/shared/types/';
 
@@ -21,49 +32,66 @@ class DataService {
   logActivity = core.logActivity;
   testConnection = core.testConnection;
 
-  // Books
-  getBooks = books.getBooks;
-  getBooksPaginated = books.getBooksPaginated;
-  getBookById = books.getBookById;
+  // Books - Use adapter for API/Firebase routing
+  getBooks = booksService.getBooks;
+  getBooksPaginated = booksService.getBooksPaginated;
+  getBookById = booksService.getBookById;
+  getBookBySlug = booksService.getBookBySlug;
+  getBooksByAuthor = booksService.getBooksByAuthor;
+  getRelatedBooks = booksService.getRelatedBooks;
+  saveBook = booksService.saveBook;
+  deleteBook = booksService.deleteBook;
+  incrementBookView = booksService.incrementBookView;
+  
+  // Legacy Firebase-only methods (complex operations)
   getBooksByIds = books.getBooksByIds;
-  getRelatedBooks = books.getRelatedBooks;
-  getBooksByAuthor = books.getBooksByAuthor;
-  saveBook = books.saveBook;
   updateBook = books.updateBook;
-  deleteBook = books.deleteBook;
   deleteBooksBulk = books.deleteBooksBulk;
-  // fetchBooksFromGoogle = books.fetchBooksFromGoogle; // Deprecated
   searchBooksFromTiki = books.searchBooksFromTiki;
   getBookDetailsFromTiki = books.getBookDetailsFromTiki;
   getRawTikiData = books.getRawTikiData;
 
-  getBookBySlug = books.getBookBySlug;
-  incrementBookView = books.incrementBookView;
-
-  // Metadata (Categories, Authors, Seed)
-  getCategories = metadata.getCategories;
-  getAuthors = metadata.getAuthors;
-  getAuthorByName = metadata.getAuthorByName;
-  saveAuthor = metadata.saveAuthor;
-  deleteAuthor = metadata.deleteAuthor;
+  // Categories - Use adapter for API/Firebase routing
+  getCategories = categoriesService.getAllCategories;
+  getCategoryByName = categoriesService.getCategoryByName;
+  createCategory = categoriesService.createCategory;
+  updateCategory = categoriesService.updateCategory;
+  deleteCategory = categoriesService.deleteCategory;
+  
+  // Legacy Firebase-only methods
   saveCategory = metadata.saveCategory;
-  deleteCategory = metadata.deleteCategory;
-  deleteAuthorsBulk = metadata.deleteAuthorsBulk;
   deleteCategoriesBulk = metadata.deleteCategoriesBulk;
 
-  // Orders & Transactions
-  createOrder = orders.createOrder;
-  getOrdersByUserId = orders.getOrdersByUserId;
+  // Authors - Use adapter for API/Firebase routing
+  getAuthors = authorsService.getAllAuthors;
+  getAuthorById = authorsService.getAuthorById;
+  searchAuthorsByName = authorsService.searchAuthorsByName;
+  createAuthor = authorsService.createAuthor;
+  updateAuthor = authorsService.updateAuthor;
+  deleteAuthor = authorsService.deleteAuthor;
+  
+  // Legacy Firebase-only methods
+  getAuthorByName = metadata.getAuthorByName;
+  saveAuthor = metadata.saveAuthor;
+  deleteAuthorsBulk = metadata.deleteAuthorsBulk;
+
+  // Orders - Use adapter for API/Firebase routing
+  createOrder = ordersService.createOrder;
+  getOrdersByUserId = ordersService.getUserOrders;
+  getOrderWithItems = ordersService.getOrderById;
+  updateOrderStatus = ordersService.updateOrderStatus;
+  
+  // Legacy Firebase-only methods
   checkIfUserPurchasedBook = orders.checkIfUserPurchasedBook;
-  getOrderWithItems = orders.getOrderWithItems;
-  updateOrderStatus = orders.updateOrderStatus;
   syncUserCart = orders.syncUserCart;
   getUserCart = orders.getUserCart;
 
-  // Users & Profiles
-  getUserProfile = users.getUserProfile;
-  updateUserProfile = users.updateUserProfile;
-  updateWishlist = users.updateWishlist;
+  // Users - Use adapter for API/Firebase routing
+  getUserProfile = usersService.getUserProfile;
+  updateUserProfile = usersService.updateUserProfile;
+  updateWishlist = usersService.updateWishlist;
+  
+  // Legacy Firebase-only methods
   getAllUsers = users.getAllUsers;
   updateUserRole = users.updateUserRole;
   updateUserStatus = users.updateUserStatus;
@@ -73,22 +101,31 @@ class DataService {
   removeUserAddress = users.removeUserAddress;
   setDefaultAddress = users.setDefaultAddress;
 
-  // Coupons
-  validateCoupon = coupons.validateCoupon;
-  getCoupons = coupons.getCoupons;
-  saveCoupon = coupons.saveCoupon;
-  deleteCoupon = coupons.deleteCoupon;
-  incrementCouponUsage = coupons.incrementCouponUsage;
+  // Coupons - Use adapter for API/Firebase routing
+  getCoupons = couponsService.getAllCoupons;
+  getCouponByCode = couponsService.getCouponByCode;
+  getActiveCoupons = couponsService.getActiveCoupons;
+  validateCoupon = couponsService.validateCoupon;
+  saveCoupon = couponsService.createCoupon;
+  deleteCoupon = couponsService.deleteCoupon;
+  incrementCouponUsage = couponsService.incrementCouponUsage;
 
-  // Reviews
-  getReviewsByBookId = reviews.getReviewsByBookId;
-  addReview = reviews.addReview;
+  // Reviews - Use adapter for API/Firebase routing
+  getReviewsByBookId = reviewsService.getReviewsByBookId;
+  getReviewsByUserId = reviewsService.getReviewsByUserId;
+  getAverageRating = reviewsService.getAverageRating;
+  addReview = reviewsService.addReview;
+  updateReview = reviewsService.updateReview;
+  deleteReview = reviewsService.deleteReview;
 
-  // System & Admin Config
-  getSystemLogs = system.getSystemLogs;
-
-
-
+  // System Logs - Use adapter for API/Firebase routing
+  getSystemLogs = logsService.getAllLogs;
+  getLogsByStatus = logsService.getLogsByStatus;
+  getLogsByUser = logsService.getLogsByUser;
+  getLogsByAction = logsService.getLogsByAction;
+  getLogStatistics = logsService.getLogStatistics;
+  getRecentLogs = logsService.getRecentLogs;
+  deleteOldLogs = logsService.deleteOldLogs;
 
   constructor() {
     // Tự động kiểm tra kết nối khi khởi tạo
