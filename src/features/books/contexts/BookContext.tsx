@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Book, CategoryInfo } from '@/shared/types/';
 import { db } from '@/services/db';
+import { booksService } from '@/services/db/adapter';
 
 interface BookContextType {
     allBooks: Book[];
@@ -32,7 +33,7 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setError(null);
         try {
             const [booksRes, catsData] = await Promise.all([
-                db.getBooksPaginated(20),
+                booksService.getBooksPaginated(20),
                 db.getCategories()
             ]);
             setAllBooks(booksRes.books);
@@ -52,7 +53,7 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         setLoadingMore(true);
         try {
-            const result = await db.getBooksPaginated(10, lastVisible);
+            const result = await booksService.getBooksPaginated(10, lastVisible);
             if (result.books.length > 0) {
                 setAllBooks(prev => [...prev, ...result.books]);
                 setLastVisible(result.lastDoc);
