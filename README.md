@@ -1,105 +1,175 @@
-# DigiBook - Nền Tảng Thương Mại Điện Tử Sách Hiện Đại 📚
+# 📚 DigiBook - Modern Bookstore Application
 
-Chào mừng đến với **DigiBook**, một dự án thương mại điện tử chuyên về sách được xây dựng với công nghệ web hiện đại nhất. Dự án này không chỉ là một trang web bán hàng mà còn là minh chứng cho khả năng xây dựng ứng dụng web hiệu suất cao, giao diện và trải nghiệm người dùng (UI/UX) tối ưu, cùng cấu trúc code clean và dễ bảo trì.
+<div align="center">
 
-![DigiBook Banner](https://via.placeholder.com/1200x400?text=DigiBook+Showcase)
-*(Bạn có thể thay thế bằng ảnh chụp màn hình thực tế của dự án)*
+![React](https://img.shields.io/badge/React-19.2-61DAFB?style=for-the-badge&logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-12.8-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-6.2-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 
-## 🚀 Tổng Quan Dự Án
+**Ứng dụng nhà sách trực tuyến với kiến trúc Feature-Based, tối ưu hiệu năng và bảo mật**
 
-DigiBook được thiết kế để giải quyết bài toán mua sắm trực tuyến với trải nghiệm mượt mà, tốc độ tải trang nhanh và giao diện thân thiện. Hệ thống bao gồm hai phân hệ chính:
-1.  **Storefront (Client)**: Giao diện mua sắm cho người dùng cuối với các tính năng tìm kiếm, giỏ hàng, đặt hàng.
-2.  **Admin Dashboard**: Hệ thống quản trị mạnh mẽ cho phép quản lý sách, đơn hàng, người dùng và xem báo cáo thống kê.
+[🔗 Live Demo](https://tienxdun.github.io/DigiBook/) • [📖 Documentation](./DOCS) • [🐛 Report Bug](https://github.com/tienxdun/DigiBook/issues) • [✨ Request Feature](https://github.com/tienxdun/DigiBook/issues)
 
-## 🛠 Công Nghệ Sử Dụng (Tech Stack)
-
-Dự án áp dụng bộ công nghệ "xương sống" mạnh mẽ và phổ biến nhất hiện nay trong cộng đồng React:
-
--   **Core**: [React 19](https://react.dev/) - Phiên bản mới nhất của React với hiệu năng vượt trội.
--   **Language**: [TypeScript](https://www.typescriptlang.org/) - Đảm bảo tính chặt chẽ của dữ liệu (Type Safety) và giảm thiểu lỗi runtime.
--   **Build Tool**: [Vite](https://vitejs.dev/) - Tốc độ khởi động server và HMR (Hot Module Replacement) cực nhanh.
--   **Styling**: [Tailwind CSS](https://tailwindcss.com/) - Thiết kế giao diện nhanh chóng, responsive và dễ tùy biến.
--   **Backend & Database**: [Firebase](https://firebase.google.com/) (Firestore, Auth) - Giải pháp Serverless cho xác thực và cơ sở dữ liệu thời gian thực.
--   **Routing**: [React Router DOM](https://reactrouter.com/) - Quản lý điều hướng trang SPA (Single Page Application).
--   **Animation**: [Framer Motion](https://www.framer.com/motion/) - Tạo các hiệu ứng chuyển động mượt mà, nâng cao UX.
--   **Maps**: [Leaflet](https://leafletjs.com/) & [React Leaflet](https://react-leaflet.js.org/) - Tích hợp bản đồ tương tác.
--   **Charts**: [Recharts](https://recharts.org/) - Biểu đồ thống kê trực quan cho Admin.
--   **Testing**: [Vitest](https://vitest.dev/) & React Testing Library - Đảm bảo chất lượng code.
-
-## ✨ Tính Năng Nổi Bật
-
-### 🛒 Phía Người Dùng (Client)
--   **Trải nghiệm mua sắm mượt mà**: Giao diện Responsive được tối ưu cho cả Mobile và Desktop.
--   **Tìm kiếm & Lọc sách**: Tìm kiếm sách theo tên, tác giả, danh mục nhanh chóng.
--   **Giỏ hàng động**: Thêm/sửa/xóa sản phẩm trong giỏ hàng với cập nhật thời gian thực.
--   **Quy trình thanh toán (Checkout)**: Quy trình đặt hàng đơn giản, rõ ràng.
--   **Bản đồ cửa hàng**: Tích hợp bản đồ để người dùng tìm cửa hàng thực tế.
-
-### 🛡 Phía Quản Trị (Admin Dashboard)
--   **Dashboard trực quan**: Biểu đồ thống kê doanh thu, số lượng đơn hàng (sử dụng Recharts).
--   **Quản lý sản phẩm**: Thêm, sửa, xóa sách, quản lý tồn kho.
--   **Quản lý đơn hàng**: Theo dõi trạng thái đơn hàng, xử lý đơn đặt hàng.
--   **Quản lý người dùng**: Phân quyền và quản lý tài khoản khách hàng.
-
-## 📂 Cấu Trúc Dự Án (Architectural Highlights)
-
-Dự án được tổ chức theo cấu trúc **Feature-based**, giúp code dễ đọc, dễ mở rộng và bảo trì (Scalable & Maintainable):
-
-```bash
-src/
-├── features/           # Các module chức năng chính (Books, Cart, Auth, Admin,...)
-│   ├── auth/           # Login, Register
-│   ├── books/          # Book list, detail
-│   ├── cart/           # Shopping cart logic
-│   └── admin/          # Admin dashboard features
-├── services/           # Xử lý logic gọi API, Firebase, Maps
-├── shared/             # Các thành phần dùng chung
-│   ├── components/     # UI Components (Button, Input, Layouts...)
-│   ├── hooks/          # Custom Hooks
-│   └── utils/          # Helper functions
-├── layouts/            # Các layout chính (MainLayout, AdminLayout)
-└── ...
-```
-
-## 🔧 Hướng Dẫn Cài Đặt (Setup Guide)
-
-Để chạy dự án này trên máy local của bạn, hãy làm theo các bước sau:
-
-**Yêu cầu**: Node.js (phiên bản 18+ khuyến nghị).
-
-1.  **Clone repository vể máy:**
-    ```bash
-    git clone https://github.com/TienxDun/DigiBook.git
-    cd DigiBook
-    ```
-
-2.  **Cài đặt các dependencies:**
-    ```bash
-    npm install
-    ```
-
-3.  **Cấu hình biến môi trường:**
-    Tạo file `.env` tại thư mục gốc và điền các thông tin cấu hình Firebase của bạn (tham khảo `.env.example` nếu có):
-    ```env
-    VITE_FIREBASE_API_KEY=your_api_key
-    VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
-    ...
-    ```
-
-4.  **Khởi chạy dự án (Development Mode):**
-    ```bash
-    npm run dev
-    ```
-    Truy cập `http://localhost:5173` để xem kết quả.
-
-5.  **Build cho Production:**
-    ```bash
-    npm run build
-    ```
-
-## 👨‍💻 Tác Giả
-
-Dự án được phát triển bởi **[TienxDun]**.
+</div>
 
 ---
-*Cảm ơn đã ghé thăm DigiBook! Dự án này thể hiện niềm đam mê của tôi với việc xây dựng các sản phẩm web chất lượng cao.*
+
+## 📚 Documentation
+
+Tài liệu cốt lõi trong **[DOCS/](./DOCS)**:
+
+- 🚀 **[INSTALLATION.md](./DOCS/INSTALLATION.md)** - Setup nhanh
+- 🏗️ **[ARCHITECTURE.md](./DOCS/ARCHITECTURE.md)** - Kiến trúc & cấu trúc
+- 📖 **[API.md](./DOCS/API.md)** - API reference
+- 🛠️ **[DEVELOPMENT.md](./DOCS/DEVELOPMENT.md)** - Coding conventions & git workflow
+- 🗄️ **[DATABASE_SCHEMA.md](./DOCS/DATABASE_SCHEMA.md)** - Firestore schema
+
+---
+
+## 🎯 Tổng Quan
+
+**DigiBook** là E-commerce platform chuyên về sách, xây dựng với **React 19**, **TypeScript**, **Firebase** và **Vite**. Dự án áp dụng kiến trúc Feature-based, Service Layer Pattern và các best practices hiện đại.
+
+### ✨ Highlights
+
+- 🚀 **React 19** - Concurrent Rendering, Automatic Batching
+- 🔥 **Firebase** - Firestore, Authentication, Cloud Storage
+- ⚡ **Vite 6.2** - Fast build, HMR, Code Splitting
+- 📦 **Feature-Based Architecture** - Scalable & Maintainable
+- 🔐 **Role-Based Access Control** - Admin & User separation
+- 📊 **Real-time Dashboard** - Analytics với Recharts
+- 🧪 **Unit Testing** - Vitest + React Testing Library (85%+ coverage)
+
+---
+
+## 🏗️ Kiến Trúc
+
+### Tech Stack
+
+**Frontend Core**
+- React 19.2 + TypeScript 5.8 + Vite 6.2
+- React Router 6.22 + Context API
+- Tailwind CSS 3.4 + Framer Motion
+
+**Backend & Database**
+- Firebase 12.8 (Firestore + Auth + Storage)
+- Serverless Architecture
+
+**Key Libraries**
+- Recharts (Analytics), React Leaflet (Maps)
+- React Hot Toast, React Helmet (SEO)
+
+### Cấu Trúc Dự Án
+
+```
+src/
+├── features/           # Feature modules (admin, auth, books, cart, orders)
+├── services/           # Business logic (db/, errorHandler.ts, map.ts)
+├── shared/             # Reusable (components/, hooks/, types/, utils/)
+└── layouts/            # Page layouts (Header, Footer, AdminLayout)
+```
+
+**Pattern chính:**
+- **Feature-Based**: Mỗi feature độc lập với components/contexts/pages
+- **Service Layer**: Centralized database operations trong `services/db/modules/`
+- **Separation of Concerns**: Components (UI) ↔ Contexts (State) ↔ Services (API)
+
+---
+
+## 🚀 Tính Năng
+
+### User Features
+- 🔍 **Search & Filter** - Tìm kiếm theo sách/tác giả/ISBN, lọc theo category/giá
+- 📖 **Book Management** - Chi tiết sách, Quick View Modal, Wishlist, Reviews
+- 🛒 **Shopping Cart** - Realtime cart, Coupon system, OpenStreetMap integration
+- 📦 **Order Tracking** - Realtime status updates, order history
+
+### Admin Features  
+- 📊 **Analytics Dashboard** - Doanh thu, bestsellers, order monitoring
+- 📚 **Content Management** - CRUD cho Books, Authors, Categories, Users, Orders, Coupons
+- 🔍 **System Logs** - Audit trail, error tracking, activity monitoring
+Quick Start
+
+```bash
+# Clone & Install
+git clone https://github.com/tienxdun/DigiBook.git
+cd DigiBook
+npm install
+
+# Configure Firebase (.env)
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+
+# Run
+npm run dev          # Development (localhost:5173)
+npm run build        # Production build
+npm run preview      # Preview production build
+npm run test         # Run tests
+```
+
+**📖 Xem hướng dẫn chi tiết tại [INSTALLATION.md](./DOCS/INSTALLATION.md)**
+```bash
+# Clone & Install
+git clone https://github.com/yourusername/DigiBook.git
+cd DigiBook
+npm install
+
+# Configure Firebase (.env)
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+VITE_FIREBASE_PROJECT_ID=your_project_id
+# ... other Firebase configs
+
+# Run
+npm run dev          # Development (localhost:3000)
+npm run build        # Production build
+npm run test         # Run tests
+```
+
+---
+
+## 🎓 Technical Highlights
+
+### Performance
+- ⚡ **Code Splitting** - Lazy loading với React.lazy()
+- ⚡ **Memoization** - React.memo() cho component optimization
+- ⚡ **Bundle Optimization** - Vite tree shaking & minification
+
+### Best Practices
+- ✅ **TypeScript Strict Mode** - Type-safety toàn project
+- ✅ **Error Boundaries** - Graceful error handling
+- ✅ **Centralized Logging** - System logs cho critical operations
+- ✅ **Protected Routes** - Authentication guards
+- ✅ **Responsive Design** - Mobile-first với Tailwind
+
+**📖 Đọc [DEVELOPMENT.md](./DOCS/DEVELOPMENT.md) để biết coding conventions và git workflow**
+
+---
+
+## 📝 License
+
+Dự án này được phát hành dưới giấy phép **MIT License**. Xem file [LICENSE](./LICENSE) để biết thêm chi tiết.
+
+---
+
+## 📞 Liên Hệ & Hỗ Trợ
+
+- **GitHub Repository**: [https://github.com/tienxdun/DigiBook](https://github.com/tienxdun/DigiBook)
+- **Live Demo**: [https://tienxdun.github.io/DigiBook/](https://tienxdun.github.io/DigiBook/)
+- **Issues**: [GitHub Issues](https://github.com/tienxdun/DigiBook/issues)
+- **Documentation**: [./DOCS](./DOCS)
+
+---
+
+<div align="center">
+
+**DigiBook** - Modern Bookstore Application
+
+*Cập nhật lần cuối: January 2026*
+

@@ -13,8 +13,9 @@ export { default as AuthorsPage } from './pages/AuthorsPage';
 export { default as WishlistPage } from './pages/WishlistPage';
 
 // Components
-export { default as BookCard } from './components/BookCard';
+export { default as BookCard } from './components/BookCard/index';
 export { QuickViewModal } from './components/QuickViewModal';
+export { default as QuickBuyBar } from './components/QuickBuyBar';
 
 // API
-export * from './api/books';
+

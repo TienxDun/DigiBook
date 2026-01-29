@@ -2,16 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --toast-bg: #ffffff;
-  --toast-color: #0f172a;
-  --toast-border: #f1f5f9;
-}
-
 .admin-midnight {
-  --toast-bg: #1e293b;
-  --toast-color: #f1f5f9;
-  --toast-border: rgba(255, 255, 255, 0.1);
   background-color: #0f172a !important;
   color: #f1f5f9 !important;
 }

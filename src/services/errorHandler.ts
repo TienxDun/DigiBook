@@ -1,6 +1,6 @@
 
 import { db } from './db';
-import { toast } from 'react-hot-toast';
+import toast from '@/shared/utils/toast';
 
 export interface ErrorResponse {
   success: false;

@@ -2,15 +2,20 @@
 import {
   collection,
   getDocs,
+  getDoc,
   doc,
   setDoc,
   deleteDoc,
   writeBatch,
+  where,
+  query,
+  limit,
   serverTimestamp
 } from "firebase/firestore";
+
 import { db_fs } from "../../../lib/firebase";
 import { CategoryInfo, Author, Book } from '@/shared/types/';
-import { wrap, logActivity } from "../core";
+import { wrap, logActivity, fetchWithProxy } from "../core";
 import { INITIAL_CATEGORIES } from '@/shared/config/categories';
 
 export async function getCategories(): Promise<CategoryInfo[]> {
@@ -27,8 +32,93 @@ export async function getAuthors(): Promise<Author[]> {
   );
 }
 
+// --- Wikipedia Enrichment ---
+export async function enrichAuthorFromWiki(name: string): Promise<Partial<Author> | null> {
+  try {
+    // 1. Search for generic page
+    const searchUrl = `https://vi.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(name)}&limit=1&namespace=0&format=json&origin=*`;
+    const searchRes = await fetchWithProxy(searchUrl);
+
+    // Wiki opensearch returns [search, [titles], [descriptions], [urls]]
+    if (!searchRes || !searchRes[1] || searchRes[1].length === 0) return null;
+
+    const pageTitle = searchRes[1][0];
+
+    // 2. Get details (summary & thumbnail)
+    const detailUrl = `https://vi.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(pageTitle)}`;
+    const detailRes = await fetchWithProxy(detailUrl);
+
+    if (!detailRes) return null;
+
+    return {
+      bio: detailRes.extract || undefined,
+      avatar: detailRes.thumbnail ? detailRes.thumbnail.source : undefined
+    };
+
+  } catch (error) {
+    console.warn("Wiki enrichment failed:", error);
+    return null;
+  }
+}
+
+export async function getAuthorByName(name: string): Promise<Author | undefined> {
+
+  if (!name) return undefined;
+  return wrap(
+    (async () => {
+      const q = query(
+        collection(db_fs, 'authors'),
+        where('name', '==', name),
+        limit(1)
+      );
+      const snap = await getDocs(q);
+      if (snap.empty) return undefined;
+      const doc = snap.docs[0];
+      return { id: doc.id, ...doc.data() } as Author;
+    })(),
+    undefined
+  );
+}
+
 export async function saveAuthor(author: Author): Promise<string> {
   const id = author.id || Date.now().toString();
+
+  // Nếu đang update author có sẵn, kiểm tra xem name có thay đổi không
+  if (author.id) {
+    const existingSnap = await getDoc(doc(db_fs, 'authors', author.id));
+    if (existingSnap.exists()) {
+      const existingData = existingSnap.data() as Author;
+
+      // Nếu name thay đổi, cần sync tất cả books
+      if (existingData.name !== author.name) {
+        return wrap(
+          (async () => {
+            const batch = writeBatch(db_fs);
+
+            // 1. Update author
+            batch.set(doc(db_fs, 'authors', id), { ...author, id }, { merge: true });
+
+            // 2. Find and update all books with this authorId
+            const booksSnap = await getDocs(
+              query(collection(db_fs, 'books'), where('authorId', '==', author.id))
+            );
+
+            booksSnap.docs.forEach(d => {
+              batch.update(d.ref, { author: author.name });
+            });
+
+            await batch.commit();
+            return id;
+          })(),
+          id,
+          'SAVE_AUTHOR_AND_SYNC',
+          `${author.name} (synced ${0} books)`
+        );
+      }
+    }
+  }
+
+  // Normal save (no name change or new author)
   return wrap(
     setDoc(doc(db_fs, 'authors', id), { ...author, id }, { merge: true }).then(() => id),
     id,
@@ -36,6 +126,7 @@ export async function saveAuthor(author: Author): Promise<string> {
     author.name
   );
 }
+
 
 export async function deleteAuthor(id: string): Promise<void> {
   await wrap(
@@ -96,70 +187,3 @@ export async function deleteCategoriesBulk(names: string[]): Promise<void> {
   );
 }
 
-export async function seedDatabase(): Promise<{ success: boolean, count: number, error?: string }> {
-  if (!db_fs) return { success: false, count: 0, error: "Firebase chưa được cấu hình" };
-  try {
-    const batch = writeBatch(db_fs);
-    INITIAL_CATEGORIES.forEach(cat => {
-      const ref = doc(db_fs, 'categories', cat.name);
-      batch.set(ref, cat);
-    });
-
-    await batch.commit();
-    logActivity('SEED_DATA', `Seeded ${INITIAL_CATEGORIES.length} categories.`, 'SUCCESS', 'INFO', 'ADMIN');
-    return { success: true, count: INITIAL_CATEGORIES.length };
-  } catch (error: any) {
-    logActivity('SEED_DATA', error.message, 'ERROR', 'ERROR', 'ADMIN');
-    return { success: false, count: 0, error: error.message };
-  }
-}
-
-export async function saveBooksBatch(books: Book[]): Promise<number> {
-  if (books.length === 0) return 0;
-
-  return wrap(
-    (async () => {
-      const batch = writeBatch(db_fs);
-
-      const existingAuthors = await getAuthors();
-      const authorMap = new Map(existingAuthors.map(a => [a.name.toLowerCase().trim(), a.id]));
-
-      for (const book of books) {
-        const authorName = book.author.trim();
-        const authorKey = authorName.toLowerCase();
-
-        let authorId: string;
-
-        if (authorMap.has(authorKey)) {
-          authorId = authorMap.get(authorKey)!;
-        } else {
-          authorId = `author-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
-          const newAuthor: Author = {
-            id: authorId,
-            name: authorName,
-            bio: book.authorBio || `Tác giả của cuốn sách "${book.title}".`,
-            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=random&size=256`
-          };
-
-          const authorDocRef = doc(db_fs, 'authors', authorId);
-          batch.set(authorDocRef, { ...newAuthor, createdAt: serverTimestamp() });
-          authorMap.set(authorKey, authorId);
-        }
-
-        book.authorId = authorId;
-        const cleanBook = Object.fromEntries(
-          Object.entries(book).filter(([_, v]) => v !== undefined)
-        );
-
-        const bookDocRef = doc(db_fs, 'books', book.id);
-        batch.set(bookDocRef, { ...cleanBook, updatedAt: serverTimestamp() }, { merge: true });
-      }
-
-      await batch.commit();
-      return books.length;
-    })(),
-    0,
-    'BATCH_SAVE_BOOKS',
-    `Imported ${books.length} items and synced authors`
-  );
-}

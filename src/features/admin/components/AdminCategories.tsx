@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { CategoryInfo, Book } from '@/shared/types';
 import { db } from '@/services/db';
-import toast from 'react-hot-toast';
+import toast from '@/shared/utils/toast';
 import { ErrorHandler } from '@/services/errorHandler';
 import { AVAILABLE_ICONS } from '@/shared/config';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -27,6 +27,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSeeding, setIsSeeding] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   // Khóa cuộn trang khi mở popup
@@ -105,6 +106,25 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
     }
   };
 
+  const handleSeedCategories = async () => {
+    if (window.confirm("Khởi tạo danh mục mặc định từ hệ thống?")) {
+      setIsSeeding(true);
+      try {
+        const result = await db.seedDatabase();
+        if (result.success) {
+          toast.success(`Đã khởi tạo thành công ${result.count} danh mục`);
+          refreshData();
+        } else {
+          toast.error(`Lỗi: ${result.error}`);
+        }
+      } catch (err) {
+        ErrorHandler.handle(err, 'khởi tạo danh mục');
+      } finally {
+        setIsSeeding(false);
+      }
+    }
+  };
+
   const toggleSelectCategory = (name: string) => {
     setSelectedCategories(prev =>
       prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]
@@ -139,12 +159,10 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
   return (
     <div className="space-y-8 animate-fadeIn text-foreground">
       {/* Categories Dashboard Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {[
           { label: 'Tổng danh mục', value: categories.length, icon: 'fa-shapes', color: 'primary' },
-          { label: 'Hoạt động', value: categories.length, icon: 'fa-check-circle', color: 'chart-1' },
-          { label: 'Mới cập nhật', value: '3', icon: 'fa-clock', color: 'chart-2' },
-          { label: 'Sách liên quan', value: '150+', icon: 'fa-book', color: 'chart-3' }
+          { label: 'Hoạt động', value: categories.length, icon: 'fa-check-circle', color: 'chart-1' }
         ].map((stat, i) => (
           <div key={i} className={`${isMidnight ? 'bg-[#1e293b]/40 border-white/5' : 'bg-card border-border shadow-sm'} p-6 rounded-[2rem] border group transition-all hover:border-primary/50`}>
             <div className="flex items-center justify-between">
@@ -198,6 +216,15 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
 
         {/* Actions Group */}
         <div className="flex items-center gap-3">
+          <button
+            onClick={handleSeedCategories}
+            disabled={isSeeding}
+            className={`h-12 px-4 border ${isMidnight ? 'border-white/10 text-slate-300 hover:bg-white/5' : 'border-border text-muted-foreground hover:bg-muted'} rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50`}
+            title="Khởi tạo danh mục mặc định"
+          >
+            <i className={`fa-solid ${isSeeding ? 'fa-spinner fa-spin' : 'fa-wand-magic-sparkles'}`}></i>
+            <span className="hidden sm:inline">Khởi tạo nhanh</span>
+          </button>
           <button
             onClick={handleOpenAddCategory}
             className="h-12 px-6 bg-primary text-primary-foreground rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center gap-3 group active:scale-95"

@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useBooks, BookCard } from '@/features/books';
+import { useBooks, QuickBuyBar } from '@/features/books';
+import BookCard from '../components/BookCard/index';
 import { useCart } from '@/features/cart';
 import { useAuth } from '@/features/auth';
 import { db } from '@/services/db';
 import { Book, Review } from '@/shared/types';
 import { SEO, BookDetailsSkeleton } from '@/shared/components';
+import toast from '@/shared/utils/toast';
 
 
 const formatPrice = (price: number) => {
@@ -15,9 +18,46 @@ const formatPrice = (price: number) => {
 
 // Social Share Component
 const SocialShare: React.FC<{ title: string }> = ({ title }) => {
-  const copyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    import('react-hot-toast').then(({ toast }) => toast.success('Đã sao chép liên kết!'));
+  const copyLink = async () => {
+    const url = window.location.href;
+
+    // Check if Clipboard API is supported
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success('Đã sao chép liên kết!');
+        return;
+      } catch (err) {
+        console.error('Clipboard API failed, trying fallback...');
+      }
+    }
+
+    // Fallback using legacy execCommand
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = url;
+
+      // Ensure textarea is not visible but part of DOM
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      textArea.style.top = "0";
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+
+      if (successful) {
+        toast.success('Đã sao chép liên kết!');
+      } else {
+        toast.error('Không thể sao chép liên kết trên trình duyệt này');
+      }
+    } catch (err) {
+      console.error('Copy failed', err);
+      toast.error('Có lỗi xảy ra khi sao chép');
+    }
   };
 
   return (
@@ -39,7 +79,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
   const { addToCart } = useCart();
   const { setViewingBook } = useBooks();
 
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { wishlist, toggleWishlist, user, setShowLoginModal } = useAuth();
 
@@ -58,52 +98,71 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
 
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
+
+  // Image Gallery State
+  const [activeImage, setActiveImage] = useState<string | null>(null);
+  const [isHoveringImage, setIsHoveringImage] = useState(false);
+  const [showLightbox, setShowLightbox] = useState(false); // Lightbox state
+
+
 
   useEffect(() => {
     const fetchData = async () => {
-      if (id) {
+      if (slug) {
         setLoading(true);
         setError(false);
         // Fetch model config
 
+        // Try fetch by slug first
+        let foundBook = await db.getBookBySlug(slug);
 
-        const foundBook = await db.getBookById(id);
+        // Fallback: Try fetch by ID if slug not found (for legacy links or if slug matches ID)
+        if (!foundBook) {
+          foundBook = await db.getBookById(slug);
+        }
+
         if (foundBook) {
-          setBook(foundBook);
-          setViewingBook(foundBook);
+          const bookData = foundBook; // Ensure typing
+          setBook(bookData);
+          setViewingBook(bookData);
+
+          // Increment view count (fire and forget)
+          db.incrementBookView(bookData.id);
 
           // Fetch author info
           db.getAuthors().then(authors => {
-            const info = authors.find(a => a.name.toLowerCase() === foundBook.author.toLowerCase());
+            const info = authors.find(a => a.name.toLowerCase() === bookData.author.toLowerCase());
             if (info) setAuthorInfo(info as any);
           });
 
-          const bookReviews = await db.getReviewsByBookId(id);
+          const bookReviews = await db.getReviewsByBookId(bookData.id);
 
           // Kiểm tra xem mỗi người review đã mua sách chưa
           const reviewsWithPurchaseInfo = await Promise.all(bookReviews.map(async (r) => {
-            const isPurchased = await db.checkIfUserPurchasedBook(r.userId, id);
+            const isPurchased = await db.checkIfUserPurchasedBook(r.userId, bookData.id);
             return { ...r, isPurchased };
           }));
 
           setReviews(reviewsWithPurchaseInfo);
 
           // Gợi ý sách liên quan - Tăng lên 5 cuốn để lấp đầy grid
-          const related = await db.getRelatedBooks(foundBook.category, id, foundBook.author, 5);
+          const related = await db.getRelatedBooks(bookData.category, bookData.id, bookData.author, 5);
           setRelatedBooks(related);
 
           // Fetch sách cùng tác giả
-          const byAuthor = await db.getBooksByAuthor(foundBook.author, id, 5);
+          const byAuthor = await db.getBooksByAuthor(bookData.author, bookData.id, 5);
           setAuthorBooks(byAuthor);
 
           // Update recent books in localStorage
           const stored = localStorage.getItem('digibook_recent');
           let recent: Book[] = stored ? JSON.parse(stored) : [];
           // Lưu 10 cuốn gần nhất để khi filter cuốn hiện tại vẫn còn đủ hiển thị
-          recent = [foundBook, ...recent.filter(b => b.id !== foundBook.id)].slice(0, 10);
+          recent = [bookData, ...recent.filter(b => b.id !== bookData.id)].slice(0, 10);
           localStorage.setItem('digibook_recent', JSON.stringify(recent));
           // Hiển thị 5 cuốn khác để lấp đầy grid xl:grid-cols-5
-          setRecentBooks(recent.filter(b => b.id !== foundBook.id).slice(0, 5));
+          setRecentBooks(recent.filter(b => b.id !== bookData.id).slice(0, 5));
         } else {
           setError(true);
         }
@@ -115,28 +174,71 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
     return () => {
       setViewingBook(null);
     };
-  }, [id, setViewingBook]);
+  }, [slug, setViewingBook]);
 
-  const isWishlisted = useMemo(() => wishlist.some(b => b.id === id), [wishlist, id]);
+  // Initialize active image when book loads
+  useEffect(() => {
+    if (book?.cover) {
+      setActiveImage(book.cover);
+    }
+  }, [book]);
+
+  // Derived Gallery Images
+  const galleryImages = useMemo(() => {
+    if (!book) return [];
+    const imgs = book.images && book.images.length > 0 ? book.images : [];
+    const all = [book.cover, ...imgs].filter(Boolean);
+    return Array.from(new Set(all));
+  }, [book]);
+
+  // Auto-rotate Effect
+  useEffect(() => {
+    if (!book || galleryImages.length <= 1 || isHoveringImage) return;
+
+    const interval = setInterval(() => {
+      setActiveImage(current => {
+        const currentIndex = galleryImages.indexOf(current || '');
+        const nextIndex = (currentIndex + 1) % galleryImages.length;
+        return galleryImages[nextIndex];
+      });
+    }, 3000); // Rotate every 3 seconds
+
+    return () => clearInterval(interval);
+  }, [book, galleryImages, isHoveringImage]);
+
+  // Lock body scroll when lightbox is open
+  useEffect(() => {
+    if (showLightbox) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showLightbox]);
+
+  const isWishlisted = useMemo(() => wishlist.some(b => b.id === book?.id), [wishlist, book]);
 
   const handleAddReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) { setShowLoginModal(true); return; }
     if (!newComment.trim()) return;
+    if (!book) return;
 
     await db.addReview({
-      bookId: id!,
+      bookId: book.id,
       userId: user.id,
       userName: user.name,
       rating: newRating,
       content: newComment
     });
     setNewComment('');
-    const updatedReviews = await db.getReviewsByBookId(id!);
+    const updatedReviews = await db.getReviewsByBookId(book.id);
 
     // Refresh with purchase info
     const reviewsWithPurchaseInfo = await Promise.all(updatedReviews.map(async (r) => {
-      const isPurchased = await db.checkIfUserPurchasedBook(r.userId, id!);
+      const isPurchased = await db.checkIfUserPurchasedBook(r.userId, book.id);
       return { ...r, isPurchased };
     }));
     setReviews(reviewsWithPurchaseInfo);
@@ -175,8 +277,19 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
     </div>
   );
 
-  const handleToggleWishlist = () => {
-    if (book) toggleWishlist(book);
+  const handleToggleWishlist = async () => {
+    if (book) {
+      setIsTogglingWishlist(true);
+      await toggleWishlist(book);
+      setIsTogglingWishlist(false);
+    }
+  };
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    if (!book) return;
+    setIsAddingToCart(true);
+    await addToCart(book, quantity, { x: e.clientX, y: e.clientY });
+    setIsAddingToCart(false);
   };
 
 
@@ -215,6 +328,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
         url={`/book/${book.id}`}
         type="book"
         author={book.author}
+        schemaMarkup={jsonLd}
       />
 
       {/* Dynamic Background */}
@@ -224,7 +338,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-6 pb-12 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-6 pb-32 lg:pb-12 relative z-10">
 
         {/* Navigation & Header - Compacted */}
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b border-slate-200/50 pb-4">
@@ -270,57 +384,117 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
           {/* LEFT: Premium Visual Container - Optimized for density & Sticky */}
-          <aside className="lg:col-span-3 lg:sticky lg:top-24 h-fit space-y-5 z-20">
+          <aside className="lg:col-span-4 lg:sticky lg:top-24 h-fit space-y-5 z-20">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-white p-1.5 rounded-[1.5rem] shadow-lg shadow-slate-200/40 border border-slate-100 relative overflow-hidden group max-w-[280px] mx-auto lg:max-w-none"
+              className="bg-white p-2 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden group mx-auto w-full max-w-[400px] lg:max-w-none"
+              onMouseEnter={() => setIsHoveringImage(true)}
+              onMouseLeave={() => setIsHoveringImage(false)}
             >
-              <div className="relative aspect-[4/5] sm:aspect-[3/4.2] rounded-[1.3rem] overflow-hidden bg-slate-50 flex items-center justify-center">
+              <div className="relative aspect-[4/5] rounded-[1.5rem] overflow-hidden bg-slate-50 flex items-center justify-center cursor-zoom-in">
+                {/* Main Image View */}
                 <motion.img
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                  src={book.cover}
+                  key={activeImage}
+                  initial={{ opacity: 0.8 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.4 }}
+                  src={activeImage || book.cover}
                   alt={book.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  onClick={() => setShowLightbox(true)}
                 />
 
-                {/* Badge Overlays - Tightened */}
-                <div className="absolute top-3 left-3 flex flex-col gap-1">
-                  {book.badge && (
-                    <span className="px-1.5 py-0.5 bg-rose-600 text-white text-xs font-black uppercase tracking-widest rounded shadow-md flex items-center gap-1 w-fit">
-                      <i className="fa-solid fa-crown text-xs text-yellow-200"></i>
-                      {book.badge}
-                    </span>
-                  )}
-                  {book.stockQuantity <= 5 && book.stockQuantity > 0 && (
-                    <span className="px-1.5 py-0.5 bg-amber-500 text-white text-xs font-black uppercase tracking-widest rounded shadow-md flex items-center gap-1 w-fit">
-                      <i className="fa-solid fa-clock text-[9px]"></i>
-                      Gần hết
-                    </span>
-                  )}
+                {/* Navigation Arrows (visible on hover) */}
+
+                {galleryImages.length > 1 && (
+                  <>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const currIdx = galleryImages.indexOf(activeImage || '');
+                        const prevIdx = (currIdx - 1 + galleryImages.length) % galleryImages.length;
+                        setActiveImage(galleryImages[prevIdx]);
+                      }}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm shadow-sm flex items-center justify-center text-slate-700 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+                    >
+                      <i className="fa-solid fa-chevron-left text-xs"></i>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const currIdx = galleryImages.indexOf(activeImage || '');
+                        const nextIdx = (currIdx + 1) % galleryImages.length;
+                        setActiveImage(galleryImages[nextIdx]);
+                      }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm shadow-sm flex items-center justify-center text-slate-700 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+                    >
+                      <i className="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                  </>
+                )}
+
+                {/* Badge Overlay */}
+                <div className="absolute top-3 left-3 z-10 pointer-events-none">
+                  {(() => {
+                    if (book.stockQuantity <= 5 && book.stockQuantity > 0) {
+                      return (
+                        <span className="px-3 py-1.5 bg-amber-500 text-white text-[11px] font-black uppercase tracking-widest rounded-xl shadow-lg flex items-center gap-1.5 border border-amber-400/30 backdrop-blur-md">
+                          <i className="fa-solid fa-stopwatch"></i>
+                          Gần hết
+                        </span>
+                      );
+                    }
+                    if (book.badge && !book.badges?.some(b => b.text?.includes('%'))) {
+                      return (
+                        <span className="px-3 py-1.5 bg-rose-600 text-white text-[11px] font-black uppercase tracking-widest rounded-xl shadow-lg flex items-center gap-1.5 border border-rose-400/30 backdrop-blur-md">
+                          <i className="fa-solid fa-crown text-yellow-200"></i>
+                          {book.badge}
+                        </span>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
               </div>
 
-              {/* Quick Props Mirror - Reduced Size */}
-              <div className="grid grid-cols-3 gap-0.5 mt-1.5 p-0.5 border-t border-slate-50">
+              {/* Gallery Thumbnails */}
+              {galleryImages.length > 1 && (
+                <div className="grid grid-cols-5 gap-2 mt-2 px-1">
+                  {galleryImages.slice(0, 5).map((img, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => setActiveImage(img)}
+                      className={`aspect-square rounded-xl overflow-hidden border-2 cursor-pointer transition-all ${activeImage === img ? 'border-indigo-500 ring-2 ring-indigo-500/20' : 'border-transparent hover:border-indigo-200'}`}
+                    >
+                      <img src={img} className="w-full h-full object-cover" alt={`Gallery ${idx}`} />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Quick Props Mirror - Enhanced Font Size */}
+              <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-slate-100">
                 {[
-                  { l: 'NXB', v: book.publisher || 'N/A', i: 'fa-building-columns' },
-                  { l: 'Năm', v: book.publishYear || '2024', i: 'fa-calendar' },
-                  { l: 'ISBN', v: book.isbn?.split('-').pop() || 'N/A', i: 'fa-barcode' }
+                  { l: 'Nhà xuất bản', v: book.manufacturer || book.publisher || 'N/A', i: 'fa-building-columns' },
+                  { l: 'Năm xuất bản', v: book.publishYear || '2024', i: 'fa-calendar' },
+                  { l: 'Loại bìa', v: book.bookLayout || 'Mềm', i: 'fa-book-open' }
                 ].map((p, i) => (
-                  <div key={i} className="text-center p-1 rounded-lg hover:bg-slate-50 transition-all">
-                    <i className={`fa-solid ${p.i} text-slate-300 text-[10px] mb-0.5`}></i>
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-tight mb-0">{p.l}</p>
-                    <p className="text-[10px] font-extrabold text-slate-800 leading-tight truncate px-0.5">{p.v}</p>
+                  <div key={i} className="text-center p-2 rounded-xl bg-slate-50 border border-slate-100/50 hover:bg-indigo-50/50 hover:border-indigo-100 transition-all group/item">
+                    <div className="w-8 h-8 rounded-full bg-white shadow-sm border border-slate-100 flex items-center justify-center mx-auto mb-2 text-indigo-500 group-hover/item:scale-110 transition-transform">
+                      <i className={`fa-solid ${p.i} text-xs`}></i>
+                    </div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">{p.l}</p>
+                    <p className="text-xs font-bold text-slate-800 leading-tight truncate px-1">{p.v}</p>
                   </div>
                 ))}
               </div>
             </motion.div>
           </aside>
 
-          {/* RIGHT: Sophisticated Content Column - 9 Cols */}
-          <article className="lg:col-span-9 space-y-5">
+
+          {/* RIGHT: Sophisticated Content Column - Adjusted Grid */}
+          <article className="lg:col-span-8 space-y-5">
 
             {/* 1. Integrated Action Dashboard - High Symmetry & Balance */}
             <section
@@ -348,7 +522,14 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
                       <i className="fa-solid fa-check-circle text-xs"></i>
                       Sẵn hàng
                     </div>
-                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Kho: <span className="text-emerald-600 font-bold">{book.stockQuantity}</span></p>
+                    {book.quantitySold && (
+                      <p className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">
+                        {book.quantitySold.text}
+                      </p>
+                    )}
+                    {!book.quantitySold && (
+                      <p className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Kho: <span className="text-emerald-600 font-bold">{book.stockQuantity}</span></p>
+                    )}
                   </div>
                 </div>
 
@@ -371,12 +552,16 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
                   </div>
 
                   <button
-                    onClick={(e) => addToCart(book, quantity, { x: e.clientX, y: e.clientY })}
-                    disabled={book.stockQuantity <= 0}
-                    className="md:w-[160px] flex-grow md:flex-none h-12 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg shadow-slate-200 active:scale-[0.98] disabled:bg-slate-200 flex items-center justify-center gap-2 whitespace-nowrap"
+                    onClick={handleAddToCart}
+                    disabled={book.stockQuantity <= 0 || isAddingToCart}
+                    className="md:w-[160px] flex-grow md:flex-none h-12 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg shadow-slate-200 active:scale-[0.98] disabled:bg-slate-200 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
                   >
-                    <i className="fa-solid fa-cart-shopping text-sm"></i>
-                    Mua ngay
+                    {isAddingToCart ? (
+                      <i className="fa-solid fa-spinner fa-spin text-sm"></i>
+                    ) : (
+                      <i className="fa-solid fa-cart-shopping text-sm"></i>
+                    )}
+                    {isAddingToCart ? 'Đang thêm...' : 'Mua ngay'}
                   </button>
 
                   <motion.button
@@ -385,18 +570,27 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
                     onClick={handleToggleWishlist}
                     className={`h-12 w-12 rounded-xl border flex items-center justify-center transition-all ${isWishlisted ? 'bg-rose-50 border-rose-100 text-rose-500' : 'bg-white border-slate-100 text-slate-400 hover:border-rose-100 hover:text-rose-500'
                       }`}
+                    disabled={isTogglingWishlist}
                     aria-label={isWishlisted ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
                   >
-                    <AnimatePresence mode="wait">
-                      <motion.i
-                        key={isWishlisted ? 'solid' : 'regular'}
-                        initial={{ scale: 0.7, opacity: 0 }}
+                    {isTogglingWishlist ? (
+                      <motion.div
+                        initial={{ scale: 0.5, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 1.2, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-lg`}
-                      ></motion.i>
-                    </AnimatePresence>
+                        className="w-5 h-5 border-2 border-slate-300 border-t-rose-500 rounded-full animate-spin"
+                      />
+                    ) : (
+                      <AnimatePresence mode="wait">
+                        <motion.i
+                          key={isWishlisted ? 'solid' : 'regular'}
+                          initial={{ scale: 0.7, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 1.2, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className={`${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart text-lg`}
+                        ></motion.i>
+                      </AnimatePresence>
+                    )}
                   </motion.button>
                 </div>
               </div>
@@ -417,14 +611,47 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
               </div>
             </section>
 
-            {/* 2. Metadata Grid Dashboard - Compact icons */}
+            {/* 2. Metadata Grid Dashboard - Compact icons (Replaced with Badges) */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { l: 'Tác giả', v: book.author, i: 'fa-feather-pointed', color: 'bg-orange-50 text-orange-600' },
-                { l: 'Nhà xuất bản', v: book.publisher || 'N/A', i: 'fa-house-chimney', color: 'bg-indigo-50 text-indigo-600' },
-                { l: 'Số trang', v: book.pages, i: 'fa-file-lines', color: 'bg-emerald-50 text-emerald-600' },
-                { l: 'Ngôn ngữ', v: book.language, i: 'fa-globe', color: 'bg-purple-50 text-purple-600' }
-              ].map((m, i) => (
+                // 1. Authentic Badge
+                ...(book.badges?.some(b => b.code === 'authentic_brand' || b.code === 'digibook_guarantee') ? [{
+                  l: 'Cam kết',
+                  v: 'Đảm bảo DigiBook',
+                  i: 'fa-certificate',
+                  color: 'bg-indigo-50 text-indigo-600'
+                }] : []),
+
+                // 2. TikiNow Badge (Rebranded)
+                ...(book.badges?.some(b => b.code === 'tikinow' || b.code === 'digibook_express') ? [{
+                  l: 'Giao hàng',
+                  v: 'DigiBook Now',
+                  i: 'fa-bolt',
+                  color: 'bg-blue-50 text-blue-600'
+                }] : []),
+
+                // 3. Discount/Hot Badge
+                ...(book.badge && !book.badges?.some(b => b.text?.includes('%')) ? [{
+                  l: 'Ưu đãi',
+                  v: book.badge,
+                  i: 'fa-crown',
+                  color: 'bg-rose-50 text-rose-600'
+                }] : []),
+
+                // 4. Stock Warning (if low)
+                ...(book.stockQuantity <= 5 && book.stockQuantity > 0 ? [{
+                  l: 'Tình trạng',
+                  v: 'Sắp hết hàng',
+                  i: 'fa-stopwatch',
+                  color: 'bg-amber-50 text-amber-600'
+                }] : []),
+
+                // Fallbacks if no badges (Fill with standard info to keep grid populated)
+                { l: 'Nhà xuất bản', v: book.publisher || 'N/A', i: 'fa-house-chimney', color: 'bg-slate-50 text-slate-500' },
+                { l: 'Số trang', v: book.pages > 0 ? `${book.pages} trang` : 'N/A', i: 'fa-file-lines', color: 'bg-slate-50 text-slate-500' },
+                { l: 'Ngôn ngữ', v: book.language || 'Tiếng Việt', i: 'fa-globe', color: 'bg-slate-50 text-slate-500' }
+
+              ].slice(0, 4).map((m, i) => ( // Keep only first 4 items to maintain layout integrity
                 <motion.div
                   key={i}
                   whileHover={{ y: -3 }}
@@ -495,11 +722,37 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
 
               <button
                 onClick={() => setShowFullDescription(!showFullDescription)}
-                className="mt-4 w-full py-2.5 rounded-xl bg-slate-50 text-xs font-black text-slate-500 uppercase tracking-widest border border-slate-200/50 hover:bg-slate-900 hover:text-white transition-all flex items-center justify-center gap-1.5"
+                className="mt-4 flex items-center gap-2 text-slate-900 font-bold hover:text-indigo-600 transition-all text-xs uppercase tracking-widest"
               >
                 <span>{showFullDescription ? 'Thu gọn' : 'Đọc đầy đủ nội dung'}</span>
                 <i className={`fa-solid fa-chevron-${showFullDescription ? 'up' : 'down'} text-[9px]`}></i>
               </button>
+            </section>
+
+            {/* Detailed Specifications Table (New) */}
+            <section className="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-1 h-4 bg-emerald-500 rounded-full"></div>
+                <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Thông tin chi tiết</h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-sm">
+                {[
+                  { l: 'Công ty phát hành', v: book.publisher },
+                  { l: 'Nhà xuất bản', v: book.manufacturer },
+                  { l: 'Kích thước', v: book.dimensions },
+                  { l: 'Dịch giả', v: book.translator },
+                  { l: 'Loại bìa', v: book.bookLayout },
+                  { l: 'Số trang', v: book.pages > 0 ? `${book.pages}` : null },
+                  { l: 'Ngày xuất bản', v: book.publishYear > 0 ? `${book.publishYear}` : null },
+                  { l: 'SKU / ISBN', v: book.isbn }
+                ].filter(item => item.v).map((item, i) => (
+                  <div key={i} className="flex justify-between py-2 border-b border-slate-50 last:border-0 md:last:border-b">
+                    <span className="text-slate-500 font-medium">{item.l}</span>
+                    <span className="font-bold text-slate-900 text-right">{item.v}</span>
+                  </div>
+                ))}
+              </div>
             </section>
 
 
@@ -618,61 +871,163 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
         </section>
 
         {/* 6. Suggestions Sections - Optimized grid gaps */}
-        {authorBooks.length > 0 && (
-          <section className="mt-12 pt-8 border-t border-slate-200/50">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">Sách cùng tác giả</h2>
-                <p className="text-xs font-black text-indigo-500 uppercase tracking-widest">Từ {book.author}</p>
+        {
+          authorBooks.length > 0 && (
+            <section className="mt-12 pt-8 border-t border-slate-200/50">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">Sách cùng tác giả</h2>
+                  <p className="text-xs font-black text-indigo-500 uppercase tracking-widest">Từ {book.author}</p>
+                </div>
+                <Link to={`/author/${book.author}`} className="text-xs font-black text-slate-500 uppercase tracking-widest hover:text-indigo-600 transition-all flex items-center gap-2">
+                  Xem tất cả của tác giả <i className="fa-solid fa-arrow-right"></i>
+                </Link>
               </div>
-              <Link to={`/author/${book.author}`} className="text-xs font-black text-slate-500 uppercase tracking-widest hover:text-indigo-600 transition-all flex items-center gap-2">
-                Xem tất cả của tác giả <i className="fa-solid fa-arrow-right"></i>
-              </Link>
-            </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {authorBooks.map(b => (
-                <BookCard key={b.id} book={b} onAddToCart={addToCart} onQuickView={onQuickView} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {relatedBooks.length > 0 && (
-          <section className="mt-12 pt-8 border-t border-slate-200/50">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">Sách cùng thể loại</h2>
-                <p className="text-xs font-black text-indigo-500 uppercase tracking-widest">Gợi ý riêng cho bạn</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {authorBooks.map(b => (
+                  <BookCard key={b.id} book={b} onAddToCart={addToCart} onQuickView={onQuickView} />
+                ))}
               </div>
-              <Link to={`/category/${book.category}`} className="text-xs font-black text-slate-500 uppercase tracking-widest hover:text-indigo-600 transition-all flex items-center gap-2">
-                Xem tất cả <i className="fa-solid fa-arrow-right"></i>
-              </Link>
-            </div>
+            </section>
+          )
+        }
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {relatedBooks.map(b => (
-                <BookCard key={b.id} book={b} onAddToCart={addToCart} onQuickView={onQuickView} />
-              ))}
-            </div>
-          </section>
-        )}
+        {
+          relatedBooks.length > 0 && (
+            <section className="mt-12 pt-8 border-t border-slate-200/50">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">Sách cùng thể loại</h2>
+                  <p className="text-xs font-black text-indigo-500 uppercase tracking-widest">Gợi ý riêng cho bạn</p>
+                </div>
+                <Link to={`/category/${book.category}`} className="text-xs font-black text-slate-500 uppercase tracking-widest hover:text-indigo-600 transition-all flex items-center gap-2">
+                  Xem tất cả <i className="fa-solid fa-arrow-right"></i>
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {relatedBooks.map(b => (
+                  <BookCard key={b.id} book={b} onAddToCart={addToCart} onQuickView={onQuickView} />
+                ))}
+              </div>
+            </section>
+          )
+        }
 
         {/* Recently Viewed - Very Compact */}
-        {recentBooks.length > 0 && (
-          <section className="mt-12 pt-8 border-t border-slate-200/50" aria-label="Sách đã xem">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="h-px bg-slate-200 flex-grow"></div>
-              <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] whitespace-nowrap px-4">Sách bạn vừa xem</h2>
-              <div className="h-px bg-slate-200 flex-grow"></div>
-            </div>
+        {
+          recentBooks.length > 0 && (
+            <section className="mt-12 pt-8 border-t border-slate-200/50" aria-label="Sách đã xem">
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <div className="h-px bg-slate-200 flex-grow"></div>
+                <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] whitespace-nowrap px-4">Sách bạn vừa xem</h2>
+                <div className="h-px bg-slate-200 flex-grow"></div>
+              </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-4">
-              {recentBooks.map(b => (
-                <BookCard key={b.id} book={b} onAddToCart={addToCart} onQuickView={onQuickView} />
-              ))}
-            </div>
-          </section>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-4">
+                {recentBooks.map(b => (
+                  <BookCard key={b.id} book={b} onAddToCart={addToCart} onQuickView={onQuickView} />
+                ))}
+
+              </div>
+            </section>
+          )
+        }
+
+        {/* Lightbox Overlay - Portaled to body to escape parent transforms */}
+        {showLightbox && createPortal(
+          <AnimatePresence>
+            {showLightbox && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center p-4"
+                style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh' }}
+                onClick={() => setShowLightbox(false)}
+              >
+                {/* Close Button */}
+                <button
+                  onClick={() => setShowLightbox(false)}
+                  className="absolute top-6 right-6 lg:top-10 lg:right-10 w-12 h-12 rounded-full bg-white/10 hover:bg-rose-500 text-white transition-all flex items-center justify-center z-[110]"
+                >
+                  <i className="fa-solid fa-xmark text-xl"></i>
+                </button>
+
+                {/* Main Image */}
+                <motion.img
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.9, opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  src={activeImage || book.cover}
+                  alt={book.title}
+                  className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl cursor-zoom-out select-none"
+                  onClick={(e) => e.stopPropagation()}
+                />
+
+                {/* Navigation Buttons */}
+                {galleryImages.length > 1 && (
+                  <>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const currIdx = galleryImages.indexOf(activeImage || '');
+                        const prevIdx = (currIdx - 1 + galleryImages.length) % galleryImages.length;
+                        setActiveImage(galleryImages[prevIdx]);
+                      }}
+                      className="absolute left-4 lg:left-10 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/10 hover:bg-white text-white hover:text-slate-900 transition-all flex items-center justify-center backdrop-blur-sm shadow-xl"
+                    >
+                      <i className="fa-solid fa-chevron-left text-xl"></i>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const currIdx = galleryImages.indexOf(activeImage || '');
+                        const nextIdx = (currIdx + 1) % galleryImages.length;
+                        setActiveImage(galleryImages[nextIdx]);
+                      }}
+                      className="absolute right-4 lg:right-10 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/10 hover:bg-white text-white hover:text-slate-900 transition-all flex items-center justify-center backdrop-blur-sm shadow-xl"
+                    >
+                      <i className="fa-solid fa-chevron-right text-xl"></i>
+                    </button>
+                  </>
+                )}
+
+                {/* Indicators */}
+                {galleryImages.length > 1 && (
+                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-[110]">
+                    {galleryImages.map((img, idx) => (
+                      <button
+                        key={idx}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveImage(img);
+                        }}
+                        className={`w-2.5 h-2.5 rounded-full transition-all ${activeImage === img ? 'bg-white scale-125' : 'bg-white/30 hover:bg-white/50'}`}
+                      ></button>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
+
+        {/* Quick Buy Bar for Desktop - Portaled to body to escape parent transforms */}
+        {book && !loading && !error && createPortal(
+          <QuickBuyBar
+            book={book}
+            quantity={quantity}
+            setQuantity={setQuantity}
+            isWishlisted={isWishlisted}
+            toggleWishlist={toggleWishlist}
+            addToCart={addToCart}
+          />,
+          document.body
         )}
       </div>
     </div>

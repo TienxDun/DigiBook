@@ -10,6 +10,7 @@ interface SEOProps {
   url?: string;
   type?: string;
   author?: string;
+  schemaMarkup?: object;
 }
 
 const SEO: React.FC<SEOProps> = ({
@@ -20,6 +21,7 @@ const SEO: React.FC<SEOProps> = ({
   url,
   type = 'website',
   author = 'DigiBook Team',
+  schemaMarkup,
 }) => {
   const siteName = 'DigiBook';
   const fullTitle = title ? `${title} | ${siteName}` : siteName;
@@ -50,6 +52,13 @@ const SEO: React.FC<SEOProps> = ({
       <meta name="twitter:title" content={title || siteName} />
       <meta name="twitter:description" content={description || defaultDescription} />
       <meta name="twitter:image" content={image || defaultImage} />
+
+      {/* Structured Data */}
+      {schemaMarkup && (
+        <script type="application/ld+json">
+          {JSON.stringify(schemaMarkup)}
+        </script>
+      )}
     </Helmet>
   );
 };

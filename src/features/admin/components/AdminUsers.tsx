@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import toast from 'react-hot-toast';
+import toast from '@/shared/utils/toast';
 import { db } from '@/services/db';
 import { Pagination } from '@/shared/components';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -333,7 +333,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
                         )}
                         <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground max-w-[200px] truncate">
                           <i className="fa-solid fa-location-dot text-muted-foreground/40 text-[10px]"></i>
-                          {user.address || 'Chưa cập nhật địa chỉ'}
+                          {user.addresses?.find(a => a.isDefault)?.fullAddress || user.addresses?.[0]?.fullAddress || 'Chưa cập nhật địa chỉ'}
                         </div>
                         {(user.gender || user.birthday) && (
                           <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-tighter">

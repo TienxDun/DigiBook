@@ -31,7 +31,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
   return (
     <AnimatePresence>
       {book && (
-        <div key="quick-view-modal" className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div key="quick-view-modal" className="fixed inset-0 z-[160] flex items-center justify-center p-4">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -210,7 +210,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                   <button
                     onClick={() => {
                       onClose();
-                      navigate(`/book/${book.id}`);
+                      navigate(`/book/${book.slug || book.id}`);
                     }}
                     className="py-3.5 rounded-xl border-2 border-slate-100 text-slate-400 flex items-center justify-center gap-2 hover:bg-slate-50 hover:border-slate-200 transition-all active:scale-95 text-xs font-black uppercase tracking-widest"
                   >

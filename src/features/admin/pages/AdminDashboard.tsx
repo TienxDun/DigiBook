@@ -12,6 +12,7 @@ import AdminUsers from "../components/AdminUsers";
 
 import AdminLogs from "../components/AdminLogs";
 import AdminAnalytics from "../components/AdminAnalytics";
+import AdminTikiInspector from "../components/AdminTikiInspector";
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
@@ -19,7 +20,7 @@ const formatPrice = (price: number) => {
 
 
 const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"overview" | "books" | "orders" | "categories" | "authors" | "coupons" | "users" | "logs" | "analytics">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "books" | "orders" | "categories" | "authors" | "coupons" | "users" | "logs" | "analytics" | "inspector">("overview");
   const [adminTheme, setAdminTheme] = useState<"midnight" | "light">(localStorage.getItem("digibook_admin_theme") as any || "midnight");
   const isMidnight = adminTheme === "midnight";
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -157,7 +158,8 @@ const AdminDashboard: React.FC = () => {
     {
       title: "Hệ thống",
       items: [
-        { id: "logs", label: "Audit Log", icon: "fa-fingerprint" }
+        { id: "logs", label: "Audit Log", icon: "fa-fingerprint" },
+        { id: "inspector", label: "Kiểm tra Tiki", icon: "fa-microscope" }
       ]
     }
   ];
@@ -360,7 +362,8 @@ const AdminDashboard: React.FC = () => {
                         activeTab === 'categories' ? 'Phân loại danh mục' :
                           activeTab === 'coupons' ? 'Mã giảm giá & KM' :
                             activeTab === 'users' ? 'Quản lý tài khoản' :
-                              activeTab === 'logs' ? 'Lịch sử hệ thống' : 'Tổng quan'}
+                              activeTab === 'logs' ? 'Lịch sử hệ thống' :
+                                activeTab === 'inspector' ? 'Kiểm tra Tiki API' : 'Tổng quan'}
               </h2>
               <div className="flex items-center gap-2 mt-1">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
@@ -705,6 +708,7 @@ const AdminDashboard: React.FC = () => {
             />
           )}
           {activeTab === "analytics" && <AdminAnalytics />}
+          {activeTab === "inspector" && <AdminTikiInspector theme={adminTheme} />}
         </div>
       </main>
     </div>

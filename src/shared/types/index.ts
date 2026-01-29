@@ -27,7 +27,33 @@ export interface Book {
   badge?: string;
   isAvailable?: boolean;
   createdAt?: any;
+
+  // New Fields (Phase 1 Upgrade)
+  slug?: string;
+  viewCount?: number;
+  searchKeywords?: string[];
+  reviewCount?: number; // Số lượng reviews để tính rating incremental
+
+  // Tiki Integration Fields
+  quantitySold?: {
+    text: string;
+    value: number;
+  };
+  badges?: {
+    code: string;
+    text?: string;
+    type?: string;
+  }[];
+  discountRate?: number;
+
+  // Rich Data Fields (Phase 2 Upgrade)
+  images?: string[];       // Gallery ảnh
+  dimensions?: string;     // Kích thước (13x19 cm)
+  translator?: string;     // Dịch giả
+  bookLayout?: string;     // Loại bìa (Bìa mềm/Bìa cứng)
+  manufacturer?: string;   // Nhà xuất bản gốc (VD: NXB Trẻ)
 }
+
 
 export interface CartItem extends Book {
   quantity: number;
@@ -39,12 +65,22 @@ export interface CategoryInfo {
   description: string;
 }
 
+export interface Address {
+  id: string;
+  label: string; // "Nhà riêng", "Công ty"
+  recipientName: string;
+  phone: string;
+  fullAddress: string; // Địa chỉ chi tiết
+  isDefault: boolean;
+}
+
 export interface UserProfile {
   id: string;
   name: string;
   email: string;
   phone?: string;
-  address?: string;
+
+  addresses?: Address[];
   avatar?: string;
   bio?: string;
   gender?: string;

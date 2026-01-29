@@ -33,15 +33,17 @@ const AuthorsPage: React.FC = () => {
   const authorStats = useMemo(() => {
     const stats: Record<string, number> = {};
     allBooks.forEach(book => {
-      const authorKey = book.author.toLowerCase();
-      stats[authorKey] = (stats[authorKey] || 0) + 1;
+      if (book.author) {
+        const authorKey = book.author.toLowerCase();
+        stats[authorKey] = (stats[authorKey] || 0) + 1;
+      }
     });
     return stats;
   }, [allBooks]);
 
   const filteredAuthors = useMemo(() => {
     return authors.filter(author =>
-      author.name.toLowerCase().includes(searchQuery.toLowerCase())
+      author.name && author.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [authors, searchQuery]);
 
@@ -49,9 +51,11 @@ const AuthorsPage: React.FC = () => {
     if (searchQuery) return {};
     const groups: Record<string, Author[]> = {};
     authors.forEach(author => {
-      const firstLetter = author.name.charAt(0).toUpperCase();
-      if (!groups[firstLetter]) groups[firstLetter] = [];
-      groups[firstLetter].push(author);
+      if (author.name) {
+        const firstLetter = author.name.charAt(0).toUpperCase();
+        if (!groups[firstLetter]) groups[firstLetter] = [];
+        groups[firstLetter].push(author);
+      }
     });
     return Object.fromEntries(
       Object.entries(groups).sort(([a], [b]) => a.localeCompare(b))
@@ -60,6 +64,7 @@ const AuthorsPage: React.FC = () => {
 
   const featuredAuthors = useMemo(() => {
     return [...authors]
+      .filter(a => a.name) // Ensure name exists
       .sort((a, b) => (authorStats[b.name.toLowerCase()] || 0) - (authorStats[a.name.toLowerCase()] || 0))
       .slice(0, 4);
   }, [authors, authorStats]);
@@ -87,7 +92,7 @@ const AuthorsPage: React.FC = () => {
   }
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-20 relative overflow-hidden">
+    <div className="bg-slate-50 min-h-screen pb-32 relative overflow-hidden">
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-[600px] bg-gradient-to-b from-indigo-600/5 to-transparent -z-10 pointer-events-none"></div>
       <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-500/5 rounded-full blur-[120px] -z-10"></div>
@@ -188,7 +193,7 @@ const AuthorsPage: React.FC = () => {
                     <h3 className="text-base font-black text-slate-900 mb-1">{author.name}</h3>
                     <p className="text-micro font-bold text-indigo-500 uppercase tracking-premium mb-3">{authorStats[author.name.toLowerCase()] || 0} Tác phẩm</p>
                     <p className="text-[11px] text-slate-400 line-clamp-2 text-center leading-relaxed">
-                      {author.bio || "Tác giả ưu tú với nhiều tác phẩm có giá trị cao đang được yêu thích tại DigiBook."}
+                      {author.bio || "Thông tin tác giả đang cập nhật."}
                     </p>
                   </Link>
                 </motion.div>

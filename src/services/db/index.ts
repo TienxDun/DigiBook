@@ -35,19 +35,21 @@ class DataService {
   // fetchBooksFromGoogle = books.fetchBooksFromGoogle; // Deprecated
   searchBooksFromTiki = books.searchBooksFromTiki;
   getBookDetailsFromTiki = books.getBookDetailsFromTiki;
-  fetchBookByISBN = books.fetchBookByISBN;
+  getRawTikiData = books.getRawTikiData;
+
+  getBookBySlug = books.getBookBySlug;
+  incrementBookView = books.incrementBookView;
 
   // Metadata (Categories, Authors, Seed)
   getCategories = metadata.getCategories;
   getAuthors = metadata.getAuthors;
+  getAuthorByName = metadata.getAuthorByName;
   saveAuthor = metadata.saveAuthor;
   deleteAuthor = metadata.deleteAuthor;
   saveCategory = metadata.saveCategory;
   deleteCategory = metadata.deleteCategory;
   deleteAuthorsBulk = metadata.deleteAuthorsBulk;
   deleteCategoriesBulk = metadata.deleteCategoriesBulk;
-  seedDatabase = metadata.seedDatabase;
-  saveBooksBatch = metadata.saveBooksBatch;
 
   // Orders & Transactions
   createOrder = orders.createOrder;
@@ -66,6 +68,10 @@ class DataService {
   updateUserRole = users.updateUserRole;
   updateUserStatus = users.updateUserStatus;
   deleteUser = users.deleteUser;
+  addUserAddress = users.addUserAddress;
+  updateUserAddress = users.updateUserAddress;
+  removeUserAddress = users.removeUserAddress;
+  setDefaultAddress = users.setDefaultAddress;
 
   // Coupons
   validateCoupon = coupons.validateCoupon;

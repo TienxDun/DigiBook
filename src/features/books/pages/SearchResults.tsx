@@ -1,15 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useSearchParams, Link, useParams } from 'react-router-dom';
 import { db } from '@/services/db';
 import { Book } from '@/shared/types';
-import { BookCard } from '@/features/books/components/BookCard';
 import { BookCardSkeleton } from '@/shared/components';
-import { SEO } from '@/shared/components';
 import { useBooks } from '@/features/books';
+import BookCard from '../components/BookCard/index';
 import { useCart } from '@/features/cart';
-import { QuickViewModal } from '../features/books';
 
 const SearchResults: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickView }) => {
   const { addToCart } = useCart();
@@ -82,7 +79,7 @@ const SearchResults: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQui
   }, [loading, displayBooks.length, allResults.length]);
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-16 lg:pt-20 pb-16 px-4 overflow-hidden">
+    <div className="min-h-screen bg-slate-50 pt-16 lg:pt-20 pb-32 lg:pb-16 px-4 overflow-hidden">
       <div className="max-w-7xl mx-auto mb-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>

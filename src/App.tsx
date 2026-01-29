@@ -1,6 +1,5 @@
 import React, { Suspense, lazy, useState } from 'react';
 import { HashRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from '@/features/auth';
 import { useBooks } from '@/features/books';
 import { CartProvider, useCart } from '@/features/cart';
@@ -8,6 +7,7 @@ import { CartProvider, useCart } from '@/features/cart';
 import { MainLayout, AdminRoute, MainContent } from './layouts';
 import { LoginModal } from './features/auth';
 import { PageTransition, ScrollToTop, BackToTop, StickyBuyBar } from '@/shared/components';
+import { ToastProvider } from '@/shared/components';
 import { QuickViewModal } from './features/books';
 import { Book } from '@/shared/types/';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -63,9 +63,9 @@ const AppContent: React.FC = () => {
           </div>
         }>
           <AnimatePresence mode="wait">
-            <Routes location={location} key={location.pathname}>
+            <Routes location={location}>
               <Route path="/" element={<PageTransition><HomePage onQuickView={handleQuickView} /></PageTransition>} />
-              <Route path="/book/:id" element={<PageTransition><BookDetails onQuickView={handleQuickView} /></PageTransition>} />
+              <Route path="/book/:slug" element={<PageTransition><BookDetails onQuickView={handleQuickView} /></PageTransition>} />
               <Route path="/search/:query" element={<PageTransition><SearchResults onQuickView={handleQuickView} /></PageTransition>} />
               <Route path="/category/:categoryName" element={<PageTransition><CategoryPage onQuickView={handleQuickView} /></PageTransition>} />
               <Route path="/authors" element={<PageTransition><AuthorsPage /></PageTransition>} />
@@ -98,46 +98,14 @@ const App: React.FC = () => {
   );
 
   return (
-    <Router>
-      <ScrollToTop />
-      <BackToTop />
-      <StickyBuyBar />
-      <AppContent />
-      <Toaster
-        position="top-right"
-        containerStyle={{
-          top: 24,
-          right: 24,
-          bottom: 'auto',
-          left: 'auto',
-        }}
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: 'var(--toast-bg)',
-            color: 'var(--toast-color)',
-            padding: '16px 24px',
-            borderRadius: '24px',
-            fontSize: '15px',
-            fontWeight: '600',
-            boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
-            border: '1px solid var(--toast-border)',
-          },
-          success: {
-            iconTheme: {
-              primary: '#4f46e5',
-              secondary: '#ffffff',
-            },
-          },
-          error: {
-            iconTheme: {
-              primary: '#f43f5e',
-              secondary: '#ffffff',
-            },
-          },
-        }}
-      />
-    </Router>
+    <ToastProvider>
+      <Router>
+        <ScrollToTop />
+        <BackToTop />
+        <StickyBuyBar />
+        <AppContent />
+      </Router>
+    </ToastProvider>
   );
 };
 export default App;

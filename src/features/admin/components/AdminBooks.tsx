@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import toast from 'react-hot-toast';
+import toast from '@/shared/utils/toast';
 import { db } from '@/services/db';
 import { Book, CategoryInfo, Author } from '@/shared/types';
 import { ErrorHandler } from '@/services/errorHandler';
@@ -27,7 +27,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
   const [selectedBooks, setSelectedBooks] = useState<string[]>([]);
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [isFetchingISBN, setIsFetchingISBN] = useState(false);
+
   const [seedStatus, setSeedStatus] = useState<{ msg: string, type: 'success' | 'error' | 'info' } | null>(null);
   const [isFormProcessing, setIsFormProcessing] = useState(false);
 
@@ -186,7 +186,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
   const [selectedImportBooks, setSelectedImportBooks] = useState<string[]>([]);
 
   // Auto Scan State
-  const [autoScanCategory, setAutoScanCategory] = useState('');
+  const [autoScanCategories, setAutoScanCategories] = useState<string[]>([]);
   const [autoScanLimit, setAutoScanLimit] = useState(20);
   const [isAutoScanning, setIsAutoScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState({ current: 0, total: 0, status: '' });
@@ -200,6 +200,28 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     setScanProgress({ current: 0, total: 0, status: '' });
   };
 
+  // Raw Viewer State
+  const [isRawModalOpen, setIsRawModalOpen] = useState(false);
+  const [rawViewerContent, setRawViewerContent] = useState<any | null>(null);
+  const [loadingRaw, setLoadingRaw] = useState(false);
+
+  const handleInspectRaw = async (bookId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent selection
+    setLoadingRaw(true);
+    setRawViewerContent(null);
+    setIsRawModalOpen(true);
+
+    try {
+      const raw = await db.getRawTikiData(bookId);
+      setRawViewerContent(raw);
+    } catch (error) {
+      toast.error("Lỗi khi tải dữ liệu thô");
+      setIsRawModalOpen(false);
+    } finally {
+      setLoadingRaw(false);
+    }
+  };
+
   const handleSearchImport = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!importSearchTerm.trim()) return;
@@ -209,7 +231,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     try {
       const results = await db.searchBooksFromTiki(importSearchTerm);
       if (results.length === 0) {
-        toast('Không tìm thấy sách nào phù hợp', { icon: '🔍' });
+        toast('🔍 Không tìm thấy sách nào phù hợp');
       }
       setImportResults(results);
     } catch (error) {
@@ -219,15 +241,11 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     }
   };
 
+  /* Redundant author matching removed - handled by saveBook auto-sync */
   const importSingleBook = async (book: Book): Promise<boolean> => {
     try {
       const details = await db.getBookDetailsFromTiki(book.id);
       const fullBook = { ...book, ...details };
-
-      const matchedAuthor = authors.find(a => a.name.toLowerCase() === fullBook.author.toLowerCase());
-      if (matchedAuthor) {
-        fullBook.authorId = matchedAuthor.id;
-      }
 
       await db.saveBook(fullBook);
       return true;
@@ -238,13 +256,13 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
   };
 
   const handleImportBook = async (book: Book) => {
-    toast.loading('Đang nhập sách...', { id: 'import-loading' });
+    toast.loading('Đang nhập sách...');
     const success = await importSingleBook(book);
     if (success) {
-      toast.success(`Đã nhập sách "${book.title}"`, { id: 'import-loading' });
+      toast.success(`Đã nhập sách "${book.title}"`);
       await refreshData();
     } else {
-      toast.error('Lỗi khi nhập sách', { id: 'import-loading' });
+      toast.error('Lỗi khi nhập sách');
     }
   };
 
@@ -263,7 +281,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
       const success = await importSingleBook(book);
       if (success) successCount++;
       // Small delay to be nice to API
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise(r => setTimeout(r, 1500));
     }
 
     setIsAutoScanning(false);
@@ -273,49 +291,71 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
   };
 
   const handleStartAutoScan = async () => {
-    if (!autoScanCategory) {
-      toast.error("Vui lòng chọn danh mục");
+    if (autoScanCategories.length === 0) {
+      toast.error("Vui lòng chọn ít nhất một danh mục");
       return;
     }
 
     setIsAutoScanning(true);
-    setScanProgress({ current: 0, total: autoScanLimit, status: 'Đang tìm kiếm...' });
+    // Limit per category * number of categories
+    const totalEstimate = autoScanLimit * autoScanCategories.length;
+    setScanProgress({ current: 0, total: totalEstimate, status: 'Đang khởi tạo...' });
 
     try {
-      // Determine keywords based on Category
-      let keywords = autoScanCategory.toLowerCase();
-      if (keywords === 'kinh tế') keywords = 'sách kinh tế bán chạy';
-      else if (keywords === 'văn học') keywords = 'tiểu thuyết văn học';
-      else if (keywords === 'thiếu nhi') keywords = 'truyện thiếu nhi';
+      let grandTotalImported = 0;
 
-      let importedCount = 0;
-      let page = 1;
+      for (const category of autoScanCategories) {
+        // Determine keywords based on Category
+        let keywords = category.toLowerCase();
+        if (keywords === 'kinh tế') keywords = 'sách kinh tế bán chạy';
+        else if (keywords === 'văn học') keywords = 'tiểu thuyết văn học';
+        else if (keywords === 'thiếu nhi') keywords = 'truyện thiếu nhi';
+        else if (keywords === 'tâm lý') keywords = 'sách tâm lý hay';
+        else if (keywords === 'lịch sử') keywords = 'sách lịch sử việt nam';
+        else if (keywords === 'kỹ năng') keywords = 'sách kỹ năng sống';
 
-      while (importedCount < autoScanLimit && page <= 5) {
-        setScanProgress(prev => ({ ...prev, status: `Đang quét trang ${page}...` }));
+        let categoryImportedCount = 0;
+        let page = 1;
 
-        const results = await db.searchBooksFromTiki(keywords, page);
-        if (results.length === 0) break; // End of results
+        // Reset page for each category
+        while (categoryImportedCount < autoScanLimit && page <= 5) {
+          setScanProgress(prev => ({
+            ...prev,
+            status: `Đang quét danh mục "${category}" (Trang ${page})...`
+          }));
 
-        // Filter duplicates
-        const newBooks = results.filter(b => !books.some(ex => ex.title.toLowerCase() === b.title.toLowerCase())); // Simple Title check locally + checking existing DB in search
+          const results = await db.searchBooksFromTiki(keywords, page);
+          if (results.length === 0) break; // End of results
 
-        for (const book of newBooks) {
-          if (importedCount >= autoScanLimit) break;
+          // Filter duplicates
+          const newBooks = results.filter(b => !books.some(ex => ex.title.toLowerCase() === b.title.toLowerCase()));
 
-          setScanProgress({ current: importedCount + 1, total: autoScanLimit, status: `Đang nhập: ${book.title}...` });
-          const success = await importSingleBook(book);
-          if (success) importedCount++;
+          for (const book of newBooks) {
+            if (categoryImportedCount >= autoScanLimit) break;
 
-          await new Promise(r => setTimeout(r, 800)); // Delay
+            grandTotalImported++;
+            categoryImportedCount++;
+
+            setScanProgress({
+              current: grandTotalImported,
+              total: totalEstimate, // Keep total as estimate
+              status: `[${category}] Đang nhập: ${book.title}...`
+            });
+
+            const success = await importSingleBook(book);
+
+            await new Promise(r => setTimeout(r, 2000)); // Delay
+          }
+
+          page++;
         }
-        page++;
       }
 
-      toast.success(`Đã tự động nhập ${importedCount} sách mới!`);
+      toast.success(`Đã hoàn tất! Nhập tổng cộng ${grandTotalImported} sách mới.`);
       await refreshData();
 
     } catch (err) {
+      console.error(err);
       toast.error("Lỗi trong quá trình quét tự động");
     } finally {
       setIsAutoScanning(false);
@@ -326,73 +366,8 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     setSelectedImportBooks(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
 
-  const _old_handleImportBook = async (book: Book) => {
-    try {
-      // Check duplicate by title + author loosely if id check passes (Tiki ID is unique enough though)
-      // ID check is handled in searchBooksFromTiki somewhat (filtering existing ISBNs) but let's double check
 
-      // Fetch full details
-      toast.loading('Đang lấy thông tin chi tiết...', { id: 'import-loading' });
-      const details = await db.getBookDetailsFromTiki(book.id);
 
-      const fullBook = { ...book, ...details };
-      // Override author to map to system author if possible or create new?
-      // For now we just save the string. If we want relational, we need more logic.
-      // But AdminBooks save logic usually just handles Book object.
-      // Let's create a new author generic if needed? 
-      // Actually the Book type has 'author' string and optional 'authorId'. 
-      // We will leave authorId blank for imported books or try to match by name.
-      const matchedAuthor = authors.find(a => a.name.toLowerCase() === fullBook.author.toLowerCase());
-      if (matchedAuthor) {
-        fullBook.authorId = matchedAuthor.id;
-      }
-
-      await db.saveBook(fullBook);
-      toast.success(`Đã nhập sách "${fullBook.title}"`, { id: 'import-loading' });
-
-      // Update result list to show imported status visually?
-      // For now just refresh data
-      await refreshData();
-    } catch (error) {
-      toast.error('Lỗi khi nhập sách', { id: 'import-loading' });
-      ErrorHandler.handle(error, 'nhập sách');
-    }
-  };
-
-  const handleFetchBookByISBN = async () => {
-    if (!bookFormData.isbn || bookFormData.isbn.trim().length < 10) {
-      toast.error("Vui lòng nhập mã ISBN hợp lệ (10 hoặc 13 số)");
-      return;
-    }
-
-    setIsFetchingISBN(true);
-    try {
-      const fetchedBook = await db.fetchBookByISBN(bookFormData.isbn);
-      if (fetchedBook) {
-        setBookFormData(prev => ({
-          ...prev,
-          title: fetchedBook.title,
-          author: fetchedBook.author,
-          authorBio: fetchedBook.authorBio,
-          cover: fetchedBook.cover,
-          category: fetchedBook.category,
-          description: fetchedBook.description,
-          pages: fetchedBook.pages,
-          publisher: fetchedBook.publisher,
-          publishYear: fetchedBook.publishYear,
-          language: fetchedBook.language,
-          rating: fetchedBook.rating
-        }));
-        toast.success("Đã tìm thấy thông tin sách từ Internet!");
-      } else {
-        toast.error("Không tìm thấy thông tin cho mã ISBN này.");
-      }
-    } catch (error) {
-      toast.error("Lỗi khi tìm kiếm dữ liệu.");
-    } finally {
-      setIsFetchingISBN(false);
-    }
-  };
 
   const handleOpenAddBook = () => {
     setEditingBook(null);
@@ -816,7 +791,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
       </div>
 
       {/* Add/Edit Book Modal */}
-      {typeof document !== 'undefined' && createPortal(
+      {createPortal(
         <AnimatePresence mode="wait">
           {isBookModalOpen && (
             <motion.div
@@ -1010,15 +985,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                             <div className="col-span-12 md:col-span-6">
                               <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1 flex items-center justify-between">
                                 Mã ISBN
-                                <button
-                                  type="button"
-                                  onClick={handleFetchBookByISBN}
-                                  disabled={isFetchingISBN}
-                                  className="text-[10px] text-primary hover:text-primary/70 font-black flex items-center gap-2 bg-primary/5 px-3 py-1 rounded-full transition-all"
-                                >
-                                  {isFetchingISBN ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
-                                  Tự động điền
-                                </button>
+
                               </label>
                               <input
                                 type="text"
@@ -1352,7 +1319,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                               const isExist = books.some(b => b.title.toLowerCase() === book.title.toLowerCase());
                               const isSelected = selectedImportBooks.includes(book.id);
                               return (
-                                <div key={book.id} onClick={() => !isExist && toggleImportSelect(book.id)} className={`relative flex gap-4 p-4 rounded-3xl border transition-all cursor-pointer ${isSelected ? 'border-primary bg-primary/5 ring-1 ring-primary/20' : (isMidnight ? 'bg-slate-800/40 border-white/5 hover:border-white/10' : 'bg-card border-border hover:shadow-md')}`}>
+                                <div key={book.id} onClick={() => !isExist && toggleImportSelect(book.id)} className={`relative group/item flex gap-4 p-4 rounded-3xl border transition-all cursor-pointer ${isSelected ? 'border-primary bg-primary/5 ring-1 ring-primary/20' : (isMidnight ? 'bg-slate-800/40 border-white/5 hover:border-white/10' : 'bg-card border-border hover:shadow-md')}`}>
                                   <div className="w-20 aspect-[2/3] rounded-xl overflow-hidden shrink-0 border bg-muted">
                                     <img src={book.cover} className="w-full h-full object-cover" />
                                   </div>
@@ -1361,6 +1328,16 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                                     <div className="text-xs text-muted-foreground mb-2">{book.author}</div>
                                     <div className="font-black text-chart-1">{formatPrice(book.price)}</div>
                                   </div>
+
+                                  {/* Inspect Action */}
+                                  <button
+                                    onClick={(e) => handleInspectRaw(book.id, e)}
+                                    className={`absolute bottom-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center transition-all opacity-0 group-hover/item:opacity-100 z-20 ${isMidnight ? 'bg-slate-700 text-slate-300 hover:bg-primary hover:text-white' : 'bg-muted text-muted-foreground hover:bg-primary hover:text-white'
+                                      }`}
+                                    title="Xem Raw Data (Inspector)"
+                                  >
+                                    <i className="fa-solid fa-microscope text-xs"></i>
+                                  </button>
 
                                   {isExist ? (
                                     <div className="absolute top-4 right-4 text-green-500 bg-green-500/10 px-2 py-1 rounded-lg text-[10px] font-black uppercase">Đã có</div>
@@ -1416,19 +1393,25 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                             ) : (
                               <>
                                 <div>
-                                  <label className="block text-xs font-black uppercase tracking-wide text-muted-foreground mb-3">Chọn danh mục</label>
+                                  <label className="block text-xs font-black uppercase tracking-wide text-muted-foreground mb-3">Chọn các danh mục cần quét</label>
                                   <div className="grid grid-cols-2 gap-4">
-                                    {['Kinh tế', 'Văn học', 'Thiếu nhi', 'Tâm lý', 'Lịch sử', 'Kỹ năng'].map(cat => (
-                                      <button
-                                        key={cat}
-                                        onClick={() => setAutoScanCategory(cat)}
-                                        className={`h-14 rounded-2xl font-bold transition-all border ${autoScanCategory === cat
-                                          ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20'
-                                          : 'hover:bg-muted bg-background'}`}
-                                      >
-                                        {cat}
-                                      </button>
-                                    ))}
+                                    {['Kinh tế', 'Văn học', 'Thiếu nhi', 'Tâm lý', 'Lịch sử', 'Kỹ năng'].map(cat => {
+                                      const isSelected = autoScanCategories.includes(cat);
+                                      return (
+                                        <button
+                                          key={cat}
+                                          onClick={() => setAutoScanCategories(prev =>
+                                            prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
+                                          )}
+                                          className={`h-14 rounded-2xl font-bold transition-all border relative ${isSelected
+                                            ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20'
+                                            : 'hover:bg-muted bg-background'}`}
+                                        >
+                                          {cat}
+                                          {isSelected && <i className="fa-solid fa-check-circle absolute top-2 right-2 text-xs"></i>}
+                                        </button>
+                                      );
+                                    })}
                                   </div>
                                 </div>
 
@@ -1469,7 +1452,53 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
         </AnimatePresence>,
         document.body
       )}
-    </div>
+      {/* Raw Data Inspector Modal (Nested) */}
+      {
+        typeof document !== 'undefined' && createPortal(
+          <AnimatePresence mode="wait">
+            {isRawModalOpen && (
+              <motion.div
+                key="raw-data-portal"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[120] flex items-center justify-center p-4 md:p-10"
+              >
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setIsRawModalOpen(false)} />
+                <motion.div
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.95, opacity: 0 }}
+                  className={`${isMidnight ? 'bg-[#1e293b] border-white/10' : 'bg-card border-border'} w-full max-w-4xl h-[80vh] rounded-[2rem] shadow-3xl overflow-hidden border relative z-10 flex flex-col`}
+                >
+                  <div className={`h-16 border-b flex items-center justify-between px-6 shrink-0 ${isMidnight ? 'border-white/5' : 'border-border'}`}>
+                    <h3 className="font-black uppercase tracking-wide flex items-center gap-3">
+                      <i className="fa-solid fa-code text-chart-1"></i>
+                      Raw Tiki JSON
+                    </h3>
+                    <button onClick={() => setIsRawModalOpen(false)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors">
+                      <i className="fa-solid fa-xmark"></i>
+                    </button>
+                  </div>
+                  <div className={`flex-1 overflow-auto custom-scrollbar p-6 font-mono text-xs ${isMidnight ? 'text-slate-300' : 'text-slate-700'}`}>
+                    {loadingRaw ? (
+                      <div className="flex items-center justify-center h-full gap-3 text-muted-foreground">
+                        <i className="fa-solid fa-circle-notch fa-spin"></i>
+                        <span>Đang tải dữ liệu từ Tiki...</span>
+                      </div>
+                    ) : (
+                      <pre>{JSON.stringify(rawViewerContent, null, 2)}</pre>
+                    )}
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )
+      }
+
+    </div >
   );
 };
 

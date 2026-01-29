@@ -10,7 +10,8 @@ import {
   increment,
   writeBatch,
   serverTimestamp,
-  setDoc
+  setDoc,
+  runTransaction
 } from "firebase/firestore";
 import { db_fs } from "../../../lib/firebase";
 import { Order, OrderItem, CartItem } from '@/shared/types/';
@@ -18,53 +19,57 @@ import { wrap, logActivity } from "../core";
 
 export async function createOrder(orderInfo: any, cartItems: CartItem[]) {
   try {
-    const bookChecks = await Promise.all(
-      cartItems.map(item => getDoc(doc(db_fs, 'books', item.id)))
-    );
-
-    const outOfStockItems: string[] = [];
-    cartItems.forEach((item, index) => {
-      const snap = bookChecks[index];
-      if (snap.exists()) {
-        const currentStock = snap.data().stockQuantity || 0;
-        if (currentStock < item.quantity) {
-          outOfStockItems.push(item.title);
-        }
-      }
-    });
-
-    if (outOfStockItems.length > 0) {
-      const error = new Error(`Rất tiếc, các sách sau đã hết hàng hoặc không đủ số lượng: ${outOfStockItems.join(', ')}`);
-      (error as any).code = 'OUT_OF_STOCK';
-      throw error;
-    }
-
-    const items: OrderItem[] = cartItems.map(item => ({
-      bookId: item.id,
-      title: item.title,
-      priceAtPurchase: item.price,
-      quantity: item.quantity,
-      cover: item.cover
-    }));
-
-    const batch = writeBatch(db_fs);
     const orderRef = doc(collection(db_fs, 'orders'));
     const orderId = orderRef.id;
 
-    batch.set(orderRef, {
-      ...orderInfo,
-      items,
-      date: new Date().toLocaleDateString('vi-VN'),
-      createdAt: serverTimestamp()
-    });
+    await runTransaction(db_fs, async (transaction) => {
+      // 1. READ: Get all books to check stock
+      const bookRefs = cartItems.map(item => doc(db_fs, 'books', item.id));
+      const bookSnaps = await Promise.all(bookRefs.map(ref => transaction.get(ref)));
 
-    cartItems.forEach((item, index) => {
-      if (bookChecks[index].exists()) {
-        batch.update(doc(db_fs, 'books', item.id), { stockQuantity: increment(-item.quantity) });
+      const outOfStockItems: string[] = [];
+
+      // 2. CHECK: Validate stock for all items
+      cartItems.forEach((item, index) => {
+        const snap = bookSnaps[index];
+        if (!snap.exists()) {
+          outOfStockItems.push(`${item.title} (Không tồn tại)`);
+        } else {
+          const currentStock = snap.data().stockQuantity || 0;
+          if (currentStock < item.quantity) {
+            outOfStockItems.push(item.title);
+          }
+        }
+      });
+
+      if (outOfStockItems.length > 0) {
+        const error = new Error(`Rất tiếc, các sách sau đã hết hàng hoặc không đủ số lượng: ${outOfStockItems.join(', ')}`);
+        (error as any).code = 'OUT_OF_STOCK';
+        throw error;
       }
-    });
 
-    await batch.commit();
+      // 3. WRITE: Deduct stock and Create Order
+      const items: OrderItem[] = cartItems.map(item => ({
+        bookId: item.id,
+        title: item.title,
+        priceAtPurchase: item.price,
+        quantity: item.quantity,
+        cover: item.cover
+      }));
+
+      transaction.set(orderRef, {
+        ...orderInfo,
+        items,
+        date: new Date().toLocaleDateString('vi-VN'),
+        createdAt: serverTimestamp()
+      });
+
+      cartItems.forEach((item, index) => {
+        // We can safely use increment here inside transaction or manual calculation
+        // Atomic increment is still good practice even inside transaction
+        transaction.update(bookRefs[index], { stockQuantity: increment(-item.quantity) });
+      });
+    });
 
     logActivity('ORDER_CREATED', orderId, 'SUCCESS', 'INFO', 'ORDER');
     return { id: orderId };

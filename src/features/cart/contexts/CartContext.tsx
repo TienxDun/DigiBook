@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Book, CartItem } from '@/shared/types/';
-import { toast } from 'react-hot-toast';
+import toast from '@/shared/utils/toast';
 import { useAuth } from '@/features/auth';
 import { db } from '@/services/db';
 import { checkBookStock } from '@/services/db/utils/validateCartStock';
@@ -11,7 +11,7 @@ interface CartContextType {
     selectedCartItemIds: string[];
     isCartOpen: boolean;
     setIsCartOpen: (open: boolean) => void;
-    addToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => void;
+    addToCart: (book: Book, quantity?: number, startPos?: { x: number, y: number }) => Promise<boolean>;
     removeFromCart: (id: string) => void;
     updateQuantity: (id: string, delta: number) => void;
     clearCart: () => void;
@@ -43,14 +43,35 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (user) {
                 const cloudCart = await db.getUserCart(user.id);
                 if (cloudCart && cloudCart.length > 0) {
-                    // Ưu tiên giỏ hàng cloud nếu có
-                    setCart(cloudCart);
+                    // Merge local và cloud cart thay vì ghi đè
+                    const localCart: CartItem[] = JSON.parse(localStorage.getItem('digibook_cart') || '[]');
+
+                    const merged = new Map<string, CartItem>();
+
+                    // Add cloud items first
+                    cloudCart.forEach(item => merged.set(item.id, item));
+
+                    // Merge local items - keep higher quantity nếu trùng
+                    localCart.forEach(item => {
+                        const existing = merged.get(item.id);
+                        if (existing) {
+                            merged.set(item.id, {
+                                ...item,
+                                quantity: Math.max(existing.quantity, item.quantity)
+                            });
+                        } else {
+                            merged.set(item.id, item);
+                        }
+                    });
+
+                    setCart(Array.from(merged.values()));
                 }
             }
             setIsLoadedFromCloud(true);
         };
         syncFromCloud();
     }, [user]);
+
 
     // Đồng bộ lên Cloud khi giỏ hàng thay đổi
     useEffect(() => {
@@ -71,7 +92,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         cart.filter(item => selectedCartItemIds.includes(item.id)),
         [cart, selectedCartItemIds]);
 
-    const addToCart = useCallback(async (book: Book, quantity: number = 1, startPos?: { x: number, y: number }) => {
+    const addToCart = useCallback(async (book: Book, quantity: number = 1, startPos?: { x: number, y: number }): Promise<boolean> => {
         // Kiểm tra số lượng hiện tại trong giỏ
         const existingInCart = cart.find(item => item.id === book.id);
         const currentCartQuantity = existingInCart?.quantity || 0;
@@ -104,7 +125,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     </div>
                 );
             }
-            return;
+            return false;
         }
 
         // Nếu có đủ hàng, thêm vào giỏ
@@ -140,18 +161,40 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             </div>
         );
 
-        setIsCartOpen(true);
+        // setIsCartOpen(true); // Không tự động mở giỏ hàng nữa
+        return true;
     }, [cart]);
 
     const removeFromCart = useCallback((id: string) => {
         setCart(prev => prev.filter(item => item.id !== id));
     }, []);
 
-    const updateQuantity = useCallback((id: string, delta: number) => {
+    const updateQuantity = useCallback(async (id: string, delta: number) => {
+        // Nếu tăng số lượng, cần kiểm tra tồn kho
+        if (delta > 0) {
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                const newQuantity = item.quantity + delta;
+                const stockCheck = await checkBookStock(id, newQuantity);
+
+                if (!stockCheck.canFulfill) {
+                    if (stockCheck.available === 0) {
+                        toast.error('Sản phẩm đã hết hàng!');
+                    } else if (item.quantity >= stockCheck.available) {
+                        toast.error(`Bạn đã có số lượng tối đa (${stockCheck.available}) trong giỏ!`);
+                    } else {
+                        toast.error(`Chỉ còn ${stockCheck.available} sản phẩm trong kho`);
+                    }
+                    return;
+                }
+            }
+        }
+
         setCart(prev => prev.map(item =>
             item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
         ));
-    }, []);
+    }, [cart]);
+
 
     const clearCart = useCallback(() => {
         setCart([]);

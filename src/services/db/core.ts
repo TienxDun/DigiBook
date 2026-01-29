@@ -123,3 +123,30 @@ export async function wrap<T>(
     return fallback;
   }
 }
+// --- Helper: Multi-Proxy Fetcher ---
+export async function fetchWithProxy(targetUrl: string): Promise<any> {
+  const proxies = [
+    'https://api.codetabs.com/v1/proxy?quest=', // New Primary: Often more open
+    'https://corsproxy.io/?', // Secondary
+    'https://api.allorigins.win/raw?url=', // Backup
+  ];
+
+  let lastError;
+
+  for (const proxy of proxies) {
+    try {
+      // Add random small delay before each proxy attempt to avoid burst pattern
+      await new Promise(r => setTimeout(r, Math.random() * 500));
+
+      const response = await fetch(proxy + encodeURIComponent(targetUrl));
+      if (!response.ok) throw new Error(`Proxy error: ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      console.warn(`Proxy ${proxy} failed for ${targetUrl}:`, error);
+      lastError = error;
+      continue; // Try next proxy
+    }
+  }
+
+  throw lastError || new Error("All proxies failed");
+}
