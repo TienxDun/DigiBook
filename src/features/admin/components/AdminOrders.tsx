@@ -399,6 +399,19 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                             <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Số điện thoại</span>
                             <span className="text-base font-bold text-foreground font-mono">{selectedOrder.customer.phone}</span>
                           </div>
+                          <div className="flex flex-col gap-1.5">
+                            <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Email</span>
+                            <span className="text-sm font-bold text-foreground truncate">{selectedOrder.customer.email || '—'}</span>
+                          </div>
+                          {selectedOrder.customer.note && (
+                            <div className="flex flex-col gap-1.5">
+                              <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Ghi chú</span>
+                              <p className="text-xs font-medium text-amber-600 bg-amber-50 p-3 rounded-xl border border-amber-100">
+                                <i className="fa-solid fa-note-sticky mr-2 opacity-50"></i>
+                                {selectedOrder.customer.note}
+                              </p>
+                            </div>
+                          )}
                           <div className={`pt-4 border-t ${isMidnight ? 'border-white/5' : 'border-border/50'}`}>
                             <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block mb-2.5">Địa chỉ giao hàng</span>
                             <p className={`text-sm font-medium leading-relaxed p-4 rounded-xl border ${isMidnight ? 'bg-slate-900/50 border-white/5 text-slate-300' : 'bg-muted/30 border-border/50 text-foreground/80'}`}>

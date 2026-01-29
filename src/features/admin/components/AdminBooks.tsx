@@ -949,6 +949,22 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                             </div>
 
                             <div className="col-span-12 md:col-span-6">
+                              <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1">Giá bìa / Giá gốc (VNĐ)</label>
+                              <div className="relative">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={bookFormData.originalPrice || ''}
+                                  onChange={(e) => setBookFormData({ ...bookFormData, originalPrice: Number(e.target.value) })}
+                                  className={`w-full h-14 pl-6 pr-12 rounded-2xl border transition-all font-black text-foreground text-sm outline-none focus:border-chart-1 focus:ring-4 focus:ring-chart-1/10 ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
+                                    }`}
+                                  placeholder="0"
+                                />
+                                <span className="absolute right-6 top-1/2 -translate-y-1/2 font-black text-xs text-muted-foreground">₫</span>
+                              </div>
+                            </div>
+
+                            <div className="col-span-12 md:col-span-6">
                               <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1">Số lượng tồn kho *</label>
                               <input
                                 type="number"
@@ -962,7 +978,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                               />
                             </div>
 
-                            <div className="col-span-12">
+                            <div className="col-span-12 md:col-span-6">
                               <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1">Nhãn quảng bá (Badge)</label>
                               <div className="relative">
                                 <select
@@ -1035,6 +1051,30 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                                 className={`w-full h-14 px-6 rounded-2xl border transition-all font-bold text-foreground text-sm outline-none focus:border-primary focus:bg-card ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
                                   }`}
                                 placeholder="2024"
+                              />
+                            </div>
+
+                            <div className="col-span-12 md:col-span-6">
+                              <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1">Nhà xuất bản</label>
+                              <input
+                                type="text"
+                                value={bookFormData.publisher || ''}
+                                onChange={(e) => setBookFormData({ ...bookFormData, publisher: e.target.value })}
+                                className={`w-full h-14 px-6 rounded-2xl border transition-all font-bold text-foreground text-sm outline-none focus:border-primary focus:bg-card ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
+                                  }`}
+                                placeholder="VD: NXB Trẻ, NXB Kim Đồng..."
+                              />
+                            </div>
+
+                            <div className="col-span-12 md:col-span-6">
+                              <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1">Ngôn ngữ</label>
+                              <input
+                                type="text"
+                                value={bookFormData.language || 'Tiếng Việt'}
+                                onChange={(e) => setBookFormData({ ...bookFormData, language: e.target.value })}
+                                className={`w-full h-14 px-6 rounded-2xl border transition-all font-bold text-foreground text-sm outline-none focus:border-primary focus:bg-card ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
+                                  }`}
+                                placeholder="Tiếng Việt"
                               />
                             </div>
 

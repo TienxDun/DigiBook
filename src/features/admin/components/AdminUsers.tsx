@@ -335,6 +335,13 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
                           <i className="fa-solid fa-location-dot text-muted-foreground/40 text-[10px]"></i>
                           {user.address || 'Chưa cập nhật địa chỉ'}
                         </div>
+                        {(user.gender || user.birthday) && (
+                          <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-tighter">
+                            {user.gender && <span>{user.gender === 'Nam' ? '♂️' : user.gender === 'Nữ' ? '♀️' : '⚧'} {user.gender}</span>}
+                            {user.gender && user.birthday && <span className="opacity-30">|</span>}
+                            {user.birthday && <span>🎂 {user.birthday}</span>}
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-center">
