@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db, Order, OrderItem } from '@/services/db';
+import { ordersService } from '@/services/db/adapter';
 import { SEO } from '@/shared/components';
 
 const formatPrice = (price: number) => {
@@ -19,7 +20,7 @@ const OrderDetailPage: React.FC = () => {
     const fetchDetail = async () => {
       if (orderId) {
         setLoading(true);
-        const detail = await db.getOrderWithItems(orderId);
+        const detail = await ordersService.getOrderById(orderId);
         setOrderWithItems(detail || null);
         setLoading(false);
       }
@@ -170,7 +171,13 @@ const OrderDetailPage: React.FC = () => {
                 {orderWithItems.items.map((item, idx) => (
                   <div key={idx} className="flex gap-5 lg:gap-6 items-center border-b border-slate-50 last:border-0 pb-6 last:pb-0 group">
                     <div className="w-16 h-22 lg:w-20 lg:h-28 rounded-xl overflow-hidden flex-shrink-0 bg-slate-50 shadow-sm border border-slate-100 relative group">
-                      <img src={item.cover} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                      {item.cover ? (
+                        <img src={item.cover} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
+                          <i className="fa-solid fa-book text-slate-400 text-2xl"></i>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex-grow min-w-0">

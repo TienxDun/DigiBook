@@ -87,6 +87,7 @@ export interface UserProfile {
   birthday?: string;
   role?: 'user' | 'admin';
   status?: 'active' | 'banned';
+  membershipTier?: 'regular' | 'member' | 'wholesale' | 'vip';
   wishlistIds?: string[];
   createdAt?: any;
   updatedAt?: any;
@@ -161,5 +162,3 @@ export interface Coupon {
   usedCount: number;
   isActive: boolean;
 }
-
-

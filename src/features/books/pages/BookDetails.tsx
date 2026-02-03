@@ -7,6 +7,7 @@ import BookCard from '../components/BookCard/index';
 import { useCart } from '@/features/cart';
 import { useAuth } from '@/features/auth';
 import { db } from '@/services/db';
+import { booksService, reviewsService } from '@/services/db/adapter';
 import { Book, Review } from '@/shared/types';
 import { SEO, BookDetailsSkeleton } from '@/shared/components';
 import toast from '@/shared/utils/toast';
@@ -115,12 +116,15 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
         setError(false);
         // Fetch model config
 
-        // Try fetch by slug first
-        let foundBook = await db.getBookBySlug(slug);
+        // Smart routing: Try by ID first if slug looks like an ID (e.g., TK-xxxx)
+        let foundBook = null;
+        if (slug.startsWith('TK-') || slug.startsWith('tk-')) {
+          foundBook = await booksService.getBookById(slug);
+        }
 
-        // Fallback: Try fetch by ID if slug not found (for legacy links or if slug matches ID)
+        // Fallback: Try fetch by slug if ID lookup failed or slug doesn't look like an ID
         if (!foundBook) {
-          foundBook = await db.getBookById(slug);
+          foundBook = await booksService.getBookBySlug(slug);
         }
 
         if (foundBook) {
@@ -129,7 +133,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
           setViewingBook(bookData);
 
           // Increment view count (fire and forget)
-          db.incrementBookView(bookData.id);
+          booksService.incrementBookView(bookData.id);
 
           // Fetch author info
           db.getAuthors().then(authors => {
@@ -137,7 +141,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
             if (info) setAuthorInfo(info as any);
           });
 
-          const bookReviews = await db.getReviewsByBookId(bookData.id);
+          const bookReviews = await reviewsService.getReviewsByBookId(bookData.id);
 
           // Kiểm tra xem mỗi người review đã mua sách chưa
           const reviewsWithPurchaseInfo = await Promise.all(bookReviews.map(async (r) => {
@@ -148,11 +152,11 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
           setReviews(reviewsWithPurchaseInfo);
 
           // Gợi ý sách liên quan - Tăng lên 5 cuốn để lấp đầy grid
-          const related = await db.getRelatedBooks(bookData.category, bookData.id, bookData.author, 5);
+          const related = await booksService.getRelatedBooks(bookData.category, bookData.id, bookData.author, 5);
           setRelatedBooks(related);
 
           // Fetch sách cùng tác giả
-          const byAuthor = await db.getBooksByAuthor(bookData.author, bookData.id, 5);
+          const byAuthor = await booksService.getBooksByAuthor(bookData.author, bookData.id, 5);
           setAuthorBooks(byAuthor);
 
           // Update recent books in localStorage
@@ -226,7 +230,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
     if (!newComment.trim()) return;
     if (!book) return;
 
-    await db.addReview({
+    await reviewsService.addReview({
       bookId: book.id,
       userId: user.id,
       userName: user.name,
@@ -234,7 +238,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
       content: newComment
     });
     setNewComment('');
-    const updatedReviews = await db.getReviewsByBookId(book.id);
+    const updatedReviews = await reviewsService.getReviewsByBookId(book.id);
 
     // Refresh with purchase info
     const reviewsWithPurchaseInfo = await Promise.all(updatedReviews.map(async (r) => {

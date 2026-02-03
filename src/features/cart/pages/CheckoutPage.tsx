@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from '@/shared/utils/toast';
 import { useAuth } from '@/features/auth';
 import { db } from '@/services/db';
+import { ordersService, couponsService } from '@/services/db/adapter';
 import { ErrorHandler } from '@/services/errorHandler';
 import { useCart } from '@/features/cart';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,6 +12,8 @@ import { Address } from '@/shared/types';
 import { AddressList, AddressFormModal } from '@/features/auth';
 
 import { validateCartStock } from '@/services/db/utils/validateCartStock';
+import { calculatePricingWithPatterns } from '../utils/pricingCalculator';
+import { PricingBreakdown } from '../components/PricingBreakdown';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -48,6 +51,10 @@ const CheckoutPage: React.FC = () => {
   const [couponError, setCouponError] = useState('');
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
 
+  // Design Patterns Pricing
+  const [pricingResult, setPricingResult] = useState<any>(null);
+  const [isCalculatingPrice, setIsCalculatingPrice] = useState(false);
+
   // 1. Load User Addresses & Profile
   const fetchUserData = async () => {
     if (!user) return;
@@ -70,6 +77,51 @@ const CheckoutPage: React.FC = () => {
   useEffect(() => {
     fetchUserData();
   }, [user]);
+
+  // Calculate pricing with Design Patterns when cart or coupon changes
+  useEffect(() => {
+    const calculatePrice = async () => {
+      if (cart.length === 0 || !user) {
+        setPricingResult(null);
+        return;
+      }
+
+      setIsCalculatingPrice(true);
+      try {
+        // Get user membership tier
+        const profile = await db.getUserProfile(user.id);
+        const membershipTier = profile?.membershipTier || 'regular';
+
+        const result = await calculatePricingWithPatterns(
+          cart,
+          user.id,
+          appliedCoupon ? {
+            code: appliedCoupon.code,
+            discountValue: appliedCoupon.value,
+            discountType: appliedCoupon.type
+          } : null,
+          membershipTier
+        );
+        setPricingResult(result);
+      } catch (error) {
+        console.error('Error calculating pricing:', error);
+        // Fallback to simple calculation
+        const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const shipping = subtotal > 500000 ? 0 : 25000;
+        setPricingResult({
+          subtotal,
+          shipping,
+          discounts: [],
+          total: subtotal + shipping,
+          originalTotal: subtotal + shipping
+        });
+      } finally {
+        setIsCalculatingPrice(false);
+      }
+    };
+
+    calculatePrice();
+  }, [cart, appliedCoupon, user]);
 
   // Handle Address Selection
   const handleSelectAddress = (addr: Address) => {
@@ -194,17 +246,27 @@ const CheckoutPage: React.FC = () => {
   }, [cart, navigate]);
 
 
-  // Calculations
-  const subtotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
-  const shipping = subtotal > 500000 ? 0 : 25000;
-  const discount = useMemo(() => {
+  // Calculations - Always call hooks, then choose value
+  const calculatedSubtotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
+  const subtotal = pricingResult?.subtotal || calculatedSubtotal;
+  const shipping = pricingResult?.shipping || (subtotal > 500000 ? 0 : 25000);
+
+  const calculatedDiscount = useMemo(() => {
     if (!appliedCoupon) return 0;
     if (appliedCoupon.type === 'percentage') {
-      return (subtotal * appliedCoupon.value) / 100;
+      return (calculatedSubtotal * appliedCoupon.value) / 100;
     }
     return appliedCoupon.value;
-  }, [appliedCoupon, subtotal]);
-  const total = subtotal + shipping - discount;
+  }, [appliedCoupon, calculatedSubtotal]);
+
+  // Use pricing result from API if available, otherwise fallback to manual calculation
+  const discount = pricingResult
+    ? pricingResult.discounts.reduce((sum: number, d: any) => sum + d.amount, 0)
+    : calculatedDiscount;
+
+  const total = pricingResult
+    ? pricingResult.total
+    : (subtotal + shipping - discount);
 
   const handleApplyCoupon = async () => {
     setCouponError('');
@@ -212,12 +274,12 @@ const CheckoutPage: React.FC = () => {
 
     setIsApplyingCoupon(true);
     try {
-      const coupon = await db.validateCoupon(couponCode, subtotal);
+      const coupon = await couponsService.validateCoupon(couponCode, subtotal);
       // Simulate a small delay for UX so spinner is visible
       await new Promise(r => setTimeout(r, 600));
 
       if (coupon) {
-        setAppliedCoupon({ code: coupon.code, value: coupon.value, type: coupon.type });
+        setAppliedCoupon({ code: coupon.code, value: coupon.discountValue, type: coupon.discountType });
         setCouponCode('');
         toast.success('Áp dụng mã giảm giá thành công!');
       } else {
@@ -266,10 +328,10 @@ const CheckoutPage: React.FC = () => {
 
       await new Promise(r => setTimeout(r, 1500)); // UX delay
 
-      const order = await db.createOrder({
+      const order = await ordersService.createOrder({
         userId: user.id,
         status: 'Đang xử lý',
-        statusStep: 1,
+        statusStep: 0,
         customer: {
           name: formData.name,
           phone: formData.phone,
@@ -287,7 +349,7 @@ const CheckoutPage: React.FC = () => {
       }, cart);
 
       if (appliedCoupon) {
-        await db.incrementCouponUsage(appliedCoupon.code);
+        await couponsService.incrementCouponUsage(appliedCoupon.code);
       }
 
       isSubmittingRef.current = true;
@@ -552,30 +614,15 @@ const CheckoutPage: React.FC = () => {
                   {couponError && <p className="text-[10px] font-bold text-rose-500 mt-1">{couponError}</p>}
                 </div>
 
-                <div className="p-5 xl:p-6 space-y-2">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-400 font-bold uppercase tracking-wide">Tạm tính</span>
-                    <span className="font-bold text-slate-900">{formatPrice(subtotal)}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-400 font-bold uppercase tracking-wide">Vận chuyển</span>
-                    <span className={`font-bold ${shipping === 0 ? 'text-emerald-600' : 'text-slate-900'}`}>
-                      {shipping === 0 ? 'Miễn phí' : formatPrice(shipping)}
-                    </span>
-                  </div>
-                  {appliedCoupon && (
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-emerald-600 font-bold uppercase tracking-wide">Giảm giá</span>
-                      <span className="font-bold text-emerald-600">-{formatPrice(discount)}</span>
-                    </div>
-                  )}
-
-                  <div className="flex justify-between items-end pt-3 mt-2 border-t border-dashed border-slate-200">
-                    <span className="font-black text-slate-900 uppercase tracking-wide text-xs">Tổng cộng</span>
-                    <div className="text-right">
-                      <span className="block text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight leading-none">{formatPrice(total)}</span>
-                    </div>
-                  </div>
+                <div className="p-5 xl:p-6">
+                  <PricingBreakdown
+                    subtotal={subtotal}
+                    shipping={shipping}
+                    discounts={pricingResult?.discounts || []}
+                    total={total}
+                    originalTotal={pricingResult?.originalTotal || (subtotal + shipping)}
+                    loading={isCalculatingPrice}
+                  />
 
                   <button
                     onClick={handleCompleteOrder}
