@@ -1,0 +1,131 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      // Users can read their own profile, admins can read all
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Users can create their own profile, but cannot set themselves as admin
+      allow create: if isOwner(userId) && 
+                    request.resource.data.get('role', 'user') == 'user' && 
+                    request.resource.data.get('status', 'active') == 'active';
+                    
+      // Users can update their own profile (e.g., cart, wishlist, addresses)
+      // but cannot change their role or status. Admins can update any profile.
+      allow update: if isAdmin() || (
+        isOwner(userId) && 
+        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status']))
+      );
+      
+      // Only admins can delete users
+      allow delete: if isAdmin();
+    }
+
+    // User Carts Collection - Thiếu trong rules cũ
+    match /userCarts/{userId} {
+      // Users can only read/write their own cart
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+
+    // Books Collection
+    match /books/{bookId} {
+      // Anyone can read books
+      allow read: if true;
+      
+      // Only admins can create or delete books
+      allow create, delete: if isAdmin();
+      
+      // Admins can update any field.
+      // Users can only update stockQuantity (when ordering), viewCount, rating, and reviewCount.
+      // Note: stockQuantity validation is handled at application level (transaction)
+      allow update: if isAdmin() || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stockQuantity', 'viewCount', 'rating', 'reviewCount'])
+      );
+      
+      // Reviews Subcollection
+      match /reviews/{reviewId} {
+        // Anyone can read reviews
+        allow read: if true;
+        
+        // Authenticated users can create reviews for themselves
+        allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+        
+        // Users can update/delete their own reviews, admins can do it for any
+        // Fix: Thêm kiểm tra resource.data tồn tại
+        allow update, delete: if isAdmin() || (
+          isAuthenticated() && 
+          resource.data != null && 
+          resource.data.userId == request.auth.uid
+        );
+      }
+    }
+
+    // Orders Collection
+    match /orders/{orderId} {
+      // Users can read their own orders, admins can read all
+      allow read: if (isAuthenticated() && resource.data != null && resource.data.userId == request.auth.uid) || isAdmin();
+      
+      // Authenticated users can create orders for themselves
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      
+      // Only admins can update or delete orders
+      allow update, delete: if isAdmin();
+    }
+
+    // System Logs Collection
+    match /system_logs/{logId} {
+      // Admins can read logs
+      allow read: if isAdmin();
+      
+      // Anyone can create logs (since client-side error handling writes here)
+      allow create: if true; 
+      
+      // No one can update or delete logs
+      allow update, delete: if false;
+    }
+
+    // Categories Collection
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Authors Collection
+    match /authors/{authorId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Coupons Collection
+    match /coupons/{couponId} {
+      // Anyone can read coupons to validate them
+      allow read: if true;
+      
+      // Admins can create or delete coupons
+      allow create, delete: if isAdmin();
+      
+      // Admins can update any field.
+      // Users can only increment the usedCount when applying a coupon.
+      allow update: if isAdmin() || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usedCount']) &&
+        request.resource.data.usedCount == resource.data.get('usedCount', 0) + 1
+      );
+    }
+  }
+}
