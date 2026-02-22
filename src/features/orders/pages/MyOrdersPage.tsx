@@ -100,7 +100,7 @@ const MyOrdersPage: React.FC = () => {
   }
 
   return (
-    <div className="bg-slate-50 min-h-screen pt-12 lg:pt-16 pb-32 lg:pb-16">
+    <div className="bg-slate-50 min-h-screen pt-10 pb-32 lg:py-12">
       <SEO title="Đơn hàng của tôi" description="Quản lý và theo dõi lịch sử mua hàng của bạn tại DigiBook." />
 
       {/* Background Decor */}
@@ -109,7 +109,8 @@ const MyOrdersPage: React.FC = () => {
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-rose-50/30 blur-[100px] rounded-full translate-y-1/3 -translate-x-1/4"></div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 lg:px-8">
+      <div className="w-[94%] xl:w-[75%] 2xl:w-[65%] mx-auto px-4">
+        <div className="max-w-6xl mx-auto">
         {/* Header Segment */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
           <motion.div
@@ -258,6 +259,7 @@ const MyOrdersPage: React.FC = () => {
             )}
           </AnimatePresence>
         </div>
+      </div>
       </div>
     </div>
   );
