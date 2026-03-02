@@ -2,7 +2,6 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, PieChart, Pie, Legend } from 'recharts';
 import { db } from "@/services/db";
-import { ordersApi } from "@/services/api";
 import { Book, CategoryInfo, Author, Coupon, UserProfile, Order, SystemLog } from "@/shared/types/";
 import AdminBooks from "../components/AdminBooks";
 import AdminOrders from "../components/AdminOrders";
@@ -66,8 +65,7 @@ const AdminDashboard: React.FC = () => {
 
   const refreshData = async () => {
     try {
-      // Use API for orders to get real data
-      const allOrders = await ordersApi.getAll();
+      const allOrders = await db.getOrdersByUserId('admin');
       setOrders(allOrders || []);
 
       const [booksData, catsData, authorsData, couponsData, usersData] = await Promise.all([
@@ -599,8 +597,8 @@ const AdminDashboard: React.FC = () => {
                   </div>
 
                   <div className="space-y-4">
-                    {stats.recentOrders.length > 0 ? stats.recentOrders.map((order: any) => (
-                      <div key={order.id} className={`flex items-center justify-between p-5 rounded-3xl transition-all border ${isMidnight
+                    {stats.recentOrders.length > 0 ? stats.recentOrders.map((order: any, index: number) => (
+                      <div key={order.id || `${order.createdAt?.seconds || order.date || 'order'}-${index}`} className={`flex items-center justify-between p-5 rounded-3xl transition-all border ${isMidnight
                         ? 'bg-slate-800/40 border-white/5 hover:bg-slate-800 hover:border-primary/40'
                         : 'bg-muted border-border hover:bg-card hover:shadow-xl hover:shadow-slate-100'
                         }`}>
@@ -611,7 +609,7 @@ const AdminDashboard: React.FC = () => {
                             <i className={`fa-solid ${order.statusStep === 3 ? 'fa-check' : 'fa-clock'}`}></i>
                           </div>
                           <div>
-                            <h4 className="text-xs font-black uppercase tracking-tight text-foreground">#{order.id.slice(-6)}</h4>
+                            <h4 className="text-xs font-black uppercase tracking-tight text-foreground">#{(order.id || 'N/A').slice(-6)}</h4>
                             <p className="text-xs font-bold text-muted-foreground uppercase">{order.customer?.name || 'Ẩn danh'}</p>
                           </div>
                         </div>

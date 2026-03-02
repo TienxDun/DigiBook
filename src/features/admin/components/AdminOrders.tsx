@@ -184,11 +184,15 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                 </tr>
               </thead>
               <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-border'}`}>
-                {paginatedOrders.length > 0 ? paginatedOrders.map(order => (
-                  <tr key={order.id} className={`group transition-all ${isMidnight ? 'hover:bg-slate-700/30' : 'hover:bg-muted/30'}`}>
+                {paginatedOrders.length > 0 ? paginatedOrders.map((order, index) => {
+                  const rowKey = order.id || `${order.createdAt?.seconds || order.date || 'order'}-${index}`;
+                  const shortOrderId = (order.id || 'N/A').slice(-8).toUpperCase();
+
+                  return (
+                  <tr key={rowKey} className={`group transition-all ${isMidnight ? 'hover:bg-slate-700/30' : 'hover:bg-muted/30'}`}>
                     <td className="px-4 py-4">
                       <div className="flex bg-primary/10 w-fit px-2 py-1 rounded-lg">
-                        <span className="text-sm font-black text-primary">#{order.id.slice(-8).toUpperCase()}</span>
+                        <span className="text-sm font-black text-primary">#{shortOrderId}</span>
                       </div>
                     </td>
                     <td className="px-8 py-4">
@@ -215,12 +219,16 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                       <div className="relative min-w-[140px]">
                         <select
                           value={order.statusStep}
-                          onChange={(e) => handleUpdateOrderStatus(order.id, Number(e.target.value))}
+                          onChange={(e) => {
+                            if (!order.id) return;
+                            handleUpdateOrderStatus(order.id, Number(e.target.value));
+                          }}
                           className={`w-full appearance-none pl-4 pr-10 py-2 rounded-xl text-xs font-bold uppercase tracking-wide border outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer ${order.statusStep === 0 ? 'bg-chart-1/10 text-chart-1 border-chart-1/20 hover:bg-chart-1/20' :
                             order.statusStep === 1 ? 'bg-chart-2/10 text-chart-2 border-chart-2/20 hover:bg-chart-2/20' :
                               order.statusStep === 2 ? 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/20' :
                                 'bg-chart-4/10 text-chart-4 border-chart-4/20 hover:bg-chart-4/20'
                             }`}
+                          disabled={!order.id}
                         >
                           {orderStatusOptions.map(opt => (
                             <option key={opt.step} value={opt.step} className={isMidnight ? "bg-slate-800 text-slate-200" : "bg-white text-foreground"}>
@@ -253,7 +261,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                       </button>
                     </td>
                   </tr>
-                )) : (
+                )}) : (
                   <tr>
                     <td colSpan={6} className="px-8 py-32 text-center text-muted-foreground">
                       <div className="flex flex-col items-center gap-4">
