@@ -113,7 +113,7 @@ export interface OrderItem {
 }
 
 export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
-export type LogCategory = 'AUTH' | 'DATABASE' | 'ADMIN' | 'SYSTEM' | 'AI' | 'ORDER';
+export type LogCategory = 'AUTH' | 'DATABASE' | 'ADMIN' | 'SYSTEM' | 'ORDER';
 
 export interface SystemLog {
   id?: string;

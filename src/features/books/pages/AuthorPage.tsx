@@ -244,7 +244,7 @@ const AuthorPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickV
             </div>
           </div>
 
-          {/* AI Profile Side - REMOVED */}
+          {/* Profile Side */}
           <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
             {/* Newsletter or CTA */}
             <div className="bg-emerald-600 p-8 rounded-3xl text-white shadow-xl shadow-emerald-100/50 relative overflow-hidden">

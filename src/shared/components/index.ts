@@ -20,5 +20,3 @@ export { MapPicker } from './form/MapPicker';
 // SEO Components
 export { default as SEO } from './seo/SEO';
 
-// AI Components
-
