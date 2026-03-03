@@ -19,24 +19,24 @@ export const BookCardInfo: React.FC<BookCardInfoProps> = ({ book, onAddToCart })
             className="flex flex-col flex-grow min-h-0 justify-between cursor-pointer group/info"
         >
             <div className="space-y-1">
-                <div className="block h-[2.8rem] sm:h-[3rem] overflow-hidden">
-                    <h3 className="font-bold text-slate-800 text-xs sm:text-sm leading-tight sm:leading-snug line-clamp-2 group-hover/info:text-primary transition-colors">
+                <div className="block h-[2.2rem] sm:h-[2.4rem] overflow-hidden">
+                    <h3 className="font-display font-black text-slate-800 text-[13px] sm:text-[15px] leading-tight sm:leading-[1.1] line-clamp-2 group-hover/info:text-primary transition-colors uppercase tracking-tight">
                         {book.title}
                     </h3>
                 </div>
-                <p className="text-slate-500 text-[10px] sm:text-xs font-medium truncate italic">{book.author}</p>
+                <p className="text-slate-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate">{book.author}</p>
             </div>
 
-            <div className="pt-2 flex items-center justify-between border-t border-secondary mt-auto">
-                <div className="flex flex-col">
+            <div className="pt-1.5 flex items-center justify-between border-t border-slate-100 mt-auto">
+                <div className="flex items-center gap-2 overflow-hidden">
+                    <span className="text-base sm:text-lg font-black text-rose-600 leading-none shrink-0">
+                        {formatPrice(book.price)}
+                    </span>
                     {book.originalPrice && book.originalPrice > book.price && (
-                        <span className="text-[10px] uppercase font-bold text-slate-400 line-through decoration-rose-400/50">
+                        <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 line-through decoration-rose-400/50 truncate">
                             {formatPrice(book.originalPrice)}
                         </span>
                     )}
-                    <span className="text-base font-black text-rose-600 leading-none">
-                        {formatPrice(book.price)}
-                    </span>
                 </div>
 
                 <button
@@ -46,9 +46,9 @@ export const BookCardInfo: React.FC<BookCardInfoProps> = ({ book, onAddToCart })
                         onAddToCart(book, 1, { x: e.clientX, y: e.clientY });
                     }}
                     disabled={!hasStock || !isAvailable}
-                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center transition-[background-color,color,transform,box-shadow] duration-200 ${(!hasStock || !isAvailable)
-                        ? 'bg-secondary text-slate-300 cursor-not-allowed'
-                        : 'bg-primary text-white hover:bg-foreground hover:scale-105 active:scale-95 shadow-md shadow-primary/10'
+                    className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all duration-300 ${(!hasStock || !isAvailable)
+                        ? 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                        : 'bg-slate-900 text-white hover:bg-primary shadow-[0_8px_20px_rgba(0,0,0,0.1)] hover:shadow-primary/20 hover:-translate-y-1 active:scale-[0.95]'
                         }`}
                 >
                     <i className="fa-solid fa-cart-shopping text-xs"></i>

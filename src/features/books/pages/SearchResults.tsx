@@ -80,25 +80,40 @@ const SearchResults: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQui
 
   return (
     <div className="min-h-screen bg-slate-50 pt-16 lg:pt-20 pb-32 lg:pb-16 px-4 overflow-hidden">
-      <div className="max-w-7xl mx-auto mb-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 rounded-lg mb-4">
-              <i className="fa-solid fa-magnifying-glass text-indigo-500 text-xs"></i>
-              <p className="text-micro font-bold text-indigo-500 uppercase tracking-premium">Kết quả tìm kiếm</p>
+      <div className="max-w-7xl mx-auto mb-10">
+        <div className="bg-white/70 backdrop-blur-3xl p-4 sm:p-5 rounded-[2.2rem] border border-white/60 ring-1 ring-black/[0.03] shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-500 flex flex-col md:flex-row md:items-center justify-between gap-5 relative overflow-hidden group min-h-[100px] sm:min-h-[110px]">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/50 blur-3xl rounded-full -z-10 translate-x-1/2 -translate-y-1/2 group-hover:bg-indigo-100/50 transition-colors duration-700"></div>
+
+          <div className="relative z-10 flex items-center gap-4 w-full md:w-auto">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 shrink-0">
+              <i className="fa-solid fa-magnifying-glass text-lg sm:text-xl"></i>
             </div>
-            <h1 className="text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-              {loading ? 'Đang tìm kiếm...' : (
-                <>
-                  Tìm thấy <span className="text-indigo-600">{allResults.length}</span> kết quả <br className="hidden lg:block" />
-                  cho từ khóa "<span className="italic text-slate-400 font-medium">{query}</span>"
-                </>
-              )}
-            </h1>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-display font-black text-slate-900 tracking-tighter leading-none truncate">
+                  {loading ? 'Đang tìm...' : (
+                    <>
+                      Kết quả cho <span className="text-indigo-600">"{query}"</span>
+                    </>
+                  )}
+                </h1>
+                <div className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 bg-indigo-50/50 rounded-lg ring-1 ring-indigo-100/50 shrink-0">
+                  <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest leading-none">Discovery</p>
+                </div>
+              </div>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                Tìm thấy <span className="text-indigo-600 font-black">{allResults.length}</span> vật phẩm tương ứng
+              </p>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <Link to="/" className="px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-micro font-bold uppercase tracking-premium text-slate-500 hover:text-indigo-600 hover:border-indigo-100 transition-all flex items-center gap-2 active:scale-95 shadow-sm">
-              <i className="fa-solid fa-arrow-left"></i> Quay lại
+
+          <div className="flex items-center gap-3 relative z-10">
+            <Link
+              to="/"
+              className="px-6 py-3.5 bg-slate-900 text-white rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-primary shadow-[0_8px_20px_rgba(0,0,0,0.1)] hover:shadow-primary/20 transition-all flex items-center gap-2 active:scale-95 group/btn"
+            >
+              <i className="fa-solid fa-arrow-left group-hover/btn:-translate-x-1 transition-transform"></i>
+              Quay lại
             </Link>
           </div>
         </div>

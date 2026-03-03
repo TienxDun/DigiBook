@@ -227,37 +227,41 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
           <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white/40 to-transparent pointer-events-none z-10" />
         </div>
 
-        <div className="bg-white/40 backdrop-blur-2xl p-3 sm:p-4 rounded-[2rem] shadow-[0_8px_32px_rgba(0,0,0,0.03)] border border-white/40 flex flex-col xl:flex-row items-center justify-between gap-4 mb-8 transition-all duration-500 ring-1 ring-black/[0.03]">
-          <div className="flex flex-col sm:flex-row items-center gap-4 w-full xl:w-auto px-2">
+        <div className="bg-white/70 backdrop-blur-3xl px-4 py-[10px] rounded-[2.2rem] shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white/60 flex flex-col xl:flex-row items-center justify-between gap-3 mb-8 transition-all duration-500 ring-1 ring-black/[0.03] relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/50 blur-3xl rounded-full -z-10 translate-x-1/2 -translate-y-1/2 group-hover:bg-indigo-100/50 transition-colors duration-700"></div>
+
+          {/* Left: Title + Icon */}
+          <div className="flex items-center gap-3 w-full xl:w-auto relative z-10 min-w-0">
             {!isPromotionPage ? (
-              <div className="flex items-center gap-4 w-full sm:w-auto">
-                <div className="w-12 h-12 bg-white/50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm border border-white/80 shrink-0">
-                  <i className={`fa-solid ${currentCategory.icon} text-xl`}></i>
+              <>
+                <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-indigo-200 shrink-0">
+                  <i className={`fa-solid ${currentCategory.icon} text-sm`}></i>
                 </div>
-                <div>
-                  <h1 className="text-2xl font-black text-slate-800 tracking-tighter leading-none mb-1">
+                <div className="min-w-0 flex items-center gap-2 flex-wrap">
+                  <h1 className="text-base sm:text-lg lg:text-xl font-display font-black text-slate-900 tracking-tighter leading-none truncate">
                     {categoryName || 'Tất cả sách'}
                   </h1>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 bg-slate-100/50 px-2 py-0.5 rounded-md border border-slate-200/50">
-                    {books.length} sản phẩm
-                  </span>
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-indigo-50/60 rounded-lg ring-1 ring-indigo-100/60 shrink-0">
+                    <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest leading-none">{books.length} sách</p>
+                  </div>
                 </div>
-              </div>
+              </>
             ) : (
-              <div className="flex items-center gap-4 w-full sm:w-auto">
-                <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500 shadow-sm border border-rose-100/50 shrink-0">
-                  <i className="fa-solid fa-fire-flame-curved text-xl animate-pulse"></i>
+              <>
+                <div className="w-9 h-9 bg-rose-500 rounded-xl flex items-center justify-center text-white shadow-md shadow-rose-200 shrink-0">
+                  <i className="fa-solid fa-fire-flame-curved text-sm animate-pulse"></i>
                 </div>
-                <div>
-                  <h1 className="text-2xl font-black text-slate-800 tracking-tighter leading-none mb-1">Khuyến mãi cực hot</h1>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-rose-400 bg-rose-50/50 px-2 py-0.5 rounded-md border border-rose-100/50">
-                    {books.length} ưu đãi độc quyền
-                  </span>
+                <div className="min-w-0 flex items-center gap-2 flex-wrap">
+                  <h1 className="text-base sm:text-lg lg:text-xl font-display font-black text-slate-900 tracking-tighter leading-none uppercase truncate">Hot Deals</h1>
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-rose-50/60 rounded-lg ring-1 ring-rose-100/60 shrink-0">
+                    <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest leading-none">{books.length} ưu đãi</p>
+                  </div>
                 </div>
-              </div>
+              </>
             )}
           </div>
 
+          {/* Right: Sort Bar */}
           <div className="flex items-center bg-slate-100/50 p-1 rounded-2xl border border-slate-200/40 w-full xl:w-auto overflow-x-auto no-scrollbar shadow-inner relative">
             <div className="flex items-center gap-1 relative z-10 w-full md:w-auto">
               {[
@@ -271,7 +275,7 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
                   <button
                     key={option.id}
                     onClick={() => setSortBy(option.id)}
-                    className={`flex-1 md:flex-none relative px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-colors duration-300 flex items-center justify-center gap-2 ${isActive ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-700'
+                    className={`flex-1 md:flex-none relative px-4 py-2 rounded-xl text-[12px] font-bold uppercase tracking-wider transition-colors duration-300 flex items-center justify-center gap-2 ${isActive ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-700'
                       }`}
                   >
                     {isActive && (
