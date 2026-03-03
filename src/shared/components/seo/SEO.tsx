@@ -27,7 +27,7 @@ const SEO: React.FC<SEOProps> = ({
   const fullTitle = title ? `${title} | ${siteName}` : siteName;
   const siteUrl = 'https://tienxdun.github.io/DigiBook/';
   const fullUrl = url ? `${siteUrl.replace(/\/$/, '')}${url}` : siteUrl;
-  const defaultDescription = 'DigiBook - Nhà sách trực tuyến hiện đại, cung cấp hàng ngàn đầu sách bản quyền với sự hỗ trợ của AI.';
+  const defaultDescription = 'DigiBook - Nhà sách trực tuyến hiện đại, cung cấp hàng ngàn đầu sách bản quyền chất lượng cao.';
   const defaultImage = 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1200&auto=format&fit=crop';
 
   return (
@@ -35,7 +35,7 @@ const SEO: React.FC<SEOProps> = ({
       {/* Standard metadata tags */}
       <title>{fullTitle}</title>
       <meta name="description" content={description || defaultDescription} />
-      <meta name="keywords" content={keywords || 'sách, mua sách online, bookstore, digibook, nhà sách trực tuyến, sách AI'} />
+      <meta name="keywords" content={keywords || 'sách, mua sách online, bookstore, digibook, nhà sách trực tuyến'} />
       <meta name="author" content={author} />
       <link rel="canonical" href={fullUrl} />
 

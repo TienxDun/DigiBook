@@ -77,7 +77,7 @@ export async function logActivity(
     console.log('   Metadata:', metadata);
   }
 
-  const criticalCategories: LogCategory[] = ['ADMIN', 'AUTH', 'ORDER', 'AI'];
+  const criticalCategories: LogCategory[] = ['ADMIN', 'AUTH', 'ORDER'];
   const shouldSaveToDb =
     level === 'ERROR' ||
     level === 'WARN' ||

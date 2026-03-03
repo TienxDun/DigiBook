@@ -198,7 +198,7 @@ const HomePage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickVie
               />
             </div>
 
-            {/* REPLACED AI Assistant Promo with Community Promo */}
+            {/* Community Promo */}
             <div className="col-span-6 lg:col-span-3 bg-accent rounded-2xl sm:rounded-[2rem] p-4 sm:p-5 lg:p-8 relative overflow-hidden group">
               <div className="relative z-10 flex items-center justify-between h-full">
                 <div className="max-w-[80%] lg:max-w-[60%]">
