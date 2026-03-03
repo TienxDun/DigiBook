@@ -44,6 +44,36 @@ Tài liệu cốt lõi trong **[DOCS/](./DOCS)**:
 
 ---
 
+## 📸 Giao Diện Ứng Dụng
+
+<div align="center">
+  <table width="100%">
+    <tr>
+      <td width="33.33%" align="center">
+        <a href="./DOCS/Home.jpeg">
+          <img src="./DOCS/Home.jpeg" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" alt="Home Page"/>
+        </a>
+        <br><b>🏠 Trang Chủ</b>
+      </td>
+      <td width="33.33%" align="center">
+        <a href="./DOCS/Category.jpeg">
+          <img src="./DOCS/Category.jpeg" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" alt="Category Page"/>
+        </a>
+        <br><b>📚 Danh Mục</b>
+      </td>
+      <td width="33.33%" align="center">
+        <a href="./DOCS/AdminDashboard.jpeg">
+          <img src="./DOCS/AdminDashboard.jpeg" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" alt="Admin Dashboard"/>
+        </a>
+        <br><b>📊 Admin Dashboard</b>
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+---
+
 ## 🏗️ Kiến Trúc
 
 ### Tech Stack
