@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { db } from '@/services/db';
 import { Book, CategoryInfo } from '@/shared/types';
 import { BookCardSkeleton } from '@/shared/components';
@@ -192,20 +193,8 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
         className="max-w-7xl mx-auto px-4 relative z-20 scroll-mt-20 lg:scroll-mt-24 mt-4"
       >
 
-        {/* STICKY CATEGORY BAR - SUPER PREMIUM IMPACT */}
-        <div className="sticky top-[64px] lg:top-[80px] z-40 mb-5 sm:mb-6 p-1 sm:p-1.5 bg-white/80 backdrop-blur-3xl rounded-[2rem] sm:rounded-[3rem] border border-white/80 shadow-[0_10px_40px_rgba(0,0,0,0.06)] flex items-center gap-2 sm:gap-3 overflow-hidden transition-all duration-700 hover:shadow-[0_20px_60px_rgba(79,70,229,0.12)]">
-
-          {/* Label Section - Elegant & Professional */}
-          <div className="flex-shrink-0 flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-[1.2rem] sm:rounded-[2rem] shadow-xl relative overflow-hidden group/label">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/label:animate-[shimmer_1.5s_infinite]"></div>
-            <div className="relative">
-              <i className="fa-solid fa-wand-magic-sparkles text-amber-400 text-[10px] animate-pulse drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]"></i>
-            </div>
-            <span className="text-[11px] font-black text-white uppercase tracking-[0.2em] hidden md:block">Khám phá</span>
-          </div>
-
-          {/* Categories List - Premium Scrolling */}
-          <div className="flex-1 flex overflow-x-auto pb-1 gap-1.5 sm:gap-2 no-scrollbar scroll-smooth py-1 relative pr-12">
+        <div className="sticky top-[72px] lg:top-[88px] z-40 mb-8 p-1.5 bg-white/40 backdrop-blur-2xl rounded-full border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.03),0_1px_2px_rgba(0,0,0,0.02)] flex items-center gap-2 overflow-hidden hover:bg-white/60 transition-colors duration-500 ring-1 ring-black/[0.03]">
+          <div className="flex-1 flex overflow-x-auto gap-1 no-scrollbar scroll-smooth relative px-1 py-0.5">
             {[
               { name: 'Tất cả sách', icon: 'fa-book-open' },
               ...categories.filter(c => c.name !== 'Tất cả sách')
@@ -214,114 +203,90 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
               const isActive = (isAllTab && (categoryName === 'all' || categoryName === 'Tất cả sách' || !categoryName)) ||
                 categoryName === cat.name;
 
-              // Premium Color Palette with Mesh Gradients
-              const colors = [
-                { active: 'bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-[0_10px_20px_-5px_rgba(79,70,229,0.5)]', inactive: 'text-slate-600 hover:bg-white hover:text-indigo-600 hover:shadow-md' },
-                { active: 'bg-gradient-to-br from-rose-500 to-orange-500 text-white shadow-[0_10px_20px_-5px_rgba(244,63,94,0.5)]', inactive: 'text-slate-600 hover:bg-white hover:text-rose-500 hover:shadow-md' },
-                { active: 'bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-[0_10px_20px_-5px_rgba(16,185,129,0.5)]', inactive: 'text-slate-600 hover:bg-white hover:text-emerald-500 hover:shadow-md' },
-                { active: 'bg-gradient-to-br from-amber-500 to-orange-400 text-white shadow-[0_10px_20px_-5px_rgba(245,158,11,0.5)]', inactive: 'text-slate-600 hover:bg-white hover:text-amber-500 hover:shadow-md' },
-                { active: 'bg-gradient-to-br from-cyan-500 to-blue-500 text-white shadow-[0_10px_20px_-5px_rgba(6,182,212,0.5)]', inactive: 'text-slate-600 hover:bg-white hover:text-cyan-500 hover:shadow-md' },
-                { active: 'bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-[0_10px_20px_-5px_rgba(139,92,246,0.5)]', inactive: 'text-slate-600 hover:bg-white hover:text-violet-500 hover:shadow-md' },
-              ][i % 6];
-
               return (
                 <Link
-                  key={i}
+                  key={cat.name}
                   to={isAllTab ? '/category/all' : `/category/${cat.name}`}
-                  className={`flex-shrink-0 relative group/item px-3.5 py-2 lg:px-4.5 lg:py-2.5 rounded-[1rem] sm:rounded-[2rem] font-bold text-[10px] lg:text-[11px] uppercase tracking-wide flex items-center gap-2 transition-all duration-500 border border-transparent ${isActive ? colors.active : `bg-transparent ${colors.inactive}`
+                  className={`flex-shrink-0 relative px-5 py-2.5 rounded-full font-bold text-xs uppercase tracking-tight flex items-center gap-2.5 transition-colors duration-300 group ${isActive ? 'text-white' : 'text-slate-500 hover:text-slate-800'
                     }`}
                 >
-                  <i className={`fa-solid ${cat.icon} transition-all duration-500 ${isActive ? 'scale-110 rotate-[360deg]' : 'group-hover/item:scale-120 group-hover/item:rotate-12'
-                    }`}></i>
-                  <span className="relative z-10">{cat.name}</span>
-
-                  {/* Active Indicator Line */}
                   {isActive && (
-                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-white rounded-full shadow-[0_0_10px_#fff]"></div>
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute inset-0 bg-indigo-600 rounded-full shadow-[0_4px_12px_rgba(79,70,229,0.3)]"
+                      transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                    />
                   )}
-
-                  {/* Hover Background Effect */}
-                  {!isActive && (
-                    <div className="absolute inset-0 bg-white/50 rounded-xl sm:rounded-[1.8rem] opacity-0 group-hover/item:opacity-100 transition-opacity -z-10 blur-sm"></div>
-                  )}
+                  <i className={`fa-solid ${cat.icon} relative z-10 text-[13px] transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}></i>
+                  <span className="relative z-10">{cat.name}</span>
                 </Link>
               );
             })}
           </div>
 
-          {/* Fade Effect on Scroll */}
-          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white/80 to-transparent pointer-events-none z-10"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white/40 to-transparent pointer-events-none z-10" />
         </div>
 
-        {/* HEADER & SORTING - ULTRA COMPACT PREMIUM UI */}
-        <div className="bg-white/90 backdrop-blur-xl p-2 sm:p-2.5 lg:p-3 rounded-2xl lg:rounded-[2.5rem] shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-white/80 flex flex-col xl:flex-row items-center justify-between gap-3 mb-5 transition-all duration-500 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)]">
-          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 w-full xl:w-auto text-center sm:text-left px-2">
-            {!isPromotionPage && (
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                {/* Modern Inline Icon */}
-                <div className="relative group shrink-0">
-                  <div className="absolute -inset-2 bg-indigo-500/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <i className={`fa-solid ${currentCategory.icon} text-xl sm:text-2xl text-indigo-600 relative z-10 drop-shadow-[0_2px_10px_rgba(79,70,229,0.2)] group-hover:scale-110 transition-transform duration-300`}></i>
+        <div className="bg-white/40 backdrop-blur-2xl p-3 sm:p-4 rounded-[2rem] shadow-[0_8px_32px_rgba(0,0,0,0.03)] border border-white/40 flex flex-col xl:flex-row items-center justify-between gap-4 mb-8 transition-all duration-500 ring-1 ring-black/[0.03]">
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full xl:w-auto px-2">
+            {!isPromotionPage ? (
+              <div className="flex items-center gap-4 w-full sm:w-auto">
+                <div className="w-12 h-12 bg-white/50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm border border-white/80 shrink-0">
+                  <i className={`fa-solid ${currentCategory.icon} text-xl`}></i>
                 </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3">
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-800 tracking-tight whitespace-nowrap">
+                <div>
+                  <h1 className="text-2xl font-black text-slate-800 tracking-tighter leading-none mb-1">
                     {categoryName || 'Tất cả sách'}
                   </h1>
-                  <div className="flex items-center justify-center sm:justify-start gap-1.5">
-                    <span className="w-1 h-1 bg-slate-300 rounded-full hidden sm:block"></span>
-                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100">
-                      {books.length} sản phẩm
-                    </p>
-                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 bg-slate-100/50 px-2 py-0.5 rounded-md border border-slate-200/50">
+                    {books.length} sản phẩm
+                  </span>
                 </div>
               </div>
-            )}
-
-            {isPromotionPage && (
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                {/* Promo Icon */}
-                <div className="w-8 h-8 sm:w-9 sm:h-9 bg-rose-50 rounded-lg flex items-center justify-center text-rose-500 shadow-sm border border-rose-100/50 shrink-0 transform transition-transform hover:rotate-12 duration-300">
-                  <i className="fa-solid fa-fire-flame-curved text-base sm:text-lg animate-pulse"></i>
+            ) : (
+              <div className="flex items-center gap-4 w-full sm:w-auto">
+                <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500 shadow-sm border border-rose-100/50 shrink-0">
+                  <i className="fa-solid fa-fire-flame-curved text-xl animate-pulse"></i>
                 </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3">
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-800 tracking-tight whitespace-nowrap">Khuyến mãi cực hot</h1>
-                  <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs font-bold uppercase tracking-widest text-slate-400">
-                    <span className="w-1 h-1 bg-slate-300 rounded-full hidden sm:block"></span>
-                    <span>{books.length} ưu đãi độc quyền</span>
-                  </div>
+                <div>
+                  <h1 className="text-2xl font-black text-slate-800 tracking-tighter leading-none mb-1">Khuyến mãi cực hot</h1>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-rose-400 bg-rose-50/50 px-2 py-0.5 rounded-md border border-rose-100/50">
+                    {books.length} ưu đãi độc quyền
+                  </span>
                 </div>
               </div>
             )}
           </div>
 
-          <div className="flex items-center justify-between xl:justify-end bg-slate-50/50 p-1 rounded-2xl border border-slate-200/40 w-full xl:w-auto overflow-x-auto no-scrollbar shadow-inner relative">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 border-r border-slate-200/50 mr-1 hidden md:flex bg-white rounded-xl shadow-sm z-10">
-              <i className="fa-solid fa-sort-amount-down text-indigo-500 text-xs"></i>
-              <span className="text-xs font-black text-slate-700 uppercase tracking-widest whitespace-nowrap">Sắp xếp</span>
-            </div>
-
+          <div className="flex items-center bg-slate-100/50 p-1 rounded-2xl border border-slate-200/40 w-full xl:w-auto overflow-x-auto no-scrollbar shadow-inner relative">
             <div className="flex items-center gap-1 relative z-10 w-full md:w-auto">
               {[
                 { id: 'newest', label: 'Mới nhất', icon: 'fa-sparkles' },
                 { id: 'price-low', label: 'Giá thấp', icon: 'fa-arrow-down-1-9' },
                 { id: 'price-high', label: 'Giá cao', icon: 'fa-arrow-up-9-1' },
                 { id: 'rating', label: 'Đánh giá', icon: 'fa-star' }
-              ].map((option) => (
-                <button
-                  key={option.id}
-                  onClick={() => setSortBy(option.id)}
-                  className={`flex flex-1 md:flex-none justify-center items-center gap-1.5 px-3.5 py-2 sm:px-4.5 sm:py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${sortBy === option.id
-                    ? 'bg-white text-indigo-600 shadow-md shadow-indigo-100 ring-1 ring-indigo-50'
-                    : 'bg-transparent text-slate-500 hover:text-indigo-600 hover:bg-white'
-                    }`}
-                >
-                  <i className={`fa-solid ${option.icon} text-xs ${sortBy === option.id ? 'text-indigo-600' : 'text-slate-400'}`}></i>
-                  <span className="hidden sm:inline">{option.label}</span>
-                  <span className="inline sm:hidden">{option.label.split(' ')[0]}</span>
-                </button>
-              ))}
+              ].map((option) => {
+                const isActive = sortBy === option.id;
+                return (
+                  <button
+                    key={option.id}
+                    onClick={() => setSortBy(option.id)}
+                    className={`flex-1 md:flex-none relative px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-colors duration-300 flex items-center justify-center gap-2 ${isActive ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-700'
+                      }`}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeSort"
+                        className="absolute inset-0 bg-white rounded-xl shadow-sm border border-slate-200/50"
+                        transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                    <i className={`fa-solid ${option.icon} relative z-10 text-[12px] ${isActive ? 'text-indigo-600' : 'text-slate-400'}`}></i>
+                    <span className="relative z-10 hidden sm:inline">{option.label}</span>
+                    <span className="relative z-10 inline sm:hidden">{option.label.split(' ')[0]}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
