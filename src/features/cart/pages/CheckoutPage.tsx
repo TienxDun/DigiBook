@@ -10,6 +10,8 @@ import { useCart } from '@/features/cart';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Address } from '@/shared/types';
 import { AddressList, AddressFormModal } from '@/features/auth';
+import { PaymentProviderFactory } from '@/services/payment/PaymentProviderFactory';
+import type { PaymentMethodType } from '@/services/payment/types';
 
 import { validateCartStock } from '@/services/db/utils/validateCartStock';
 import { calculatePricingWithPatterns } from '../utils/pricingCalculator';
@@ -45,7 +47,7 @@ const CheckoutPage: React.FC = () => {
     note: ''
   });
 
-  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'online'>('cod');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodType>('cod');
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string, value: number, type: 'percentage' | 'fixed' } | null>(null);
   const [couponError, setCouponError] = useState('');
@@ -330,7 +332,7 @@ const CheckoutPage: React.FC = () => {
 
       const order = await ordersService.createOrder({
         userId: user.id,
-        status: 'Đang xử lý',
+        status: paymentMethod === 'cod' ? 'Đang xử lý' : 'Chờ thanh toán',
         statusStep: 0,
         customer: {
           name: formData.name,
@@ -340,7 +342,9 @@ const CheckoutPage: React.FC = () => {
           note: formData.note
         },
         payment: {
-          method: paymentMethod === 'online' ? 'Chuyển khoản / Thẻ' : 'Tiền mặt khi nhận hàng (COD)',
+          method: paymentMethod === 'payos' ? 'PayOS' : 'Tiền mặt khi nhận hàng (COD)',
+          provider: paymentMethod,
+          status: paymentMethod === 'cod' ? 'PAID' : 'PENDING',
           subtotal,
           shipping,
           couponDiscount: discount,
@@ -352,10 +356,68 @@ const CheckoutPage: React.FC = () => {
         await couponsService.incrementCouponUsage(appliedCoupon.code);
       }
 
-      isSubmittingRef.current = true;
-      clearCart();
-      setIsProcessing(false);
-      navigate('/order-success', { state: { orderId: order.id } });
+      // Nếu là PayOS, tạo payment link và mở popup
+      if (paymentMethod === 'payos') {
+        try {
+          const provider = PaymentProviderFactory.createProvider('payos');
+          
+          // Tạo orderCode số nguyên unique từ timestamp
+          const orderCode = Date.now().toString();
+          
+          // Lưu orderId vào sessionStorage để dùng trong callback
+          sessionStorage.setItem('pending_order_id', order.id);
+          sessionStorage.setItem('pending_order_code', orderCode);
+          
+          const checkoutUrl = await provider.createPayment({
+            orderId: order.id,
+            orderCode: orderCode,
+            amount: total,
+            description: `DH${orderCode.slice(-15)}`, // Max 25 chars for PayOS
+            customer: {
+              name: formData.name.length > 25 ? formData.name.substring(0, 25) : formData.name,
+              email: user.email,
+              phone: formData.phone
+            },
+            items: cart.map(item => ({
+              name: item.title.length > 20 ? item.title.substring(0, 20) : item.title,
+              quantity: item.quantity,
+              price: item.priceAtPurchase
+            }))
+          });
+
+          // Mở tab mới cho thanh toán
+          provider.open(checkoutUrl);
+          
+          // Thông báo cho user
+          toast.success('Đang chuyển đến trang thanh toán PayOS...', {
+            duration: 3000
+          });
+          
+          // Clear cart và chuyển về trang orders
+          isSubmittingRef.current = true;
+          clearCart();
+          
+          // Chuyển sang trang orders để user kiểm tra đơn hàng
+          setTimeout(() => {
+            navigate('/orders');
+            toast.info('Vui lòng hoàn tất thanh toán trên tab mới', {
+              duration: 5000
+            });
+          }, 500);
+          
+          setIsProcessing(false);
+        } catch (paymentError: any) {
+          console.error('Payment error:', paymentError);
+          toast.error('Không thể tạo link thanh toán: ' + paymentError.message);
+          setIsProcessing(false);
+        }
+      } else {
+        // COD - Navigate trực tiếp
+        isSubmittingRef.current = true;
+        clearCart();
+        setIsProcessing(false);
+        navigate('/order-success', { state: { orderId: order.id } });
+      }
     } catch (error: any) {
       if (error.code === 'OUT_OF_STOCK') {
         toast.error(`KHO HÀNG THAY ĐỔI: ${error.message}.`);
@@ -479,26 +541,26 @@ const CheckoutPage: React.FC = () => {
                   </div>
                 </label>
 
-                {/* Online Payment Option */}
+                {/* PayOS Payment Option */}
                 <div className="relative">
-                  <label className={`relative flex items-center p-3 rounded-t-xl border-2 cursor-pointer transition-all duration-300 group z-10 ${paymentMethod === 'online' ? 'border-indigo-500 bg-indigo-50/50 shadow-md rounded-b-none border-b-0' : 'border-slate-100 hover:border-slate-200 bg-white rounded-b-xl'}`}>
+                  <label className={`relative flex items-center p-3 rounded-t-xl border-2 cursor-pointer transition-all duration-300 group z-10 ${paymentMethod === 'payos' ? 'border-indigo-500 bg-indigo-50/50 shadow-md rounded-b-none border-b-0' : 'border-slate-100 hover:border-slate-200 bg-white rounded-b-xl'}`}>
                     <input
                       type="radio"
                       name="payment"
-                      value="online"
-                      checked={paymentMethod === 'online'}
-                      onChange={() => setPaymentMethod('online')}
+                      value="payos"
+                      checked={paymentMethod === 'payos'}
+                      onChange={() => setPaymentMethod('payos')}
                       className="hidden"
                     />
-                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center mr-3 transition-colors shrink-0 ${paymentMethod === 'online' ? 'border-indigo-600' : 'border-slate-300'}`}>
-                      {paymentMethod === 'online' && <div className="w-2 h-2 rounded-full bg-indigo-600"></div>}
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center mr-3 transition-colors shrink-0 ${paymentMethod === 'payos' ? 'border-indigo-600' : 'border-slate-300'}`}>
+                      {paymentMethod === 'payos' && <div className="w-2 h-2 rounded-full bg-indigo-600"></div>}
                     </div>
                     <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-sm mr-3 shrink-0">
                       <i className="fa-solid fa-building-columns"></i>
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <p className="font-bold text-slate-800 text-xs">Chuyển khoản / QR</p>
+                        <p className="font-bold text-slate-800 text-xs">PayOS - Chuyển khoản / QR</p>
                         <span className="bg-gradient-to-r from-pink-500 to-rose-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide animate-pulse">
                           -5%
                         </span>
@@ -508,7 +570,7 @@ const CheckoutPage: React.FC = () => {
                   </label>
 
                   <AnimatePresence>
-                    {paymentMethod === 'online' && (
+                    {paymentMethod === 'payos' && (
                       <motion.div
                         initial={{ opacity: 0, height: 0, y: -10 }}
                         animate={{ opacity: 1, height: 'auto', y: 0 }}

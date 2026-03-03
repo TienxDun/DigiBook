@@ -18,7 +18,8 @@ export async function testConnection() {
   if (connectionTested || !db_fs) return;
 
   try {
-    await getDocs(query(collection(db_fs, 'system_logs'), limit(1)));
+    // Test with books collection instead of system_logs (books allow public read)
+    await getDocs(query(collection(db_fs, 'books'), limit(1)));
     connectionTested = true;
 
     if (!(window as any).__db_connected) {
@@ -26,8 +27,9 @@ export async function testConnection() {
       (window as any).__db_connected = true;
     }
   } catch (error: any) {
-    console.error("❌ Firestore connection failed:", error.message);
-
+    // Don't block the app if connection test fails (user might not be logged in)
+    console.warn("⚠️ Firestore connection test failed:", error.message);
+    
     if (error.name === 'BloomFilterError' || (error.message && error.message.includes('persistence'))) {
       console.warn("🔄 Attemping to clear Firestore persistence due to cache error...");
       try {
@@ -40,6 +42,7 @@ export async function testConnection() {
       }
     }
 
+    // Mark as tested even on failure so we don't keep retrying
     connectionTested = true;
   }
 }

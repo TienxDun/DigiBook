@@ -29,6 +29,11 @@ const OrderSuccess = lazy(() => import('@/features/orders').then(m => ({ default
 const MyOrdersPage = lazy(() => import('@/features/orders').then(m => ({ default: m.MyOrdersPage })));
 const OrderDetailPage = lazy(() => import('@/features/orders').then(m => ({ default: m.OrderDetailPage })));
 
+// Payment callback pages
+const PaymentCallbackPage = lazy(() => import('@/pages/PaymentCallbackPage'));
+const PaymentCancelPage = lazy(() => import('@/pages/PaymentCancelPage'));
+const PaymentSuccessPage = lazy(() => import('@/pages/PaymentSuccessPage'));
+
 // Lazy load admin routes as separate chunk
 const AdminRoutes = lazy(() => import('@/features/admin/routes/AdminRoutes'));
 
@@ -73,6 +78,9 @@ const AppContent: React.FC = () => {
               <Route path="/wishlist" element={<PageTransition><WishlistPage onQuickView={handleQuickView} /></PageTransition>} />
               <Route path="/checkout" element={<Suspense fallback={<div className="h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div></div>}><PageTransition><CheckoutPage /></PageTransition></Suspense>} />
               <Route path="/order-success" element={<PageTransition><OrderSuccess /></PageTransition>} />
+              <Route path="/payment-callback" element={<PageTransition><PaymentCallbackPage /></PageTransition>} />
+              <Route path="/payment-cancel" element={<PageTransition><PaymentCancelPage /></PageTransition>} />
+              <Route path="/payment-success/:orderId" element={<PageTransition><PaymentSuccessPage /></PageTransition>} />
               <Route path="/my-orders" element={<PageTransition><MyOrdersPage /></PageTransition>} />
               <Route path="/my-orders/:orderId" element={<PageTransition><OrderDetailPage /></PageTransition>} />
               <Route path="/profile" element={<PageTransition><ProfilePage /></PageTransition>} />
