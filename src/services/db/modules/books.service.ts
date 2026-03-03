@@ -406,6 +406,21 @@ export async function getBookDetailsFromTiki(tikiId: string | number): Promise<P
     const mainSpecs = specs.find((s: any) => s.name === 'Thông tin chi tiết' || s.name === 'Thông tin chung');
 
     if (mainSpecs && mainSpecs.attributes) {
+      // Helper: strips all HTML tags and returns clean text
+      const stripHtml = (html: string): string => {
+        if (!html || typeof html !== 'string') return '';
+        // Remove all HTML tags and decode common HTML entities
+        return html
+          .replace(/<[^>]*>/g, ' ')
+          .replace(/&nbsp;/g, ' ')
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/\s+/g, ' ')
+          .trim();
+      };
+
       for (const attr of mainSpecs.attributes) {
         const code = attr.code;
         const value = attr.value;
@@ -413,7 +428,7 @@ export async function getBookDetailsFromTiki(tikiId: string | number): Promise<P
         if (code === 'publisher_vn') publisher = value;
         if (code === 'manufacturer') manufacturer = value;
         if (code === 'dich_gia') translator = value;
-        if (code === 'dimensions') dimensions = value;
+        if (code === 'dimensions') dimensions = stripHtml(value);
         if (code === 'book_cover') bookLayout = value;
 
         if (code === 'publication_date') {

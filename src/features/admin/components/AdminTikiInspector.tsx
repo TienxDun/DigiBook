@@ -30,6 +30,12 @@ const AdminTikiInspector: React.FC<AdminTikiInspectorProps> = ({ theme = 'light'
             if (pid) tikiId = pid;
         }
 
+        // ✅ Validate: must be a numeric ID (after URL extraction)
+        if (!/^\d+$/.test(tikiId.replace(/^TK-/i, ''))) {
+            toast.error('❌ Input không hợp lệ! Vui lòng nhập Product ID (số) hoặc dán URL sản phẩm Tiki. Không hỗ trợ từ khóa tìm kiếm.');
+            return;
+        }
+
         setIsLoading(true);
         setRawData(null);
         setMappedData(null);
@@ -50,7 +56,7 @@ const AdminTikiInspector: React.FC<AdminTikiInspectorProps> = ({ theme = 'light'
             }
         } catch (error) {
             console.error(error);
-            toast.error('Lỗi khi kiểm tra Tiki API');
+            toast.error('Lỗi khi kiểm tra Tiki API. Tất cả proxy đều thất bại.');
         } finally {
             setIsLoading(false);
         }
@@ -88,8 +94,8 @@ const AdminTikiInspector: React.FC<AdminTikiInspectorProps> = ({ theme = 'light'
                         type="submit"
                         disabled={isLoading}
                         className={`h-12 px-6 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 transition-all shadow-lg active:scale-95 ${isLoading
-                                ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                                : 'bg-primary text-primary-foreground shadow-primary/30 hover:bg-primary/90'
+                            ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                            : 'bg-primary text-primary-foreground shadow-primary/30 hover:bg-primary/90'
                             }`}
                     >
                         {isLoading ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-search"></i>}
