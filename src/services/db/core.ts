@@ -136,14 +136,6 @@ export async function fetchWithProxy(targetUrl: string): Promise<any> {
     { url: 'https://thingproxy.freeboard.io/fetch/', encodeUrl: false },
   ];
 
-  const headers = {
-    'Accept': 'application/json, text/plain, */*',
-    'Accept-Language': 'vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-    'x-tiki-client-id': '2',
-    'x-tiki-session-id': '0',
-  };
-
   let lastError;
 
   for (const proxy of proxies) {
@@ -153,7 +145,9 @@ export async function fetchWithProxy(targetUrl: string): Promise<any> {
         ? proxy.url + encodeURIComponent(targetUrl)
         : proxy.url + targetUrl;
 
-      const response = await fetch(fetchUrl, { headers });
+      // Chú ý: Không gửi custom headers (như User-Agent, x-tiki-client-id) 
+      // để tránh lỗi CORS preflight OPTIONS request block từ proxy
+      const response = await fetch(fetchUrl);
       if (!response.ok) throw new Error(`Proxy error: ${response.status}`);
 
       // allorigins /get wraps data in { contents: '...' }

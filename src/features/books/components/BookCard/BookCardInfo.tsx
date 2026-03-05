@@ -48,7 +48,7 @@ export const BookCardInfo: React.FC<BookCardInfoProps> = ({ book, onAddToCart })
                     disabled={!hasStock || !isAvailable}
                     className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all duration-300 ${(!hasStock || !isAvailable)
                         ? 'bg-slate-100 text-slate-300 cursor-not-allowed'
-                        : 'bg-slate-900 text-white hover:bg-primary shadow-[0_8px_20px_rgba(0,0,0,0.1)] hover:shadow-primary/20 hover:-translate-y-1 active:scale-[0.95]'
+                        : 'bg-slate-900 text-white hover:bg-primary shadow-[0_8px_20px_rgba(0,0,0,0.1)] hover:shadow-primary/20 hover:-translate-y-1 active:scale-[0.95] opacity-100 lg:opacity-0 lg:group-hover:opacity-100'
                         }`}
                 >
                     <i className="fa-solid fa-cart-shopping text-xs"></i>
