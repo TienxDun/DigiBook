@@ -13,6 +13,12 @@ const ProfilePage: React.FC = () => {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [telegramBusy, setTelegramBusy] = useState(false);
+    const [telegramStatus, setTelegramStatus] = useState<{ isLinked: boolean; hasPendingToken: boolean; telegramChatId: string }>({
+        isLinked: false,
+        hasPendingToken: false,
+        telegramChatId: ''
+    });
     const [stats, setStats] = useState({ orders: 0, wishlist: 0 });
 
     // Address Management State
@@ -30,6 +36,7 @@ const ProfilePage: React.FC = () => {
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
+        telegramChatId: '',
         bio: '',
         gender: 'Nam',
         birthday: ''
@@ -38,15 +45,28 @@ const ProfilePage: React.FC = () => {
     // Refresh profile helper
     const refreshProfile = async () => {
         if (!user) return;
-        const profileData = await db.getUserProfile(user.id);
+        const [profileData, linkStatus] = await Promise.all([
+            db.getUserProfile(user.id),
+            db.getTelegramLinkStatus(user.id)
+        ]);
+
         if (profileData) {
             setProfile(profileData);
             setFormData({
                 name: profileData.name || user.name || '',
                 phone: profileData.phone || '',
+                telegramChatId: profileData.telegramChatId || '',
                 bio: profileData.bio || '',
                 gender: profileData.gender || 'Nam',
                 birthday: profileData.birthday || ''
+            });
+        }
+
+        if (linkStatus) {
+            setTelegramStatus({
+                isLinked: linkStatus.isLinked,
+                hasPendingToken: linkStatus.hasPendingToken,
+                telegramChatId: linkStatus.telegramChatId || ''
             });
         }
     };
@@ -65,6 +85,7 @@ const ProfilePage: React.FC = () => {
                     setFormData({
                         name: profileData.name || user.name || '',
                         phone: profileData.phone || '',
+                        telegramChatId: profileData.telegramChatId || '',
                         bio: profileData.bio || '',
                         gender: profileData.gender || 'Nam',
                         birthday: profileData.birthday || ''
@@ -77,6 +98,15 @@ const ProfilePage: React.FC = () => {
                     setFormData(prev => ({ ...prev, name: user.name }));
                     setStats({ orders: ordersData.length, wishlist: 0 });
                 }
+
+                const linkStatus = await db.getTelegramLinkStatus(user.id);
+                if (linkStatus) {
+                    setTelegramStatus({
+                        isLinked: linkStatus.isLinked,
+                        hasPendingToken: linkStatus.hasPendingToken,
+                        telegramChatId: linkStatus.telegramChatId || ''
+                    });
+                }
             } catch (error) {
                 console.error("Error fetching profile data:", error);
             } finally {
@@ -85,6 +115,42 @@ const ProfilePage: React.FC = () => {
         };
         fetchProfile();
     }, [user]);
+
+    const handleConnectTelegram = async () => {
+        if (!user) return;
+
+        setTelegramBusy(true);
+        try {
+            const linkData = await db.createTelegramLinkToken(user.id);
+            if (!linkData) {
+                toast.error('Chi ho tro o API mode. Hay bat VITE_USE_API=true.');
+                return;
+            }
+
+            window.open(linkData.startLink, '_blank', 'noopener,noreferrer');
+            toast.success('Da mo Telegram. Hay bam Start trong bot de lien ket.');
+            await refreshProfile();
+        } catch (error) {
+            ErrorHandler.handle(error, 'kết nối Telegram');
+        } finally {
+            setTelegramBusy(false);
+        }
+    };
+
+    const handleUnlinkTelegram = async () => {
+        if (!user) return;
+
+        setTelegramBusy(true);
+        try {
+            await db.unlinkTelegram(user.id);
+            toast.success('Da huy lien ket Telegram.');
+            await refreshProfile();
+        } catch (error) {
+            ErrorHandler.handle(error, 'hủy liên kết Telegram');
+        } finally {
+            setTelegramBusy(false);
+        }
+    };
 
     const handleSaveInfo = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -255,6 +321,54 @@ const ProfilePage: React.FC = () => {
                                             <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Số điện thoại</label>
                                             <input type="tel" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} placeholder="09xx xxx xxx" className="w-full pl-6 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 font-bold text-slate-900 shadow-inner" />
                                         </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-micro font-bold text-slate-400 uppercase tracking-premium ml-4">Telegram Chat ID</label>
+                                        <input
+                                            type="text"
+                                            value={formData.telegramChatId}
+                                            onChange={e => setFormData({ ...formData, telegramChatId: e.target.value })}
+                                            placeholder="VD: 123456789"
+                                            className="w-full pl-6 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-600 font-bold text-slate-900 shadow-inner"
+                                        />
+                                        <p className="text-xs text-slate-500 ml-4">
+                                            Dung de nhan thong bao don hang qua Telegram.
+                                        </p>
+                                    </div>
+                                    <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 space-y-3">
+                                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                                            <div>
+                                                <p className="text-xs font-bold uppercase tracking-premium text-slate-400">Lien ket Telegram</p>
+                                                <p className="text-sm font-semibold text-slate-700 mt-1">
+                                                    {telegramStatus.isLinked
+                                                        ? `Da lien ket (Chat ID: ${telegramStatus.telegramChatId})`
+                                                        : (telegramStatus.hasPendingToken ? 'Dang cho ban bam Start trong bot...' : 'Chua lien ket')}
+                                                </p>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={handleConnectTelegram}
+                                                    disabled={telegramBusy}
+                                                    className="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold uppercase tracking-wide hover:bg-indigo-700 disabled:opacity-60"
+                                                >
+                                                    {telegramBusy ? 'Dang xu ly...' : (telegramStatus.isLinked ? 'Lien ket lai' : 'Ket noi Telegram')}
+                                                </button>
+                                                {telegramStatus.isLinked && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleUnlinkTelegram}
+                                                        disabled={telegramBusy}
+                                                        className="px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-bold uppercase tracking-wide hover:bg-slate-100 disabled:opacity-60"
+                                                    >
+                                                        Huy lien ket
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-slate-500">
+                                            Sau khi bam ket noi, Telegram se mo bot. Ban can bam Start de he thong tu dong luu Chat ID.
+                                        </p>
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <div className="space-y-2">

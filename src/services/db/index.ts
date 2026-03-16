@@ -90,6 +90,9 @@ class DataService {
   getUserProfile = usersService.getUserProfile;
   updateUserProfile = usersService.updateUserProfile;
   updateWishlist = usersService.updateWishlist;
+  createTelegramLinkToken = usersService.createTelegramLinkToken;
+  getTelegramLinkStatus = usersService.getTelegramLinkStatus;
+  unlinkTelegram = usersService.unlinkTelegram;
   
   // Legacy Firebase-only methods
   getAllUsers = users.getAllUsers;

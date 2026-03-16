@@ -79,6 +79,7 @@ export interface UserProfile {
   name: string;
   email: string;
   phone?: string;
+  telegramChatId?: string;
 
   addresses?: Address[];
   avatar?: string;

@@ -13,6 +13,7 @@ import * as firebaseMetadata from './modules/metadata.service';
 import { 
   booksApi, 
   usersApi, 
+  telegramApi,
   ordersApi, 
   reviewsApi, 
   couponsApi, 
@@ -109,6 +110,30 @@ export const usersService = {
     return USE_API 
       ? await usersApi.updateWishlist(userId, bookIds) 
       : await firebaseUsers.updateWishlist(userId, bookIds);
+  },
+
+  async createTelegramLinkToken(userId: string): Promise<{ token: string; startLink: string; expiresAtUtc: string } | null> {
+    if (!USE_API) {
+      return null;
+    }
+
+    return await telegramApi.createLinkToken(userId);
+  },
+
+  async getTelegramLinkStatus(userId: string): Promise<{ isLinked: boolean; telegramChatId: string; hasPendingToken: boolean; pendingTokenExpiresAt?: string } | null> {
+    if (!USE_API) {
+      return null;
+    }
+
+    return await telegramApi.getLinkStatus(userId);
+  },
+
+  async unlinkTelegram(userId: string): Promise<void> {
+    if (!USE_API) {
+      return;
+    }
+
+    await telegramApi.unlink(userId);
   }
 };
 
