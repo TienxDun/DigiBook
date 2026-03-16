@@ -47,54 +47,82 @@ const HomePage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickVie
         url="/"
         schemaMarkup={{ "@graph": [homeSchema, orgSchema] }}
       />
-      {/* Hero Section */}
-      <section className="relative min-h-[35vh] sm:min-h-[40vh] lg:min-h-[60vh] flex items-center overflow-hidden bg-background mt-[-80px] lg:mt-[-80px]">
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-secondary -skew-x-12 translate-x-32 hidden lg:block"></div>
-        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-secondary/50 to-transparent lg:hidden"></div>
+      {/* Master Hero Section - Bento Integrated UI */}
+      <section className="relative flex flex-col items-center justify-center min-vh-[85vh] sm:min-h-screen xl:min-h-[85vh] lg:h-auto overflow-hidden bg-white/70 backdrop-blur-3xl pt-24 pb-12 sm:pt-28 sm:pb-24 lg:pt-36 lg:pb-32 -mt-20 sm:-mt-24 px-4 w-full border-b border-white/50 relative">
+        <div className="absolute top-0 right-0 w-full lg:w-3/5 h-[80%] bg-[radial-gradient(ellipse_at_top_right,rgba(112,51,255,0.1),transparent)] rounded-full -z-10 blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-full lg:w-2/5 h-[50%] bg-[radial-gradient(ellipse_at_bottom_left,rgba(99,102,241,0.08),transparent)] rounded-full -z-10 blur-3xl pointer-events-none"></div>
 
-        <div className="max-w-7xl mx-auto px-4 relative z-10 flex flex-col lg:flex-row items-center gap-6 sm:gap-10 pt-8 sm:pt-12 pb-4 sm:pb-6 lg:pt-20 lg:pb-2">
-          <div className="flex-1 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-accent rounded-full text-primary text-[10px] sm:text-micro font-extrabold uppercase tracking-ultra mb-3 sm:mb-4">
-              <i className="fa-solid fa-wand-magic-sparkles"></i> New Generation Bookstore
+        <div className="max-w-7xl w-full mx-auto relative z-10 flex flex-col lg:flex-row items-center gap-10 lg:gap-14">
+          <div className="flex-1 text-center lg:text-left flex flex-col items-center lg:items-start max-w-2xl">
+            <div className="inline-flex items-center gap-2.5 px-3 py-1.5 bg-slate-100/50 rounded-full text-indigo-600 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest mb-4 md:mb-6 ring-1 ring-black/[0.04] whitespace-nowrap fade-in-up transition-shadow hover:shadow-md cursor-default">
+              <i className="fa-solid fa-swatchbook text-[10px] text-indigo-500 animate-pulse"></i>
+              <span>Thế hệ khám phá tri thức mới</span>
             </div>
-            <h1 className="text-xl sm:text-4xl lg:text-6xl font-extrabold text-foreground leading-tight sm:leading-[1.1] mb-2 sm:mb-3 lg:mb-6 tracking-tighter">
-              Khai phá <br />
-              <span className="text-primary">Tiềm năng</span> <br />
-              qua từng trang sách.
+
+            <h1 className="text-4xl sm:text-5xl lg:text-5xl xl:text-7xl font-display font-black text-slate-800 tracking-tighter leading-[1.05] sm:leading-[1.1] mb-4 sm:mb-6 uppercase fade-in-up" style={{ animationDelay: '100ms' }}>
+              Khai phá<br />
+              <span className="text-indigo-600 drop-shadow-[0_2px_20px_rgba(79,70,229,0.2)]">Trí tuệ</span><br />
+              chỉ qua từng<br className="lg:hidden" /> trang sách
             </h1>
-            <p className="text-slate-500 text-xs sm:text-base lg:text-lg max-w-lg mx-auto lg:mx-0 mb-4 sm:mb-8 leading-relaxed font-medium">
-              Trải nghiệm tri thức hiện đại, thắp sáng tư duy của bạn.
+
+            <p className="text-slate-500 text-sm sm:text-base lg:text-lg max-w-lg mb-8 sm:mb-10 leading-relaxed font-medium mx-auto lg:mx-0 fade-in-up" style={{ animationDelay: '150ms' }}>
+              Trải nghiệm mua sắm thư viện số cá nhân đầu tiên, nơi khơi nguồn và thắp sáng tư duy một cách sống động.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-              <Link to="/category/Tất cả sách" className="w-full sm:w-auto px-7 py-3.5 bg-foreground text-white rounded-xl font-bold uppercase tracking-premium hover:bg-primary transition-all shadow-xl shadow-foreground/10 active:scale-95 text-xs">
+
+            <div className="flex flex-col sm:flex-row items-center gap-4 fade-in-up w-full sm:w-auto" style={{ animationDelay: '200ms' }}>
+              <Link to="/category/Tất cả sách" className="w-full sm:w-auto px-8 py-3.5 sm:py-4 bg-indigo-600 text-white rounded-2xl font-bold uppercase tracking-widest text-xs hover:bg-indigo-700 transition-all duration-300 shadow-[0_8px_30px_rgba(79,70,229,0.25)] hover:shadow-[0_15px_40px_rgba(79,70,229,0.35)] active:scale-[0.97] hover:-translate-y-1 block text-center">
                 Khám phá ngay
               </Link>
-              <div className="flex items-center gap-3">
-                <div className="flex -space-x-3">
+
+              <div className="flex items-center gap-4 bg-white/60 p-2 sm:p-2.5 rounded-2xl ring-1 ring-black/[0.03]">
+                <div className="flex -space-x-2">
                   {[1, 2, 3].map(i => (
-                    <img key={i} src={`https://i.pravatar.cc/100?u=${i}`} className="w-8 h-8 rounded-full border-4 border-white shadow-sm" alt="" />
+                    <img key={i} src={`https://i.pravatar.cc/100?img=${i + 42}`} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full ring-2 ring-white object-cover" alt="Member avatar" />
                   ))}
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-500 ring-2 ring-white">+2k</div>
                 </div>
-                <div className="text-left">
-                  <p className="text-xs font-bold text-foreground leading-none">5,000+ Độc giả</p>
+                <div className="text-left pr-2">
+                  <div className="flex gap-1 mb-0.5">
+                    <i className="fa-solid fa-star text-[10px] sm:text-xs text-amber-400"></i>
+                    <i className="fa-solid fa-star text-[10px] sm:text-xs text-amber-400"></i>
+                    <i className="fa-solid fa-star text-[10px] sm:text-xs text-amber-400"></i>
+                    <i className="fa-solid fa-star text-[10px] sm:text-xs text-amber-400"></i>
+                    <i className="fa-solid fa-star text-[10px] sm:text-xs text-amber-400"></i>
+                  </div>
+                  <p className="text-[10px] font-bold text-slate-800 leading-none">Cộng đồng Độc giả</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="flex-1 relative group w-full max-w-lg">
-            <div className="absolute -inset-10 bg-primary/10 blur-[80px] rounded-full group-hover:bg-primary/20 transition-all duration-700"></div>
-            <div className="relative grid grid-cols-2 gap-3">
-              <div className="space-y-3 pt-6">
-                <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop" loading="eager" className="w-full aspect-[3/4] object-cover rounded-[1.2rem] shadow-xl transition-transform duration-700 hover:-translate-y-2" alt="Hero book 1" />
-                <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=800&auto=format&fit=crop" loading="eager" className="w-full aspect-[3/4] object-cover rounded-[1.2rem] shadow-xl transition-transform duration-700 hover:-translate-y-2" alt="Hero book 2" />
-              </div>
-              <div className="space-y-3">
-                <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=800&auto=format&fit=crop" loading="eager" className="w-full aspect-[3/4] object-cover rounded-[1.2rem] shadow-xl transition-transform duration-700 hover:-translate-y-2" alt="Hero book 3" />
-                <div className="w-full aspect-[3/4] bg-primary rounded-[1.2rem] shadow-xl flex flex-col items-center justify-center p-4 text-center text-white">
-                  <i className="fa-solid fa-star-half-stroke text-2xl mb-2 text-amber-300"></i>
-                  <p className="text-lg font-extrabold">4.9/5</p>
-                  <p className="text-micro font-bold uppercase tracking-premium opacity-60 text-white">Đánh giá chung</p>
+          <div className="flex-1 w-full max-w-lg lg:max-w-none fade-in-up" style={{ animationDelay: '300ms' }}>
+            <div className="relative w-full aspect-square sm:aspect-video lg:aspect-square flex items-center justify-center">
+              {/* Decorative elements behind cards */}
+              <div className="absolute inset-x-12 top-10 bottom-24 bg-gradient-to-tr from-indigo-50 to-rose-50 rounded-[3rem] ring-1 ring-black/[0.03] shadow-inner -z-10 rotate-3"></div>
+
+              <div className="relative grid grid-cols-2 gap-4 sm:gap-6 p-4">
+                <div className="space-y-4 sm:space-y-6 pt-8 sm:pt-12">
+                  <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop" loading="eager" className="w-full aspect-[4/5] object-cover rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-transform duration-500 hover:-translate-y-2 ring-1 ring-black/[0.05]" alt="Hero book 1" />
+                  <div className="bg-white/80 backdrop-blur-xl p-4 sm:p-5 rounded-[2rem] shadow-xl ring-1 ring-black/[0.03] flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
+                      <i className="fa-solid fa-bolt text-orange-500"></i>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Phân phối</p>
+                      <p className="text-xs font-black text-slate-800">Tốc hành 2H</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="bg-white/80 backdrop-blur-xl p-4 sm:p-5 rounded-[2rem] shadow-xl ring-1 ring-black/[0.03] flex flex-col justify-center gap-1.5 h-32 sm:h-40 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                      <i className="fa-solid fa-bookmark text-4xl"></i>
+                    </div>
+                    <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest relative z-10">Chứng nhận</p>
+                    <p className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight leading-none relative z-10">Bản quyền<br />100%</p>
+                  </div>
+                  <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=800&auto=format&fit=crop" loading="eager" className="w-full aspect-[4/5] object-cover rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-transform duration-500 hover:-translate-y-2 ring-1 ring-black/[0.05]" alt="Hero book 3" />
                 </div>
               </div>
             </div>
@@ -245,7 +273,7 @@ const HomePage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickVie
                 <i className="fa-solid fa-wand-magic-sparkles text-primary text-[10px] sm:text-micro"></i>
                 <p className="text-[10px] sm:text-micro font-bold text-primary uppercase tracking-premium">Curated For You</p>
               </div>
-              <h2 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">Sách mới nhất <span className="text-primary">hôm nay</span>.</h2>
+              <h2 className="text-2xl sm:text-3xl lg:text-5xl font-display font-extrabold text-slate-900 tracking-tight leading-tight">Sách mới nhất <span className="text-primary">hôm nay</span>.</h2>
             </div>
             <Link to="/category/Tất cả sách" className="hidden md:flex text-primary font-bold text-xs uppercase tracking-premium items-center gap-2 group">
               Xem toàn bộ kho sách <i className="fa-solid fa-arrow-right group-hover:translate-x-2 transition-transform"></i>

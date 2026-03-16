@@ -345,44 +345,43 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
       <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-6 pb-32 lg:pb-12 relative z-10">
 
         {/* Navigation & Header - Compacted */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b border-slate-200/50 pb-4">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex-grow"
-          >
-            <nav className="flex items-center gap-2 mb-2 text-xs font-black uppercase tracking-widest text-slate-400" aria-label="Breadcrumb">
-              <Link to="/" className="hover:text-indigo-600 transition-all flex items-center gap-1">
-                TRANG CHỦ
-              </Link>
-              <i className="fa-solid fa-chevron-right text-xs opacity-30"></i>
-              <Link to={`/category/${book.category}`} className="hover:text-indigo-600 transition-all">
-                {book.category}
-              </Link>
-            </nav>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 leading-tight tracking-tight uppercase">
-              {book.title}
-            </h1>
-          </motion.div>
+        <header className="mb-10">
+          <div className="bg-white/70 backdrop-blur-3xl p-4 sm:p-5 rounded-[2.2rem] border border-white/60 ring-1 ring-black/[0.03] shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-500 flex flex-col md:flex-row md:items-center justify-between gap-5 relative overflow-hidden group min-h-[100px] sm:min-h-[110px]">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/50 blur-3xl rounded-full -z-10 translate-x-1/2 -translate-y-1/2 group-hover:bg-indigo-100/50 transition-colors duration-700"></div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="flex items-center gap-3 bg-white/50 backdrop-blur-sm p-2 px-3 rounded-xl border border-slate-200/50 shadow-sm"
-          >
-            <div className="flex flex-col items-end border-r border-slate-200 pr-3">
-              <div className="flex gap-0.5 text-amber-400 mb-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <i key={i} className={`fa-solid fa-star text-xs ${i < Math.floor(book.rating) ? '' : 'text-slate-200'}`}></i>
-                ))}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="relative z-10 flex flex-col flex-grow min-w-0"
+            >
+              <nav className="flex items-center gap-2 mb-1 text-[11px] font-bold uppercase tracking-widest text-slate-400" aria-label="Breadcrumb">
+                <Link to="/" className="hover:text-indigo-600 transition-all uppercase leading-none">HOME</Link>
+                <i className="fa-solid fa-chevron-right text-[8px] opacity-30"></i>
+                <Link to={`/category/${book.category}`} className="hover:text-indigo-600 transition-all truncate uppercase leading-none">{book.category}</Link>
+              </nav>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-display font-black text-slate-900 tracking-tighter leading-none line-clamp-1">
+                {book.title}
+              </h1>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="relative z-10 flex items-center justify-between md:justify-end gap-5 bg-white/40 backdrop-blur-sm p-2 sm:p-2.5 rounded-2xl border border-white/60 shadow-sm ring-1 ring-black/[0.02] shrink-0"
+            >
+              <div className="flex flex-col items-end border-r border-slate-200/50 pr-4 shrink-0">
+                <div className="flex gap-0.5 text-amber-400 mb-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <i key={i} className={`fa-solid fa-star text-[10px] ${i < Math.floor(book.rating) ? '' : 'text-slate-200'}`}></i>
+                  ))}
+                </div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none shrink-0">Phản hồi</p>
               </div>
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none">Phản hồi</p>
-            </div>
-            <div className="scale-90 origin-left">
-              <SocialShare title={book.title} />
-            </div>
-          </motion.div>
+              <div className="scale-75 sm:scale-90 origin-right shrink-0">
+                <SocialShare title={book.title} />
+              </div>
+            </motion.div>
+          </div>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">

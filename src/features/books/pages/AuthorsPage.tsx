@@ -107,41 +107,43 @@ const AuthorsPage: React.FC = () => {
         </nav>
 
         {/* Header Block & Search */}
-        <div className="bg-indigo-950 rounded-[1.5rem] lg:rounded-[2rem] p-5 lg:p-8 mb-8 relative overflow-hidden shadow-2xl shadow-indigo-950/20 border border-white/5">
-          <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-indigo-500/10 to-transparent blur-[80px]" aria-hidden="true"></div>
-          <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-indigo-400/5 rounded-full blur-[80px]"></div>
+        <div className="bg-white/70 backdrop-blur-3xl p-4 sm:p-5 rounded-[2.2rem] shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white/60 flex flex-col xl:flex-row items-center justify-between gap-5 mb-10 transition-all duration-500 ring-1 ring-black/[0.03] relative overflow-hidden group min-h-[100px] sm:min-h-[110px]">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/50 blur-3xl rounded-full -z-10 translate-x-1/2 -translate-y-1/2 group-hover:bg-indigo-100/50 transition-colors duration-700"></div>
 
-          <div className="relative z-10 flex flex-col lg:flex-row items-end justify-between gap-6 lg:gap-10">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                  <i className="fa-solid fa-feather-pointed text-white text-base"></i>
-                </div>
-                <span className="px-2.5 py-0.5 bg-indigo-500/20 text-indigo-300 rounded-lg text-micro font-bold uppercase tracking-premium border border-indigo-500/20">Cộng đồng sáng tác</span>
+          <div className="flex flex-col lg:flex-row items-center gap-4 w-full relative z-10 transition-all duration-500">
+            <div className="flex items-center gap-4 w-full lg:w-auto shrink-0">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 shrink-0">
+                <i className="fa-solid fa-feather-pointed text-lg sm:text-xl"></i>
               </div>
-              <h1 className="text-3xl lg:text-5xl font-extrabold text-white mb-4 tracking-tight leading-tight">Những người truyền <br className="hidden lg:block" /> cảm hứng</h1>
-              <p className="text-indigo-100/60 max-w-xl text-xs lg:text-sm font-medium leading-relaxed mb-0">
-                Khám phá những cây bút lỗi lạc, những tâm hồn đồng điệu đang xây dựng hệ sinh thái tri thức DigiBook.
-              </p>
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2 mb-1">
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-display font-black text-slate-900 tracking-tighter leading-none truncate">Những cá nhân truyền cảm hứng</h1>
+                  <div className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 bg-indigo-50/50 rounded-lg ring-1 ring-indigo-100/50 shrink-0">
+                    <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest leading-none">Creators</p>
+                  </div>
+                </div>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                  {authors.length} tác giả tinh hoa
+                </p>
+              </div>
             </div>
 
-            <div className="w-full lg:w-80">
-              <div className="relative group">
+            <div className="w-full lg:w-80 ml-auto">
+              <div className="relative group/search">
                 <input
                   type="text"
-                  placeholder="Tìm tên tác giả..."
+                  placeholder="Tìm tác giả..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full py-3.5 pl-12 pr-4 bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-400 focus:bg-white/10 transition-all font-medium placeholder:text-indigo-200/30 text-sm"
+                  className="w-full py-3 pl-11 pr-4 bg-white/50 backdrop-blur-md border border-slate-200/60 rounded-xl text-slate-800 outline-none focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium placeholder:text-slate-400 text-sm shadow-sm"
                 />
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/search:text-indigo-500 transition-colors">
                   <i className="fa-solid fa-magnifying-glass text-xs"></i>
                 </div>
-              </div>
-              <div className="mt-3 flex items-center justify-between px-2">
-                <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-premium">Hiện có {authors.length} tác giả</p>
                 {searchQuery && (
-                  <p className="text-[10px] font-bold text-indigo-300 uppercase tracking-premium">Tìm thấy {filteredAuthors.length}</p>
+                  <p className="absolute -bottom-6 left-2 text-[10px] font-bold text-indigo-500 uppercase tracking-widest">
+                    Tìm thấy {filteredAuthors.length} kết quả
+                  </p>
                 )}
               </div>
             </div>
@@ -168,32 +170,34 @@ const AuthorsPage: React.FC = () => {
 
         {/* Featured Section */}
         {!searchQuery && (
-          <div className="mb-10">
-            <div className="flex items-center gap-3 mb-6 px-2">
-              <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>
-              <h2 className="text-xl font-black text-slate-800 uppercase tracking-premium">Tác giả nổi bật</h2>
+          <div className="mb-12 lg:mb-16">
+            <div className="flex items-center justify-center lg:justify-start gap-4 mb-8">
+              <div className="w-2 h-8 bg-indigo-600 rounded-full"></div>
+              <h2 className="text-2xl font-black text-slate-800 tracking-tighter uppercase">Tác giả Nổi Bật</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {featuredAuthors.map((author, index) => (
                 <motion.div
                   key={author.id}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.1 }}
-                  className="relative group bg-white p-5 rounded-3xl border border-slate-200/60 shadow-xl shadow-slate-200/50 hover:shadow-indigo-500/10 hover:border-indigo-200 transition-all duration-500"
+                  className="relative group bg-white/70 backdrop-blur-xl p-6 rounded-[2rem] border border-white/60 ring-1 ring-black/[0.03] shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(79,70,229,0.12)] hover:border-indigo-200/50 hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col items-center cursor-pointer"
                 >
-                  <Link to={`/author/${author.name}`} className="flex flex-col items-center">
-                    <div className="w-24 h-24 rounded-2xl overflow-hidden mb-4 shadow-lg group-hover:scale-110 transition-transform duration-700 rotate-2 group-hover:rotate-0">
+                  <Link to={`/author/${author.name}`} className="flex flex-col items-center w-full">
+                    <div className="w-28 h-28 rounded-full overflow-hidden mb-5 shadow-lg ring-4 ring-white group-hover:scale-105 transition-transform duration-500 ease-out">
                       <img
                         src={author.avatar || `https://ui-avatars.com/api/?name=${author.name}&background=4f46e5&color=fff&size=512&bold=true`}
                         alt={author.name}
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <h3 className="text-base font-black text-slate-900 mb-1">{author.name}</h3>
-                    <p className="text-micro font-bold text-indigo-500 uppercase tracking-premium mb-3">{authorStats[author.name.toLowerCase()] || 0} Tác phẩm</p>
-                    <p className="text-[11px] text-slate-400 line-clamp-2 text-center leading-relaxed">
-                      {author.bio || "Thông tin tác giả đang cập nhật."}
+                    <h3 className="text-lg font-black text-slate-900 mb-1.5 text-center group-hover:text-indigo-600 transition-colors">{author.name}</h3>
+                    <div className="inline-flex px-3 py-1 bg-slate-50 rounded-lg border border-slate-100 mb-4">
+                      <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">{authorStats[author.name.toLowerCase()] || 0} Tác phẩm</p>
+                    </div>
+                    <p className="text-xs text-slate-500 line-clamp-2 text-center leading-relaxed font-medium px-2">
+                      {author.bio || "Thông tin tác giả đang được cập nhật thêm trên hệ thống DigiBook."}
                     </p>
                   </Link>
                 </motion.div>

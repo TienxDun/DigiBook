@@ -7,8 +7,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Lexend', 'system-ui', 'sans-serif'],
-        display: ['Bricolage Grotesque', 'sans-serif'],
+        sans: ['Quicksand', 'system-ui', 'sans-serif'],
+        display: ['Baloo 2', 'sans-serif'],
       },
       colors: {
         primary: {
@@ -63,16 +63,16 @@ export default {
         },
       },
       fontSize: {
-        'micro': '11px',
-        'label': '12px',
-        'xs': ['12px', { lineHeight: '1.25rem' }],
-        'sm': ['14px', { lineHeight: '1.5rem' }],
-        'base': ['16px', { lineHeight: '1.75rem' }],
-        'lg': ['18px', { lineHeight: '1.75rem' }],
-        'xl': ['20px', { lineHeight: '1.75rem' }],
-        '2xl': ['24px', { lineHeight: '2.25rem' }],
-        '3xl': ['30px', { lineHeight: '2.5rem' }],
-        '4xl': ['36px', { lineHeight: '3rem' }],
+        'micro': '12px',
+        'label': '14px',
+        'xs': ['14px', { lineHeight: '1.25rem' }],
+        'sm': ['16px', { lineHeight: '1.5rem' }],
+        'base': ['17px', { lineHeight: '1.75rem' }],
+        'lg': ['19px', { lineHeight: '1.75rem' }],
+        'xl': ['22px', { lineHeight: '1.75rem' }],
+        '2xl': ['26px', { lineHeight: '2.25rem' }],
+        '3xl': ['32px', { lineHeight: '2.5rem' }],
+        '4xl': ['40px', { lineHeight: '3rem' }],
       },
       letterSpacing: {
         'premium': '0.15em',

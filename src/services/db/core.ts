@@ -29,7 +29,7 @@ export async function testConnection() {
   } catch (error: any) {
     // Don't block the app if connection test fails (user might not be logged in)
     console.warn("⚠️ Firestore connection test failed:", error.message);
-    
+
     if (error.name === 'BloomFilterError' || (error.message && error.message.includes('persistence'))) {
       console.warn("🔄 Attemping to clear Firestore persistence due to cache error...");
       try {
@@ -129,27 +129,40 @@ export async function wrap<T>(
 // --- Helper: Multi-Proxy Fetcher ---
 export async function fetchWithProxy(targetUrl: string): Promise<any> {
   const proxies = [
-    'https://api.codetabs.com/v1/proxy?quest=', // New Primary: Often more open
-    'https://corsproxy.io/?', // Secondary
-    'https://api.allorigins.win/raw?url=', // Backup
+    { url: 'https://api.allorigins.win/raw?url=', encodeUrl: true },
+    { url: 'https://api.allorigins.win/get?url=', encodeUrl: true, useContents: true },
+    { url: 'https://corsproxy.io/?', encodeUrl: true },
+    { url: 'https://api.codetabs.com/v1/proxy?quest=', encodeUrl: true },
+    { url: 'https://thingproxy.freeboard.io/fetch/', encodeUrl: false },
   ];
 
   let lastError;
 
   for (const proxy of proxies) {
     try {
-      // Add random small delay before each proxy attempt to avoid burst pattern
-      await new Promise(r => setTimeout(r, Math.random() * 500));
+      await new Promise(r => setTimeout(r, Math.random() * 300));
+      const fetchUrl = proxy.encodeUrl
+        ? proxy.url + encodeURIComponent(targetUrl)
+        : proxy.url + targetUrl;
 
-      const response = await fetch(proxy + encodeURIComponent(targetUrl));
+      // Chú ý: Không gửi custom headers (như User-Agent, x-tiki-client-id) 
+      // để tránh lỗi CORS preflight OPTIONS request block từ proxy
+      const response = await fetch(fetchUrl);
       if (!response.ok) throw new Error(`Proxy error: ${response.status}`);
+
+      // allorigins /get wraps data in { contents: '...' }
+      if ((proxy as any).useContents) {
+        const wrapper = await response.json();
+        if (!wrapper.contents) throw new Error('Empty contents from allorigins');
+        return JSON.parse(wrapper.contents);
+      }
       return await response.json();
     } catch (error) {
-      console.warn(`Proxy ${proxy} failed for ${targetUrl}:`, error);
+      console.warn(`Proxy ${proxy.url} failed for ${targetUrl}:`, error);
       lastError = error;
-      continue; // Try next proxy
+      continue;
     }
   }
 
-  throw lastError || new Error("All proxies failed");
+  throw lastError || new Error('All proxies failed');
 }

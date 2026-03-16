@@ -120,7 +120,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ book, onClose, o
                 )}
               </div>
 
-              <h2 className="text-2xl lg:text-3xl font-black text-slate-900 mb-2 leading-[1.1] tracking-tighter">{book.title}</h2>
+              <h2 className="text-xl lg:text-2xl font-display font-black text-slate-900 mb-2 leading-[1.2] tracking-tighter line-clamp-3">{book.title}</h2>
               <div className="flex items-center gap-2 mb-6">
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tác giả</p>
                 <div className="w-1.5 h-1.5 rounded-full bg-slate-200"></div>

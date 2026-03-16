@@ -18,7 +18,7 @@
 @layer base {
   body {
     @apply bg-background text-foreground overflow-x-hidden text-base;
-    font-family: 'Lexend', sans-serif;
+    font-family: 'Quicksand', sans-serif;
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
     text-rendering: optimizeLegibility;

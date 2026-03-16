@@ -360,14 +360,14 @@ const CheckoutPage: React.FC = () => {
       if (paymentMethod === 'payos') {
         try {
           const provider = PaymentProviderFactory.createProvider('payos');
-          
+
           // Tạo orderCode số nguyên unique từ timestamp
           const orderCode = Date.now().toString();
-          
+
           // Lưu orderId vào sessionStorage để dùng trong callback
           sessionStorage.setItem('pending_order_id', order.id);
           sessionStorage.setItem('pending_order_code', orderCode);
-          
+
           const checkoutUrl = await provider.createPayment({
             orderId: order.id,
             orderCode: orderCode,
@@ -387,16 +387,16 @@ const CheckoutPage: React.FC = () => {
 
           // Mở tab mới cho thanh toán
           provider.open(checkoutUrl);
-          
+
           // Thông báo cho user
           toast.success('Đang chuyển đến trang thanh toán PayOS...', {
             duration: 3000
           });
-          
+
           // Clear cart và chuyển về trang orders
           isSubmittingRef.current = true;
           clearCart();
-          
+
           // Chuyển sang trang orders để user kiểm tra đơn hàng
           setTimeout(() => {
             navigate('/orders');
@@ -404,7 +404,7 @@ const CheckoutPage: React.FC = () => {
               duration: 5000
             });
           }, 500);
-          
+
           setIsProcessing(false);
         } catch (paymentError: any) {
           console.error('Payment error:', paymentError);
@@ -453,7 +453,7 @@ const CheckoutPage: React.FC = () => {
 
           {/* Column 1: Shipping Info (Addresses) */}
           <div className="lg:col-span-12 xl:col-span-4 flex flex-col gap-4 h-full xl:overflow-hidden">
-            <section className="bg-white/80 backdrop-blur-md rounded-2xl p-4 xl:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-500 flex flex-col xl:h-full">
+            <section className="bg-white/70 backdrop-blur-3xl rounded-[2rem] p-5 xl:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white/60 ring-1 ring-black/[0.03] relative overflow-hidden group transition-all duration-500 flex flex-col xl:h-full">
               <div className="flex items-center justify-between mb-4 shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-indigo-200">
@@ -507,7 +507,7 @@ const CheckoutPage: React.FC = () => {
 
           {/* Column 2: Payment Method */}
           <div className="lg:col-span-6 xl:col-span-4 h-full xl:overflow-hidden">
-            <section className="bg-white/80 backdrop-blur-md rounded-2xl p-4 xl:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 relative overflow-hidden flex flex-col xl:h-full">
+            <section className="bg-white/70 backdrop-blur-3xl rounded-[2rem] p-5 xl:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white/60 ring-1 ring-black/[0.03] relative overflow-hidden flex flex-col xl:h-full">
               <div className="flex items-center gap-3 mb-3 shrink-0">
                 <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-lg flex items-center justify-center text-white shadow-lg shadow-emerald-200">
                   <i className="fa-solid fa-wallet text-sm"></i>
@@ -597,11 +597,11 @@ const CheckoutPage: React.FC = () => {
 
           {/* Column 3: Order Summary */}
           <div className="lg:col-span-6 xl:col-span-4 h-full xl:overflow-hidden">
-            <div className="bg-white rounded-[1.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-slate-100 overflow-hidden relative flex flex-col xl:h-full">
+            <div className="bg-white/70 backdrop-blur-3xl rounded-[2rem] p-1 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white/60 ring-1 ring-black/[0.03] overflow-hidden relative flex flex-col xl:h-full">
               {/* Receipt Top Pattern */}
-              <div className="h-1.5 bg-gradient-to-r from-red-400 via-purple-400 to-indigo-400 shrink-0"></div>
+              <div className="h-1.5 bg-gradient-to-r from-red-400 via-purple-400 to-indigo-400 shrink-0 mx-4 mt-4 rounded-full"></div>
 
-              <div className="p-5 xl:p-6 pb-2 border-b border-slate-50 shrink-0">
+              <div className="p-4 xl:p-5 pb-2 border-b border-slate-100 shrink-0">
                 <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
                   <i className="fa-solid fa-receipt text-slate-300"></i>
                   Đơn hàng
@@ -617,10 +617,10 @@ const CheckoutPage: React.FC = () => {
                   const isOutOfStock = availableStock !== undefined && availableStock < item.quantity;
 
                   return (
-                    <div key={item.id} className="flex gap-3 group">
-                      <div className="w-12 h-16 rounded-lg overflow-hidden shadow-md border border-slate-100 shrink-0 relative group-hover:scale-105 transition-transform duration-300">
+                    <div key={item.id} className="flex gap-4 group bg-slate-50/50 p-2 lg:p-3 rounded-2xl border border-slate-100 hover:bg-indigo-50/30 hover:border-indigo-100 transition-all duration-300">
+                      <div className="w-14 h-20 rounded-xl overflow-hidden shadow-[0_4px_15px_rgba(0,0,0,0.05)] border border-slate-100 shrink-0 relative group-hover:scale-105 transition-transform duration-300">
                         <img src={item.cover} alt={item.title} className="w-full h-full object-cover" />
-                        <span className="absolute top-0.5 left-0.5 bg-black/70 text-white text-[8px] font-bold px-1 rounded backdrop-blur-sm">x{item.quantity}</span>
+                        <span className="absolute top-1 left-1 bg-black/80 text-white text-[10px] font-black px-1.5 rounded-md backdrop-blur-md">x{item.quantity}</span>
                       </div>
                       <div className="flex-1 min-w-0 flex flex-col justify-center">
                         <h4 className="font-bold text-slate-800 text-xs leading-tight mb-0.5 line-clamp-2 group-hover:text-indigo-600 transition-colors">{item.title}</h4>
@@ -689,9 +689,9 @@ const CheckoutPage: React.FC = () => {
                   <button
                     onClick={handleCompleteOrder}
                     disabled={isProcessing || hasStockErrors || isValidatingStock}
-                    className={`w-full mt-3 py-4 rounded-xl font-black text-xs uppercase tracking-[0.15em] shadow-lg transition-all duration-300 disabled:cursor-not-allowed group active:scale-95 flex items-center justify-center gap-2 ${hasStockErrors
-                      ? 'bg-red-500 text-white opacity-60 shadow-red-200'
-                      : 'bg-slate-900 text-white shadow-slate-200 hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:shadow-indigo-200 disabled:opacity-70'
+                    className={`w-full mt-4 py-4 lg:py-4.5 rounded-[1.25rem] font-black text-sm uppercase tracking-widest shadow-[0_8px_30px_rgba(79,70,229,0.15)] transition-all duration-300 disabled:cursor-not-allowed group active:scale-[0.98] flex items-center justify-center gap-3 ${hasStockErrors
+                      ? 'bg-red-500 text-white opacity-60'
+                      : 'bg-indigo-600 text-white hover:bg-slate-900 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 disabled:opacity-70'
                       }`}
                   >
                     {isProcessing ? (

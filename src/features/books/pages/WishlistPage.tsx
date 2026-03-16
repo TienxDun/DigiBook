@@ -120,7 +120,7 @@ const WishlistPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-2xl sm:text-3xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-3 sm:mb-4"
+              className="text-2xl sm:text-3xl lg:text-5xl font-display font-extrabold text-slate-900 tracking-tight leading-tight mb-3 sm:mb-4"
             >
               Bộ sưu tập <span className="text-rose-500">yêu thích</span>.
             </motion.h1>

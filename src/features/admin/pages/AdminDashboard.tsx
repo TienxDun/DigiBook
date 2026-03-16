@@ -253,7 +253,7 @@ const AdminDashboard: React.FC = () => {
 
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex h-screen overflow-hidden bg-background">
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div
@@ -340,7 +340,7 @@ const AdminDashboard: React.FC = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className={`flex-1 min-w-0 ${isSidebarCollapsed ? 'lg:ml-24' : 'lg:ml-80'} min-h-screen flex flex-col transition-all duration-500 bg-background`}>
+      <main className={`flex-1 min-w-0 ${isSidebarCollapsed ? 'lg:ml-24' : 'lg:ml-80'} h-screen flex flex-col transition-all duration-500 bg-background`}>
         <header className={`backdrop-blur-xl border-b sticky top-0 z-40 h-24 flex items-center justify-between px-6 lg:px-10 transition-all ${isMidnight ? 'border-white/5 bg-[#0f172a]/80 shadow-lg' : 'border-border bg-background/80'
           }`}>
           <div className="flex items-center gap-4">
@@ -363,10 +363,7 @@ const AdminDashboard: React.FC = () => {
                               activeTab === 'logs' ? 'Lịch sử hệ thống' :
                                 activeTab === 'inspector' ? 'Kiểm tra Tiki API' : 'Tổng quan'}
               </h2>
-              <div className="flex items-center gap-2 mt-1">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
-                <p className="text-xs lg:text-micro font-bold text-primary/60 uppercase tracking-[0.2em] hidden sm:block">Cloud Management System v2.5</p>
-              </div>
+
             </div>
           </div>
 

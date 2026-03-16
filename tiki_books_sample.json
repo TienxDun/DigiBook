@@ -1,0 +1,2219 @@
+{
+  "Kinh tế": {
+    "id": 275625701,
+    "master_id": 275625701,
+    "sku": "1378623173921",
+    "name": "Sách Tinh Hoa Kinh Tế Học",
+    "url_key": "sach-tinh-hoa-kinh-te-hoc-p275625701",
+    "url_path": "sach-tinh-hoa-kinh-te-hoc-p275625701.html?spid=275625704",
+    "short_url": "https://tiki.vn/product-p275625701.html?spid=275625704",
+    "type": "configurable",
+    "book_cover": null,
+    "short_description": "“Đây là một quyển sách về kinh tế học. Kinh tế học nghiên cứu về hành vi của mỗi con người và cách họ tương tác với nhau, một nghiên cứu được đúc kết từ rất nhiều kinh nghiệm thực tế.”Lời nói và tinh...",
+    "price": 471200,
+    "list_price": 595000,
+    "original_price": 595000,
+    "badges": [
+      {
+        "code": "new_pdp",
+        "text": "v1"
+      }
+    ],
+    "badges_new": [
+      {
+        "placement": "left_authentic",
+        "code": "is_hero",
+        "type": "is_hero",
+        "index": 1,
+        "icon": "https://salt.tikicdn.com/ts/upload/94/36/e7/c5297f3fad0a83fb56f98be877904467.png",
+        "icon_width": 76,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      },
+      {
+        "placement": "text_overlay_product_image",
+        "code": "text_badge",
+        "type": "text_badge",
+        "index": 0,
+        "icon": null,
+        "icon_width": 0,
+        "icon_height": 0,
+        "text_color": "#FFF0F1",
+        "background_color": "#D93843",
+        "href": null,
+        "text": "3-3"
+      },
+      {
+        "placement": "left_brand",
+        "code": "is_authentic",
+        "type": "is_authentic",
+        "index": 4,
+        "icon": "https://salt.tikicdn.com/ts/upload/d7/56/04/b93b8c666e13f49971483596ef14800f.png",
+        "icon_width": 89,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      },
+      {
+        "placement": "right_authentic",
+        "code": "return_policy",
+        "type": "return_policy",
+        "index": 3,
+        "icon": "https://salt.tikicdn.com/ts/ta/b1/3f/4e/cc3d0a2dd751a7b06dd97d868d6afa56.png",
+        "icon_width": 114,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      }
+    ],
+    "badges_v3": [
+      {
+        "placement": "pdp_badge",
+        "code": "text_badge",
+        "type": "text_badge",
+        "index": 0,
+        "icon": null,
+        "icon_width": 0,
+        "icon_height": 0,
+        "text_color": "#FFF0F1",
+        "background_color": "#D93843",
+        "href": null,
+        "text": "3-3"
+      },
+      {
+        "placement": "pdp_badge",
+        "code": "is_hero",
+        "type": "pdp_icon_badge",
+        "index": 1,
+        "icon": "https://salt.tikicdn.com/ts/upload/94/36/e7/c5297f3fad0a83fb56f98be877904467.png",
+        "icon_width": 76,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      },
+      {
+        "placement": "pdp_badge",
+        "code": "return_policy",
+        "type": "pdp_icon_badge",
+        "index": 3,
+        "icon": "https://salt.tikicdn.com/ts/ta/b1/3f/4e/cc3d0a2dd751a7b06dd97d868d6afa56.png",
+        "icon_width": 114,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      },
+      {
+        "placement": "pdp_badge",
+        "code": "is_authentic",
+        "type": "pdp_icon_badge",
+        "index": 4,
+        "icon": "https://salt.tikicdn.com/ts/upload/d7/56/04/b93b8c666e13f49971483596ef14800f.png",
+        "icon_width": 89,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      }
+    ],
+    "tracking_info": {
+      "amplitude": {
+        "is_authentic": true,
+        "is_freeship_xtra": false,
+        "is_hero": true,
+        "is_top_brand": false,
+        "return_reason": "any_reason"
+      }
+    },
+    "discount": 123800,
+    "discount_rate": 21,
+    "rating_average": 5,
+    "review_count": 190,
+    "review_text": "(190)",
+    "favourite_count": 0,
+    "thumbnail_url": "https://salt.tikicdn.com/cache/280x280/ts/product/a2/03/f8/31e7e686e5a74b745c5bfb72f7c760b9.jpg",
+    "has_ebook": false,
+    "inventory_status": "available",
+    "inventory_type": "instock",
+    "productset_group_name": "",
+    "is_fresh": false,
+    "seller": null,
+    "is_flower": false,
+    "has_buynow": true,
+    "is_gift_card": false,
+    "salable_type": null,
+    "data_version": 3300,
+    "day_ago_created": 594,
+    "all_time_quantity_sold": 386,
+    "meta_title": "",
+    "meta_description": "",
+    "meta_keywords": "",
+    "is_baby_milk": false,
+    "is_acoholic_drink": false,
+    "description": "<p><strong>“Đây là một quyển sách về kinh tế học. Kinh tế học nghiên cứu về hành vi của mỗi con người và cách họ tương tác với nhau, một nghiên cứu được đúc kết từ rất nhiều kinh nghiệm thực tế.”</strong></p>\n<p>Lời nói và tinh thần trên đây đã đóng vai trò như một nguyên tắc dẫn đường trong mỗi lần tái bản cuốn sách <strong>“Tinh hoa Kinh tế học – Essentials of Economics”.</strong></p>\n<p data-start=\"250\" data-end=\"649\">Kinh tế học là nền tảng để hiểu thế giới vận hành như thế nào – từ giá cả, thuế, thị trường, thất nghiệp đến các chính sách vĩ mô. Nhưng đối với người mới bắt đầu, kinh tế học có thể là một bộ môn khô khan và khó tiếp cận. <em data-start=\"473\" data-end=\"495\">Tinh Hoa Kinh Tế Học</em> là một cuốn sách được viết để xóa bỏ rào cản đó – trình bày khái niệm kinh tế cốt lõi một cách trực quan, dễ hiểu và có liên hệ sát với thực tế đời sống.</p>\n<p data-start=\"651\" data-end=\"1245\"><strong data-start=\"651\" data-end=\"662\">Tác giả</strong></p>\n<ul>\n<li data-start=\"651\" data-end=\"1245\"><strong data-start=\"665\" data-end=\"681\">Paul Krugman</strong> là nhà kinh tế học nổi tiếng người Mỹ, đoạt <strong data-start=\"726\" data-end=\"757\">Giải Nobel Kinh tế năm 2008</strong>, đồng thời là giáo sư tại Đại học Thành phố New York (CUNY). Ông được biết đến rộng rãi qua các bài viết phân tích kinh tế, xã hội và chính sách trên tờ <em data-start=\"911\" data-end=\"931\">The New York Times</em>.</li>\n<li data-start=\"651\" data-end=\"1245\"><strong data-start=\"935\" data-end=\"950\">Robin Wells</strong>là một nhà nghiên cứu và giảng viên có nhiều năm giảng dạy kinh tế học tại các trường đại học danh tiếng như Stanford và Princeton. Bà đồng hành cùng Krugman trong nhiều dự án viết sách giáo khoa nhằm đưa kinh tế học đến gần hơn với sinh viên đại học và độc giả đại chúng.</li>\n</ul>\n<p><strong data-start=\"1316\" data-end=\"1333\">Nội dung sách</strong></p>\n<ul>\n<li>Cuốn sách bao gồm các chủ đề cơ bản của kinh tế học vi mô và vĩ mô, từ cung – cầu, chi phí cơ hội, thị trường cạnh tranh đến lạm phát, thất nghiệp, tăng trưởng và chính sách tiền tệ. Nội dung được trình bày theo cấu trúc logic, minh họa bằng ví dụ đời sống như thị trường xăng dầu, bất động sản, y tế, giáo dục, giúp người đọc không chỉ hiểu lý thuyết mà còn biết áp dụng vào thực tế.</li>\n<li>Bên cạnh đó, sách cũng đề cập đến những vấn đề kinh tế hiện đại như toàn cầu hóa, bất bình đẳng, thị trường lao động và vai trò của chính phủ. Phần hình minh họa và sơ đồ trực quan giúp việc tiếp thu trở nên dễ dàng hơn, đặc biệt phù hợp với người mới bắt đầu học hoặc muốn hệ thống lại kiến thức kinh tế học nền tảng.</li>\n<li>Từ nhiều ý tưởng nhỏ về các khía cạnh cụ thể của kinh tế học, Paul Krugman &amp; Robin Wells đã có ý tưởng lớn: một quyển sách giáo khoa về kinh tế học nên được xây dựng xung quanh các câu chuyện, nhiều câu chuyện trong số đó được đúc kết từ cuộc sống thực tế, và chúng ta không bao giờ chối bỏ sự thật rằng cuối cùng thì kinh tế học là một tập hợp những câu chuyện về hành vi của con người.</li>\n<li>Bạn sẽ tìm thấy một loạt câu chuyện ở phần mở đầu chương, trong các phần Kinh tế học trong đời sống, Cho những người ham học hỏi, Vòng quanh thế giới và Tình huống Kinh doanh. Cuốn sách cũng giới thiệu các đặc điểm giúp hỗ trợ việc học tập và giảng dạy. Ví dụ, mỗi phần chính được kết thúc với ba phần có liên quan:</li>\n</ul>\n<p>(1) Kinh tế học trong đời sống: một ứng dụng trong thế giới thực giúp độc giả hiểu đầy đủ hơn các khái niệm vừa đọc;</p>\n<p>(2) Ôn tập nhanh: ôn lại các ý quan trọng dưới hình thức liệt kê; và</p>\n<p>(3) Kiểm tra kiến thức: những câu hỏi tự kiểm tra với đáp án ở cuối sách. Các câu hỏi và bài tập cuối chương cũng đóng một vai trò quan trọng nhằm kích thích tư duy của chúng ta. Đặc biệt là tính năng mới mang tên Giải quyết tình huống: cuối mỗi chương sẽ có một vấn đề mà sinh viên phải giải quyết với sự hướng dẫn có tính tương tác. Tất cả các tính năng này đã được tạo ra với mục tiêu hỗ trợ việc giảng dạy của giảng viên và việc học tập của sinh viên trong môn học tổng quan về Kinh tế học.</p>\n<p data-start=\"2043\" data-end=\"2083\"><strong data-start=\"2043\" data-end=\"2083\">Sách mang đến điều gì cho người đọc?</strong></p>\n<ul data-start=\"2084\" data-end=\"2529\">\n<li data-start=\"2084\" data-end=\"2153\">\n<p data-start=\"2086\" data-end=\"2153\">Hiểu rõ các khái niệm cốt lõi của kinh tế học một cách dễ tiếp cận.</p>\n</li>\n<li data-start=\"2154\" data-end=\"2233\">\n<p data-start=\"2156\" data-end=\"2233\">Nắm bắt được logic vận hành của thị trường và vai trò của chính sách kinh tế.</p>\n</li>\n<li data-start=\"2234\" data-end=\"2320\">\n<p data-start=\"2236\" data-end=\"2320\">Có khả năng phân tích các vấn đề kinh tế – xã hội hàng ngày bằng tư duy kinh tế học.</p>\n</li>\n<li data-start=\"2321\" data-end=\"2429\">\n<p data-start=\"2323\" data-end=\"2429\">Là tài liệu nền tảng cho sinh viên, người học trái ngành hoặc nhà quản lý muốn nâng cao tư duy chiến lược.</p>\n</li>\n<li data-start=\"2430\" data-end=\"2529\">\n<p data-start=\"2432\" data-end=\"2529\">Được tiếp cận kinh tế học từ những chuyên gia hàng đầu thế giới, ngôn ngữ gần gũi, không hàn lâm.</p>\n</li>\n</ul><p>Giá sản phẩm trên Tiki đã bao gồm thuế theo luật hiện hành. Bên cạnh đó, tuỳ vào loại sản phẩm, hình thức và địa chỉ giao hàng mà có thể phát sinh thêm chi phí khác như phí vận chuyển, phụ phí hàng cồng kềnh, thuế nhập khẩu (đối với đơn hàng giao từ nước ngoài có giá trị trên 1 triệu đồng).....</p>",
+    "images": [
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/a2/03/f8/31e7e686e5a74b745c5bfb72f7c760b9.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/a2/03/f8/31e7e686e5a74b745c5bfb72f7c760b9.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/a2/03/f8/31e7e686e5a74b745c5bfb72f7c760b9.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/a2/03/f8/31e7e686e5a74b745c5bfb72f7c760b9.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/a2/03/f8/31e7e686e5a74b745c5bfb72f7c760b9.jpg"
+      },
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/62/aa/6a/03c63aa0eff95b6a632c4f3ee0f7909a.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/62/aa/6a/03c63aa0eff95b6a632c4f3ee0f7909a.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/62/aa/6a/03c63aa0eff95b6a632c4f3ee0f7909a.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/62/aa/6a/03c63aa0eff95b6a632c4f3ee0f7909a.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/62/aa/6a/03c63aa0eff95b6a632c4f3ee0f7909a.jpg"
+      },
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/dc/9d/e0/a259631b9efd70a8f5311dbbddc74e32.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/dc/9d/e0/a259631b9efd70a8f5311dbbddc74e32.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/dc/9d/e0/a259631b9efd70a8f5311dbbddc74e32.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/dc/9d/e0/a259631b9efd70a8f5311dbbddc74e32.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/dc/9d/e0/a259631b9efd70a8f5311dbbddc74e32.jpg"
+      }
+    ],
+    "warranty_policy": null,
+    "authors": [
+      {
+        "id": 365031,
+        "name": "Paul Krugman",
+        "slug": "paul-krugman"
+      },
+      {
+        "id": 4273811,
+        "name": "Robin Wells",
+        "slug": "robin-wells"
+      }
+    ],
+    "current_seller": {
+      "id": 1,
+      "sku": "1667940014980",
+      "name": "Tiki Trading",
+      "link": "https://tiki.vn/cua-hang/tiki-trading",
+      "logo": "https://vcdn.tikicdn.com/ts/seller/d1/3f/ae/13ce3d83ab6b6c5e77e6377ad61dc4a5.jpg",
+      "price": 471200,
+      "product_id": "275625704",
+      "store_id": 40395,
+      "is_best_store": false,
+      "is_offline_installment_supported": null
+    },
+    "other_sellers": [],
+    "specifications": [
+      {
+        "name": "Thông tin chung",
+        "attributes": [
+          {
+            "code": "book_version",
+            "name": "Phiên bản sách",
+            "value": "Phiên bản thường"
+          },
+          {
+            "code": "publisher_vn",
+            "name": "Công ty phát hành",
+            "value": "Viện Quản lý PACE"
+          },
+          {
+            "code": "publication_date",
+            "name": "Ngày xuất bản",
+            "value": "2022-01-01 00:00:00"
+          },
+          {
+            "code": "dimensions",
+            "name": "Kích thước",
+            "value": "19 x 27.5 cm"
+          },
+          {
+            "code": "dich_gia",
+            "name": "Dịch Giả",
+            "value": "Nguyễn Trường Phú, Hồ Quốc Tuấn"
+          },
+          {
+            "code": "book_cover",
+            "name": "Loại bìa",
+            "value": "Bìa cứng"
+          },
+          {
+            "code": "number_of_page",
+            "name": "Số trang",
+            "value": "780"
+          },
+          {
+            "code": "manufacturer",
+            "name": "Nhà xuất bản",
+            "value": "Nhà Xuất Bản Tổng hợp TP.HCM"
+          }
+        ]
+      }
+    ],
+    "product_links": [],
+    "gift_item_title": "0 quà tặng kèm",
+    "configurable_options": [
+      {
+        "code": "option1",
+        "name": "Năm tái bản",
+        "position": 0,
+        "show_preview_image": false,
+        "values": [
+          {
+            "label": "2024"
+          }
+        ]
+      }
+    ],
+    "configurable_products": [
+      {
+        "child_id": 275625703,
+        "discount_rate": 21,
+        "id": 275625704,
+        "images": [
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/a2/03/f8/31e7e686e5a74b745c5bfb72f7c760b9.jpg",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/a2/03/f8/31e7e686e5a74b745c5bfb72f7c760b9.jpg",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/a2/03/f8/31e7e686e5a74b745c5bfb72f7c760b9.jpg"
+          },
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/62/aa/6a/03c63aa0eff95b6a632c4f3ee0f7909a.jpg",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/62/aa/6a/03c63aa0eff95b6a632c4f3ee0f7909a.jpg",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/62/aa/6a/03c63aa0eff95b6a632c4f3ee0f7909a.jpg"
+          },
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/dc/9d/e0/a259631b9efd70a8f5311dbbddc74e32.jpg",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/dc/9d/e0/a259631b9efd70a8f5311dbbddc74e32.jpg",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/dc/9d/e0/a259631b9efd70a8f5311dbbddc74e32.jpg"
+          }
+        ],
+        "inventory_status": "available",
+        "name": "Sách Tinh Hoa Kinh Tế Học - 2024",
+        "option1": "2024",
+        "original_price": 595000,
+        "price": 471200,
+        "selected": true,
+        "seller": {
+          "id": 1,
+          "name": "Tiki Trading"
+        },
+        "sku": "5791929617885",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/280x280/ts/product/a2/03/f8/31e7e686e5a74b745c5bfb72f7c760b9.jpg"
+      }
+    ],
+    "services_and_promotions": [],
+    "promitions": [],
+    "stock_item": {
+      "max_sale_qty": 1000,
+      "min_sale_qty": 1,
+      "preorder_date": null,
+      "qty": 1000
+    },
+    "quantity_sold": {
+      "text": "Đã bán 386",
+      "value": 386
+    },
+    "categories": {
+      "id": 316,
+      "name": "Sách tiếng Việt",
+      "is_leaf": false
+    },
+    "breadcrumbs": [
+      {
+        "url": "/nha-sach-tiki/c8322",
+        "name": "Nhà Sách Tiki",
+        "category_id": 8322
+      },
+      {
+        "url": "/sach-truyen-tieng-viet/c316",
+        "name": "Sách tiếng Việt",
+        "category_id": 316
+      },
+      {
+        "url": "/sach-kinh-te/c846",
+        "name": "Sách kinh tế",
+        "category_id": 846
+      },
+      {
+        "url": "/sach-kinh-te-hoc/c593",
+        "name": "Sách kinh tế học",
+        "category_id": 593
+      },
+      {
+        "url": "/sach-kinh-te-hoc-khac/c67901",
+        "name": "Sách kinh tế học - khác",
+        "category_id": 67901
+      },
+      {
+        "url": "https://tiki.vn/sach-tinh-hoa-kinh-te-hoc-p275625701.html",
+        "name": "Sách Tinh Hoa Kinh Tế Học",
+        "category_id": 0
+      }
+    ],
+    "installment_info_v2": null,
+    "installment_info_v3": [
+      {
+        "display_text": "Ưu đãi đến 600k với thẻ TikiCard",
+        "icon": "https://salt.tikicdn.com/ts/upload/73/4d/f7/f86e767bffc14aa3d6abed348630100b.png",
+        "summary": "Ưu đãi đến 600k với thẻ TikiCard.",
+        "title": "Ưu đãi đến 600k với thẻ TikiCard",
+        "type": "other",
+        "url": "https://tiki.vn/san-pham-so/the-dong-thuong-hieu-tiki-co-card"
+      },
+      {
+        "display_text": "Mua trước trả sau",
+        "icon": "https://salt.tikicdn.com/ts/upload/2a/27/6a/7bbba1f6c93a1a42a3c314e7b5825f4c.png",
+        "summary": "Duyệt hồ sơ nhanh chóng qua công ty tài chính.",
+        "title": "Mua trước trả sau",
+        "type": "postpaid",
+        "url": "https://tiki.vn/mua-truoc-tra-sau/thanh-toan?src=pdp&masterId=275625701&pid=275625704&seller_id=1&qty=1"
+      }
+    ],
+    "is_seller_in_chat_whitelist": true,
+    "inventory": {
+      "product_virtual_type": null,
+      "fulfillment_type": "tiki_delivery"
+    },
+    "warranty_info": [],
+    "return_and_exchange_policy": "Đổi trả trong<br><b>30 ngày</b><br>nếu sp lỗi.",
+    "is_tier_pricing_available": false,
+    "is_tier_pricing_eligible": false,
+    "benefits": [
+      {
+        "icon": "https://salt.tikicdn.com/ts/upload/c5/37/ee/76c708d43e377343e82baee8a0340297.png",
+        "text": "Được đồng kiểm khi nhận hàng"
+      },
+      {
+        "icon": "https://salt.tikicdn.com/ts/upload/ea/02/b4/b024e431ec433e6c85d4734aaf35bd65.png",
+        "text": "<b>Được hoàn tiền 200%</b> nếu là hàng giả."
+      },
+      {
+        "icon": "https://salt.tikicdn.com/ts/upload/d8/c7/a5/1cd5bd2f27f9bd74b2c340b8e27c4d82.png",
+        "text": "Đổi trả miễn phí trong 30 ngày. Được đổi ý.",
+        "sub_text": [],
+        "cta": {
+          "text": "Chi tiết",
+          "type": "open_policy_return_modal"
+        }
+      }
+    ],
+    "return_policy": {
+      "body": [
+        {
+          "label": "",
+          "content": [
+            "Được đổi ý (sản phẩm phải còn nguyên hộp, tem, phụ kiện, chưa kích hoạt bảo hành, không áp dụng đơn hàng trả góp), hoặc",
+            "Sản phẩm không đúng cam kết (lỗi kỹ thuật, giao sai/thiếu, bể vỡ…)"
+          ]
+        }
+      ],
+      "cta": {
+        "link": "https://hotro.tiki.vn/s/article/chinh-sach-doi-tra-san-pham",
+        "text_button": "Tìm hiểu thêm"
+      },
+      "title": "Đổi trả miễn phí trong 30 ngày"
+    }
+  },
+  "Kỹ năng": {
+    "id": 253396850,
+    "master_id": 253396850,
+    "sku": "4774724692929",
+    "name": "Sách Kỹ năng sống cho tuổi vị thành niên",
+    "url_key": "sach-ky-nang-song-cho-tuoi-vi-thanh-nien-p253396850",
+    "url_path": "sach-ky-nang-song-cho-tuoi-vi-thanh-nien-p253396850.html?spid=253396852",
+    "short_url": "https://tiki.vn/product-p253396850.html?spid=253396852",
+    "type": "simple",
+    "book_cover": null,
+    "short_description": "Thạc sĩ Xã hội học Nguyễn Thị Oanh vừa là một nhà tư vấn tâm lý thanh thiếu niên cũng vừa tham gia nhiều vào lĩnh vực giáo dục kỹ năng cho giới trẻ, học sinh, sinh viên ở các lứa tuổi.Bà rất quan tâm...",
+    "price": 45000,
+    "list_price": 60000,
+    "original_price": 60000,
+    "badges": [
+      {
+        "code": "has_book_preview",
+        "text": "Đọc thử"
+      },
+      {
+        "code": "new_pdp",
+        "text": "v1"
+      }
+    ],
+    "badges_new": [
+      {
+        "placement": "left_authentic",
+        "code": "is_hero",
+        "type": "is_hero",
+        "index": 1,
+        "icon": "https://salt.tikicdn.com/ts/upload/94/36/e7/c5297f3fad0a83fb56f98be877904467.png",
+        "icon_width": 76,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      },
+      {
+        "placement": "text_overlay_product_image",
+        "code": "text_badge",
+        "type": "text_badge",
+        "index": 0,
+        "icon": null,
+        "icon_width": 0,
+        "icon_height": 0,
+        "text_color": "#FFF0F1",
+        "background_color": "#D93843",
+        "href": null,
+        "text": "3-3"
+      },
+      {
+        "placement": "left_brand",
+        "code": "is_authentic",
+        "type": "is_authentic",
+        "index": 4,
+        "icon": "https://salt.tikicdn.com/ts/upload/d7/56/04/b93b8c666e13f49971483596ef14800f.png",
+        "icon_width": 89,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      },
+      {
+        "placement": "right_authentic",
+        "code": "return_policy",
+        "type": "return_policy",
+        "index": 3,
+        "icon": "https://salt.tikicdn.com/ts/ta/b1/3f/4e/cc3d0a2dd751a7b06dd97d868d6afa56.png",
+        "icon_width": 114,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      }
+    ],
+    "badges_v3": [
+      {
+        "placement": "pdp_badge",
+        "code": "text_badge",
+        "type": "text_badge",
+        "index": 0,
+        "icon": null,
+        "icon_width": 0,
+        "icon_height": 0,
+        "text_color": "#FFF0F1",
+        "background_color": "#D93843",
+        "href": null,
+        "text": "3-3"
+      },
+      {
+        "placement": "pdp_badge",
+        "code": "is_hero",
+        "type": "pdp_icon_badge",
+        "index": 1,
+        "icon": "https://salt.tikicdn.com/ts/upload/94/36/e7/c5297f3fad0a83fb56f98be877904467.png",
+        "icon_width": 76,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      },
+      {
+        "placement": "pdp_badge",
+        "code": "return_policy",
+        "type": "pdp_icon_badge",
+        "index": 3,
+        "icon": "https://salt.tikicdn.com/ts/ta/b1/3f/4e/cc3d0a2dd751a7b06dd97d868d6afa56.png",
+        "icon_width": 114,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      },
+      {
+        "placement": "pdp_badge",
+        "code": "is_authentic",
+        "type": "pdp_icon_badge",
+        "index": 4,
+        "icon": "https://salt.tikicdn.com/ts/upload/d7/56/04/b93b8c666e13f49971483596ef14800f.png",
+        "icon_width": 89,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      }
+    ],
+    "tracking_info": {
+      "amplitude": {
+        "is_authentic": true,
+        "is_freeship_xtra": false,
+        "is_hero": true,
+        "is_top_brand": true,
+        "return_reason": "any_reason"
+      }
+    },
+    "discount": 15000,
+    "discount_rate": 25,
+    "rating_average": 5,
+    "review_count": 1,
+    "review_text": "(1)",
+    "favourite_count": 0,
+    "thumbnail_url": "https://salt.tikicdn.com/cache/280x280/ts/product/e5/af/5f/8ba970fda5111b5b14e0b167d5d7862d.jpg",
+    "has_ebook": false,
+    "inventory_status": "available",
+    "inventory_type": "instock",
+    "productset_group_name": "",
+    "is_fresh": false,
+    "seller": null,
+    "is_flower": false,
+    "has_buynow": true,
+    "is_gift_card": false,
+    "salable_type": null,
+    "data_version": 3300,
+    "day_ago_created": 1029,
+    "all_time_quantity_sold": 30,
+    "meta_title": "",
+    "meta_description": "",
+    "meta_keywords": "",
+    "is_baby_milk": false,
+    "is_acoholic_drink": false,
+    "description": "<p>Thạc sĩ Xã hội học Nguyễn Thị Oanh vừa là một nhà tư vấn tâm lý thanh thiếu niên cũng vừa tham gia nhiều vào lĩnh vực giáo dục kỹ năng cho giới trẻ, học sinh, sinh viên ở các lứa tuổi.</p>\n<p>Bà rất quan tâm đến giới trẻ nhất là học sinh và sinh viên thông qua những bài viết, trang tư vấn. bộ sách gồm bốn tập của thạc sĩ Nguyễn Thị Oanh, với hai tập sách tư vấn tâm lý học đường là những trao đổi tâm tình giữa tác giả, để gỡ rối những khúc mắc cũng như các vấn đề khó nói của các bạn trẻ gặp phải xoay quanh cuộc sống, gia đình, học đường, tình yêu. Tiếp theo là hai tập sách về giáo dục thanh thiếu niên về kỹ năng sống và cách làm việc theo nhóm, đây sẽ là hành trang để các bạn lứa tuổi thanh thiếu niên chuẩn bị cho một hành trình học tập và hơn nữa là tiến dần ra xã hội để trở thành một công dân thành công.</p>\n<p>Kỹ năng sống cho tuổi vị thành niên sẽ đem lại những thông tin cơ bản để bạn đọc và các nhà giáo dục có cách tiếp cận thống nhất với nội dung, phương pháp giáo dục Kỹ năng sống. Hiểu và tiếp cận Kỹ năng sống một cách nhất quán là rất cần thiết.</p><p>Giá sản phẩm trên Tiki đã bao gồm thuế theo luật hiện hành. Bên cạnh đó, tuỳ vào loại sản phẩm, hình thức và địa chỉ giao hàng mà có thể phát sinh thêm chi phí khác như phí vận chuyển, phụ phí hàng cồng kềnh, thuế nhập khẩu (đối với đơn hàng giao từ nước ngoài có giá trị trên 1 triệu đồng).....</p>",
+    "images": [
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/e5/af/5f/8ba970fda5111b5b14e0b167d5d7862d.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/e5/af/5f/8ba970fda5111b5b14e0b167d5d7862d.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/e5/af/5f/8ba970fda5111b5b14e0b167d5d7862d.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/e5/af/5f/8ba970fda5111b5b14e0b167d5d7862d.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/e5/af/5f/8ba970fda5111b5b14e0b167d5d7862d.jpg"
+      },
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/7b/8c/72/20a825667e1bac56de34d82bb444b21e.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/7b/8c/72/20a825667e1bac56de34d82bb444b21e.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/7b/8c/72/20a825667e1bac56de34d82bb444b21e.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/7b/8c/72/20a825667e1bac56de34d82bb444b21e.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/7b/8c/72/20a825667e1bac56de34d82bb444b21e.jpg"
+      },
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/98/33/75/cbd1b62bb61b56ca9697674c8fd83fb8.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/98/33/75/cbd1b62bb61b56ca9697674c8fd83fb8.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/98/33/75/cbd1b62bb61b56ca9697674c8fd83fb8.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/98/33/75/cbd1b62bb61b56ca9697674c8fd83fb8.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/98/33/75/cbd1b62bb61b56ca9697674c8fd83fb8.jpg"
+      }
+    ],
+    "warranty_policy": null,
+    "authors": [
+      {
+        "id": 3917,
+        "name": "Nguyễn Thị Oanh",
+        "slug": "nguyen-thi-oanh"
+      }
+    ],
+    "current_seller": {
+      "id": 1,
+      "sku": "5449815261807",
+      "name": "Tiki Trading",
+      "link": "https://tiki.vn/cua-hang/tiki-trading",
+      "logo": "https://vcdn.tikicdn.com/ts/seller/d1/3f/ae/13ce3d83ab6b6c5e77e6377ad61dc4a5.jpg",
+      "price": 45000,
+      "product_id": "253396852",
+      "store_id": 40395,
+      "is_best_store": false,
+      "is_offline_installment_supported": null
+    },
+    "other_sellers": [
+      {
+        "id": 189565,
+        "name": "Nhà Xuất Bản Trẻ",
+        "link": "https://tiki.vn/cua-hang/nha-xuat-ban-tre",
+        "logo": "12/4b/35/3b3513eebe81c2c5569a7e1ea41d28ec.jpg",
+        "price": 49800,
+        "product_id": "271165887",
+        "store_id": 176598
+      }
+    ],
+    "specifications": [
+      {
+        "name": "Thông tin chung",
+        "attributes": [
+          {
+            "code": "book_version",
+            "name": "Phiên bản sách",
+            "value": "Phiên bản thường"
+          },
+          {
+            "code": "publisher_vn",
+            "name": "Công ty phát hành",
+            "value": "NXB Trẻ"
+          },
+          {
+            "code": "publication_date",
+            "name": "Ngày xuất bản",
+            "value": "2023-05-03 00:00:00"
+          },
+          {
+            "code": "dimensions",
+            "name": "Kích thước",
+            "value": "13 x 20.5 cm"
+          },
+          {
+            "code": "book_cover",
+            "name": "Loại bìa",
+            "value": "Bìa mềm"
+          },
+          {
+            "code": "number_of_page",
+            "name": "Số trang",
+            "value": "136"
+          },
+          {
+            "code": "manufacturer",
+            "name": "Nhà xuất bản",
+            "value": "NXB Trẻ"
+          }
+        ]
+      }
+    ],
+    "price_comparison": {
+      "sub_title": "Giá từ 49.800 ₫",
+      "title": "So sánh 1 nhà bán khác"
+    },
+    "product_links": [],
+    "gift_item_title": "0 quà tặng kèm",
+    "services_and_promotions": [],
+    "promitions": [],
+    "stock_item": {
+      "max_sale_qty": 1000,
+      "min_sale_qty": 1,
+      "preorder_date": null,
+      "qty": 1000
+    },
+    "quantity_sold": {
+      "text": "Đã bán 30",
+      "value": 30
+    },
+    "categories": {
+      "id": 2,
+      "name": "Root",
+      "is_leaf": false
+    },
+    "breadcrumbs": [
+      {
+        "url": "/nha-sach-tiki/c8322",
+        "name": "Nhà Sách Tiki",
+        "category_id": 8322
+      },
+      {
+        "url": "/sach-truyen-tieng-viet/c316",
+        "name": "Sách tiếng Việt",
+        "category_id": 316
+      },
+      {
+        "url": "/sach-ky-nang-song/c870",
+        "name": "Sách kỹ năng sống",
+        "category_id": 870
+      },
+      {
+        "url": "/sach-ky-nang-song/c871",
+        "name": "Sách tư duy - Kỹ năng sống",
+        "category_id": 871
+      },
+      {
+        "url": "https://tiki.vn/sach-ky-nang-song-cho-tuoi-vi-thanh-nien-p253396850.html",
+        "name": "Sách Kỹ năng sống cho tuổi vị thành niên",
+        "category_id": 0
+      }
+    ],
+    "installment_info_v2": null,
+    "is_seller_in_chat_whitelist": true,
+    "inventory": {
+      "product_virtual_type": null,
+      "fulfillment_type": "tiki_delivery"
+    },
+    "warranty_info": [],
+    "return_and_exchange_policy": "Đổi trả trong<br><b>30 ngày</b><br>nếu sp lỗi.",
+    "is_tier_pricing_available": false,
+    "is_tier_pricing_eligible": false,
+    "benefits": [
+      {
+        "icon": "https://salt.tikicdn.com/ts/upload/c5/37/ee/76c708d43e377343e82baee8a0340297.png",
+        "text": "Được đồng kiểm khi nhận hàng"
+      },
+      {
+        "icon": "https://salt.tikicdn.com/ts/upload/ea/02/b4/b024e431ec433e6c85d4734aaf35bd65.png",
+        "text": "<b>Được hoàn tiền 200%</b> nếu là hàng giả."
+      },
+      {
+        "icon": "https://salt.tikicdn.com/ts/upload/d8/c7/a5/1cd5bd2f27f9bd74b2c340b8e27c4d82.png",
+        "text": "Đổi trả miễn phí trong 30 ngày. Được đổi ý.",
+        "sub_text": [],
+        "cta": {
+          "text": "Chi tiết",
+          "type": "open_policy_return_modal"
+        }
+      }
+    ],
+    "return_policy": {
+      "body": [
+        {
+          "label": "",
+          "content": [
+            "Được đổi ý (sản phẩm phải còn nguyên hộp, tem, phụ kiện, chưa kích hoạt bảo hành, không áp dụng đơn hàng trả góp), hoặc",
+            "Sản phẩm không đúng cam kết (lỗi kỹ thuật, giao sai/thiếu, bể vỡ…)"
+          ]
+        }
+      ],
+      "cta": {
+        "link": "https://hotro.tiki.vn/s/article/chinh-sach-doi-tra-san-pham",
+        "text_button": "Tìm hiểu thêm"
+      },
+      "title": "Đổi trả miễn phí trong 30 ngày"
+    }
+  },
+  "Lịch sử": {
+    "id": 7832997,
+    "master_id": 7832997,
+    "sku": "6671846558402",
+    "name": "Sách Lịch Sử Thượng Đế",
+    "url_key": "sach-lich-su-thuong-de-p7832997",
+    "url_path": "sach-lich-su-thuong-de-p7832997.html?spid=7832998",
+    "short_url": "https://tiki.vn/product-p7832997.html?spid=7832998",
+    "type": "simple",
+    "book_cover": null,
+    "short_description": "Hành trình 4.000 năm Do Thái giáo, Ki-tô giáo và Hồi giáo Karen Armstrong là một tác giả người Anh, chủ nhân của 12 cuốn sách về tôn giáo đối chiếu, và là chuyên gia về đức tin trên thế giới, trào lư...",
+    "price": 220800,
+    "list_price": 319000,
+    "original_price": 319000,
+    "badges": [
+      {
+        "code": "new_pdp",
+        "text": "v1"
+      }
+    ],
+    "badges_new": [
+      {
+        "placement": "left_authentic",
+        "code": "is_hero",
+        "type": "is_hero",
+        "index": 1,
+        "icon": "https://salt.tikicdn.com/ts/upload/94/36/e7/c5297f3fad0a83fb56f98be877904467.png",
+        "icon_width": 76,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      },
+      {
+        "placement": "text_overlay_product_image",
+        "code": "text_badge",
+        "type": "text_badge",
+        "index": 0,
+        "icon": null,
+        "icon_width": 0,
+        "icon_height": 0,
+        "text_color": "#FFF0F1",
+        "background_color": "#D93843",
+        "href": null,
+        "text": "3-3"
+      },
+      {
+        "placement": "left_brand",
+        "code": "is_authentic",
+        "type": "is_authentic",
+        "index": 4,
+        "icon": "https://salt.tikicdn.com/ts/upload/d7/56/04/b93b8c666e13f49971483596ef14800f.png",
+        "icon_width": 89,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      },
+      {
+        "placement": "right_authentic",
+        "code": "return_policy",
+        "type": "return_policy",
+        "index": 3,
+        "icon": "https://salt.tikicdn.com/ts/ta/b1/3f/4e/cc3d0a2dd751a7b06dd97d868d6afa56.png",
+        "icon_width": 114,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      }
+    ],
+    "badges_v3": [
+      {
+        "placement": "pdp_badge",
+        "code": "text_badge",
+        "type": "text_badge",
+        "index": 0,
+        "icon": null,
+        "icon_width": 0,
+        "icon_height": 0,
+        "text_color": "#FFF0F1",
+        "background_color": "#D93843",
+        "href": null,
+        "text": "3-3"
+      },
+      {
+        "placement": "pdp_badge",
+        "code": "is_hero",
+        "type": "pdp_icon_badge",
+        "index": 1,
+        "icon": "https://salt.tikicdn.com/ts/upload/94/36/e7/c5297f3fad0a83fb56f98be877904467.png",
+        "icon_width": 76,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      },
+      {
+        "placement": "pdp_badge",
+        "code": "return_policy",
+        "type": "pdp_icon_badge",
+        "index": 3,
+        "icon": "https://salt.tikicdn.com/ts/ta/b1/3f/4e/cc3d0a2dd751a7b06dd97d868d6afa56.png",
+        "icon_width": 114,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      },
+      {
+        "placement": "pdp_badge",
+        "code": "is_authentic",
+        "type": "pdp_icon_badge",
+        "index": 4,
+        "icon": "https://salt.tikicdn.com/ts/upload/d7/56/04/b93b8c666e13f49971483596ef14800f.png",
+        "icon_width": 89,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      }
+    ],
+    "tracking_info": {
+      "amplitude": {
+        "is_authentic": true,
+        "is_freeship_xtra": false,
+        "is_hero": true,
+        "is_top_brand": true,
+        "return_reason": "any_reason"
+      }
+    },
+    "discount": 98200,
+    "discount_rate": 31,
+    "rating_average": 4.6,
+    "review_count": 143,
+    "review_text": "(143)",
+    "favourite_count": 0,
+    "thumbnail_url": "https://salt.tikicdn.com/cache/280x280/media/catalog/producttmp/ff/e1/8d/5a2c73bc5f9ef2bfa7e81d17efa139fd.jpg",
+    "has_ebook": false,
+    "inventory_status": "available",
+    "inventory_type": "instock",
+    "productset_group_name": "",
+    "is_fresh": false,
+    "seller": null,
+    "is_flower": false,
+    "has_buynow": true,
+    "is_gift_card": false,
+    "salable_type": null,
+    "data_version": 3300,
+    "day_ago_created": 2650,
+    "all_time_quantity_sold": 2729,
+    "meta_title": "",
+    "meta_description": "",
+    "meta_keywords": "",
+    "is_baby_milk": false,
+    "is_acoholic_drink": false,
+    "description": "<p><strong>Hành trình 4.000 năm Do Thái giáo, Ki-tô giáo và Hồi giáo </strong></p>\n<p>Karen Armstrong là một tác giả người Anh, chủ nhân của 12 cuốn sách về tôn giáo đối chiếu, và là chuyên gia về đức tin trên thế giới, trào lưu tôn giáo chính thống và thuyết độc thần. Năm 1993, được công chúng chú ý nhờ cuốn sách Lịch sử Thượng đế, công trình của Armstrong tập trung vào những điểm tương đồng của các tôn giáo lớn, cũng như tầm quan trọng trong nhiều khía cạnh của lòng trắc ẩn, hay “Quy tắc vàng” theo cách giải thích của bà.</p>\n<p>Vì sao có sự tồn tại của Chúa Trời? Ba tôn giáo độc thần chủ đạo – Do Thái giáo, Cơ Đốc giáo và Hồi giáo – đã định hình và thay đổi khái niệm Chúa Trời như thế nào? Ba tôn giáo này có sự ảnh hưởng lẫn nhau ra sao?</p>\n<p>Trong cuốn sách viết lối tư duy thông minh này, Karen Armstrong, một trong những nhà dẫn giải tôn giáo hàng đầu của Anh lần lại lịch sử quá trình nam giới và phụ nữ nhận thức và trải nghiệm liên quan tới Chúa Trời, từ thời Tổ phụ Abraham cho tới hiện tại.</p>\n<p>Karen Armstrong dẫn dắt độc giả qua một hành trình lịch sử tôn giáo tại nhiều nền văn hóa khác nhau. Bà cho rằng, từ rất xưa và dưới dạng tinh khôi nhất, các nền văn hóa đều khá tương đồng nhau, đều sử dụng lễ nghi, nghi thức bí truyền, kịch, múa, trầm tư mặc tưởng để giúp con người vượt qua bể trầm luân. Tôn giáo, do đó, rõ ràng là vấn đề về thực hành, và có thể được so sánh với hội họa hay âm nhạc. Hai thứ đều khó sáng tác, và khó cảm thụ. Nhưng khi đã dấn thân, không một ai nghi ngờ về việc hạnh ngộ được những điều quý báu xảy ra trong hành trình ấy. Ta bước ra khỏi một phòng tranh hay một thính phòng, tâm hồn được tưới tắm, tươi mới, thăng hoa và thư thái, và như mình là một con người tốt đẹp hơn, dù người chung quanh có hay không nhận ra sự thay đổi này. </p><p>Giá sản phẩm trên Tiki đã bao gồm thuế theo luật hiện hành. Bên cạnh đó, tuỳ vào loại sản phẩm, hình thức và địa chỉ giao hàng mà có thể phát sinh thêm chi phí khác như phí vận chuyển, phụ phí hàng cồng kềnh, thuế nhập khẩu (đối với đơn hàng giao từ nước ngoài có giá trị trên 1 triệu đồng).....</p>",
+    "images": [
+      {
+        "base_url": "https://salt.tikicdn.com/media/catalog/producttmp/ff/e1/8d/5a2c73bc5f9ef2bfa7e81d17efa139fd.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/media/catalog/producttmp/ff/e1/8d/5a2c73bc5f9ef2bfa7e81d17efa139fd.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/media/catalog/producttmp/ff/e1/8d/5a2c73bc5f9ef2bfa7e81d17efa139fd.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/media/catalog/producttmp/ff/e1/8d/5a2c73bc5f9ef2bfa7e81d17efa139fd.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/media/catalog/producttmp/ff/e1/8d/5a2c73bc5f9ef2bfa7e81d17efa139fd.jpg"
+      },
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/2d/36/1f/0bb45edd8895c5a52289e92c09f7de8a.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/2d/36/1f/0bb45edd8895c5a52289e92c09f7de8a.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/2d/36/1f/0bb45edd8895c5a52289e92c09f7de8a.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/2d/36/1f/0bb45edd8895c5a52289e92c09f7de8a.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/2d/36/1f/0bb45edd8895c5a52289e92c09f7de8a.jpg"
+      },
+      {
+        "base_url": "https://salt.tikicdn.com/media/catalog/producttmp/b8/3b/f2/fd217a57b937c86a933a29ee81a07a8f.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/media/catalog/producttmp/b8/3b/f2/fd217a57b937c86a933a29ee81a07a8f.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/media/catalog/producttmp/b8/3b/f2/fd217a57b937c86a933a29ee81a07a8f.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/media/catalog/producttmp/b8/3b/f2/fd217a57b937c86a933a29ee81a07a8f.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/media/catalog/producttmp/b8/3b/f2/fd217a57b937c86a933a29ee81a07a8f.jpg"
+      }
+    ],
+    "warranty_policy": null,
+    "authors": [
+      {
+        "id": 252181,
+        "name": "Karen Armstrong",
+        "slug": "karen-armstrong"
+      }
+    ],
+    "current_seller": {
+      "id": 1,
+      "sku": "4808481653687",
+      "name": "Tiki Trading",
+      "link": "https://tiki.vn/cua-hang/tiki-trading",
+      "logo": "https://vcdn.tikicdn.com/ts/seller/d1/3f/ae/13ce3d83ab6b6c5e77e6377ad61dc4a5.jpg",
+      "price": 220800,
+      "product_id": "7832998",
+      "store_id": 40395,
+      "is_best_store": false,
+      "is_offline_installment_supported": null
+    },
+    "other_sellers": [
+      {
+        "id": 10821,
+        "name": "nha sach nguyet linh",
+        "link": "https://tiki.vn/cua-hang/nha-sach-nguyet-linh",
+        "logo": "https://vcdn.tikicdn.com/ts/seller/88/2b/d0/eaa1eadc8566bf565288bb245d07f952.jpg",
+        "price": 319000,
+        "product_id": "10637883",
+        "store_id": 10595
+      },
+      {
+        "id": 26874,
+        "name": "Phương Đông Books",
+        "link": "https://tiki.vn/cua-hang/phuong-dong-books",
+        "logo": "https://vcdn.tikicdn.com/ts/seller/2e/85/b7/e76104ae5f1beaf244f319e2f0d2d413.jpg",
+        "price": 301500,
+        "product_id": "12500842",
+        "store_id": 26242
+      },
+      {
+        "id": 111899,
+        "name": "Sống Official",
+        "link": "https://tiki.vn/cua-hang/abcbooks",
+        "logo": "https://vcdn.tikicdn.com/ts/seller/15/9e/ba/9e738b2510a755e5f27423ffb62aa0c7.jpg",
+        "price": 255000,
+        "product_id": "50762236",
+        "store_id": 103533
+      },
+      {
+        "id": 34746,
+        "name": "Nhà Sách Đinh Lễ",
+        "link": "https://tiki.vn/cua-hang/nha-sach-dinh-le",
+        "logo": "https://vcdn.tikicdn.com/ts/seller/c5/89/63/a6b1e451ca7287f268f8143ff2f3b888.jpg",
+        "price": 319000,
+        "product_id": "51030070",
+        "store_id": 34032
+      },
+      {
+        "id": 7247,
+        "name": "Alpha Books Official",
+        "link": "https://tiki.vn/cua-hang/alphabooks-official",
+        "logo": "https://vcdn.tikicdn.com/ts/seller/38/74/f3/f9cf41005697c643397d9b09d335f4c4.jpg",
+        "price": 255000,
+        "product_id": "60865236",
+        "store_id": 7082
+      },
+      {
+        "id": 145814,
+        "name": "Omega Plus Books",
+        "link": "https://tiki.vn/cua-hang/omega-plus-books",
+        "logo": "https://vcdn.tikicdn.com/ts/seller/8b/17/0b/9e986158bc230b4fd699f07095893546.jpg",
+        "price": 255000,
+        "product_id": "68801412",
+        "store_id": 134535
+      },
+      {
+        "id": 146243,
+        "name": "ETS Books",
+        "link": "https://tiki.vn/cua-hang/ets-books",
+        "logo": "https://vcdn.tikicdn.com/ts/seller/51/c9/eb/26acdd373eb04d0fce52f926dad2f725.jpg",
+        "price": 255000,
+        "product_id": "71040265",
+        "store_id": 134929
+      }
+    ],
+    "specifications": [
+      {
+        "name": "Thông tin chung",
+        "attributes": [
+          {
+            "code": "publisher_vn",
+            "name": "Công ty phát hành",
+            "value": "Omega Plus"
+          },
+          {
+            "code": "publication_date",
+            "name": "Ngày xuất bản",
+            "value": "2018-01-11 00:00:00"
+          },
+          {
+            "code": "book_cover",
+            "name": "Loại bìa",
+            "value": "Bìa cứng"
+          },
+          {
+            "code": "number_of_page",
+            "name": "Số trang",
+            "value": "648"
+          },
+          {
+            "code": "manufacturer",
+            "name": "Nhà xuất bản",
+            "value": "Nhà Xuất Bản Hồng Đức"
+          }
+        ]
+      }
+    ],
+    "price_comparison": {
+      "sub_title": "Giá từ 255.000 ₫",
+      "title": "So sánh 7 nhà bán khác"
+    },
+    "product_links": [],
+    "gift_item_title": "0 quà tặng kèm",
+    "highlight": {
+      "items": [
+        "Tư duy thông minh và dẫn giả qua hành trình lịch sử tôn giáo.",
+        "Tác giả Karen Armstrong là chuyên gia hàng đầu về tôn giáo.",
+        "Khám phá điểm tương đồng và tầm quan trọng của lòng trắc ẩn."
+      ],
+      "title": "Đặc điểm nổi bật"
+    },
+    "services_and_promotions": [],
+    "promitions": [],
+    "stock_item": {
+      "max_sale_qty": 1000,
+      "min_sale_qty": 1,
+      "preorder_date": null,
+      "qty": 1000
+    },
+    "quantity_sold": {
+      "text": "Đã bán 2k",
+      "value": 2729
+    },
+    "categories": {
+      "id": 2,
+      "name": "Root",
+      "is_leaf": false
+    },
+    "breadcrumbs": [
+      {
+        "url": "/nha-sach-tiki/c8322",
+        "name": "Nhà Sách Tiki",
+        "category_id": 8322
+      },
+      {
+        "url": "/sach-truyen-tieng-viet/c316",
+        "name": "Sách tiếng Việt",
+        "category_id": 316
+      },
+      {
+        "url": "/lich-su-dia-ly/c880",
+        "name": "Sách Lịch sử",
+        "category_id": 880
+      },
+      {
+        "url": "/lich-su-the-gioi/c9725",
+        "name": "Lịch Sử Thế Giới",
+        "category_id": 9725
+      },
+      {
+        "url": "https://tiki.vn/sach-lich-su-thuong-de-p7832997.html",
+        "name": "Sách Lịch Sử Thượng Đế",
+        "category_id": 0
+      }
+    ],
+    "installment_info_v2": null,
+    "installment_info_v3": [
+      {
+        "display_text": "Ưu đãi đến 600k với thẻ TikiCard",
+        "icon": "https://salt.tikicdn.com/ts/upload/73/4d/f7/f86e767bffc14aa3d6abed348630100b.png",
+        "summary": "Ưu đãi đến 600k với thẻ TikiCard.",
+        "title": "Ưu đãi đến 600k với thẻ TikiCard",
+        "type": "other",
+        "url": "https://tiki.vn/san-pham-so/the-dong-thuong-hieu-tiki-co-card"
+      },
+      {
+        "display_text": "Mua trước trả sau",
+        "icon": "https://salt.tikicdn.com/ts/upload/2a/27/6a/7bbba1f6c93a1a42a3c314e7b5825f4c.png",
+        "summary": "Duyệt hồ sơ nhanh chóng qua công ty tài chính.",
+        "title": "Mua trước trả sau",
+        "type": "postpaid",
+        "url": "https://tiki.vn/mua-truoc-tra-sau/thanh-toan?src=pdp&masterId=7832997&pid=7832998&seller_id=1&qty=1"
+      }
+    ],
+    "is_seller_in_chat_whitelist": true,
+    "inventory": {
+      "product_virtual_type": null,
+      "fulfillment_type": "tiki_delivery"
+    },
+    "warranty_info": [],
+    "return_and_exchange_policy": "Đổi trả trong<br><b>30 ngày</b><br>nếu sp lỗi.",
+    "is_tier_pricing_available": false,
+    "is_tier_pricing_eligible": false,
+    "benefits": [
+      {
+        "icon": "https://salt.tikicdn.com/ts/upload/c5/37/ee/76c708d43e377343e82baee8a0340297.png",
+        "text": "Được đồng kiểm khi nhận hàng"
+      },
+      {
+        "icon": "https://salt.tikicdn.com/ts/upload/ea/02/b4/b024e431ec433e6c85d4734aaf35bd65.png",
+        "text": "<b>Được hoàn tiền 200%</b> nếu là hàng giả."
+      },
+      {
+        "icon": "https://salt.tikicdn.com/ts/upload/d8/c7/a5/1cd5bd2f27f9bd74b2c340b8e27c4d82.png",
+        "text": "Đổi trả miễn phí trong 30 ngày. Được đổi ý.",
+        "sub_text": [],
+        "cta": {
+          "text": "Chi tiết",
+          "type": "open_policy_return_modal"
+        }
+      }
+    ],
+    "return_policy": {
+      "body": [
+        {
+          "label": "",
+          "content": [
+            "Được đổi ý (sản phẩm phải còn nguyên hộp, tem, phụ kiện, chưa kích hoạt bảo hành, không áp dụng đơn hàng trả góp), hoặc",
+            "Sản phẩm không đúng cam kết (lỗi kỹ thuật, giao sai/thiếu, bể vỡ…)"
+          ]
+        }
+      ],
+      "cta": {
+        "link": "https://hotro.tiki.vn/s/article/chinh-sach-doi-tra-san-pham",
+        "text_button": "Tìm hiểu thêm"
+      },
+      "title": "Đổi trả miễn phí trong 30 ngày"
+    }
+  },
+  "Thiếu nhi": {
+    "id": 276076023,
+    "master_id": 276076023,
+    "sku": "1702682993581",
+    "name": "Bộ sách thiếu nhi Những bài học nhỏ",
+    "url_key": "bo-sach-thieu-nhi-nhung-bai-hoc-nho-p276076023",
+    "url_path": "bo-sach-thieu-nhi-nhung-bai-hoc-nho-p276076023.html?spid=276076086",
+    "short_url": "https://tiki.vn/product-p276076023.html?spid=276076086",
+    "type": "configurable",
+    "book_cover": null,
+    "short_description": "Giới thiệu sách“Những bài học nhỏ” là bộ sách với những câu chuyện dễ thương và ý nghĩa trong thế giới cỏ cây động vật. Qua mỗi câu chuyện, bạn đọc nhỏ tuổi sẽ được trải qua những chuyến phiêu lưu nh...",
+    "price": 26000,
+    "list_price": 35000,
+    "original_price": 35000,
+    "badges": [
+      {
+        "code": "new_pdp",
+        "text": "v1"
+      }
+    ],
+    "badges_new": [
+      {
+        "placement": "left_authentic",
+        "code": "is_hero",
+        "type": "is_hero",
+        "index": 1,
+        "icon": "https://salt.tikicdn.com/ts/upload/94/36/e7/c5297f3fad0a83fb56f98be877904467.png",
+        "icon_width": 76,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      },
+      {
+        "placement": "text_overlay_product_image",
+        "code": "text_badge",
+        "type": "text_badge",
+        "index": 0,
+        "icon": null,
+        "icon_width": 0,
+        "icon_height": 0,
+        "text_color": "#FFF0F1",
+        "background_color": "#D93843",
+        "href": null,
+        "text": "3-3"
+      },
+      {
+        "placement": "left_brand",
+        "code": "is_authentic",
+        "type": "is_authentic",
+        "index": 4,
+        "icon": "https://salt.tikicdn.com/ts/upload/d7/56/04/b93b8c666e13f49971483596ef14800f.png",
+        "icon_width": 89,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      },
+      {
+        "placement": "right_authentic",
+        "code": "return_policy",
+        "type": "return_policy",
+        "index": 3,
+        "icon": "https://salt.tikicdn.com/ts/ta/b1/3f/4e/cc3d0a2dd751a7b06dd97d868d6afa56.png",
+        "icon_width": 114,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      }
+    ],
+    "badges_v3": [
+      {
+        "placement": "pdp_badge",
+        "code": "text_badge",
+        "type": "text_badge",
+        "index": 0,
+        "icon": null,
+        "icon_width": 0,
+        "icon_height": 0,
+        "text_color": "#FFF0F1",
+        "background_color": "#D93843",
+        "href": null,
+        "text": "3-3"
+      },
+      {
+        "placement": "pdp_badge",
+        "code": "is_hero",
+        "type": "pdp_icon_badge",
+        "index": 1,
+        "icon": "https://salt.tikicdn.com/ts/upload/94/36/e7/c5297f3fad0a83fb56f98be877904467.png",
+        "icon_width": 76,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      },
+      {
+        "placement": "pdp_badge",
+        "code": "return_policy",
+        "type": "pdp_icon_badge",
+        "index": 3,
+        "icon": "https://salt.tikicdn.com/ts/ta/b1/3f/4e/cc3d0a2dd751a7b06dd97d868d6afa56.png",
+        "icon_width": 114,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      },
+      {
+        "placement": "pdp_badge",
+        "code": "is_authentic",
+        "type": "pdp_icon_badge",
+        "index": 4,
+        "icon": "https://salt.tikicdn.com/ts/upload/d7/56/04/b93b8c666e13f49971483596ef14800f.png",
+        "icon_width": 89,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      }
+    ],
+    "tracking_info": {
+      "amplitude": {
+        "is_authentic": true,
+        "is_freeship_xtra": false,
+        "is_hero": true,
+        "is_top_brand": true,
+        "return_reason": "any_reason"
+      }
+    },
+    "discount": 9000,
+    "discount_rate": 26,
+    "rating_average": 4.5,
+    "review_count": 2,
+    "review_text": "(2)",
+    "favourite_count": 0,
+    "thumbnail_url": "https://salt.tikicdn.com/cache/280x280/ts/product/a9/cf/32/a104941cca888c06e4698225743be774.jpg",
+    "has_ebook": false,
+    "inventory_status": "available",
+    "inventory_type": "instock",
+    "productset_group_name": "",
+    "is_fresh": false,
+    "seller": null,
+    "is_flower": false,
+    "has_buynow": true,
+    "is_gift_card": false,
+    "salable_type": null,
+    "data_version": 3300,
+    "day_ago_created": 545,
+    "all_time_quantity_sold": 9,
+    "meta_title": "",
+    "meta_description": "",
+    "meta_keywords": "",
+    "is_baby_milk": false,
+    "is_acoholic_drink": false,
+    "description": "<h3>Giới thiệu sách</h3>\n<p>“Những bài học nhỏ” là bộ sách với những câu chuyện dễ thương và ý nghĩa trong thế giới cỏ cây động vật. Qua mỗi câu chuyện, bạn đọc nhỏ tuổi sẽ được trải qua những chuyến phiêu lưu nho nhỏ, với thông điệp ấm áp và mang lại những niềm vui bất ngờ. <br />4 tựa sách mới nhất của bộ sách sẽ là 4 câu chuyện nơi biển cả: </p>\n<ul>\n<li>Cá trích con cứu đàn: Trong một đàn cá trích nọ, có một bé cá trích con tình cờ nhiều lần biết được các mối nguy hiểm có thể xảy ra với đàn. Nhưng lão cá trích đầu đàn lại kiêu ngạo không thèm nghe lời Cá trích con. Liệu Cá trích con có tìm được cách để cứu đàn khô </li>\n<li>Cuộc phiêu lưu của hải long con: Một bạn hải long nhỏ ham chơi đi lạc nơi đáy biển mênh mông. Đường về nhà không biết ở đâu, còn trên đường thì gặp đủ chuyện đáng sợ, trong khi ở nhà, lễ hội Hải long sắp bắt đầu. Liệu hải long con có kịp tìm đường về nhà không? </li>\n<li>Hành trình của cá thù lù: Một đàn cá Thù lù đi lạc vào vùng biển Làng Lạnh. Các loài cá cư dân Làng Lạnh chẳng hoan nghênh người lạ chút nào. Nhưng anh chị em nhà Thù lù lại rất muốn được ở lại đây. Liệu cuối cùng, nhà cá Thù lù có thuyết phục được Làng Lạnh cho mình ở lại không? </li>\n<li>Mực nang đến trường: Nơi đáy biển, ngày khai trường đã đến rồi, các bạn nhỏ cá cua tôm mực đều háo hức theo bố mẹ tới trường. Chỉ có một mình, đứng ở cổng trường, bé Mực nang buồn rầu nhìn các bạn. Làm thế nào để bé được đến trường đây?</li>\n</ul><p>Giá sản phẩm trên Tiki đã bao gồm thuế theo luật hiện hành. Bên cạnh đó, tuỳ vào loại sản phẩm, hình thức và địa chỉ giao hàng mà có thể phát sinh thêm chi phí khác như phí vận chuyển, phụ phí hàng cồng kềnh, thuế nhập khẩu (đối với đơn hàng giao từ nước ngoài có giá trị trên 1 triệu đồng).....</p>",
+    "images": [
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/a9/cf/32/a104941cca888c06e4698225743be774.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/a9/cf/32/a104941cca888c06e4698225743be774.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/a9/cf/32/a104941cca888c06e4698225743be774.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/a9/cf/32/a104941cca888c06e4698225743be774.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/a9/cf/32/a104941cca888c06e4698225743be774.jpg"
+      },
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/fd/72/19/0164df96de64223b7a5e2297b38ec28d.png",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/fd/72/19/0164df96de64223b7a5e2297b38ec28d.png",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/fd/72/19/0164df96de64223b7a5e2297b38ec28d.png",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/fd/72/19/0164df96de64223b7a5e2297b38ec28d.png",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/fd/72/19/0164df96de64223b7a5e2297b38ec28d.png"
+      },
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/72/6d/8e/4c5daab56c1637c5a7e7c9785d8eab84.png",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/72/6d/8e/4c5daab56c1637c5a7e7c9785d8eab84.png",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/72/6d/8e/4c5daab56c1637c5a7e7c9785d8eab84.png",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/72/6d/8e/4c5daab56c1637c5a7e7c9785d8eab84.png",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/72/6d/8e/4c5daab56c1637c5a7e7c9785d8eab84.png"
+      }
+    ],
+    "warranty_policy": null,
+    "authors": [
+      {
+        "id": 41269,
+        "name": "Nguyễn Tấn Thanh Trúc",
+        "slug": "nguyen-tan-thanh-truc"
+      }
+    ],
+    "current_seller": {
+      "id": 1,
+      "sku": "7905055228015",
+      "name": "Tiki Trading",
+      "link": "https://tiki.vn/cua-hang/tiki-trading",
+      "logo": "https://vcdn.tikicdn.com/ts/seller/d1/3f/ae/13ce3d83ab6b6c5e77e6377ad61dc4a5.jpg",
+      "price": 26000,
+      "product_id": "276076086",
+      "store_id": 40395,
+      "is_best_store": false,
+      "is_offline_installment_supported": null
+    },
+    "other_sellers": [],
+    "specifications": [
+      {
+        "name": "Thông tin chung",
+        "attributes": [
+          {
+            "code": "publisher_vn",
+            "name": "Công ty phát hành",
+            "value": "NXB Trẻ"
+          },
+          {
+            "code": "publication_date",
+            "name": "Ngày xuất bản",
+            "value": "2024-09-06 00:00:00"
+          },
+          {
+            "code": "dimensions",
+            "name": "Kích thước",
+            "value": "23 x 23"
+          },
+          {
+            "code": "book_cover",
+            "name": "Loại bìa",
+            "value": "Bìa mềm"
+          },
+          {
+            "code": "number_of_page",
+            "name": "Số trang",
+            "value": "32"
+          },
+          {
+            "code": "manufacturer",
+            "name": "Nhà xuất bản",
+            "value": "NXB Trẻ"
+          }
+        ]
+      }
+    ],
+    "product_links": [],
+    "gift_item_title": "0 quà tặng kèm",
+    "configurable_options": [
+      {
+        "code": "option1",
+        "name": "Tập",
+        "position": 0,
+        "show_preview_image": false,
+        "values": [
+          {
+            "label": "Combo 4 cuốn"
+          },
+          {
+            "label": "Cuộc phiêu lưu của hải long con"
+          },
+          {
+            "label": "Cá trích con cứu đàn"
+          },
+          {
+            "label": "Hành trình của cá thù lù"
+          },
+          {
+            "label": "Mực nang đến trường"
+          }
+        ]
+      }
+    ],
+    "configurable_products": [
+      {
+        "child_id": 276076024,
+        "discount_rate": 26,
+        "id": 276076083,
+        "images": [
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/0a/5f/f5/7fd0334b8d78890fd4e16308003a4d9a.jpg",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/0a/5f/f5/7fd0334b8d78890fd4e16308003a4d9a.jpg",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/0a/5f/f5/7fd0334b8d78890fd4e16308003a4d9a.jpg"
+          },
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/72/6d/8e/74b30ac75738c27e83faea63a0b21918.png",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/72/6d/8e/74b30ac75738c27e83faea63a0b21918.png",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/72/6d/8e/74b30ac75738c27e83faea63a0b21918.png"
+          },
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/c2/88/43/b8218c9a4bc8cf82400f5fdf7ce594ed.png",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/c2/88/43/b8218c9a4bc8cf82400f5fdf7ce594ed.png",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/c2/88/43/b8218c9a4bc8cf82400f5fdf7ce594ed.png"
+          }
+        ],
+        "inventory_status": "available",
+        "name": "Bộ sách thiếu nhi Những bài học nhỏ - Cá trích con cứu đàn",
+        "option1": "Cá trích con cứu đàn",
+        "original_price": 35000,
+        "price": 26000,
+        "selected": false,
+        "seller": {
+          "id": 1,
+          "name": "Tiki Trading"
+        },
+        "sku": "9594377645934",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/280x280/ts/product/0a/5f/f5/7fd0334b8d78890fd4e16308003a4d9a.jpg"
+      },
+      {
+        "child_id": 276076028,
+        "discount_rate": 26,
+        "id": 276076085,
+        "images": [
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/02/dd/a3/fc8f58d419e926496b2e38ad4e6031e9.jpg",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/02/dd/a3/fc8f58d419e926496b2e38ad4e6031e9.jpg",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/02/dd/a3/fc8f58d419e926496b2e38ad4e6031e9.jpg"
+          },
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/0b/e0/fb/a88980292f8bb496675bfc2e117b436c.png",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/0b/e0/fb/a88980292f8bb496675bfc2e117b436c.png",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/0b/e0/fb/a88980292f8bb496675bfc2e117b436c.png"
+          },
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/72/6d/8e/9fbd87c4177f584b1ade85f9e7c46d7e.png",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/72/6d/8e/9fbd87c4177f584b1ade85f9e7c46d7e.png",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/72/6d/8e/9fbd87c4177f584b1ade85f9e7c46d7e.png"
+          }
+        ],
+        "inventory_status": "available",
+        "name": "Bộ sách thiếu nhi Những bài học nhỏ - Hành trình của cá thù lù",
+        "option1": "Hành trình của cá thù lù",
+        "original_price": 35000,
+        "price": 26000,
+        "selected": false,
+        "seller": {
+          "id": 1,
+          "name": "Tiki Trading"
+        },
+        "sku": "6093273933085",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/280x280/ts/product/02/dd/a3/fc8f58d419e926496b2e38ad4e6031e9.jpg"
+      },
+      {
+        "child_id": 276076030,
+        "discount_rate": 26,
+        "id": 276076086,
+        "images": [
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/a9/cf/32/a104941cca888c06e4698225743be774.jpg",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/a9/cf/32/a104941cca888c06e4698225743be774.jpg",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/a9/cf/32/a104941cca888c06e4698225743be774.jpg"
+          },
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/fd/72/19/0164df96de64223b7a5e2297b38ec28d.png",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/fd/72/19/0164df96de64223b7a5e2297b38ec28d.png",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/fd/72/19/0164df96de64223b7a5e2297b38ec28d.png"
+          },
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/72/6d/8e/4c5daab56c1637c5a7e7c9785d8eab84.png",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/72/6d/8e/4c5daab56c1637c5a7e7c9785d8eab84.png",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/72/6d/8e/4c5daab56c1637c5a7e7c9785d8eab84.png"
+          }
+        ],
+        "inventory_status": "available",
+        "name": "Bộ sách thiếu nhi Những bài học nhỏ - Mực nang đến trường",
+        "option1": "Mực nang đến trường",
+        "original_price": 35000,
+        "price": 26000,
+        "selected": true,
+        "seller": {
+          "id": 1,
+          "name": "Tiki Trading"
+        },
+        "sku": "8512611624017",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/280x280/ts/product/a9/cf/32/a104941cca888c06e4698225743be774.jpg"
+      },
+      {
+        "child_id": 276076026,
+        "discount_rate": 26,
+        "id": 276076084,
+        "images": [
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/72/6d/8e/1f4d454c50890bd169bc054c5c6e4d5b.png",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/72/6d/8e/1f4d454c50890bd169bc054c5c6e4d5b.png",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/72/6d/8e/1f4d454c50890bd169bc054c5c6e4d5b.png"
+          },
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/a7/f0/d1/501ed55a8109b36aa8524bf85733f60b.png",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/a7/f0/d1/501ed55a8109b36aa8524bf85733f60b.png",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/a7/f0/d1/501ed55a8109b36aa8524bf85733f60b.png"
+          },
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/d8/c0/01/ee33302c3704ea1affc1509b8cb1e99e.jpg",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/d8/c0/01/ee33302c3704ea1affc1509b8cb1e99e.jpg",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/d8/c0/01/ee33302c3704ea1affc1509b8cb1e99e.jpg"
+          }
+        ],
+        "inventory_status": "available",
+        "name": "Bộ sách thiếu nhi Những bài học nhỏ - Cuộc phiêu lưu của hải long con",
+        "option1": "Cuộc phiêu lưu của hải long con",
+        "original_price": 35000,
+        "price": 26000,
+        "selected": false,
+        "seller": {
+          "id": 1,
+          "name": "Tiki Trading"
+        },
+        "sku": "7416484516209",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/280x280/ts/product/d8/c0/01/ee33302c3704ea1affc1509b8cb1e99e.jpg"
+      },
+      {
+        "child_id": 276076032,
+        "discount_rate": 21,
+        "id": 276076088,
+        "images": [
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/02/dd/a3/55c095fd913f48d7b251f7ad0655c348.jpg",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/02/dd/a3/55c095fd913f48d7b251f7ad0655c348.jpg",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/02/dd/a3/55c095fd913f48d7b251f7ad0655c348.jpg"
+          },
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/02/dd/a3/653dafdcc21f0ea12d08396144e34e5c.jpg",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/02/dd/a3/653dafdcc21f0ea12d08396144e34e5c.jpg",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/02/dd/a3/653dafdcc21f0ea12d08396144e34e5c.jpg"
+          },
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/0a/5f/f5/aa4c57390577fa2378b80bef98cc3be3.jpg",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/0a/5f/f5/aa4c57390577fa2378b80bef98cc3be3.jpg",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/0a/5f/f5/aa4c57390577fa2378b80bef98cc3be3.jpg"
+          },
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/a9/cf/32/866e30e3d7f6065bbb7c59022adb6d66.jpg",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/a9/cf/32/866e30e3d7f6065bbb7c59022adb6d66.jpg",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/a9/cf/32/866e30e3d7f6065bbb7c59022adb6d66.jpg"
+          },
+          {
+            "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/d8/c0/01/a246743682f9a9932b0a56c223a2c16b.jpg",
+            "medium_url": "https://salt.tikicdn.com/cache/550x550/ts/product/d8/c0/01/a246743682f9a9932b0a56c223a2c16b.jpg",
+            "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/d8/c0/01/a246743682f9a9932b0a56c223a2c16b.jpg"
+          }
+        ],
+        "inventory_status": "available",
+        "name": "Bộ sách thiếu nhi Những bài học nhỏ - Combo 4 cuốn",
+        "option1": "Combo 4 cuốn",
+        "original_price": 140000,
+        "price": 111000,
+        "selected": false,
+        "seller": {
+          "id": 1,
+          "name": "Tiki Trading"
+        },
+        "sku": "2193646845186",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/280x280/ts/product/02/dd/a3/55c095fd913f48d7b251f7ad0655c348.jpg"
+      }
+    ],
+    "services_and_promotions": [],
+    "promitions": [],
+    "stock_item": {
+      "max_sale_qty": 1000,
+      "min_sale_qty": 1,
+      "preorder_date": null,
+      "qty": 1000
+    },
+    "quantity_sold": {
+      "text": "Đã bán 9",
+      "value": 9
+    },
+    "categories": {
+      "id": 2,
+      "name": "Root",
+      "is_leaf": false
+    },
+    "breadcrumbs": [
+      {
+        "url": "/nha-sach-tiki/c8322",
+        "name": "Nhà Sách Tiki",
+        "category_id": 8322
+      },
+      {
+        "url": "/sach-truyen-tieng-viet/c316",
+        "name": "Sách tiếng Việt",
+        "category_id": 316
+      },
+      {
+        "url": "/sach-truyen-thieu-nhi/c393",
+        "name": "Sách thiếu nhi ",
+        "category_id": 393
+      },
+      {
+        "url": "/truyen-tranh-thieu-nhi/c855",
+        "name": "Truyện tranh thiếu nhi",
+        "category_id": 855
+      },
+      {
+        "url": "https://tiki.vn/bo-sach-thieu-nhi-nhung-bai-hoc-nho-p276076023.html",
+        "name": "Bộ sách thiếu nhi Những bài học nhỏ",
+        "category_id": 0
+      }
+    ],
+    "installment_info_v2": null,
+    "is_seller_in_chat_whitelist": true,
+    "inventory": {
+      "product_virtual_type": null,
+      "fulfillment_type": "tiki_delivery"
+    },
+    "warranty_info": [],
+    "return_and_exchange_policy": "Đổi trả trong<br><b>30 ngày</b><br>nếu sp lỗi.",
+    "is_tier_pricing_available": false,
+    "is_tier_pricing_eligible": false,
+    "benefits": [
+      {
+        "icon": "https://salt.tikicdn.com/ts/upload/c5/37/ee/76c708d43e377343e82baee8a0340297.png",
+        "text": "Được đồng kiểm khi nhận hàng"
+      },
+      {
+        "icon": "https://salt.tikicdn.com/ts/upload/ea/02/b4/b024e431ec433e6c85d4734aaf35bd65.png",
+        "text": "<b>Được hoàn tiền 200%</b> nếu là hàng giả."
+      },
+      {
+        "icon": "https://salt.tikicdn.com/ts/upload/d8/c7/a5/1cd5bd2f27f9bd74b2c340b8e27c4d82.png",
+        "text": "Đổi trả miễn phí trong 30 ngày. Được đổi ý.",
+        "sub_text": [],
+        "cta": {
+          "text": "Chi tiết",
+          "type": "open_policy_return_modal"
+        }
+      }
+    ],
+    "return_policy": {
+      "body": [
+        {
+          "label": "",
+          "content": [
+            "Được đổi ý (sản phẩm phải còn nguyên hộp, tem, phụ kiện, chưa kích hoạt bảo hành, không áp dụng đơn hàng trả góp), hoặc",
+            "Sản phẩm không đúng cam kết (lỗi kỹ thuật, giao sai/thiếu, bể vỡ…)"
+          ]
+        }
+      ],
+      "cta": {
+        "link": "https://hotro.tiki.vn/s/article/chinh-sach-doi-tra-san-pham",
+        "text_button": "Tìm hiểu thêm"
+      },
+      "title": "Đổi trả miễn phí trong 30 ngày"
+    }
+  },
+  "Văn học": {
+    "id": 78975612,
+    "master_id": 78975612,
+    "sku": "6200524254412",
+    "name": "Sách Văn Học Vết Thâm",
+    "url_key": "sach-van-hoc-vet-tham-p78975612",
+    "url_path": "sach-van-hoc-vet-tham-p78975612.html?spid=91832893",
+    "short_url": "https://tiki.vn/product-p78975612.html?spid=91832893",
+    "type": "simple",
+    "book_cover": null,
+    "short_description": "Văn học vết thâm là một tuyển tập thơ và tranh của Nguyễn Thị Thúy Hạnh.Sau tập thơ đầu tay Di chữ, Thúy Hạnh trở lại với một tác phẩm chín muồi hơn, tinh tế hơn nhưng cũng nhiều thách thức hơn, thá...",
+    "price": 213900,
+    "list_price": 230000,
+    "original_price": 230000,
+    "badges": [
+      {
+        "code": "new_pdp",
+        "text": "v1"
+      }
+    ],
+    "badges_new": [
+      {
+        "placement": "left_brand",
+        "code": "is_authentic",
+        "type": "is_authentic",
+        "index": 4,
+        "icon": "https://salt.tikicdn.com/ts/upload/d7/56/04/b93b8c666e13f49971483596ef14800f.png",
+        "icon_width": 89,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      },
+      {
+        "placement": "right_authentic",
+        "code": "return_policy",
+        "type": "return_policy",
+        "index": 3,
+        "icon": "https://salt.tikicdn.com/ts/ta/b1/3f/4e/cc3d0a2dd751a7b06dd97d868d6afa56.png",
+        "icon_width": 114,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      }
+    ],
+    "badges_v3": [
+      {
+        "placement": "pdp_badge",
+        "code": "freeship_xtra",
+        "type": "pdp_icon_badge",
+        "index": 2,
+        "icon": "https://salt.tikicdn.com/ts/upload/be/67/48/04a82ab8df178e1a13bde38316081865.png",
+        "icon_width": 91,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      },
+      {
+        "placement": "pdp_badge",
+        "code": "return_policy",
+        "type": "pdp_icon_badge",
+        "index": 3,
+        "icon": "https://salt.tikicdn.com/ts/ta/b1/3f/4e/cc3d0a2dd751a7b06dd97d868d6afa56.png",
+        "icon_width": 114,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      },
+      {
+        "placement": "pdp_badge",
+        "code": "is_authentic",
+        "type": "pdp_icon_badge",
+        "index": 4,
+        "icon": "https://salt.tikicdn.com/ts/upload/d7/56/04/b93b8c666e13f49971483596ef14800f.png",
+        "icon_width": 89,
+        "icon_height": 20,
+        "text_color": null,
+        "background_color": null,
+        "href": null,
+        "text": null
+      }
+    ],
+    "tracking_info": {
+      "amplitude": {
+        "is_authentic": true,
+        "is_freeship_xtra": true,
+        "is_hero": false,
+        "is_top_brand": true,
+        "return_reason": "any_reason"
+      }
+    },
+    "discount": 16100,
+    "discount_rate": 7,
+    "rating_average": 0,
+    "review_count": 0,
+    "review_text": "Chưa có đánh giá",
+    "favourite_count": 0,
+    "thumbnail_url": "https://salt.tikicdn.com/cache/280x280/ts/product/9b/e1/17/496f6a3e7249fd16bd103abe9eabe52c.jpg",
+    "has_ebook": false,
+    "inventory_status": "available",
+    "inventory_type": "backorder",
+    "productset_group_name": "",
+    "is_fresh": false,
+    "seller": null,
+    "is_flower": false,
+    "has_buynow": true,
+    "is_gift_card": false,
+    "salable_type": null,
+    "data_version": 3300,
+    "day_ago_created": 1828,
+    "all_time_quantity_sold": 1,
+    "meta_title": "",
+    "meta_description": "",
+    "meta_keywords": "",
+    "is_baby_milk": false,
+    "is_acoholic_drink": false,
+    "description": "Văn học vết thâm là một tuyển tập thơ và tranh của Nguyễn Thị Thúy Hạnh.<br />\n<br />\nSau tập thơ đầu tay Di chữ, Thúy Hạnh trở lại với một tác phẩm chín muồi hơn, tinh tế hơn nhưng cũng nhiều thách thức hơn, thách thức cho chính tác giả và cho người đọc. Mỗi một tác phẩm, gồm cả thơ và tranh, đều hàm chứa trong đó một trải lòng đã được chắt lọc qua nhiều chiêm nghiệm, nhưng cũng đồng thời hàm chứa cả sự khai mở, kiếm tìm những điều còn hết sức chông chênh, mơ hồ của cuộc đời và của chính bản thân tác giả.<br />\n<br />\nNhững điều chông chênh, những thoảng qua trong suy tư, khó nắm bắt và vùn vụt đi ấy, đôi khi là một thoáng nhớ cốm Vòng Dịch Vọng, có khi là một chua cay giữa nụ hôn, có lúc chỉ là một tiếng mưa rơi “như tiếng người già nhai trầu”. Nhưng cũng có khi, nặng nề hơn, tăm tối và đột ngột, là hình ảnh một đám ma tôi kỳ quái thê lương, một giấc mộng có đàn bò ăn thành phố, một cánh chuồn chuồn nhão giữa những giấc chín của Hà Nội 99,9 °C,… Thực và mộng, thân quen và kỳ dị, bình lặng và điên dại, hiện tại và quá khứ, tất cả trộn lẫn vào nhau, như một bức tranh đã chằng chịt nét vẽ và sắc màu mà người ta không tài nào còn có thể lần ra đầu mối.<br />\n<br />\nNhưng dẫu có mơ hồ, xa xôi, có chìm ngập trong quá khứ hay kỳ dị như một giấc mơ, thì những ấn tượng ấy, chúng vẫn ở đó, như một sự thật rất đỗi ám ảnh. Chúng là những vết thương, những vết thâm không tài nào xóa bỏ. Những vết thâm lòng tràn vào con chữ, cất lên thành lời thơ. Những vết thâm còn tràn lên màu sắc, đổ vào trang giấy thành nét vẽ. Đó là cách mà Thúy Hạnh sáng tác: không sắp sẵn trước ý tưởng, không lên khung và tìm lời, tất cả là sự bùng phát của câu từ. Những vết thâm, chúng không còn làm ta đau, nhưng chúng ở đó, bắt ta nhìn vào đó, để ám ảnh khôn nguôi.<br />\n<br />\nVới những cách biểu đạt tinh tế và mới mẻ, đặc biệt là những thể nghiệm mới trong hình thức sáng tác, tập thơ Văn học vế thâm giúp đưa bạn đọc vào những trải nghiệm, tuy không đơn giản và dễ dàng, nhưng chắc chắn thú vị và độc đáo, để thêm một cách lắng nghe cuộc đời, lắng nghe bản thân mình.<br />\n<br />\n_______________<br />\n“Tôi nôn ra của mình - cái bóng - người kể chuyện, khi câu chuyện hoàn thành, tôi nuốt lại anh ta vào bụng<br />\nnuốt vào một đại dương nhả ra một cánh bướm nuốt vào một ngả đường nhả ra một đêm trắng nuốt vào một mùa xuân nhả ra một bạc tóc nuốt vào một Sartre nhả ra một Camus nuốt vào một điên rồ nhả ra một truyền thống nuốt vào một tự ngã nhả ra một thú nhận<br />\nnhả ra một lịch sử nuốt vào một hối hận<br />\nmột tự sự im lặng.”<br />\n<br />\n- Nguyễn Thị Thúy Hạnh<p>Giá sản phẩm trên Tiki đã bao gồm thuế theo luật hiện hành. Bên cạnh đó, tuỳ vào loại sản phẩm, hình thức và địa chỉ giao hàng mà có thể phát sinh thêm chi phí khác như phí vận chuyển, phụ phí hàng cồng kềnh, thuế nhập khẩu (đối với đơn hàng giao từ nước ngoài có giá trị trên 1 triệu đồng).....</p>",
+    "images": [
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/9b/e1/17/496f6a3e7249fd16bd103abe9eabe52c.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/9b/e1/17/496f6a3e7249fd16bd103abe9eabe52c.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/9b/e1/17/496f6a3e7249fd16bd103abe9eabe52c.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/9b/e1/17/496f6a3e7249fd16bd103abe9eabe52c.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/9b/e1/17/496f6a3e7249fd16bd103abe9eabe52c.jpg"
+      },
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/62/dd/cf/fdd0730ddfc39558f8c76b75a3d22966.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/62/dd/cf/fdd0730ddfc39558f8c76b75a3d22966.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/62/dd/cf/fdd0730ddfc39558f8c76b75a3d22966.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/62/dd/cf/fdd0730ddfc39558f8c76b75a3d22966.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/62/dd/cf/fdd0730ddfc39558f8c76b75a3d22966.jpg"
+      },
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/00/a6/b4/a74e91af9092fa2da2ecef519e0f99ba.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/00/a6/b4/a74e91af9092fa2da2ecef519e0f99ba.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/00/a6/b4/a74e91af9092fa2da2ecef519e0f99ba.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/00/a6/b4/a74e91af9092fa2da2ecef519e0f99ba.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/00/a6/b4/a74e91af9092fa2da2ecef519e0f99ba.jpg"
+      },
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/35/3e/5f/25f5b8dd3de1799b609143a2daf6a108.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/35/3e/5f/25f5b8dd3de1799b609143a2daf6a108.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/35/3e/5f/25f5b8dd3de1799b609143a2daf6a108.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/35/3e/5f/25f5b8dd3de1799b609143a2daf6a108.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/35/3e/5f/25f5b8dd3de1799b609143a2daf6a108.jpg"
+      },
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/9c/30/d3/02e8d4296f886494382bba974260a58e.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/9c/30/d3/02e8d4296f886494382bba974260a58e.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/9c/30/d3/02e8d4296f886494382bba974260a58e.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/9c/30/d3/02e8d4296f886494382bba974260a58e.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/9c/30/d3/02e8d4296f886494382bba974260a58e.jpg"
+      },
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/a6/d1/02/9b279bdf56448af2c826fb412df55095.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/a6/d1/02/9b279bdf56448af2c826fb412df55095.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/a6/d1/02/9b279bdf56448af2c826fb412df55095.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/a6/d1/02/9b279bdf56448af2c826fb412df55095.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/a6/d1/02/9b279bdf56448af2c826fb412df55095.jpg"
+      },
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/af/62/60/75f9281490f16ae1b412105ee9b9c2fb.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/af/62/60/75f9281490f16ae1b412105ee9b9c2fb.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/af/62/60/75f9281490f16ae1b412105ee9b9c2fb.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/af/62/60/75f9281490f16ae1b412105ee9b9c2fb.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/af/62/60/75f9281490f16ae1b412105ee9b9c2fb.jpg"
+      },
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/46/7e/e4/b8a33e43f62f1422b7de47fb2c830e80.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/46/7e/e4/b8a33e43f62f1422b7de47fb2c830e80.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/46/7e/e4/b8a33e43f62f1422b7de47fb2c830e80.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/46/7e/e4/b8a33e43f62f1422b7de47fb2c830e80.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/46/7e/e4/b8a33e43f62f1422b7de47fb2c830e80.jpg"
+      },
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/6a/02/c1/d20dcb416aec94e4a2b899936ea9730b.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/6a/02/c1/d20dcb416aec94e4a2b899936ea9730b.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/6a/02/c1/d20dcb416aec94e4a2b899936ea9730b.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/6a/02/c1/d20dcb416aec94e4a2b899936ea9730b.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/6a/02/c1/d20dcb416aec94e4a2b899936ea9730b.jpg"
+      },
+      {
+        "base_url": "https://salt.tikicdn.com/ts/product/57/3c/71/03514129c5e1d7796c46851ee12892a7.jpg",
+        "is_gallery": true,
+        "label": null,
+        "large_url": "https://salt.tikicdn.com/cache/w1200/ts/product/57/3c/71/03514129c5e1d7796c46851ee12892a7.jpg",
+        "medium_url": "https://salt.tikicdn.com/cache/w300/ts/product/57/3c/71/03514129c5e1d7796c46851ee12892a7.jpg",
+        "position": null,
+        "small_url": "https://salt.tikicdn.com/cache/200x280/ts/product/57/3c/71/03514129c5e1d7796c46851ee12892a7.jpg",
+        "thumbnail_url": "https://salt.tikicdn.com/cache/200x280/ts/product/57/3c/71/03514129c5e1d7796c46851ee12892a7.jpg"
+      }
+    ],
+    "warranty_policy": null,
+    "authors": [
+      {
+        "id": 4530067,
+        "name": "Nguyễn Thị Thúy Hạnh",
+        "slug": "nguyen-thi-thuy-hanh"
+      }
+    ],
+    "current_seller": {
+      "id": 53660,
+      "sku": "7829175988785",
+      "name": "Nhà sách Fahasa",
+      "link": "https://tiki.vn/cua-hang/nha-sach-fahasa",
+      "logo": "https://vcdn.tikicdn.com/ts/seller/40/fa/24/5f2d74fe7aee6f0bdd222ada818f5d65.jpg",
+      "price": 213900,
+      "product_id": "91832893",
+      "store_id": 51001,
+      "is_best_store": false,
+      "is_offline_installment_supported": null
+    },
+    "other_sellers": [
+      {
+        "id": 1,
+        "name": "Tiki Trading",
+        "link": "https://tiki.vn/cua-hang/tiki-trading",
+        "logo": "https://vcdn.tikicdn.com/ts/seller/d1/3f/ae/13ce3d83ab6b6c5e77e6377ad61dc4a5.jpg",
+        "price": 172500,
+        "product_id": "78975613",
+        "store_id": 40395
+      },
+      {
+        "id": 281062,
+        "name": "Bamboo Books",
+        "link": "https://tiki.vn/cua-hang/bamboo-books",
+        "logo": "https://vcdn.tikicdn.com/ts/seller/46/9a/b3/e4fbfd97e7607ea4d2ff8e9ad769121b.jpg",
+        "price": 230000,
+        "product_id": "184122415",
+        "store_id": 268132
+      },
+      {
+        "id": 326534,
+        "name": "SÁCH ĐẠI NAM",
+        "link": "https://tiki.vn/cua-hang/sach-dai-nam",
+        "logo": "https://vcdn.tikicdn.com/ts/seller/4b/54/1a/f385a79a716cb3505f152e7af8c769aa.png",
+        "price": 228000,
+        "product_id": "253148446",
+        "store_id": 314216
+      }
+    ],
+    "specifications": [
+      {
+        "name": "Thông tin chung",
+        "attributes": [
+          {
+            "code": "publisher_vn",
+            "name": "Công ty phát hành",
+            "value": "Nhã Nam"
+          },
+          {
+            "code": "publication_date",
+            "name": "Ngày xuất bản",
+            "value": "2021-02-01 00:00:00"
+          },
+          {
+            "code": "dimensions",
+            "name": "Kích thước",
+            "value": "15x24cm"
+          },
+          {
+            "code": "book_cover",
+            "name": "Loại bìa",
+            "value": "Bìa cứng"
+          },
+          {
+            "code": "number_of_page",
+            "name": "Số trang",
+            "value": "102"
+          },
+          {
+            "code": "seller_delivery_method",
+            "name": "Phương thức giao hàng Seller Delivery",
+            "value": "Nhà bán giao hàng cho khách hàng"
+          },
+          {
+            "code": "manufacturer",
+            "name": "Nhà xuất bản",
+            "value": "Nhà Xuất Bản Hội Nhà Văn"
+          }
+        ]
+      }
+    ],
+    "price_comparison": {
+      "sub_title": "Giá từ 172.500 ₫",
+      "title": "So sánh 3 nhà bán khác"
+    },
+    "product_links": [],
+    "gift_item_title": "0 quà tặng kèm",
+    "services_and_promotions": [],
+    "promitions": [],
+    "stock_item": {
+      "max_sale_qty": 1000,
+      "min_sale_qty": 1,
+      "preorder_date": null,
+      "qty": 1000
+    },
+    "quantity_sold": {
+      "text": "Đã bán 1",
+      "value": 1
+    },
+    "categories": {
+      "id": 316,
+      "name": "Sách tiếng Việt",
+      "is_leaf": false
+    },
+    "breadcrumbs": [
+      {
+        "url": "/nha-sach-tiki/c8322",
+        "name": "Nhà Sách Tiki",
+        "category_id": 8322
+      },
+      {
+        "url": "/sach-truyen-tieng-viet/c316",
+        "name": "Sách tiếng Việt",
+        "category_id": 316
+      },
+      {
+        "url": "/sach-van-hoc/c839",
+        "name": "Sách văn học",
+        "category_id": 839
+      },
+      {
+        "url": "/tho/c446",
+        "name": "Thơ",
+        "category_id": 446
+      },
+      {
+        "url": "https://tiki.vn/sach-van-hoc-vet-tham-p78975612.html",
+        "name": "Sách Văn Học Vết Thâm",
+        "category_id": 0
+      }
+    ],
+    "installment_info_v2": null,
+    "installment_info_v3": [
+      {
+        "display_text": "Ưu đãi đến 600k với thẻ TikiCard",
+        "icon": "https://salt.tikicdn.com/ts/upload/73/4d/f7/f86e767bffc14aa3d6abed348630100b.png",
+        "summary": "Ưu đãi đến 600k với thẻ TikiCard.",
+        "title": "Ưu đãi đến 600k với thẻ TikiCard",
+        "type": "other",
+        "url": "https://tiki.vn/san-pham-so/the-dong-thuong-hieu-tiki-co-card"
+      },
+      {
+        "display_text": "Mua trước trả sau",
+        "icon": "https://salt.tikicdn.com/ts/upload/2a/27/6a/7bbba1f6c93a1a42a3c314e7b5825f4c.png",
+        "summary": "Duyệt hồ sơ nhanh chóng qua công ty tài chính.",
+        "title": "Mua trước trả sau",
+        "type": "postpaid",
+        "url": "https://tiki.vn/mua-truoc-tra-sau/thanh-toan?src=pdp&masterId=78975612&pid=91832893&seller_id=53660&qty=1"
+      }
+    ],
+    "is_seller_in_chat_whitelist": true,
+    "inventory": {
+      "product_virtual_type": null,
+      "fulfillment_type": "seller_delivery"
+    },
+    "warranty_info": [],
+    "return_and_exchange_policy": "Đổi trả trong<br><b>30 ngày</b><br>nếu sp lỗi.",
+    "is_tier_pricing_available": false,
+    "is_tier_pricing_eligible": false,
+    "benefits": [
+      {
+        "icon": "https://salt.tikicdn.com/ts/upload/c5/37/ee/76c708d43e377343e82baee8a0340297.png",
+        "text": "Được đồng kiểm khi nhận hàng"
+      },
+      {
+        "icon": "https://salt.tikicdn.com/ts/upload/ea/02/b4/b024e431ec433e6c85d4734aaf35bd65.png",
+        "text": "<b>Được hoàn tiền 200%</b> nếu là hàng giả."
+      },
+      {
+        "icon": "https://salt.tikicdn.com/ts/upload/d8/c7/a5/1cd5bd2f27f9bd74b2c340b8e27c4d82.png",
+        "text": "Đổi trả miễn phí trong 30 ngày. Được đổi ý.",
+        "sub_text": [],
+        "cta": {
+          "text": "Chi tiết",
+          "type": "open_policy_return_modal"
+        }
+      }
+    ],
+    "return_policy": {
+      "body": [
+        {
+          "label": "",
+          "content": [
+            "Được đổi ý (sản phẩm phải còn nguyên hộp, tem, phụ kiện, chưa kích hoạt bảo hành, không áp dụng đơn hàng trả góp), hoặc",
+            "Sản phẩm không đúng cam kết (lỗi kỹ thuật, giao sai/thiếu, bể vỡ…)"
+          ]
+        }
+      ],
+      "cta": {
+        "link": "https://hotro.tiki.vn/s/article/chinh-sach-doi-tra-san-pham",
+        "text_button": "Tìm hiểu thêm"
+      },
+      "title": "Đổi trả miễn phí trong 30 ngày"
+    }
+  }
+}
