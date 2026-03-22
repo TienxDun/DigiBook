@@ -25,7 +25,7 @@ import {
 } from '../api';
 
 // Feature flag
-const USE_API = import.meta.env.VITE_USE_API === 'true';
+const USE_API = import.meta.env.VITE_USE_API === 'false';
 
 console.log(`📡 Service Mode: ${USE_API ? '🔥 API Backend' : '📱 Firebase Direct'}`);
 
