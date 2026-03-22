@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import toast from '@/shared/utils/toast';
-import { ordersApi } from '@/services/api';
+import { db } from '@/services/db';
 import { Order, OrderItem } from '@/shared/types';
 import { ErrorHandler } from '@/services/errorHandler';
 import { Pagination } from '@/shared/components';
@@ -65,7 +65,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
 
   const handleViewOrderDetails = async (order: Order) => {
     try {
-      const orderWithItems = await ordersApi.getById(order.id);
+      const orderWithItems = await db.getOrderWithItems(order.id!);
       console.log('Fetched Order Details:', orderWithItems);
       if (orderWithItems) {
         // cast to respect expected type if API ensures items are present
@@ -84,7 +84,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
 
     setUpdatingOrderStatus(true);
     try {
-      await ordersApi.updateStatus(orderId, newStatusLabel, newStatusStep);
+      await db.updateOrderStatus(orderId, newStatusLabel, newStatusStep);
       if (selectedOrder && selectedOrder.id === orderId) {
         setSelectedOrder({ ...selectedOrder, status: newStatusLabel, statusStep: newStatusStep });
       }
