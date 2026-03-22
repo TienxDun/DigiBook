@@ -90,7 +90,7 @@ export async function getOrdersByUserId(userId: string): Promise<Order[]> {
 
   return wrap(
     getDocs(q).then(snap => {
-      const orders = snap.docs.map(d => ({ id: d.id, ...d.data() } as Order));
+      const orders = snap.docs.map(d => ({ ...d.data(), id: d.id } as Order));
       return orders.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
     }),
     []
@@ -112,7 +112,7 @@ export async function checkIfUserPurchasedBook(userId: string, bookId: string): 
 
 export async function getOrderWithItems(orderId: string): Promise<(Order & { items: OrderItem[] }) | undefined> {
   return wrap(
-    getDoc(doc(db_fs, 'orders', orderId)).then(snap => snap.exists() ? { id: snap.id, ...snap.data() } as any : undefined),
+    getDoc(doc(db_fs, 'orders', orderId)).then(snap => snap.exists() ? { ...snap.data(), id: snap.id } as any : undefined),
     undefined
   );
 }

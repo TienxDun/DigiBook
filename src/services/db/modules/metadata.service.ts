@@ -27,7 +27,7 @@ export async function getCategories(): Promise<CategoryInfo[]> {
 
 export async function getAuthors(): Promise<Author[]> {
   return wrap(
-    getDocs(collection(db_fs, 'authors')).then(snap => snap.docs.map(d => ({ id: d.id, ...d.data() } as Author))),
+    getDocs(collection(db_fs, 'authors')).then(snap => snap.docs.map(d => ({ ...d.data(), id: d.id } as Author))),
     []
   );
 }
@@ -74,7 +74,7 @@ export async function getAuthorByName(name: string): Promise<Author | undefined>
       const snap = await getDocs(q);
       if (snap.empty) return undefined;
       const doc = snap.docs[0];
-      return { id: doc.id, ...doc.data() } as Author;
+      return { ...doc.data(), id: doc.id } as Author;
     })(),
     undefined
   );

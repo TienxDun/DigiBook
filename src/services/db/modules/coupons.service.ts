@@ -37,7 +37,7 @@ export async function validateCoupon(code: string, subtotal: number): Promise<{ 
 export async function getCoupons(): Promise<Coupon[]> {
   return wrap(
     getDocs(collection(db_fs, 'coupons')).then(snap =>
-      snap.docs.map(d => ({ id: d.id, ...d.data() } as Coupon))
+      snap.docs.map(d => ({ ...d.data(), id: d.id } as Coupon))
     ),
     []
   );

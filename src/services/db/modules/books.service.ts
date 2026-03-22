@@ -22,7 +22,7 @@ import { wrap, fetchWithProxy } from "../core";
 
 export async function getBooks(): Promise<Book[]> {
   return wrap(
-    getDocs(collection(db_fs, 'books')).then(snap => snap.docs.map(d => ({ id: d.id, ...d.data() } as Book))),
+    getDocs(collection(db_fs, 'books')).then(snap => snap.docs.map(d => ({ ...d.data(), id: d.id } as Book))),
     []
   );
 }
@@ -79,7 +79,7 @@ export async function getBooksPaginated(
       q = query(booksRef, ...constraints);
 
       const snap = await getDocs(q);
-      const books = snap.docs.map(d => ({ id: d.id, ...d.data() } as Book));
+      const books = snap.docs.map(d => ({ ...d.data(), id: d.id } as Book));
       const lastDoc = snap.docs[snap.docs.length - 1] || null;
 
       return { books, lastDoc };
@@ -90,7 +90,7 @@ export async function getBooksPaginated(
 
 export async function getBookById(id: string): Promise<Book | undefined> {
   return wrap(
-    getDoc(doc(db_fs, 'books', id)).then(snap => snap.exists() ? { id: snap.id, ...snap.data() } as Book : undefined),
+    getDoc(doc(db_fs, 'books', id)).then(snap => snap.exists() ? { ...snap.data(), id: snap.id } as Book : undefined),
     undefined
   );
 }
@@ -102,7 +102,7 @@ export async function getBookBySlug(slug: string): Promise<Book | undefined> {
       const snap = await getDocs(q);
       if (snap.empty) return undefined;
       const d = snap.docs[0];
-      return { id: d.id, ...d.data() } as Book;
+      return { ...d.data(), id: d.id } as Book;
     })(),
     undefined
   );
@@ -125,7 +125,7 @@ export async function getRelatedBooks(category: string, currentBookId: string, a
       );
       const snapCat = await getDocs(qCat);
       let related = snapCat.docs
-        .map(d => ({ id: d.id, ...d.data() } as Book))
+        .map(d => ({ ...d.data(), id: d.id } as Book))
         .filter(b => b.id !== currentBookId);
       return related.slice(0, limitCount);
     })(),
@@ -143,7 +143,7 @@ export async function getBooksByAuthor(authorName: string, excludeId?: string, l
         limit(limitCount + (excludeId ? 1 : 0))
       );
       const snap = await getDocs(q);
-      let books = snap.docs.map(d => ({ id: d.id, ...d.data() } as Book));
+      let books = snap.docs.map(d => ({ ...d.data(), id: d.id } as Book));
       if (excludeId) {
         books = books.filter(b => b.id !== excludeId);
       }

@@ -20,7 +20,7 @@ export async function getReviewsByBookId(bookId: string): Promise<Review[]> {
   return wrap(
     getDocs(query(collection(db_fs, 'books', bookId, 'reviews'), orderBy('createdAt', 'desc')))
       .then(snap => {
-        return snap.docs.map(d => ({ id: d.id, ...d.data() } as Review));
+        return snap.docs.map(d => ({ ...d.data(), id: d.id } as Review));
       }),
     []
   );
