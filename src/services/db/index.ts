@@ -22,7 +22,8 @@ import {
   couponsService,
   categoriesService,
   authorsService,
-  logsService
+  logsService,
+  cartsService
 } from './adapter';
 
 import { Order, OrderItem, Review, SystemLog } from '@/shared/types/';
@@ -43,10 +44,12 @@ class DataService {
   deleteBook = booksService.deleteBook;
   incrementBookView = booksService.incrementBookView;
   
-  // Legacy Firebase-only methods (complex operations)
-  getBooksByIds = books.getBooksByIds;
-  updateBook = books.updateBook;
-  deleteBooksBulk = books.deleteBooksBulk;
+  // Adapter integrated methods
+  getBooksByIds = booksService.getBooksByIds;
+  updateBook = booksService.updateBook;
+  deleteBooksBulk = booksService.deleteBooksBulk;
+
+  // Legacy/Special cases
   searchBooksFromTiki = books.searchBooksFromTiki;
   getBookDetailsFromTiki = books.getBookDetailsFromTiki;
   getRawTikiData = books.getRawTikiData;
@@ -57,10 +60,8 @@ class DataService {
   createCategory = categoriesService.createCategory;
   updateCategory = categoriesService.updateCategory;
   deleteCategory = categoriesService.deleteCategory;
-  
-  // Legacy Firebase-only methods
-  saveCategory = metadata.saveCategory;
-  deleteCategoriesBulk = metadata.deleteCategoriesBulk;
+  saveCategory = categoriesService.saveCategory;
+  deleteCategoriesBulk = categoriesService.deleteCategoriesBulk;
 
   // Authors - Use adapter for API/Firebase routing
   getAuthors = authorsService.getAllAuthors;
@@ -69,22 +70,22 @@ class DataService {
   createAuthor = authorsService.createAuthor;
   updateAuthor = authorsService.updateAuthor;
   deleteAuthor = authorsService.deleteAuthor;
+  saveAuthor = authorsService.saveAuthor;
+  deleteAuthorsBulk = authorsService.deleteAuthorsBulk;
   
-  // Legacy Firebase-only methods
+  // Legacy methods
   getAuthorByName = metadata.getAuthorByName;
-  saveAuthor = metadata.saveAuthor;
-  deleteAuthorsBulk = metadata.deleteAuthorsBulk;
 
   // Orders - Use adapter for API/Firebase routing
   createOrder = ordersService.createOrder;
   getOrdersByUserId = ordersService.getUserOrders;
   getOrderWithItems = ordersService.getOrderById;
   updateOrderStatus = ordersService.updateOrderStatus;
-  
-  // Legacy Firebase-only methods
-  checkIfUserPurchasedBook = orders.checkIfUserPurchasedBook;
-  syncUserCart = orders.syncUserCart;
-  getUserCart = orders.getUserCart;
+
+  // Orders/Cart - Use adapter for API/Firebase routing
+  checkIfUserPurchasedBook = ordersService.checkIfUserPurchasedBook;
+  syncUserCart = cartsService.syncUserCart;
+  getUserCart = cartsService.getUserCart;
 
   // Users - Use adapter for API/Firebase routing
   getUserProfile = usersService.getUserProfile;
@@ -93,12 +94,12 @@ class DataService {
   createTelegramLinkToken = usersService.createTelegramLinkToken;
   getTelegramLinkStatus = usersService.getTelegramLinkStatus;
   unlinkTelegram = usersService.unlinkTelegram;
+  getAllUsers = usersService.getAllUsers;
+  updateUserRole = usersService.updateUserRole;
+  updateUserStatus = usersService.updateUserStatus;
+  deleteUser = usersService.deleteUser;
   
-  // Legacy Firebase-only methods
-  getAllUsers = users.getAllUsers;
-  updateUserRole = users.updateUserRole;
-  updateUserStatus = users.updateUserStatus;
-  deleteUser = users.deleteUser;
+  // User Address methods (currently Firebase only, can be added to adapter if API supports)
   addUserAddress = users.addUserAddress;
   updateUserAddress = users.updateUserAddress;
   removeUserAddress = users.removeUserAddress;

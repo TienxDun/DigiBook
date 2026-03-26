@@ -57,6 +57,7 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
 
   // Load Data Function
   const loadBooks = async (isInitial = false) => {
+    if (loading) return;
     setLoading(true);
     try {
       // Map UI sort to DB sort
@@ -107,13 +108,18 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
     setBooks([]);
     setLastDoc(null);
     setHasMore(true);
-    loadBooks(true);
+    const timer = window.setTimeout(() => {
+      loadBooks(true);
+    }, 350);
 
     if (isPromotionPage) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+    return () => {
+      window.clearTimeout(timer);
+    };
   }, [categoryName, sortBy]);
 
   // Removed memoized client-side filtering logic

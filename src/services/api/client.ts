@@ -5,6 +5,10 @@ import { ApiError } from './types';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5197';
 const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 30000;
 
+// Cache for log deduplication (throttling)
+const lastRequestLogs = new Map<string, number>();
+const LOG_THROTTLE_MS = 100;
+
 // Create axios instance
 export const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -23,7 +27,24 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    console.log(`🌐 API Request: ${config.method?.toUpperCase()} ${config.url}`);
+    const method = config.method?.toUpperCase() || 'GET';
+    const url = config.url || '';
+    const logKey = `${method}:${url}`;
+    const now = Date.now();
+
+    // Deduplicate rapid-fire identical requests (mostly for React Strict Mode / re-renders)
+    if (lastRequestLogs.has(logKey) && now - lastRequestLogs.get(logKey)! < LOG_THROTTLE_MS) {
+      return config;
+    }
+    lastRequestLogs.set(logKey, now);
+
+    const color = method === 'GET' ? '#2196F3' : method === 'POST' ? '#4CAF50' : '#FF9800';
+    
+    console.log(
+      `%c🌐 API ${method}%c ${config.url}`,
+      `color: white; background: ${color}; padding: 2px 4px; border-radius: 3px; font-weight: bold;`,
+      'color: inherit;'
+    );
     return config;
   },
   (error) => {
@@ -35,11 +56,35 @@ apiClient.interceptors.request.use(
 // Response interceptor
 apiClient.interceptors.response.use(
   (response) => {
-    console.log(`✅ API Response: ${response.config.url}`, response.data);
+    const status = response.status;
+    const url = response.config.url;
+    
+    console.groupCollapsed(
+      `%c✅ API ${status}%c ${url}`,
+      'color: #4CAF50; font-weight: bold;',
+      'color: inherit;'
+    );
+    console.log('Data:', response.data);
+    console.log('Config:', response.config);
+    console.groupEnd();
+    
     return response;
   },
   (error: AxiosError<ApiError>) => {
-    console.error('❌ API Error:', error.response?.data || error.message);
+    if (error.response) {
+      const status = error.response.status;
+      const url = error.config?.url || 'unknown';
+
+      console.group(
+        `%c❌ API ${status}%c ${url}`,
+        'color: #F44336; font-weight: bold;',
+        'color: inherit;'
+      );
+      console.error('Error Details:', error.response.data);
+      console.groupEnd();
+    } else {
+      console.error('❌ Network/Request Error:', error.message);
+    }
 
     // Handle specific errors
     if (error.response) {

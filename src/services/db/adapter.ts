@@ -20,21 +20,44 @@ import {
   categoriesApi,
   authorsApi,
   logsApi,
+  cartsApi,
   type Order, 
   type OrderItem 
 } from '../api';
+import { cache } from '@/services/cache';
 
-// Feature flag
-const USE_API = import.meta.env.VITE_USE_API === 'false';
+// Runtime Service Mode Selection
+const MODE_STORAGE_KEY = 'digibook_service_mode';
+const getInitialMode = () => {
+  const stored = localStorage.getItem(MODE_STORAGE_KEY);
+  if (stored === 'api') return true;
+  if (stored === 'firebase') return false;
+  return import.meta.env.VITE_USE_API === 'true';
+};
+
+export const USE_API = getInitialMode();
+const CATALOG_TTL_MS = 2 * 60 * 1000;
+
+export const toggleServiceMode = () => {
+  const newMode = !USE_API;
+  localStorage.setItem(MODE_STORAGE_KEY, newMode ? 'api' : 'firebase');
+  window.location.reload();
+};
 
 console.log(`📡 Service Mode: ${USE_API ? '🔥 API Backend' : '📱 Firebase Direct'}`);
+if (import.meta.env.DEV) {
+  // cache.startConsoleLogger(30000, 'Catalog Cache');
+}
 
 // Books Service Adapter
 export const booksService = {
   async getBooks(): Promise<Book[]> {
-    return USE_API 
-      ? await booksApi.getAll() 
-      : await firebaseBooks.getBooks();
+    const key = USE_API ? 'api:books:all' : 'fs:books:all';
+    return cache.getOrSet(key, CATALOG_TTL_MS, async () => {
+      return USE_API 
+        ? await booksApi.getAll() 
+        : await firebaseBooks.getBooks();
+    });
   },
 
   async getBookById(id: string): Promise<Book | undefined> {
@@ -52,17 +75,33 @@ export const booksService = {
   },
 
   async getBooksByAuthor(authorName: string, excludeId?: string, limit?: number): Promise<Book[]> {
-    // API mode will come later, use Firebase for now
+    if (USE_API) {
+      const books = await booksApi.searchByAuthor(authorName);
+      const filtered = excludeId ? books.filter(b => b.id !== excludeId) : books;
+      return typeof limit === 'number' ? filtered.slice(0, limit) : filtered;
+    }
     return await firebaseBooks.getBooksByAuthor(authorName, excludeId, limit);
   },
 
   async getRelatedBooks(category: string, currentBookId: string, author?: string, limit?: number): Promise<Book[]> {
-    // API mode will come later, use Firebase for now
+    if (USE_API) {
+      return await booksApi.getRelated(category, currentBookId, author, limit);
+    }
     return await firebaseBooks.getRelatedBooks(category, currentBookId, author, limit);
   },
 
   async getBooksPaginated(limitCount: number, lastVisible?: any, category?: string, sortBy?: any): Promise<any> {
-    // This is complex with Firestore pagination, keep Firebase for now
+    if (USE_API) {
+      const offset = typeof lastVisible === 'number' ? lastVisible : 0;
+      const cacheKey = `api:books:paginated:${category || 'all'}:${sortBy || 'newest'}:${offset}:${limitCount}`;
+      const result = await cache.getOrSet(cacheKey, CATALOG_TTL_MS, async () => {
+        return await booksApi.getPaginated(limitCount, offset, category, sortBy);
+      });
+      return {
+        books: result,
+        lastDoc: offset + result.length
+      };
+    }
     return await firebaseBooks.getBooksPaginated(limitCount, lastVisible, category, sortBy);
   },
 
@@ -87,8 +126,34 @@ export const booksService = {
   },
 
   async incrementBookView(id: string): Promise<void> {
-    // Firebase only for now
+    if (USE_API) {
+      await booksApi.incrementViewCount(id);
+      return;
+    }
     return await firebaseBooks.incrementBookView(id);
+  },
+
+  async getBooksByIds(ids: string[]): Promise<Book[]> {
+    if (USE_API) {
+      return await booksApi.getBooksByIds(ids);
+    }
+    return await firebaseBooks.getBooksByIds(ids);
+  },
+
+  async deleteBooksBulk(ids: string[]): Promise<void> {
+    if (USE_API) {
+      await Promise.all(ids.map(id => booksApi.delete(id)));
+      return;
+    }
+    await firebaseBooks.deleteBooksBulk(ids);
+  },
+
+  async updateBook(id: string, data: Partial<Book>): Promise<void> {
+    if (USE_API) {
+      await booksApi.update(id, data);
+      return;
+    }
+    await firebaseBooks.updateBook(id, data);
   }
 };
 
@@ -134,6 +199,36 @@ export const usersService = {
     }
 
     await telegramApi.unlink(userId);
+  },
+
+  async getAllUsers(): Promise<UserProfile[]> {
+    return USE_API
+      ? await usersApi.getAll()
+      : await firebaseUsers.getAllUsers();
+  },
+
+  async updateUserRole(userId: string, role: string): Promise<void> {
+    if (USE_API) {
+      await usersApi.updateProfile(userId, { role } as any);
+      return;
+    }
+    await firebaseUsers.updateUserRole(userId, role);
+  },
+
+  async updateUserStatus(userId: string, status: string): Promise<void> {
+    if (USE_API) {
+      await usersApi.updateProfile(userId, { status } as any);
+      return;
+    }
+    await firebaseUsers.updateUserStatus(userId, status);
+  },
+
+  async deleteUser(userId: string): Promise<void> {
+    if (USE_API) {
+      await usersApi.delete(userId);
+      return;
+    }
+    await firebaseUsers.deleteUser(userId);
   }
 };
 
@@ -166,9 +261,13 @@ export const ordersService = {
   },
 
   async getUserOrders(userId: string): Promise<any[]> {
-    return USE_API
-      ? (await ordersApi.getByUserId(userId)) || []
-      : await firebaseOrders.getOrdersByUserId(userId);
+    if (USE_API) {
+      if (userId === 'admin') {
+        return (await ordersApi.getAll()) || [];
+      }
+      return (await ordersApi.getByUserId(userId)) || [];
+    }
+    return await firebaseOrders.getOrdersByUserId(userId);
   },
 
   async getOrderById(orderId: string): Promise<any> {
@@ -183,6 +282,31 @@ export const ordersService = {
     } else {
       await firebaseOrders.updateOrderStatus(orderId, status, statusStep);
     }
+  },
+
+  async checkIfUserPurchasedBook(userId: string, bookId: string): Promise<boolean> {
+    if (USE_API) {
+      return await ordersApi.hasPurchasedBook(userId, bookId);
+    }
+    return await firebaseOrders.checkIfUserPurchasedBook(userId, bookId);
+  }
+};
+
+// Carts Service Adapter
+export const cartsService = {
+  async getUserCart(userId: string): Promise<any[]> {
+    if (USE_API) {
+      return await cartsApi.getCart(userId);
+    }
+    return await firebaseOrders.getUserCart(userId);
+  },
+
+  async syncUserCart(userId: string, cartItems: any[]): Promise<void> {
+    if (USE_API) {
+      await cartsApi.updateCart(userId, cartItems);
+      return;
+    }
+    await firebaseOrders.syncUserCart(userId, cartItems);
   }
 };
 
@@ -289,9 +413,10 @@ export const couponsService = {
   async updateCoupon(couponId: string, updates: Partial<Coupon>): Promise<void> {
     if (USE_API) {
       await couponsApi.update(couponId, updates);
+    } else {
+      // Firebase uses saveCoupon for update
+      await firebaseCoupons.saveCoupon({ ...updates, code: couponId } as Coupon);
     }
-    // Firebase uses saveCoupon for update
-    await firebaseCoupons.saveCoupon({ ...updates, code: couponId } as Coupon);
   },
 
   async deleteCoupon(couponId: string): Promise<void> {
@@ -316,9 +441,12 @@ export const couponsService = {
 // Categories Service Adapter
 export const categoriesService = {
   async getAllCategories(): Promise<CategoryInfo[]> {
-    return USE_API
-      ? await categoriesApi.getAll()
-      : await firebaseMetadata.getCategories();
+    const key = USE_API ? 'api:categories:all' : 'fs:categories:all';
+    return cache.getOrSet(key, CATALOG_TTL_MS, async () => {
+      return USE_API
+        ? await categoriesApi.getAll()
+        : await firebaseMetadata.getCategories();
+    });
   },
 
   async getCategoryByName(name: string): Promise<CategoryInfo | null> {
@@ -346,15 +474,35 @@ export const categoriesService = {
     return USE_API
       ? await categoriesApi.delete(name)
       : Promise.reject(new Error('Delete category not supported in Firebase mode'));
+  },
+
+  async deleteCategoriesBulk(names: string[]): Promise<void> {
+    if (USE_API) {
+      await Promise.all(names.map(name => categoriesApi.delete(name)));
+      return;
+    }
+    await firebaseMetadata.deleteCategoriesBulk(names);
+  },
+
+  async saveCategory(category: CategoryInfo): Promise<void> {
+    if (USE_API) {
+      // API update requires name and category data
+      await categoriesApi.update(category.name, category);
+      return;
+    }
+    await firebaseMetadata.saveCategory(category);
   }
 };
 
 // Authors Service Adapter
 export const authorsService = {
   async getAllAuthors(): Promise<Author[]> {
-    return USE_API
-      ? await authorsApi.getAll()
-      : await firebaseMetadata.getAuthors();
+    const key = USE_API ? 'api:authors:all' : 'fs:authors:all';
+    return cache.getOrSet(key, CATALOG_TTL_MS, async () => {
+      return USE_API
+        ? await authorsApi.getAll()
+        : await firebaseMetadata.getAuthors();
+    });
   },
 
   async getAuthorById(id: string): Promise<Author | null> {
@@ -392,6 +540,25 @@ export const authorsService = {
     return USE_API
       ? await authorsApi.delete(id)
       : Promise.reject(new Error('Delete author not supported in Firebase mode'));
+  },
+
+  async deleteAuthorsBulk(ids: string[]): Promise<void> {
+    if (USE_API) {
+      await Promise.all(ids.map(id => authorsApi.delete(id)));
+      return;
+    }
+    await firebaseMetadata.deleteAuthorsBulk(ids);
+  },
+
+  async saveAuthor(author: Author): Promise<string> {
+    if (USE_API) {
+      if (author.id) {
+        await authorsApi.update(author.id, author);
+        return author.id;
+      }
+      return await authorsApi.create(author) || '';
+    }
+    return await firebaseMetadata.saveAuthor(author);
   }
 };
 

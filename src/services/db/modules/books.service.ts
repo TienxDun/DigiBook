@@ -6,6 +6,7 @@ import {
   doc,
   query,
   where,
+  documentId,
   limit,
   setDoc,
   updateDoc,
@@ -110,8 +111,20 @@ export async function getBookBySlug(slug: string): Promise<Book | undefined> {
 
 export async function getBooksByIds(ids: string[]): Promise<Book[]> {
   if (!ids.length) return [];
-  const books = await getBooks();
-  return books.filter(b => ids.includes(b.id));
+  const books: Book[] = [];
+  const chunkSize = 10;
+
+  for (let i = 0; i < ids.length; i += chunkSize) {
+    const chunk = ids.slice(i, i + chunkSize);
+    const q = query(
+      collection(db_fs, 'books'),
+      where(documentId(), 'in', chunk)
+    );
+    const snap = await getDocs(q);
+    snap.docs.forEach(d => books.push({ ...d.data(), id: d.id } as Book));
+  }
+
+  return books;
 }
 
 export async function getRelatedBooks(category: string, currentBookId: string, author?: string, limitCount: number = 4): Promise<Book[]> {

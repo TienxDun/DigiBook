@@ -29,35 +29,58 @@ const SearchResults: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQui
 
   // Fetch and Filter
   useEffect(() => {
-    async function performSearch() {
-      if (!query) return;
-      setLoading(true);
-      setSearching(true);
-      try {
-        // Fetch ALL books to ensure accurate search
-        // Note: For large datasets, this should be replaced with server-side search (e.g., Algolia)
-        const allBooks = await db.getBooks();
+    let isActive = true;
 
-        const q = query.toLowerCase();
-        const results = allBooks.filter(book =>
-          book.title.toLowerCase().includes(q) ||
-          book.author.toLowerCase().includes(q) ||
-          book.isbn.toLowerCase().includes(q) ||
-          book.category.toLowerCase().includes(q)
-        );
-
-        setAllResults(results);
-        setDisplayBooks(results.slice(0, ITEMS_PER_PAGE));
-        setPage(1);
-      } catch (error) {
-        console.error("Search failed:", error);
-      } finally {
-        setLoading(false);
-        setSearching(false);
-      }
+    if (!query) {
+      setAllResults([]);
+      setDisplayBooks([]);
+      setLoading(false);
+      setSearching(false);
+      return () => {
+        isActive = false;
+      };
     }
 
-    performSearch();
+    const timer = window.setTimeout(() => {
+      if (!isActive) return;
+
+      const performSearch = async () => {
+        setLoading(true);
+        setSearching(true);
+        try {
+          // Fetch ALL books to ensure accurate search
+          // Note: For large datasets, this should be replaced with server-side search (e.g., Algolia)
+          const allBooks = await db.getBooks();
+
+          const q = query.toLowerCase();
+          const results = allBooks.filter(book =>
+            book.title.toLowerCase().includes(q) ||
+            book.author.toLowerCase().includes(q) ||
+            book.isbn.toLowerCase().includes(q) ||
+            book.category.toLowerCase().includes(q)
+          );
+
+          if (!isActive) return;
+          setAllResults(results);
+          setDisplayBooks(results.slice(0, ITEMS_PER_PAGE));
+          setPage(1);
+        } catch (error) {
+          console.error("Search failed:", error);
+        } finally {
+          if (isActive) {
+            setLoading(false);
+            setSearching(false);
+          }
+        }
+      };
+
+      performSearch();
+    }, 350);
+
+    return () => {
+      isActive = false;
+      window.clearTimeout(timer);
+    };
   }, [query]);
 
   // Infinite Scroll

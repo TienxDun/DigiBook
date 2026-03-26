@@ -10,4 +10,5 @@ export { categoriesApi } from './modules/categories.api';
 export { authorsApi } from './modules/authors.api';
 export { logsApi } from './modules/logs.api';
 export { telegramApi } from './modules/telegram.api';
+export { cartsApi } from './modules/carts.api';
 export type { Order, OrderItem, OrderCustomer, OrderPayment } from './modules/orders.api';

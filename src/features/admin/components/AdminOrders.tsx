@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import toast from '@/shared/utils/toast';
 import { db } from '@/services/db';
+import { formatDate, formatTime } from '@/shared/utils/format';
 import { Order, OrderItem } from '@/shared/types';
 import { ErrorHandler } from '@/services/errorHandler';
 import { Pagination } from '@/shared/components';
@@ -245,8 +246,8 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-sm font-medium text-muted-foreground">
-                      {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString('vi-VN') : order.date}
+                    <td className="px-4 py-4 text-xs font-black uppercase tracking-tight text-muted-foreground">
+                      {formatDate(order.createdAt) !== 'N/A' ? formatDate(order.createdAt) : order.date}
                     </td>
                     <td className="px-4 py-4 text-center">
                       <button

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { SystemLog } from '@/shared/types';
 import { Pagination } from '@/shared/components';
+import { formatDate, formatTime } from '@/shared/utils/format';
 
 interface AdminLogsProps {
   logs: SystemLog[];
@@ -181,10 +182,10 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
                       <td className="px-6 py-4">
                         <div className="flex flex-col gap-0.5">
                           <span className={`text-sm font-semibold ${isMidnight ? 'text-slate-200' : 'text-slate-700'}`}>
-                            {log.createdAt?.toDate ? log.createdAt.toDate().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : 'N/A'} - {log.user}
+                            {formatTime(log.createdAt)} - {log.user}
                           </span>
                           <span className="text-[10px] text-muted-foreground">
-                            {log.createdAt?.toDate ? log.createdAt.toDate().toLocaleDateString('vi-VN') : 'N/A'}
+                            {formatDate(log.createdAt)}
                           </span>
                         </div>
                       </td>

@@ -17,6 +17,16 @@ import AdminTikiInspector from "../components/AdminTikiInspector";
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
 };
+import { formatDate, formatTime } from "@/shared/utils/format";
+
+// Helper to reliably get a Date object from various timestamp formats
+const parseToDate = (t: any): Date | null => {
+  if (!t) return null;
+  if (t.toDate && typeof t.toDate === 'function') return t.toDate();
+  if (t.seconds !== undefined) return new Date(t.seconds * 1000);
+  const d = new Date(t);
+  return isNaN(d.getTime()) ? null : d;
+};
 
 
 const AdminDashboard: React.FC = () => {
@@ -171,9 +181,10 @@ const AdminDashboard: React.FC = () => {
     const totalBooks = books.reduce((sum, b) => sum + b.stockQuantity, 0);
     const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
     const todayOrdersCount = orders.filter(o => {
-      const orderDate = o.createdAt?.toDate ? o.createdAt.toDate() : new Date(o.date);
-      const today = new Date();
-      return orderDate.toDateString() === today.toDateString();
+      const orderDate = parseToDate(o.createdAt) || parseToDate(o.date);
+      if (!orderDate) return false;
+      const today = new Date().toDateString();
+      return orderDate.toDateString() === today;
     }).length;
 
     // Tính toán doanh thu 7 ngày hoặc 30 ngày gần nhất dựa trên chartView
@@ -187,8 +198,8 @@ const AdminDashboard: React.FC = () => {
     const revenueByDay = dateList.map(dateStr => {
       const dayTotal = orders
         .filter(o => {
-          const oDate = o.createdAt?.toDate ? o.createdAt.toDate() : new Date(o.date);
-          return oDate.toDateString() === dateStr;
+          const orderDate = parseToDate(o.createdAt) || parseToDate(o.date);
+          return orderDate && orderDate.toDateString() === dateStr;
         })
         .reduce((sum, o) => sum + (o.payment?.total || 0), 0);
 
@@ -206,9 +217,9 @@ const AdminDashboard: React.FC = () => {
     // Lấy 5 đơn hàng mới nhất
     const recentOrdersList = [...orders]
       .sort((a, b) => {
-        const dateA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : new Date(a.date).getTime();
-        const dateB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : new Date(b.date).getTime();
-        return dateB - dateA;
+        const timeA = (parseToDate(a.createdAt) || parseToDate(a.date) || new Date(0)).getTime();
+        const timeB = (parseToDate(b.createdAt) || parseToDate(b.date) || new Date(0)).getTime();
+        return timeB - timeA;
       })
       .slice(0, 5);
 
@@ -613,7 +624,7 @@ const AdminDashboard: React.FC = () => {
                         <div className="text-right">
                           <p className="text-xs font-black text-primary">{formatPrice(order.payment?.total || 0)}</p>
                           <p className="text-xs font-bold text-muted-foreground uppercase mt-1">
-                            {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : 'Hôm nay'}
+                            {formatTime(order.createdAt)}
                           </p>
                         </div>
                       </div>
