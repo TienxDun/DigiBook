@@ -50,6 +50,27 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
     return { icon: 'fa-circle-info', color: 'text-blue-500 bg-blue-500/10 border-blue-500/20', label: 'Thông tin' };
   };
 
+  const formatLogTime = (log: any): { time: string, date: string } => {
+    // Thử tất cả các tên trường có thể có từ API
+    const createdAt = log.createdAt || log.CreatedAt || log.created_at || log.timestamp || log.date;
+    
+    if (!createdAt) return { time: 'N/A', date: 'N/A' };
+    
+    let dateObj: Date;
+    if (createdAt && typeof createdAt.toDate === 'function') {
+      dateObj = createdAt.toDate();
+    } else {
+      dateObj = new Date(createdAt);
+    }
+
+    if (!dateObj || isNaN(dateObj.getTime())) return { time: 'N/A', date: 'N/A' };
+
+    return {
+      time: dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+      date: dateObj.toLocaleDateString('vi-VN')
+    };
+  };
+
   const handleExport = () => {
     const dataStr = JSON.stringify(filteredLogs, null, 2);
     const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
@@ -159,17 +180,16 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
         </div>
       </div>
 
-      {/* Table */}
       <div className={`${isMidnight ? 'bg-[#1e293b]/40 border-white/5' : 'bg-card border-border shadow-sm'
         } rounded-3xl border overflow-hidden`}>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left border-collapse min-w-[1000px] table-fixed">
             <thead>
               <tr className={`border-b ${isMidnight ? 'border-white/5 bg-white/[0.02]' : 'border-border bg-secondary/30'}`}>
-                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Thời gian & Người dùng</th>
-                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Hành động</th>
-                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Nội dung chi tiết</th>
-                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-muted-foreground text-center">Trạng thái</th>
+                <th className="px-6 py-5 text-[11px] font-black uppercase tracking-widest text-muted-foreground w-[24%]">Thời gian & Người dùng</th>
+                <th className="px-6 py-5 text-[11px] font-black uppercase tracking-widest text-muted-foreground w-[18%]">Hành động</th>
+                <th className="px-6 py-5 text-[11px] font-black uppercase tracking-widest text-muted-foreground w-[43%]">Nội dung chi tiết</th>
+                <th className="px-6 py-5 text-[11px] font-black uppercase tracking-widest text-muted-foreground text-center w-[15%]">Trạng thái</th>
               </tr>
             </thead>
             <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-border'}`}>
@@ -181,10 +201,10 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
                       <td className="px-6 py-4">
                         <div className="flex flex-col gap-0.5">
                           <span className={`text-sm font-semibold ${isMidnight ? 'text-slate-200' : 'text-slate-700'}`}>
-                            {log.createdAt?.toDate ? log.createdAt.toDate().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : 'N/A'} - {log.user}
+                            {formatLogTime(log).time} - {log.user || log.User || 'Anonymous'}
                           </span>
                           <span className="text-[10px] text-muted-foreground">
-                            {log.createdAt?.toDate ? log.createdAt.toDate().toLocaleDateString('vi-VN') : 'N/A'}
+                            {formatLogTime(log).date}
                           </span>
                         </div>
                       </td>

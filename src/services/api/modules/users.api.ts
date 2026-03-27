@@ -18,7 +18,16 @@ export const usersApi = {
   async updateProfile(userId: string, updates: Partial<UserProfile>): Promise<void> {
     try {
       await apiClient.put(`/api/users/${userId}`, updates);
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.response?.status === 404) {
+        try {
+          // Act as upsert: create if not found
+          await apiClient.post('/api/users', { ...updates, id: userId });
+          return;
+        } catch (postError) {
+          throw new Error(handleApiError(postError));
+        }
+      }
       throw new Error(handleApiError(error));
     }
   },

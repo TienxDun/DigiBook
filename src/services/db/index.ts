@@ -99,10 +99,10 @@ class DataService {
   updateUserRole = users.updateUserRole;
   updateUserStatus = users.updateUserStatus;
   deleteUser = users.deleteUser;
-  addUserAddress = users.addUserAddress;
-  updateUserAddress = users.updateUserAddress;
-  removeUserAddress = users.removeUserAddress;
-  setDefaultAddress = users.setDefaultAddress;
+  addUserAddress = usersService.addUserAddress;
+  updateUserAddress = usersService.updateUserAddress;
+  removeUserAddress = usersService.removeUserAddress;
+  setDefaultAddress = usersService.setDefaultAddress;
 
   // Coupons - Use adapter for API/Firebase routing
   getCoupons = couponsService.getAllCoupons;

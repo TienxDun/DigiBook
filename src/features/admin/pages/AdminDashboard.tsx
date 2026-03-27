@@ -162,6 +162,16 @@ const AdminDashboard: React.FC = () => {
     }
   ];
 
+  const parseDateVN = (dateStr: string) => {
+    if (!dateStr) return new Date();
+    // Handle DD/MM/YYYY format
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+      return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+    }
+    return new Date(dateStr);
+  };
+
   const stats = useMemo(() => {
     const totalRevenue = orders.reduce((sum, o) => sum + (o.payment?.total || 0), 0);
     const lowStock = books.filter(b => b.stockQuantity > 0 && b.stockQuantity < 10).length;
@@ -171,7 +181,7 @@ const AdminDashboard: React.FC = () => {
     const totalBooks = books.reduce((sum, b) => sum + b.stockQuantity, 0);
     const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
     const todayOrdersCount = orders.filter(o => {
-      const orderDate = o.createdAt?.toDate ? o.createdAt.toDate() : new Date(o.date);
+      const orderDate = o.createdAt?.toDate ? o.createdAt.toDate() : parseDateVN(o.date);
       const today = new Date();
       return orderDate.toDateString() === today.toDateString();
     }).length;
@@ -187,7 +197,7 @@ const AdminDashboard: React.FC = () => {
     const revenueByDay = dateList.map(dateStr => {
       const dayTotal = orders
         .filter(o => {
-          const oDate = o.createdAt?.toDate ? o.createdAt.toDate() : new Date(o.date);
+          const oDate = o.createdAt?.toDate ? o.createdAt.toDate() : parseDateVN(o.date);
           return oDate.toDateString() === dateStr;
         })
         .reduce((sum, o) => sum + (o.payment?.total || 0), 0);
@@ -206,9 +216,16 @@ const AdminDashboard: React.FC = () => {
     // Lấy 5 đơn hàng mới nhất
     const recentOrdersList = [...orders]
       .sort((a, b) => {
-        const dateA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : new Date(a.date).getTime();
-        const dateB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : new Date(b.date).getTime();
-        return dateB - dateA;
+        const getTS = (o: any) => {
+          if (o.createdAt?.toDate) return o.createdAt.toDate().getTime();
+          if (o.createdAt) return new Date(o.createdAt).getTime();
+          if (o.date) {
+            const parts = o.date.split('/');
+            if (parts.length === 3) return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0])).getTime();
+          }
+          return 0;
+        };
+        return getTS(b) - getTS(a);
       })
       .slice(0, 5);
 
@@ -610,10 +627,18 @@ const AdminDashboard: React.FC = () => {
                             <p className="text-xs font-bold text-muted-foreground uppercase">{order.customer?.name || 'Ẩn danh'}</p>
                           </div>
                         </div>
-                        <div className="text-right">
+                        <div className="text-right flex flex-col gap-0.5">
                           <p className="text-xs font-black text-primary">{formatPrice(order.payment?.total || 0)}</p>
-                          <p className="text-xs font-bold text-muted-foreground uppercase mt-1">
-                            {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : 'Hôm nay'}
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase">
+                            {(() => {
+                              const createdAt = order.createdAt;
+                              if (!createdAt) return order.date || 'Hôm nay';
+                              const dateObj = (createdAt.toDate && typeof createdAt.toDate === 'function') 
+                                ? createdAt.toDate() 
+                                : new Date(createdAt);
+                              if (isNaN(dateObj.getTime())) return order.date || 'Hôm nay';
+                              return dateObj.toLocaleDateString('vi-VN');
+                            })()}
                           </p>
                         </div>
                       </div>

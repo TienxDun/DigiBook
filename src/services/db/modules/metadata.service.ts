@@ -20,14 +20,22 @@ import { INITIAL_CATEGORIES } from '@/shared/config/categories';
 
 export async function getCategories(): Promise<CategoryInfo[]> {
   return wrap(
-    getDocs(collection(db_fs, 'categories')).then(snap => snap.docs.map(d => d.data() as CategoryInfo)),
+    (async () => {
+      if (!db_fs) return [];
+      const snap = await getDocs(collection(db_fs, 'categories'));
+      return snap.docs.map(d => d.data() as CategoryInfo);
+    })(),
     []
   );
 }
 
 export async function getAuthors(): Promise<Author[]> {
   return wrap(
-    getDocs(collection(db_fs, 'authors')).then(snap => snap.docs.map(d => ({ ...d.data(), id: d.id } as Author))),
+    (async () => {
+      if (!db_fs) return [];
+      const snap = await getDocs(collection(db_fs, 'authors'));
+      return snap.docs.map(d => ({ ...d.data(), id: d.id } as Author));
+    })(),
     []
   );
 }
@@ -84,7 +92,7 @@ export async function saveAuthor(author: Author): Promise<string> {
   const id = author.id || Date.now().toString();
 
   // Nếu đang update author có sẵn, kiểm tra xem name có thay đổi không
-  if (author.id) {
+  if (author.id && db_fs) {
     const existingSnap = await getDoc(doc(db_fs, 'authors', author.id));
     if (existingSnap.exists()) {
       const existingData = existingSnap.data() as Author;
@@ -130,7 +138,10 @@ export async function saveAuthor(author: Author): Promise<string> {
 
 export async function deleteAuthor(id: string): Promise<void> {
   await wrap(
-    deleteDoc(doc(db_fs, 'authors', id)),
+    (async () => {
+      if (!db_fs) return;
+      await deleteDoc(doc(db_fs, 'authors', id));
+    })(),
     undefined,
     'DELETE_AUTHOR',
     id
@@ -139,7 +150,10 @@ export async function deleteAuthor(id: string): Promise<void> {
 
 export async function saveCategory(category: CategoryInfo): Promise<void> {
   await wrap(
-    setDoc(doc(db_fs, 'categories', category.name), category, { merge: true }),
+    (async () => {
+      if (!db_fs) return;
+      await setDoc(doc(db_fs, 'categories', category.name), category, { merge: true });
+    })(),
     undefined,
     'SAVE_CAT',
     category.name
@@ -148,7 +162,10 @@ export async function saveCategory(category: CategoryInfo): Promise<void> {
 
 export async function deleteCategory(name: string): Promise<void> {
   await wrap(
-    deleteDoc(doc(db_fs, 'categories', name)),
+    (async () => {
+      if (!db_fs) return;
+      await deleteDoc(doc(db_fs, 'categories', name));
+    })(),
     undefined,
     'DELETE_CAT',
     name

@@ -15,15 +15,18 @@ import { wrap } from "../core";
 
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
   return wrap(
-    getDoc(doc(db_fs, 'users', userId)).then(snap => {
+    (async () => {
+      if (!db_fs) return null;
+      const snap = await getDoc(doc(db_fs, 'users', userId));
       if (snap.exists()) return snap.data() as UserProfile;
       return null;
-    }),
+    })(),
     null
   );
 }
 
 export async function updateUserProfile(profile: Partial<UserProfile> & { id: string }, actionName: string = 'UPDATE_USER_PROFILE', detail?: string): Promise<void> {
+  if (!db_fs) return;
   const userRef = doc(db_fs, 'users', profile.id);
   const snap = await getDoc(userRef);
 
@@ -166,6 +169,7 @@ export async function setDefaultAddress(userId: string, addressId: string): Prom
 
 export async function getAllUsers(): Promise<UserProfile[]> {
   try {
+    if (!db_fs) return [];
     const snap = await getDocs(collection(db_fs, 'users'));
     const allUsers = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as UserProfile));
 

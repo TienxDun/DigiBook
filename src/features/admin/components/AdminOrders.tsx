@@ -22,12 +22,90 @@ const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 };
 
+const formatOrderTime = (createdAt: any, fallbackDate?: string): { date: string } => {
+  if (!createdAt) {
+    if (fallbackDate) {
+      return { date: fallbackDate };
+    }
+    return { date: 'N/A' };
+  }
+  
+  let dateObj: Date;
+  if (createdAt && createdAt.toDate && typeof createdAt.toDate === 'function') {
+    dateObj = createdAt.toDate();
+  } else {
+    dateObj = new Date(createdAt);
+  }
+
+  if (!dateObj || isNaN(dateObj.getTime())) return { date: fallbackDate || 'N/A' };
+
+  // Chỉ lấy ngày, không lấy giờ theo yêu cầu
+  return {
+    date: dateObj.toLocaleDateString('vi-VN')
+  };
+};
+
 const orderStatusOptions = [
   { step: 0, label: 'Đang xử lý', color: 'amber' },
   { step: 1, label: 'Đã xác nhận', color: 'blue' },
+  { step: 5, label: 'Đang đóng gói', color: 'purple' },
   { step: 2, label: 'Đang giao', color: 'indigo' },
-  { step: 3, label: 'Đã giao', color: 'emerald' }
+  { step: 3, label: 'Đã giao', color: 'emerald' },
+  { step: 6, label: 'Giao thất bại', color: 'slate' },
+  { step: 4, label: 'Đã hủy', color: 'rose' }
 ];
+
+const getStatusBadgeStyle = (step: number) => {
+  switch (step) {
+    case 0: return 'bg-amber-500/10 text-amber-600 border-amber-200/50';
+    case 1: return 'bg-blue-500/10 text-blue-600 border-blue-200/50';
+    case 5: return 'bg-purple-500/10 text-purple-600 border-purple-200/50';
+    case 2: return 'bg-indigo-500/10 text-indigo-600 border-indigo-200/50';
+    case 3: return 'bg-emerald-500/10 text-emerald-600 border-emerald-200/50';
+    case 6: return 'bg-slate-500/10 text-slate-600 border-slate-200/50';
+    case 4: return 'bg-rose-500/10 text-rose-600 border-rose-200/50';
+    default: return 'bg-slate-500/10 text-slate-600 border-slate-200/50';
+  }
+};
+
+const getStatusSelectStyle = (step: number) => {
+  switch (step) {
+    case 0: return 'bg-chart-1/10 text-chart-1 border-chart-1/20 hover:bg-chart-1/20';
+    case 1: return 'bg-chart-2/10 text-chart-2 border-chart-2/20 hover:bg-chart-2/20';
+    case 5: return 'bg-purple-500/10 text-purple-500 border-purple-500/20 hover:bg-purple-500/20';
+    case 2: return 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/20';
+    case 3: return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20';
+    case 6: return 'bg-slate-500/10 text-slate-500 border-slate-500/20 hover:bg-slate-500/20';
+    case 4: return 'bg-rose-500/10 text-rose-500 border-rose-500/20 hover:bg-rose-500/20';
+    default: return 'bg-chart-4/10 text-chart-4 border-chart-4/20 hover:bg-chart-4/20';
+  }
+};
+
+const getStatusChevronColor = (step: number) => {
+  switch (step) {
+    case 0: return 'text-chart-1';
+    case 1: return 'text-chart-2';
+    case 5: return 'text-purple-500';
+    case 2: return 'text-primary';
+    case 3: return 'text-emerald-500';
+    case 6: return 'text-slate-500';
+    case 4: return 'text-rose-500';
+    default: return 'text-chart-4';
+  }
+};
+
+const getStatusDotStyle = (step: number) => {
+  switch (step) {
+    case 0: return 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]';
+    case 1: return 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.4)]';
+    case 5: return 'bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.4)]';
+    case 2: return 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.4)]';
+    case 3: return 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]';
+    case 6: return 'bg-slate-500 shadow-[0_0_8px_rgba(100,116,139,0.4)]';
+    case 4: return 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.4)]';
+    default: return 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]';
+  }
+};
 
 const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 'light' }) => {
   const isMidnight = theme === 'midnight';
@@ -53,11 +131,24 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
   const itemsPerPage = 10;
 
   const filteredOrders = useMemo(() => {
-    return orders.filter(order =>
+    return [...orders].filter(order =>
       order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.customer.phone.includes(searchQuery)
-    );
+    ).sort((a, b) => {
+      // Helper function to extract timestamp
+      const getTS = (o: Order) => {
+        if (o.createdAt?.toDate) return o.createdAt.toDate().getTime();
+        if (o.createdAt) return new Date(o.createdAt).getTime();
+        // Handle DD/MM/YYYY fallback
+        if (o.date) {
+          const parts = o.date.split('/');
+          if (parts.length === 3) return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0])).getTime();
+        }
+        return 0;
+      };
+      return getTS(b) - getTS(a); // Descending
+    });
   }, [orders, searchQuery]);
 
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
@@ -223,11 +314,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                             if (!order.id) return;
                             handleUpdateOrderStatus(order.id, Number(e.target.value));
                           }}
-                          className={`w-full appearance-none pl-4 pr-10 py-2 rounded-xl text-xs font-bold uppercase tracking-wide border outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer ${order.statusStep === 0 ? 'bg-chart-1/10 text-chart-1 border-chart-1/20 hover:bg-chart-1/20' :
-                            order.statusStep === 1 ? 'bg-chart-2/10 text-chart-2 border-chart-2/20 hover:bg-chart-2/20' :
-                              order.statusStep === 2 ? 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/20' :
-                                'bg-chart-4/10 text-chart-4 border-chart-4/20 hover:bg-chart-4/20'
-                            }`}
+                          className={`w-full appearance-none pl-4 pr-10 py-2 rounded-xl text-xs font-bold uppercase tracking-wide border outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer ${getStatusSelectStyle(order.statusStep)}`}
                           disabled={!order.id}
                         >
                           {orderStatusOptions.map(opt => (
@@ -237,16 +324,16 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                           ))}
                         </select>
                         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-70">
-                          <i className={`fa-solid fa-chevron-down text-[10px] ${order.statusStep === 0 ? 'text-chart-1' :
-                            order.statusStep === 1 ? 'text-chart-2' :
-                              order.statusStep === 2 ? 'text-primary' :
-                                'text-chart-4'
-                            }`}></i>
+                          <i className={`fa-solid fa-chevron-down text-[10px] ${getStatusChevronColor(order.statusStep)}`}></i>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-sm font-medium text-muted-foreground">
-                      {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString('vi-VN') : order.date}
+                    <td className="px-4 py-4">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-sm font-bold text-foreground">
+                          {formatOrderTime(order.createdAt, order.date).date}
+                        </span>
+                      </div>
                     </td>
                     <td className="px-4 py-4 text-center">
                       <button
@@ -349,11 +436,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                           <i className="fa-solid fa-signal text-xs"></i>
                           Trạng thái đơn hàng
                         </h4>
-                        <div className={`px-3 py-1 rounded-full text-xs font-bold border ${selectedOrder.statusStep >= 3 ? 'bg-emerald-500/10 text-emerald-600 border-emerald-200/50' :
-                          selectedOrder.statusStep >= 2 ? 'bg-blue-500/10 text-blue-600 border-blue-200/50' :
-                            selectedOrder.statusStep >= 1 ? 'bg-amber-500/10 text-amber-600 border-amber-200/50' :
-                              'bg-slate-500/10 text-slate-600 border-slate-200/50'
-                          }`}>
+                        <div className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusBadgeStyle(selectedOrder.statusStep)}`}>
                           {orderStatusOptions.find(s => s.step === selectedOrder.statusStep)?.label || 'Chưa xác định'}
                         </div>
                       </div>
@@ -488,11 +571,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                             <div className="flex items-center justify-between">
                               <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Trạng thái</span>
                               <div className="flex items-center gap-2">
-                                <span className={`w-2.5 h-2.5 rounded-full ${selectedOrder.statusStep >= 3 ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]' :
-                                  selectedOrder.statusStep >= 2 ? 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.4)]' :
-                                    selectedOrder.statusStep >= 1 ? 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.4)]' :
-                                      'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]'
-                                  }`}></span>
+                                <span className={`w-2.5 h-2.5 rounded-full ${getStatusDotStyle(selectedOrder.statusStep)}`}></span>
                                 <span className="text-xs font-bold text-foreground capitalize">
                                   {orderStatusOptions.find(s => s.step === selectedOrder.statusStep)?.label || 'Chưa xác định'}
                                 </span>

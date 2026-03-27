@@ -15,6 +15,7 @@ import { Coupon } from '@/shared/types/';
 import { wrap } from "../core";
 
 export async function validateCoupon(code: string, subtotal: number): Promise<{ code: string, value: number, type: 'percentage' | 'fixed' } | null> {
+  if (!db_fs) return null;
   const couponRef = doc(db_fs, 'coupons', code.toUpperCase());
   const snap = await getDoc(couponRef);
 
@@ -36,9 +37,11 @@ export async function validateCoupon(code: string, subtotal: number): Promise<{ 
 
 export async function getCoupons(): Promise<Coupon[]> {
   return wrap(
-    getDocs(collection(db_fs, 'coupons')).then(snap =>
-      snap.docs.map(d => ({ ...d.data(), id: d.id } as Coupon))
-    ),
+    (async () => {
+      if (!db_fs) return [];
+      const snap = await getDocs(collection(db_fs, 'coupons'));
+      return snap.docs.map(d => ({ ...d.data(), id: d.id } as Coupon));
+    })(),
     []
   );
 }

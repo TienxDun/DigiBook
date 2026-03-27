@@ -22,7 +22,11 @@ import { wrap, fetchWithProxy } from "../core";
 
 export async function getBooks(): Promise<Book[]> {
   return wrap(
-    getDocs(collection(db_fs, 'books')).then(snap => snap.docs.map(d => ({ ...d.data(), id: d.id } as Book))),
+    (async () => {
+      if (!db_fs) return [];
+      const snap = await getDocs(collection(db_fs, 'books'));
+      return snap.docs.map(d => ({ ...d.data(), id: d.id } as Book));
+    })(),
     []
   );
 }
@@ -90,7 +94,11 @@ export async function getBooksPaginated(
 
 export async function getBookById(id: string): Promise<Book | undefined> {
   return wrap(
-    getDoc(doc(db_fs, 'books', id)).then(snap => snap.exists() ? { ...snap.data(), id: snap.id } as Book : undefined),
+    (async () => {
+      if (!db_fs) return undefined;
+      const snap = await getDoc(doc(db_fs, 'books', id));
+      return snap.exists() ? { ...snap.data(), id: snap.id } as Book : undefined;
+    })(),
     undefined
   );
 }

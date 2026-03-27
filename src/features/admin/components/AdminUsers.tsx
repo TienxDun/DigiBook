@@ -95,16 +95,25 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
     }
   };
 
-  const filteredUsers = users.filter(user => {
-    const matchesRole = userRoleFilter === 'all' || user.role === userRoleFilter;
-    const effectiveStatus = user.status || 'active';
-    const matchesStatus = userStatusFilter === 'all' || effectiveStatus === userStatusFilter;
-    const matchesSearch = !searchQuery ||
-      user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.phone?.includes(searchQuery);
-    return matchesRole && matchesStatus && matchesSearch;
-  });
+  const filteredUsers = useMemo(() => {
+    return users.filter(user => {
+      const matchesRole = userRoleFilter === 'all' || user.role === userRoleFilter;
+      const effectiveStatus = user.status || 'active';
+      const matchesStatus = userStatusFilter === 'all' || effectiveStatus === userStatusFilter;
+      const matchesSearch = !searchQuery ||
+        user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.phone?.includes(searchQuery);
+      return matchesRole && matchesStatus && matchesSearch;
+    }).sort((a, b) => {
+      const getTS = (u: any) => {
+        if (u.createdAt?.toDate) return u.createdAt.toDate().getTime();
+        if (u.createdAt) return new Date(u.createdAt).getTime();
+        return 0;
+      };
+      return getTS(b) - getTS(a);
+    });
+  }, [users, userRoleFilter, userStatusFilter, searchQuery]);
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
   const paginatedUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -319,7 +328,21 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
                             <h4 className="font-bold text-base text-foreground group-hover:text-primary transition-colors">{user.name || 'User'}</h4>
                             <span className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/50 bg-secondary/50 px-1.5 py-0.5 rounded border border-border/50">ID: {user.id.slice(0, 4)}</span>
                           </div>
-                          <p className="text-xs font-medium text-muted-foreground">{user.email}</p>
+                          <div className="flex flex-col gap-0.5 mt-1">
+                            <p className="text-xs font-medium text-muted-foreground">{user.email}</p>
+                            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/60">
+                              <i className="fa-solid fa-calendar-plus opacity-40"></i>
+                              <span>Gia nhập: {(() => {
+                                const createdAt = user.createdAt;
+                                if (!createdAt) return 'N/A';
+                                const dateObj = (createdAt.toDate && typeof createdAt.toDate === 'function') 
+                                  ? createdAt.toDate() 
+                                  : new Date(createdAt);
+                                if (isNaN(dateObj.getTime())) return 'N/A';
+                                return dateObj.toLocaleDateString('vi-VN');
+                              })()}</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </td>

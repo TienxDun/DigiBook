@@ -18,6 +18,9 @@ import { Order, OrderItem, CartItem } from '@/shared/types/';
 import { wrap, logActivity } from "../core";
 
 export async function createOrder(orderInfo: any, cartItems: CartItem[]) {
+  if (!db_fs) {
+    throw new Error("Firebase not initialized. Cannot create order via Firestore.");
+  }
   try {
     const orderRef = doc(collection(db_fs, 'orders'));
     const orderId = orderRef.id;
@@ -84,35 +87,42 @@ export async function createOrder(orderInfo: any, cartItems: CartItem[]) {
 }
 
 export async function getOrdersByUserId(userId: string): Promise<Order[]> {
-  const q = userId === 'admin'
-    ? collection(db_fs, 'orders')
-    : query(collection(db_fs, 'orders'), where("userId", "==", userId));
-
   return wrap(
-    getDocs(q).then(snap => {
+    (async () => {
+      if (!db_fs) return [];
+      const q = userId === 'admin'
+        ? collection(db_fs, 'orders')
+        : query(collection(db_fs, 'orders'), where("userId", "==", userId));
+      
+      const snap = await getDocs(q);
       const orders = snap.docs.map(d => ({ ...d.data(), id: d.id } as Order));
       return orders.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-    }),
+    })(),
     []
   );
 }
 
 export async function checkIfUserPurchasedBook(userId: string, bookId: string): Promise<boolean> {
   return wrap(
-    getDocs(query(collection(db_fs, 'orders'), where("userId", "==", userId)))
-      .then(snap => {
-        return snap.docs.some(d => {
-          const orderData = d.data();
-          return orderData.items?.some((item: any) => item.bookId === bookId);
-        });
-      }),
+    (async () => {
+      if (!db_fs) return false;
+      const snap = await getDocs(query(collection(db_fs, 'orders'), where("userId", "==", userId)));
+      return snap.docs.some(d => {
+        const orderData = d.data();
+        return orderData.items?.some((item: any) => item.bookId === bookId);
+      });
+    })(),
     false
   );
 }
 
 export async function getOrderWithItems(orderId: string): Promise<(Order & { items: OrderItem[] }) | undefined> {
   return wrap(
-    getDoc(doc(db_fs, 'orders', orderId)).then(snap => snap.exists() ? { ...snap.data(), id: snap.id } as any : undefined),
+    (async () => {
+      if (!db_fs) return undefined;
+      const snap = await getDoc(doc(db_fs, 'orders', orderId));
+      return snap.exists() ? { ...snap.data(), id: snap.id } as any : undefined;
+    })(),
     undefined
   );
 }
@@ -144,7 +154,11 @@ export async function syncUserCart(userId: string, cartItems: CartItem[]): Promi
 
 export async function getUserCart(userId: string): Promise<CartItem[]> {
   return wrap(
-    getDoc(doc(db_fs, 'userCarts', userId)).then(snap => snap.exists() ? snap.data().items as CartItem[] : []),
+    (async () => {
+      if (!db_fs) return [];
+      const snap = await getDoc(doc(db_fs, 'userCarts', userId));
+      return snap.exists() ? snap.data().items as CartItem[] : [];
+    })(),
     []
   );
 }

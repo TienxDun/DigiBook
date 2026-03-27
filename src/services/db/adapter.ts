@@ -1,4 +1,5 @@
-import { Book, UserProfile, Review, Coupon, CategoryInfo, Author, SystemLog } from '@/shared/types';
+import { isFirebaseReady } from '@/lib/firebase';
+import { Book, UserProfile, Review, Coupon, CategoryInfo, Author, SystemLog, Order, OrderItem, Address } from '@/shared/types';
 
 // Firebase services (existing)
 import * as firebaseBooks from './modules/books.service';
@@ -10,43 +11,41 @@ import * as firebaseSystem from './modules/system.service';
 import * as firebaseMetadata from './modules/metadata.service';
 
 // API services (new)
-import { 
-  booksApi, 
-  usersApi, 
+import {
+  booksApi,
+  usersApi,
   telegramApi,
-  ordersApi, 
-  reviewsApi, 
-  couponsApi, 
+  ordersApi,
+  reviewsApi,
+  couponsApi,
   categoriesApi,
   authorsApi,
-  logsApi,
-  type Order, 
-  type OrderItem 
+  logsApi
 } from '../api';
 
 // Feature flag
-const USE_API = import.meta.env.VITE_USE_API === 'false';
+const USE_API = import.meta.env.VITE_USE_API === 'true';
 
 console.log(`📡 Service Mode: ${USE_API ? '🔥 API Backend' : '📱 Firebase Direct'}`);
 
 // Books Service Adapter
 export const booksService = {
   async getBooks(): Promise<Book[]> {
-    return USE_API 
-      ? await booksApi.getAll() 
+    return USE_API
+      ? await booksApi.getAll()
       : await firebaseBooks.getBooks();
   },
 
   async getBookById(id: string): Promise<Book | undefined> {
-    const book = USE_API 
-      ? await booksApi.getById(id) 
+    const book = USE_API
+      ? await booksApi.getById(id)
       : await firebaseBooks.getBookById(id);
     return book || undefined;
   },
 
   async getBookBySlug(slug: string): Promise<Book | undefined> {
-    const book = USE_API 
-      ? await booksApi.getBySlug(slug) 
+    const book = USE_API
+      ? await booksApi.getBySlug(slug)
       : await firebaseBooks.getBookBySlug(slug);
     return book || undefined;
   },
@@ -63,6 +62,10 @@ export const booksService = {
 
   async getBooksPaginated(limitCount: number, lastVisible?: any, category?: string, sortBy?: any): Promise<any> {
     // This is complex with Firestore pagination, keep Firebase for now
+    if (!isFirebaseReady) {
+      console.warn("⚠️ Firebase not ready, cannot fetch paginated books via Firestore");
+      return { books: [], lastVisible: null, total: 0 };
+    }
     return await firebaseBooks.getBooksPaginated(limitCount, lastVisible, category, sortBy);
   },
 
@@ -81,8 +84,8 @@ export const booksService = {
   },
 
   async deleteBook(id: string): Promise<void> {
-    return USE_API 
-      ? await booksApi.delete(id) 
+    return USE_API
+      ? await booksApi.delete(id)
       : await firebaseBooks.deleteBook(id);
   },
 
@@ -95,20 +98,20 @@ export const booksService = {
 // Users Service Adapter
 export const usersService = {
   async getUserProfile(userId: string): Promise<UserProfile | null> {
-    return USE_API 
-      ? await usersApi.getProfile(userId) 
+    return USE_API
+      ? await usersApi.getProfile(userId)
       : await firebaseUsers.getUserProfile(userId);
   },
 
   async updateUserProfile(profile: Partial<UserProfile> & { id: string }): Promise<void> {
-    return USE_API 
-      ? await usersApi.updateProfile(profile.id, profile) 
+    return USE_API
+      ? await usersApi.updateProfile(profile.id, profile)
       : await firebaseUsers.updateUserProfile(profile);
   },
 
   async updateWishlist(userId: string, bookIds: string[]): Promise<void> {
-    return USE_API 
-      ? await usersApi.updateWishlist(userId, bookIds) 
+    return USE_API
+      ? await usersApi.updateWishlist(userId, bookIds)
       : await firebaseUsers.updateWishlist(userId, bookIds);
   },
 
@@ -134,6 +137,31 @@ export const usersService = {
     }
 
     await telegramApi.unlink(userId);
+  },
+
+  // Address Management
+  async addUserAddress(userId: string, address: Omit<Address, 'id'>): Promise<void> {
+    return USE_API
+      ? await usersApi.addAddress(userId, address)
+      : await firebaseUsers.addUserAddress(userId, address);
+  },
+
+  async updateUserAddress(userId: string, address: Address): Promise<void> {
+    return USE_API
+      ? await usersApi.updateAddress(userId, address.id, address)
+      : await firebaseUsers.updateUserAddress(userId, address);
+  },
+
+  async removeUserAddress(userId: string, addressId: string): Promise<void> {
+    return USE_API
+      ? await usersApi.deleteAddress(userId, addressId)
+      : await firebaseUsers.removeUserAddress(userId, addressId);
+  },
+
+  async setDefaultAddress(userId: string, addressId: string): Promise<void> {
+    return USE_API
+      ? await usersApi.setDefaultAddress(userId, addressId)
+      : await firebaseUsers.setDefaultAddress(userId, addressId);
   }
 };
 
@@ -151,12 +179,13 @@ export const ordersService = {
       }));
 
       // Map order data to API format
-      const order: Order = {
+      const order: any = {
         userId: orderData.userId,
         status: orderData.status,
         statusStep: orderData.statusStep,
         customer: orderData.customer,
-        payment: orderData.payment
+        payment: orderData.payment,
+        date: orderData.date || new Date().toLocaleDateString('vi-VN')
       };
 
       return await ordersApi.create(order, items);
@@ -166,9 +195,13 @@ export const ordersService = {
   },
 
   async getUserOrders(userId: string): Promise<any[]> {
-    return USE_API
-      ? (await ordersApi.getByUserId(userId)) || []
-      : await firebaseOrders.getOrdersByUserId(userId);
+    if (USE_API) {
+      if (userId === 'admin') {
+        return (await ordersApi.getAll()) || [];
+      }
+      return (await ordersApi.getByUserId(userId)) || [];
+    }
+    return await firebaseOrders.getOrdersByUserId(userId);
   },
 
   async getOrderById(orderId: string): Promise<any> {
@@ -403,6 +436,10 @@ export const logsService = {
       const allLogs = await logsApi.getAll();
       return allLogs.slice(offset, offset + limitCount);
     }
+    if (!isFirebaseReady) {
+      console.warn("⚠️ Firebase not ready, returning empty logs");
+      return [];
+    }
     return await firebaseSystem.getSystemLogs(offset, limitCount);
   },
 
@@ -444,11 +481,11 @@ export const logsService = {
       byStatus: {} as Record<string, number>,
       byLevel: {} as Record<string, number>,
       byCategory: {} as Record<string, number>,
-      recentErrors: logs.filter(l => l.status === 'ERROR' && 
+      recentErrors: logs.filter(l => l.status === 'ERROR' &&
         new Date(l.createdAt.toDate()).getTime() > Date.now() - 24 * 60 * 60 * 1000
       ).length
     };
-    
+
     logs.forEach(log => {
       stats.byStatus[log.status] = (stats.byStatus[log.status] || 0) + 1;
       stats.byLevel[log.level] = (stats.byLevel[log.level] || 0) + 1;
@@ -456,7 +493,7 @@ export const logsService = {
         stats.byCategory[log.category] = (stats.byCategory[log.category] || 0) + 1;
       }
     });
-    
+
     return stats;
   },
 

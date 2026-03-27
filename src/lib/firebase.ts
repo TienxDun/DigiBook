@@ -43,31 +43,43 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-let app;
-let auth;
-let db_fs;
+let app: any = null;
+let auth: any = null;
+let db_fs: any = null;
+let isFirebaseReady = false;
 const googleProvider = new GoogleAuthProvider();
 
-try {
-  app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-  db_fs = getFirestore(app);
-  
-  // Xử lý lỗi BloomFilterError bằng cách xóa cache nếu cần
-  // Lưu ý: Trong môi trường thực tế, có thể gọi hàm này dựa trên bắt lỗi hoặc khi khởi động
-  // clearIndexedDbPersistence(db_fs).catch(err => console.error("Could not clear persistence:", err));
+// Kiểm tra cấu hình tối thiểu (apiKey và projectId)
+const hasConfig = firebaseConfig.apiKey && firebaseConfig.projectId;
 
-  googleProvider.setCustomParameters({
-    prompt: 'select_account'
-  });
-} catch (e) {
-  console.error("Firebase initialization error:", e);
+if (hasConfig) {
+  try {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db_fs = getFirestore(app);
+    isFirebaseReady = true;
+    
+    // Xử lý lỗi BloomFilterError bằng cách xóa cache nếu cần
+    // clearIndexedDbPersistence(db_fs).catch(err => console.error("Could not clear persistence:", err));
+
+    googleProvider.setCustomParameters({
+      prompt: 'select_account'
+    });
+    console.log("🔥 Firebase initialized successfully");
+  } catch (e) {
+    console.error("Firebase initialization error:", e);
+    isFirebaseReady = false;
+  }
+} else {
+  console.warn("⚠️ Firebase configuration is missing. Auth and Direct Firestore features will be disabled.");
+  isFirebaseReady = false;
 }
 
 export { 
   auth, 
   googleProvider, 
   db_fs, 
+  isFirebaseReady,
   terminate,
   clearIndexedDbPersistence,
   signInWithEmailAndPassword, 

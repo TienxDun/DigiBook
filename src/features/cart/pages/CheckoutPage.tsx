@@ -356,15 +356,31 @@ const CheckoutPage: React.FC = () => {
         await couponsService.incrementCouponUsage(appliedCoupon.code);
       }
 
-      // Nếu là PayOS, tạo payment link và mở popup
+      // Nếu Backend đã trả về checkoutUrl (do Facade xử lý), sử dụng luôn
+      if (order?.payment?.checkoutUrl && paymentMethod === 'payos') {
+        const provider = PaymentProviderFactory.createProvider('payos');
+        provider.open(order.payment.checkoutUrl);
+        
+        toast.success('Đang chuyển đến trang thanh toán PayOS...', { duration: 3000 });
+        
+        isSubmittingRef.current = true;
+        clearCart();
+        
+        setTimeout(() => {
+          navigate('/orders');
+          toast.info('Vui lòng hoàn tất thanh toán trên tab mới', { duration: 5000 });
+        }, 500);
+        
+        setIsProcessing(false);
+        return; // Dừng lại ở đây, không chạy tiếp logic cũ bên dưới
+      }
+
+      // Fallback cho logic cũ nếu không dùng API hoặc Backend không trả về checkoutUrl
       if (paymentMethod === 'payos') {
         try {
           const provider = PaymentProviderFactory.createProvider('payos');
-
-          // Tạo orderCode số nguyên unique từ timestamp
           const orderCode = Date.now().toString();
-
-          // Lưu orderId vào sessionStorage để dùng trong callback
+          
           sessionStorage.setItem('pending_order_id', order.id);
           sessionStorage.setItem('pending_order_code', orderCode);
 
@@ -372,7 +388,7 @@ const CheckoutPage: React.FC = () => {
             orderId: order.id,
             orderCode: orderCode,
             amount: total,
-            description: `DH${orderCode.slice(-15)}`, // Max 25 chars for PayOS
+            description: `DH${orderCode.slice(-15)}`,
             customer: {
               name: formData.name.length > 25 ? formData.name.substring(0, 25) : formData.name,
               email: user.email,
@@ -385,24 +401,14 @@ const CheckoutPage: React.FC = () => {
             }))
           });
 
-          // Mở tab mới cho thanh toán
           provider.open(checkoutUrl);
-
-          // Thông báo cho user
-          toast.success('Đang chuyển đến trang thanh toán PayOS...', {
-            duration: 3000
-          });
-
-          // Clear cart và chuyển về trang orders
+          toast.success('Đang chuyển đến trang thanh toán PayOS...', { duration: 3000 });
           isSubmittingRef.current = true;
           clearCart();
 
-          // Chuyển sang trang orders để user kiểm tra đơn hàng
           setTimeout(() => {
             navigate('/orders');
-            toast.info('Vui lòng hoàn tất thanh toán trên tab mới', {
-              duration: 5000
-            });
+            toast.info('Vui lòng hoàn tất thanh toán trên tab mới', { duration: 5000 });
           }, 500);
 
           setIsProcessing(false);

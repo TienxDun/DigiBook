@@ -18,10 +18,11 @@ import { wrap } from "../core";
 
 export async function getReviewsByBookId(bookId: string): Promise<Review[]> {
   return wrap(
-    getDocs(query(collection(db_fs, 'books', bookId, 'reviews'), orderBy('createdAt', 'desc')))
-      .then(snap => {
-        return snap.docs.map(d => ({ ...d.data(), id: d.id } as Review));
-      }),
+    (async () => {
+      if (!db_fs) return [];
+      const snap = await getDocs(query(collection(db_fs, 'books', bookId, 'reviews'), orderBy('createdAt', 'desc')));
+      return snap.docs.map(d => ({ ...d.data(), id: d.id } as Review));
+    })(),
     []
   );
 }
@@ -29,6 +30,7 @@ export async function getReviewsByBookId(bookId: string): Promise<Review[]> {
 export async function addReview(review: Omit<Review, 'createdAt'>): Promise<void> {
   await wrap(
     (async () => {
+      if (!db_fs) return;
       const reviewRef = collection(db_fs, 'books', review.bookId, 'reviews');
       await addDoc(reviewRef, { ...review, createdAt: serverTimestamp() });
 

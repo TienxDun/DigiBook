@@ -9,13 +9,13 @@ import {
   clearIndexedDbPersistence,
   serverTimestamp
 } from "firebase/firestore";
-import { db_fs, auth } from "../../lib/firebase";
+import { db_fs, auth, isFirebaseReady } from "../../lib/firebase";
 import { LogLevel, LogCategory } from '@/shared/types/';
 
 let connectionTested = false;
 
 export async function testConnection() {
-  if (connectionTested || !db_fs) return;
+  if (connectionTested || !isFirebaseReady || !db_fs) return;
 
   try {
     // Test with books collection instead of system_logs (books allow public read)
@@ -87,7 +87,7 @@ export async function logActivity(
     status === 'ERROR' ||
     criticalCategories.includes(category);
 
-  if (db_fs && shouldSaveToDb) {
+  if (isFirebaseReady && db_fs && shouldSaveToDb) {
     try {
       await addDoc(collection(db_fs, 'system_logs'), {
         action,
@@ -112,6 +112,11 @@ export async function wrap<T>(
   detail?: string,
   category: LogCategory = 'DATABASE'
 ): Promise<T> {
+  if (!isFirebaseReady) {
+    if (actionName) console.warn(`[${category}] Skipping Firestore operation "${actionName}" (Firebase not ready)`);
+    return fallback;
+  }
+
   if (!connectionTested) {
     await testConnection();
   }
