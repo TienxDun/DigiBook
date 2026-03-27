@@ -23,8 +23,17 @@ import {
   logsApi
 } from '../api';
 
-// Feature flag
-const USE_API = import.meta.env.VITE_USE_API === 'true';
+// Feature flag with persistence
+export const USE_API = (() => {
+  const storedValue = localStorage.getItem('VITE_USE_API');
+  if (storedValue !== null) return storedValue === 'true';
+  return import.meta.env.VITE_USE_API === 'true';
+})();
+
+export const toggleServiceMode = () => {
+  localStorage.setItem('VITE_USE_API', String(!USE_API));
+  window.location.reload();
+};
 
 console.log(`📡 Service Mode: ${USE_API ? '🔥 API Backend' : '📱 Firebase Direct'}`);
 
