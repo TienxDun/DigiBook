@@ -82,7 +82,7 @@ class DataService {
   updateOrderStatus = ordersService.updateOrderStatus;
   
   // Legacy Firebase-only methods
-  checkIfUserPurchasedBook = orders.checkIfUserPurchasedBook;
+  checkIfUserPurchasedBook = ordersService.checkIfUserPurchasedBook;
   syncUserCart = orders.syncUserCart;
   getUserCart = orders.getUserCart;
 

@@ -225,6 +225,12 @@ export const ordersService = {
     } else {
       await firebaseOrders.updateOrderStatus(orderId, status, statusStep);
     }
+  },
+
+  async checkIfUserPurchasedBook(userId: string, bookId: string): Promise<boolean> {
+    return USE_API
+      ? await ordersApi.hasPurchasedBook(userId, bookId)
+      : await firebaseOrders.checkIfUserPurchasedBook(userId, bookId);
   }
 };
 
