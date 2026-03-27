@@ -186,5 +186,18 @@ export const ordersApi = {
       console.error('Error cancelling order with reason:', error);
       return false;
     }
+  },
+
+  /**
+   * Check if user purchased a book
+   */
+  async hasPurchasedBook(userId: string, bookId: string): Promise<boolean> {
+    try {
+      const response = await apiClient.get<ApiResponse<{ purchased: boolean }>>(`/api/orders/user/${userId}/purchased/${bookId}`);
+      return response.data.data?.purchased || false;
+    } catch (error) {
+      console.error('Error checking purchase status:', error);
+      return false;
+    }
   }
 };

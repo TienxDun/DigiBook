@@ -106,6 +106,7 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
   const [activeImage, setActiveImage] = useState<string | null>(null);
   const [isHoveringImage, setIsHoveringImage] = useState(false);
   const [showLightbox, setShowLightbox] = useState(false); // Lightbox state
+  const hasIncrementedView = React.useRef<string | null>(null);
 
 
 
@@ -132,8 +133,11 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
           setBook(bookData);
           setViewingBook(bookData);
 
-          // Increment view count (fire and forget)
-          booksService.incrementBookView(bookData.id);
+          // Increment view count (fire and forget) - Guarded to prevent duplicates
+          if (hasIncrementedView.current !== bookData.id) {
+            booksService.incrementBookView(bookData.id);
+            hasIncrementedView.current = bookData.id;
+          }
 
           // Fetch author info
           db.getAuthors().then(authors => {
