@@ -1,6 +1,9 @@
 import { apiClient, handleApiError } from '../client';
 import { ApiResponse } from '../types';
 import { Coupon } from '@/shared/types';
+import { cache } from '../../cache';
+
+const COUPONS_TAG = 'coupons';
 
 interface ValidateCouponRequest {
   code: string;
@@ -19,8 +22,15 @@ export const couponsApi = {
    */
   async getAll(): Promise<Coupon[]> {
     try {
-      const { data } = await apiClient.get<ApiResponse<Coupon[]>>('/api/coupons');
-      return data.data || [];
+      const { data } = await cache.swr<Coupon[]>(
+        `${COUPONS_TAG}:all`,
+        async () => {
+          const response = await apiClient.get<ApiResponse<Coupon[]>>('/api/coupons');
+          return response.data.data || [];
+        },
+        { persist: true }
+      );
+      return data || [];
     } catch (error) {
       console.error('Error fetching coupons:', handleApiError(error));
       return [];
@@ -32,8 +42,15 @@ export const couponsApi = {
    */
   async getById(couponId: string): Promise<Coupon | null> {
     try {
-      const { data } = await apiClient.get<ApiResponse<Coupon>>(`/api/coupons/${couponId}`);
-      return data.data || null;
+      const { data } = await cache.swr<Coupon | null>(
+        `${COUPONS_TAG}:${couponId}`,
+        async () => {
+          const response = await apiClient.get<ApiResponse<Coupon>>(`/api/coupons/${couponId}`);
+          return response.data.data || null;
+        },
+        { persist: true }
+      );
+      return data || null;
     } catch (error) {
       console.error('Error fetching coupon:', handleApiError(error));
       return null;
@@ -45,8 +62,15 @@ export const couponsApi = {
    */
   async getByCode(code: string): Promise<Coupon | null> {
     try {
-      const { data } = await apiClient.get<ApiResponse<Coupon>>(`/api/coupons/code/${code}`);
-      return data.data || null;
+      const { data } = await cache.swr<Coupon | null>(
+        `${COUPONS_TAG}:code:${code}`,
+        async () => {
+          const response = await apiClient.get<ApiResponse<Coupon>>(`/api/coupons/code/${code}`);
+          return response.data.data || null;
+        },
+        { persist: true }
+      );
+      return data || null;
     } catch (error) {
       console.error('Error fetching coupon by code:', handleApiError(error));
       return null;
@@ -58,8 +82,15 @@ export const couponsApi = {
    */
   async getActive(): Promise<Coupon[]> {
     try {
-      const { data } = await apiClient.get<ApiResponse<Coupon[]>>('/api/coupons/active');
-      return data.data || [];
+      const { data } = await cache.swr<Coupon[]>(
+        `${COUPONS_TAG}:active`,
+        async () => {
+          const response = await apiClient.get<ApiResponse<Coupon[]>>('/api/coupons/active');
+          return response.data.data || [];
+        },
+        { persist: true }
+      );
+      return data || [];
     } catch (error) {
       console.error('Error fetching active coupons:', handleApiError(error));
       return [];
@@ -89,6 +120,7 @@ export const couponsApi = {
   async create(coupon: Omit<Coupon, 'id'>): Promise<string | null> {
     try {
       const { data } = await apiClient.post<ApiResponse<Coupon>>('/api/coupons', coupon);
+      cache.clear(COUPONS_TAG);
       return data.data?.id || null;
     } catch (error) {
       throw new Error(handleApiError(error));
@@ -101,6 +133,7 @@ export const couponsApi = {
   async update(couponId: string, updates: Partial<Coupon>): Promise<void> {
     try {
       await apiClient.put(`/api/coupons/${couponId}`, updates);
+      cache.clear(COUPONS_TAG);
     } catch (error) {
       throw new Error(handleApiError(error));
     }
@@ -112,6 +145,7 @@ export const couponsApi = {
   async delete(couponId: string): Promise<void> {
     try {
       await apiClient.delete(`/api/coupons/${couponId}`);
+      cache.clear(COUPONS_TAG);
     } catch (error) {
       throw new Error(handleApiError(error));
     }
@@ -123,6 +157,7 @@ export const couponsApi = {
   async incrementUsage(couponId: string): Promise<void> {
     try {
       await apiClient.post(`/api/coupons/${couponId}/increment-usage`);
+      cache.clear(COUPONS_TAG);
     } catch (error) {
       console.error('Error incrementing coupon usage:', handleApiError(error));
     }
@@ -134,6 +169,7 @@ export const couponsApi = {
   async toggleActive(couponId: string): Promise<void> {
     try {
       await apiClient.post(`/api/coupons/${couponId}/toggle-active`);
+      cache.clear(COUPONS_TAG);
     } catch (error) {
       throw new Error(handleApiError(error));
     }

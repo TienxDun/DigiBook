@@ -123,11 +123,16 @@ export async function wrap<T>(
 
   try {
     const result = await promise;
-    if (actionName) logActivity(actionName, detail || 'Done', 'SUCCESS', 'DEBUG', category);
+    if (actionName) {
+      // Chỉ log console khi thực sự tốn request Firestore
+      console.log(`🔥 [Firestore Hit] ${actionName}: ${detail || 'Done'}`);
+      // Vẫn giữ logActivity để lưu vào DB nếu cần (theo logic của logActivity)
+      logActivity(actionName, detail || 'Done', 'SUCCESS', 'DEBUG', category);
+    }
     return result;
   } catch (e: any) {
     if (actionName) logActivity(actionName, e.message, 'ERROR', 'ERROR', category);
-    console.error(`[${category}] Database Error:`, e);
+    console.error(`🔥 [Firestore Error] ${actionName}:`, e);
     return fallback;
   }
 }

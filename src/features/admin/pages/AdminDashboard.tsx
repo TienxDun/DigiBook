@@ -13,6 +13,7 @@ import AdminUsers from "../components/AdminUsers";
 import AdminLogs from "../components/AdminLogs";
 import AdminAnalytics from "../components/AdminAnalytics";
 import AdminTikiInspector from "../components/AdminTikiInspector";
+import { ServiceModeSwitcher } from "@/shared/components";
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
@@ -385,6 +386,9 @@ const AdminDashboard: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3 lg:gap-6">
+            {/* Service Mode Switcher */}
+            <ServiceModeSwitcher />
+
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}

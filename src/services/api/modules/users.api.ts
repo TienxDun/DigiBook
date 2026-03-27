@@ -1,13 +1,24 @@
 import { apiClient, handleApiError } from '../client';
 import { ApiResponse } from '../types';
 import { UserProfile, Address } from '@/shared/types';
+import { cache } from '../../cache';
+
+const TTL_5M = 5 * 60 * 1000;
+const USERS_TAG = 'users';
 
 export const usersApi = {
   // GET user profile
   async getProfile(userId: string): Promise<UserProfile | null> {
     try {
-      const { data } = await apiClient.get<ApiResponse<UserProfile>>(`/api/users/${userId}`);
-      return data.data || null;
+      const { data } = await cache.swr<UserProfile | null>(
+        `users:profile:${userId}`,
+        async () => {
+          const response = await apiClient.get<ApiResponse<UserProfile>>(`/api/users/${userId}`);
+          return response.data.data || null;
+        },
+        { ttl: TTL_5M, tags: [USERS_TAG], persist: true }
+      );
+      return data;
     } catch (error) {
       console.error('Error fetching user profile:', handleApiError(error));
       return null;
@@ -18,11 +29,12 @@ export const usersApi = {
   async updateProfile(userId: string, updates: Partial<UserProfile>): Promise<void> {
     try {
       await apiClient.put(`/api/users/${userId}`, updates);
+      cache.clear(USERS_TAG);
     } catch (error: any) {
       if (error?.response?.status === 404) {
         try {
-          // Act as upsert: create if not found
           await apiClient.post('/api/users', { ...updates, id: userId });
+          cache.clear(USERS_TAG);
           return;
         } catch (postError) {
           throw new Error(handleApiError(postError));
@@ -36,6 +48,7 @@ export const usersApi = {
   async updateWishlist(userId: string, wishlistIds: string[]): Promise<void> {
     try {
       await apiClient.put(`/api/users/${userId}/wishlist`, { wishlistIds });
+      cache.clear(USERS_TAG);
     } catch (error) {
       throw new Error(handleApiError(error));
     }
@@ -45,6 +58,7 @@ export const usersApi = {
   async addAddress(userId: string, address: Omit<Address, 'id'>): Promise<void> {
     try {
       await apiClient.post(`/api/users/${userId}/addresses`, address);
+      cache.clear(USERS_TAG);
     } catch (error) {
       throw new Error(handleApiError(error));
     }
@@ -54,6 +68,7 @@ export const usersApi = {
   async updateAddress(userId: string, addressId: string, address: Address): Promise<void> {
     try {
       await apiClient.put(`/api/users/${userId}/addresses/${addressId}`, address);
+      cache.clear(USERS_TAG);
     } catch (error) {
       throw new Error(handleApiError(error));
     }
@@ -63,6 +78,7 @@ export const usersApi = {
   async deleteAddress(userId: string, addressId: string): Promise<void> {
     try {
       await apiClient.delete(`/api/users/${userId}/addresses/${addressId}`);
+      cache.clear(USERS_TAG);
     } catch (error) {
       throw new Error(handleApiError(error));
     }
@@ -72,31 +88,31 @@ export const usersApi = {
   async setDefaultAddress(userId: string, addressId: string): Promise<void> {
     try {
       await apiClient.put(`/api/users/${userId}/addresses/${addressId}/set-default`);
+      cache.clear(USERS_TAG);
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   },
 
-  // ===== Phase 1: New Wishlist Methods (RESTful) =====
-
   /**
-   * Add book to wishlist (RESTful individual operation)
-   * Note: Also keep updateWishlist() for bulk operations
+   * Add book to wishlist
    */
   async addToWishlist(userId: string, bookId: string): Promise<void> {
     try {
       await apiClient.post(`/api/users/${userId}/wishlist/${bookId}`);
+      cache.clear(USERS_TAG);
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   },
 
   /**
-   * Remove book from wishlist (RESTful individual operation)
+   * Remove book from wishlist
    */
   async removeFromWishlist(userId: string, bookId: string): Promise<void> {
     try {
       await apiClient.delete(`/api/users/${userId}/wishlist/${bookId}`);
+      cache.clear(USERS_TAG);
     } catch (error) {
       throw new Error(handleApiError(error));
     }
@@ -107,23 +123,35 @@ export const usersApi = {
    */
   async getWishlist(userId: string): Promise<string[]> {
     try {
-      const { data } = await apiClient.get<ApiResponse<string[]>>(`/api/users/${userId}/wishlist`);
-      return data.data || [];
+      const { data } = await cache.swr<string[]>(
+        `users:wishlist:${userId}`,
+        async () => {
+          const response = await apiClient.get<ApiResponse<string[]>>(`/api/users/${userId}/wishlist`);
+          return response.data.data || [];
+        },
+        { ttl: TTL_5M, tags: [USERS_TAG], persist: true }
+      );
+      return data || [];
     } catch (error) {
       console.error('Error fetching wishlist:', handleApiError(error));
       return [];
     }
   },
 
-  // ===== Phase 2: Admin User Management Methods =====
-
   /**
    * Get all users (admin only)
    */
   async getAll(): Promise<UserProfile[]> {
     try {
-      const { data } = await apiClient.get<ApiResponse<UserProfile[]>>('/api/users');
-      return data.data || [];
+      const { data } = await cache.swr<UserProfile[]>(
+        'users:all',
+        async () => {
+          const response = await apiClient.get<ApiResponse<UserProfile[]>>('/api/users');
+          return response.data.data || [];
+        },
+        { ttl: TTL_5M, tags: [USERS_TAG], persist: true }
+      );
+      return data || [];
     } catch (error) {
       console.error('Error fetching all users:', handleApiError(error));
       return [];
@@ -131,12 +159,19 @@ export const usersApi = {
   },
 
   /**
-   * Get user by email (admin search)
+   * Get user by email
    */
   async getByEmail(email: string): Promise<UserProfile | null> {
     try {
-      const { data } = await apiClient.get<ApiResponse<UserProfile>>(`/api/users/email/${email}`);
-      return data.data || null;
+      const { data } = await cache.swr<UserProfile | null>(
+        `users:email:${email}`,
+        async () => {
+          const response = await apiClient.get<ApiResponse<UserProfile>>(`/api/users/email/${email}`);
+          return response.data.data || null;
+        },
+        { ttl: TTL_5M, tags: [USERS_TAG], persist: true }
+      );
+      return data;
     } catch (error) {
       console.error('Error fetching user by email:', handleApiError(error));
       return null;
@@ -144,12 +179,19 @@ export const usersApi = {
   },
 
   /**
-   * Get users by role (filter by admin/user)
+   * Get users by role
    */
   async getByRole(role: string): Promise<UserProfile[]> {
     try {
-      const { data } = await apiClient.get<ApiResponse<UserProfile[]>>(`/api/users/role/${role}`);
-      return data.data || [];
+      const { data } = await cache.swr<UserProfile[]>(
+        `users:role:${role}`,
+        async () => {
+          const response = await apiClient.get<ApiResponse<UserProfile[]>>(`/api/users/role/${role}`);
+          return response.data.data || [];
+        },
+        { ttl: TTL_5M, tags: [USERS_TAG], persist: true }
+      );
+      return data || [];
     } catch (error) {
       console.error('Error fetching users by role:', handleApiError(error));
       return [];
@@ -157,12 +199,19 @@ export const usersApi = {
   },
 
   /**
-   * Get users by status (active/banned)
+   * Get users by status
    */
   async getByStatus(status: string): Promise<UserProfile[]> {
     try {
-      const { data } = await apiClient.get<ApiResponse<UserProfile[]>>(`/api/users/status/${status}`);
-      return data.data || [];
+      const { data } = await cache.swr<UserProfile[]>(
+        `users:status:${status}`,
+        async () => {
+          const response = await apiClient.get<ApiResponse<UserProfile[]>>(`/api/users/status/${status}`);
+          return response.data.data || [];
+        },
+        { ttl: TTL_5M, tags: [USERS_TAG], persist: true }
+      );
+      return data || [];
     } catch (error) {
       console.error('Error fetching users by status:', handleApiError(error));
       return [];
@@ -175,6 +224,7 @@ export const usersApi = {
   async create(user: Omit<UserProfile, 'id'>): Promise<string | null> {
     try {
       const { data } = await apiClient.post<ApiResponse<UserProfile>>('/api/users', user);
+      cache.clear(USERS_TAG);
       return data.data?.id || null;
     } catch (error) {
       throw new Error(handleApiError(error));
@@ -187,6 +237,7 @@ export const usersApi = {
   async delete(userId: string): Promise<void> {
     try {
       await apiClient.delete(`/api/users/${userId}`);
+      cache.clear(USERS_TAG);
     } catch (error) {
       throw new Error(handleApiError(error));
     }

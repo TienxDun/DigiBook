@@ -1,6 +1,9 @@
 import { apiClient, handleApiError } from '../client';
 import { ApiResponse } from '../types';
 import { Review } from '@/shared/types';
+import { cache } from '../../cache';
+
+const REVIEWS_TAG = 'reviews';
 
 export const reviewsApi = {
   /**
@@ -8,8 +11,15 @@ export const reviewsApi = {
    */
   async getAll(): Promise<Review[]> {
     try {
-      const { data } = await apiClient.get<ApiResponse<Review[]>>('/api/reviews');
-      return data.data || [];
+      const { data } = await cache.swr<Review[]>(
+        `${REVIEWS_TAG}:all`,
+        async () => {
+          const response = await apiClient.get<ApiResponse<Review[]>>('/api/reviews');
+          return response.data.data || [];
+        },
+        { persist: true }
+      );
+      return data || [];
     } catch (error) {
       console.error('Error fetching reviews:', handleApiError(error));
       return [];
@@ -21,8 +31,15 @@ export const reviewsApi = {
    */
   async getById(reviewId: string): Promise<Review | null> {
     try {
-      const { data } = await apiClient.get<ApiResponse<Review>>(`/api/reviews/${reviewId}`);
-      return data.data || null;
+      const { data } = await cache.swr<Review | null>(
+        `${REVIEWS_TAG}:${reviewId}`,
+        async () => {
+          const response = await apiClient.get<ApiResponse<Review>>(`/api/reviews/${reviewId}`);
+          return response.data.data || null;
+        },
+        { persist: true }
+      );
+      return data || null;
     } catch (error) {
       console.error('Error fetching review:', handleApiError(error));
       return null;
@@ -34,8 +51,15 @@ export const reviewsApi = {
    */
   async getByBookId(bookId: string): Promise<Review[]> {
     try {
-      const { data } = await apiClient.get<ApiResponse<Review[]>>(`/api/reviews/book/${bookId}`);
-      return data.data || [];
+      const { data } = await cache.swr<Review[]>(
+        `${REVIEWS_TAG}:book:${bookId}`,
+        async () => {
+          const response = await apiClient.get<ApiResponse<Review[]>>(`/api/reviews/book/${bookId}`);
+          return response.data.data || [];
+        },
+        { persist: true }
+      );
+      return data || [];
     } catch (error) {
       console.error('Error fetching reviews by book:', handleApiError(error));
       return [];
@@ -47,8 +71,15 @@ export const reviewsApi = {
    */
   async getByUserId(userId: string): Promise<Review[]> {
     try {
-      const { data } = await apiClient.get<ApiResponse<Review[]>>(`/api/reviews/user/${userId}`);
-      return data.data || [];
+      const { data } = await cache.swr<Review[]>(
+        `${REVIEWS_TAG}:user:${userId}`,
+        async () => {
+          const response = await apiClient.get<ApiResponse<Review[]>>(`/api/reviews/user/${userId}`);
+          return response.data.data || [];
+        },
+        { persist: true }
+      );
+      return data || [];
     } catch (error) {
       console.error('Error fetching reviews by user:', handleApiError(error));
       return [];
@@ -60,8 +91,15 @@ export const reviewsApi = {
    */
   async getAverageRating(bookId: string): Promise<number> {
     try {
-      const { data } = await apiClient.get<ApiResponse<{ averageRating: number }>>(`/api/reviews/book/${bookId}/average-rating`);
-      return data.data?.averageRating || 0;
+      const { data } = await cache.swr<number>(
+        `${REVIEWS_TAG}:avg:${bookId}`,
+        async () => {
+          const response = await apiClient.get<ApiResponse<{ averageRating: number }>>(`/api/reviews/book/${bookId}/average-rating`);
+          return response.data.data?.averageRating || 0;
+        },
+        { persist: true }
+      );
+      return data || 0;
     } catch (error) {
       console.error('Error fetching average rating:', handleApiError(error));
       return 0;
@@ -74,6 +112,7 @@ export const reviewsApi = {
   async create(review: Omit<Review, 'id' | 'createdAt'>): Promise<string | null> {
     try {
       const { data } = await apiClient.post<ApiResponse<Review>>('/api/reviews', review);
+      cache.clear(REVIEWS_TAG);
       return data.data?.id || null;
     } catch (error) {
       throw new Error(handleApiError(error));
@@ -86,6 +125,7 @@ export const reviewsApi = {
   async update(reviewId: string, updates: Partial<Review>): Promise<void> {
     try {
       await apiClient.put(`/api/reviews/${reviewId}`, updates);
+      cache.clear(REVIEWS_TAG);
     } catch (error) {
       throw new Error(handleApiError(error));
     }
@@ -97,6 +137,7 @@ export const reviewsApi = {
   async delete(reviewId: string): Promise<void> {
     try {
       await apiClient.delete(`/api/reviews/${reviewId}`);
+      cache.clear(REVIEWS_TAG);
     } catch (error) {
       throw new Error(handleApiError(error));
     }

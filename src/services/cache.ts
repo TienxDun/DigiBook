@@ -140,6 +140,7 @@ export const cache = {
     if (stale !== null) {
       // Revalidation in background
       stats.revalidations += 1;
+      console.log(`🚀 [API/Firestore] Revalidating data for: ${key}`);
       fetcher()
         .then((data) => {
           cache.set(key, data, options);
@@ -157,6 +158,7 @@ export const cache = {
 
     // No stale data, wait for fresh
     try {
+      console.log(`🚀 [API/Firestore] Fetching fresh data for: ${key}`);
       const data = await fetcher();
       cache.set(key, data, options);
       resolveRef!(data);

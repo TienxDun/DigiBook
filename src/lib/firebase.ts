@@ -15,7 +15,9 @@ import {
   onAuthStateChanged
 } from "firebase/auth";
 import {
-  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
   terminate,
   clearIndexedDbPersistence,
   collection,
@@ -56,16 +58,20 @@ if (hasConfig) {
   try {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
-    db_fs = getFirestore(app);
+    
+    // Khởi tạo Firestore với Cache bền vững hỗ trợ đa Tab
+    db_fs = initializeFirestore(app, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager()
+      })
+    });
+    
     isFirebaseReady = true;
     
-    // Xử lý lỗi BloomFilterError bằng cách xóa cache nếu cần
-    // clearIndexedDbPersistence(db_fs).catch(err => console.error("Could not clear persistence:", err));
-
     googleProvider.setCustomParameters({
       prompt: 'select_account'
     });
-    console.log("🔥 Firebase initialized successfully");
+    console.log("🔥 Firebase initialized successfully with Multi-Tab Persistent Cache");
   } catch (e) {
     console.error("Firebase initialization error:", e);
     isFirebaseReady = false;

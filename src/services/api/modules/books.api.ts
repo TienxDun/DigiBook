@@ -16,7 +16,7 @@ export const booksApi = {
           const res = await apiClient.get<ApiResponse<Book[]>>('/api/books');
           return res.data.data || [];
         },
-        { ttl: TTL_5M, tags: [BOOKS_TAG] }
+        { ttl: TTL_5M, tags: [BOOKS_TAG], persist: true }
       );
       return data || [];
     } catch (error) {
@@ -34,7 +34,7 @@ export const booksApi = {
           const res = await apiClient.get<ApiResponse<Book>>(`/api/books/${id}`);
           return res.data.data || null;
         },
-        { ttl: TTL_5M, tags: [BOOKS_TAG] }
+        { ttl: TTL_5M, tags: [BOOKS_TAG], persist: true }
       );
       return data || null;
     } catch (error) {
@@ -52,7 +52,7 @@ export const booksApi = {
           const res = await apiClient.get<ApiResponse<Book>>(`/api/books/isbn/${isbn}`);
           return res.data.data || null;
         },
-        { ttl: TTL_5M, tags: [BOOKS_TAG] }
+        { ttl: TTL_5M, tags: [BOOKS_TAG], persist: true }
       );
       return data || null;
     } catch (error) {
@@ -70,7 +70,7 @@ export const booksApi = {
           const res = await apiClient.get<ApiResponse<Book>>(`/api/books/slug/${slug}`);
           return res.data.data || null;
         },
-        { ttl: TTL_5M, tags: [BOOKS_TAG] }
+        { ttl: TTL_5M, tags: [BOOKS_TAG], persist: true }
       );
       return data || null;
     } catch (error) {
@@ -141,7 +141,7 @@ export const booksApi = {
           const res = await apiClient.get<ApiResponse<Book[]>>(`/api/books/category/${category}`);
           return res.data.data || [];
         },
-        { ttl: TTL_5M, tags: [BOOKS_TAG] }
+        { ttl: TTL_5M, tags: [BOOKS_TAG], persist: true }
       );
       return data || [];
     } catch (error) {
@@ -178,7 +178,7 @@ export const booksApi = {
           });
           return res.data.data || [];
         },
-        { ttl: TTL_5M, tags: [BOOKS_TAG] }
+        { ttl: TTL_5M, tags: [BOOKS_TAG], persist: true }
       );
       return data || [];
     } catch (error) {
@@ -215,7 +215,7 @@ export const booksApi = {
           });
           return res.data.data || [];
         },
-        { ttl: TTL_5M, tags: [BOOKS_TAG] }
+        { ttl: TTL_5M, tags: [BOOKS_TAG], persist: true }
       );
       return data || [];
     } catch (error) {
@@ -237,7 +237,7 @@ export const booksApi = {
           });
           return res.data.data || [];
         },
-        { ttl: TTL_5M, tags: [BOOKS_TAG] }
+        { ttl: TTL_5M, tags: [BOOKS_TAG], persist: true }
       );
       return data || [];
     } catch (error) {

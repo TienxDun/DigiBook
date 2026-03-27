@@ -1,5 +1,9 @@
-import { apiClient } from '../client';
+import { apiClient, handleApiError } from '../client';
 import { ApiResponse } from '../types';
+import { cache } from '../../cache';
+
+const TTL_5M = 5 * 60 * 1000;
+const ORDERS_TAG = 'orders';
 
 export interface OrderItem {
   bookId: string;
@@ -48,10 +52,17 @@ export const ordersApi = {
    */
   async getAll(): Promise<Order[] | null> {
     try {
-      const response = await apiClient.get<ApiResponse<Order[]>>('/api/orders');
-      return response.data.data || null;
+      const { data } = await cache.swr<Order[] | null>(
+        'orders:all',
+        async () => {
+          const response = await apiClient.get<ApiResponse<Order[]>>('/api/orders');
+          return response.data.data || null;
+        },
+        { ttl: TTL_5M, tags: [ORDERS_TAG], persist: true }
+      );
+      return data;
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error('Error fetching orders:', handleApiError(error));
       return null;
     }
   },
@@ -61,10 +72,17 @@ export const ordersApi = {
    */
   async getById(orderId: string): Promise<Order | null> {
     try {
-      const response = await apiClient.get<ApiResponse<Order>>(`/api/orders/${orderId}`);
-      return response.data.data || null;
+      const { data } = await cache.swr<Order | null>(
+        `orders:id:${orderId}`,
+        async () => {
+          const response = await apiClient.get<ApiResponse<Order>>(`/api/orders/${orderId}`);
+          return response.data.data || null;
+        },
+        { ttl: TTL_5M, tags: [ORDERS_TAG], persist: true }
+      );
+      return data;
     } catch (error) {
-      console.error('Error fetching order:', error);
+      console.error('Error fetching order:', handleApiError(error));
       return null;
     }
   },
@@ -74,10 +92,17 @@ export const ordersApi = {
    */
   async getByUserId(userId: string): Promise<Order[] | null> {
     try {
-      const response = await apiClient.get<ApiResponse<Order[]>>(`/api/orders/user/${userId}`);
-      return response.data.data || null;
+      const { data } = await cache.swr<Order[] | null>(
+        `orders:user:${userId}`,
+        async () => {
+          const response = await apiClient.get<ApiResponse<Order[]>>(`/api/orders/user/${userId}`);
+          return response.data.data || null;
+        },
+        { ttl: TTL_5M, tags: [ORDERS_TAG], persist: true }
+      );
+      return data;
     } catch (error) {
-      console.error('Error fetching user orders:', error);
+      console.error('Error fetching user orders:', handleApiError(error));
       return null;
     }
   },
@@ -91,10 +116,11 @@ export const ordersApi = {
         ...orderData,
         items
       });
+      cache.clear(ORDERS_TAG);
       return response.data.data || null;
     } catch (error) {
-      console.error('Error creating order:', error);
-      throw error; // Re-throw for error handling in checkout
+      console.error('Error creating order:', handleApiError(error));
+      throw error;
     }
   },
 
@@ -104,9 +130,10 @@ export const ordersApi = {
   async update(orderId: string, orderData: Partial<Order>): Promise<Order | null> {
     try {
       const response = await apiClient.put<ApiResponse<Order>>(`/api/orders/${orderId}`, orderData);
+      cache.clear(ORDERS_TAG);
       return response.data.data || null;
     } catch (error) {
-      console.error('Error updating order:', error);
+      console.error('Error updating order:', handleApiError(error));
       return null;
     }
   },
@@ -120,9 +147,10 @@ export const ordersApi = {
         status,
         statusStep
       });
+      cache.clear(ORDERS_TAG);
       return response.data.success;
     } catch (error) {
-      console.error('Error updating order status:', error);
+      console.error('Error updating order status:', handleApiError(error));
       return false;
     }
   },
@@ -135,68 +163,82 @@ export const ordersApi = {
       const response = await apiClient.delete<ApiResponse<any>>(`/api/orders/${orderId}`, {
         data: { reason }
       });
+      cache.clear(ORDERS_TAG);
       return response.data.success;
     } catch (error) {
-      console.error('Error cancelling order:', error);
+      console.error('Error cancelling order:', handleApiError(error));
       return false;
     }
   },
 
-  // ===== Phase 2: Admin Order Management Methods =====
-
   /**
-   * Get orders by status (admin filtering)
+   * Get by status
    */
   async getByStatus(status: string): Promise<Order[]> {
     try {
-      const response = await apiClient.get<ApiResponse<Order[]>>(`/api/orders/status/${status}`);
-      return response.data.data || [];
+      const { data } = await cache.swr<Order[]>(
+        `orders:status:${status}`,
+        async () => {
+          const response = await apiClient.get<ApiResponse<Order[]>>(`/api/orders/status/${status}`);
+          return response.data.data || [];
+        },
+        { ttl: TTL_5M, tags: [ORDERS_TAG], persist: true }
+      );
+      return data || [];
     } catch (error) {
-      console.error('Error fetching orders by status:', error);
+      console.error('Error fetching orders by status:', handleApiError(error));
       return [];
     }
   },
 
   /**
-   * Get recent orders (admin dashboard)
+   * Get recent
    */
   async getRecent(count: number = 10): Promise<Order[]> {
     try {
-      const response = await apiClient.get<ApiResponse<Order[]>>('/api/orders/recent', {
-        params: { count }
-      });
-      return response.data.data || [];
+      const { data } = await cache.swr<Order[]>(
+        `orders:recent:${count}`,
+        async () => {
+          const response = await apiClient.get<ApiResponse<Order[]>>('/api/orders/recent', {
+            params: { count }
+          });
+          return response.data.data || [];
+        },
+        { ttl: TTL_5M, tags: [ORDERS_TAG], persist: true }
+      );
+      return data || [];
     } catch (error) {
-      console.error('Error fetching recent orders:', error);
+      console.error('Error fetching recent orders:', handleApiError(error));
       return [];
     }
   },
 
-  /**
-   * Cancel order with reason using POST endpoint
-   * Note: This uses the separate cancel endpoint, different from delete()
-   */
   async cancelWithReason(orderId: string, reason: string): Promise<boolean> {
     try {
       const response = await apiClient.post<ApiResponse<any>>(`/api/orders/${orderId}/cancel`, {
         reason
       });
+      cache.clear(ORDERS_TAG);
       return response.data.success;
     } catch (error) {
-      console.error('Error cancelling order with reason:', error);
+      console.error('Error cancelling order with reason:', handleApiError(error));
       return false;
     }
   },
 
-  /**
-   * Check if user purchased a book
-   */
   async hasPurchasedBook(userId: string, bookId: string): Promise<boolean> {
     try {
-      const response = await apiClient.get<ApiResponse<{ purchased: boolean }>>(`/api/orders/user/${userId}/purchased/${bookId}`);
-      return response.data.data?.purchased || false;
+      const { data } = await cache.swr<boolean>(
+        `orders:user:${userId}:purchased:${bookId}`,
+        async () => {
+          const response = await apiClient.get<ApiResponse<{ purchased: boolean }>>(`/api/orders/user/${userId}/purchased/${bookId}`);
+          return response.data.data?.purchased || false;
+        },
+        { ttl: TTL_5M, tags: [ORDERS_TAG], persist: true }
+      );
+      return data || false;
     } catch (error) {
-      console.error('Error checking purchase status:', error);
+      console.error('Error checking purchase status:', handleApiError(error));
       return false;
     }
   }
