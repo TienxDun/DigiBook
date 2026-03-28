@@ -607,6 +607,26 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
           </button>
 
           <button
+            onClick={async () => {
+              if (window.confirm('Bạn có muốn xóa toàn bộ sách bị lặp (cùng ISBN) không?')) {
+                toast.loading('Đang xử lý dữ liệu lặp...');
+                try {
+                  const res = await db.deduplicateBooks();
+                  toast.success(`Đã xóa ${res.deletedCount} cuốn sách bị lặp`);
+                  await refreshData();
+                } catch (e) {
+                  toast.error('Lỗi khi xử lý dữ liệu');
+                }
+              }
+            }}
+            className={`h-12 px-6 rounded-2xl font-bold transition-all shadow-sm border flex items-center gap-2 group ${isMidnight ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+              }`}
+          >
+            <i className="fa-solid fa-broom text-xs"></i>
+            <span className="text-xs uppercase tracking-wider">Xử lý lặp</span>
+          </button>
+
+          <button
             onClick={handleOpenAddBook}
             className="h-12 px-6 bg-primary text-primary-foreground rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center gap-3 group active:scale-95"
           >

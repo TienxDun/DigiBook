@@ -42,6 +42,7 @@ class DataService {
   saveBook = booksService.saveBook;
   deleteBook = booksService.deleteBook;
   incrementBookView = booksService.incrementBookView;
+  deduplicateBooks = booksService.deduplicateBooksByIsbn;
   
   // Legacy Firebase-only methods (complex operations)
   getBooksByIds = books.getBooksByIds;

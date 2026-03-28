@@ -239,15 +239,16 @@ export async function saveBook(book: Book): Promise<void> {
     cleanBook.viewCount = 0;
   }
 
+  // Ensure ID is ISBN if available to prevent manually adding duplicates
+  const finalId = cleanBook.isbn || book.id;
+
   await wrap(
     (async () => {
-
-
       // 2. Save Book
-      await setDoc(doc(db_fs, 'books', book.id), { ...cleanBook, updatedAt: serverTimestamp() }, { merge: true });
+      await setDoc(doc(db_fs, 'books', finalId), { ...cleanBook, id: finalId, updatedAt: serverTimestamp() }, { merge: true });
     })(),
     undefined,
-    'SAVE_BOOK_WITH_ID_SYNC',
+    'SAVE_BOOK_WITH_ISBN_SYNC',
     book.title
   );
 }
@@ -364,7 +365,8 @@ export async function searchBooksFromTiki(queryStr: string, page: number = 1): P
 
       const price = item.price;
       const originalPrice = item.original_price && item.original_price > price ? item.original_price : Math.round(price * 1.2);
-      const bookId = `TK-${item.id}`;
+      const isbn = item.sku || `TK-${item.id}`;
+      const bookId = isbn; // Using ISBN as primary document ID to avoid duplicates across sellers
       const isAvailable = item.badget_price ? true : (item.inventory_status === 'available' || (item.stock_item && item.stock_item.qty > 0));
 
       return {
@@ -377,7 +379,7 @@ export async function searchBooksFromTiki(queryStr: string, page: number = 1): P
         originalPrice: originalPrice,
         stockQuantity: (item.stock_item && item.stock_item.qty > 0) ? item.stock_item.qty : 100,
         description: item.short_description || 'Mô tả đang cập nhật...',
-        isbn: item.sku || `TK-${item.id}`,
+        isbn: isbn,
         cover: coverUrl,
         rating: item.rating_average || 5,
         pages: 0,
@@ -396,8 +398,17 @@ export async function searchBooksFromTiki(queryStr: string, page: number = 1): P
     });
 
     // Filter out duplicates (optional, done at display level usually)
-    const validBooks = books.filter(b => !existingIsbns.has(b.isbn));
-    return validBooks;
+    const validBooks = books.filter(b => b.isbn && !existingIsbns.has(b.isbn));
+    
+    // Internal deduplication (if multiple sellers for same ISBN in results)
+    const uniqueMap = new Map<string, Book>();
+    validBooks.forEach(b => {
+      if (b.isbn && !uniqueMap.has(b.isbn)) {
+        uniqueMap.set(b.isbn, b);
+      }
+    });
+
+    return Array.from(uniqueMap.values());
   } catch (error) {
     console.error("Error searching Tiki books:", error);
     return [];
@@ -527,6 +538,49 @@ export async function getRawTikiData(tikiId: string | number): Promise<any | nul
 
 
 
+
+
+/**
+ * Deduplicate books in the database by ISBN
+ * This will keep ONLY one document per ISBN.
+ */
+export async function deduplicateBooksByIsbn(): Promise<{ deletedCount: number }> {
+    return wrap(
+        (async () => {
+            if (!db_fs) return { deletedCount: 0 };
+            const snap = await getDocs(collection(db_fs, 'books'));
+            
+            const books = snap.docs.map(d => ({ ...d.data(), id: d.id } as Book));
+            const isbnMap = new Map<string, string>(); // isbn -> first_seen_id
+            const idsToDelete: string[] = [];
+
+            for (const book of books) {
+                if (!book.isbn) continue;
+                
+                if (isbnMap.has(book.isbn)) {
+                    idsToDelete.push(book.id);
+                } else {
+                    isbnMap.set(book.isbn, book.id);
+                }
+            }
+
+            if (idsToDelete.length > 0) {
+                // Delete in chunks
+                const chunkSize = 10;
+                for (let i = 0; i < idsToDelete.length; i += chunkSize) {
+                    const chunk = idsToDelete.slice(i, i + chunkSize);
+                    const batch = writeBatch(db_fs);
+                    chunk.forEach(id => batch.delete(doc(db_fs, 'books', id)));
+                    await batch.commit();
+                }
+            }
+
+            return { deletedCount: idsToDelete.length };
+        })(),
+        { deletedCount: 0 },
+        'DEDUPLICATE_BOOKS_BY_ISBN'
+    );
+}
 
 // Bổ sung các function khác cần thiết để giữ trọn vẹn logic trong db.ts
 // Ví dụ saveBooksBatch cần truy cập getAuthors (sẽ được import từ metadata.ts sau này)

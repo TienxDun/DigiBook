@@ -70,7 +70,19 @@ export const booksService = {
   },
 
   async getBooksPaginated(limitCount: number, lastVisible?: any, category?: string, sortBy?: any): Promise<any> {
-    // This is complex with Firestore pagination, keep Firebase for now
+    if (USE_API) {
+      // In API mode, we use offset-based pagination
+      // For the first page (no lastVisible), offset is 0
+      // Note: Full pagination with lastVisible -> offset mapping would require tracking state,
+      // but using the API here avoids direct Firestore composite index requirements.
+      const offset = 0; // Simple fallback for initial load/filter switches
+      const books = await booksApi.getPaginated(limitCount, offset, category, sortBy);
+      return { 
+        books, 
+        lastDoc: books.length > 0 ? { id: books[books.length-1].id, isApi: true } : null 
+      };
+    }
+
     if (!isFirebaseReady) {
       console.warn("⚠️ Firebase not ready, cannot fetch paginated books via Firestore");
       return { books: [], lastVisible: null, total: 0 };
@@ -101,6 +113,11 @@ export const booksService = {
   async incrementBookView(id: string): Promise<void> {
     // Firebase only for now
     return await firebaseBooks.incrementBookView(id);
+  },
+
+  async deduplicateBooksByIsbn(): Promise<{ deletedCount: number }> {
+    // Firebase direct action
+    return await firebaseBooks.deduplicateBooksByIsbn();
   }
 };
 

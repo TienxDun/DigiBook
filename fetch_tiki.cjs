@@ -20,7 +20,9 @@ async function fetchBooks() {
                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
                     }
                 });
-                results[q] = await detailRes.json();
+                const detailData = await detailRes.json();
+                const isbn = detailData.sku || `TK-${detailData.id}`;
+                results[isbn] = { ...detailData, category: q }; // Key by ISBN to prevent duplicates across categories
             }
         } catch (error) {
             console.error(`Error fetching ${q}:`, error);
