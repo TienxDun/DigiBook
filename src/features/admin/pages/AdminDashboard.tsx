@@ -3,16 +3,15 @@ import { Link } from "react-router-dom";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, PieChart, Pie, Legend } from 'recharts';
 import { db } from "@/services/db";
 import { Book, CategoryInfo, Author, Coupon, UserProfile, Order, SystemLog } from "@/shared/types/";
-import AdminBooks from "../components/AdminBooks";
-import AdminOrders from "../components/AdminOrders";
-import AdminAuthors from "../components/AdminAuthors";
-import AdminCategories from "../components/AdminCategories";
-import AdminCoupons from "../components/AdminCoupons";
-import AdminUsers from "../components/AdminUsers";
-
-import AdminLogs from "../components/AdminLogs";
-import AdminAnalytics from "../components/AdminAnalytics";
-import AdminTikiInspector from "../components/AdminTikiInspector";
+const AdminBooks = React.lazy(() => import("../components/AdminBooks"));
+const AdminOrders = React.lazy(() => import("../components/AdminOrders"));
+const AdminAuthors = React.lazy(() => import("../components/AdminAuthors"));
+const AdminCategories = React.lazy(() => import("../components/AdminCategories"));
+const AdminCoupons = React.lazy(() => import("../components/AdminCoupons"));
+const AdminUsers = React.lazy(() => import("../components/AdminUsers"));
+const AdminLogs = React.lazy(() => import("../components/AdminLogs"));
+const AdminAnalytics = React.lazy(() => import("../components/AdminAnalytics"));
+const AdminTikiInspector = React.lazy(() => import("../components/AdminTikiInspector"));
 import { ServiceModeSwitcher } from "@/shared/components";
 
 const formatPrice = (price: number) => {
@@ -66,31 +65,50 @@ const AdminDashboard: React.FC = () => {
 
   const refreshData = async () => {
     try {
-      const allOrders = await db.getOrdersByUserId('admin');
-      setOrders(allOrders || []);
+      const fetchPromises: Promise<any>[] = [];
 
-      const [booksData, catsData, authorsData, couponsData, usersData] = await Promise.all([
-        db.getBooks(),
-        db.getCategories(),
-        db.getAuthors(),
-        db.getCoupons(),
-        db.getAllUsers()
-      ]);
-      setBooks(booksData);
-      setCategories(catsData);
-      setAuthors(authorsData);
-      setCoupons(couponsData);
-      setUsers(usersData);
-
-      // Lấy 5 logs mới nhất cho Overview
-      const latestLogs = await db.getSystemLogs(0, 5);
-      setLogs(latestLogs);
-
-      if (activeTab === "logs") {
-        const fullLogs = await db.getSystemLogs(0, 50);
-        setLogs(fullLogs);
-        setHasMoreLogs(fullLogs.length === 50);
+      // 1. Dữ liệu cho Overview, Analytics, và Orders
+      if (['overview', 'analytics', 'orders'].includes(activeTab)) {
+        fetchPromises.push(
+          db.getOrdersByUserId('admin').then(res => setOrders(res || []))
+        );
       }
+
+      // 2. Dữ liệu cho Books (cần Categories và Authors cho dropdown)
+      if (['overview', 'analytics', 'books'].includes(activeTab)) {
+        fetchPromises.push(db.getBooks().then(setBooks));
+      }
+      
+      if (['overview', 'books', 'categories'].includes(activeTab)) {
+        fetchPromises.push(db.getCategories().then(setCategories));
+      }
+      
+      if (['overview', 'books', 'authors'].includes(activeTab)) {
+        fetchPromises.push(db.getAuthors().then(setAuthors));
+      }
+
+      // 3. Coupons & Users
+      if (['overview', 'coupons'].includes(activeTab)) {
+        fetchPromises.push(db.getCoupons().then(setCoupons));
+      }
+
+      if (activeTab === 'users') {
+        fetchPromises.push(db.getAllUsers().then(setUsers));
+      }
+
+      // 4. Logs
+      if (activeTab === 'overview') {
+        fetchPromises.push(db.getSystemLogs(0, 5).then(setLogs));
+      } else if (activeTab === 'logs') {
+        fetchPromises.push(
+          db.getSystemLogs(0, 50).then(fullLogs => {
+            setLogs(fullLogs);
+            setHasMoreLogs(fullLogs.length === 50);
+          })
+        );
+      }
+
+      await Promise.all(fetchPromises);
     } catch (err) {
       console.error("Data refresh failed:", err);
     }
@@ -713,26 +731,33 @@ const AdminDashboard: React.FC = () => {
             </div>
           )}
 
-          {activeTab === "books" && (
-            <AdminBooks theme={adminTheme} books={books} authors={authors} categories={categories} refreshData={refreshData} />
-          )}
-          {activeTab === "authors" && <AdminAuthors theme={adminTheme} authors={authors} refreshData={refreshData} />}
-          {activeTab === "categories" && <AdminCategories theme={adminTheme} categories={categories} refreshData={refreshData} />}
-          {activeTab === "coupons" && <AdminCoupons theme={adminTheme} coupons={coupons} refreshData={refreshData} />}
-          {activeTab === "orders" && <AdminOrders theme={adminTheme} orders={orders} refreshData={refreshData} />}
-          {activeTab === "users" && <AdminUsers theme={adminTheme} users={users} refreshData={refreshData} />}
+          <React.Suspense fallback={
+            <div className="flex flex-col items-center justify-center p-20 opacity-50">
+              <i className="fa-solid fa-spinner fa-spin text-3xl text-primary mb-4"></i>
+              <p className="text-sm font-black uppercase tracking-widest text-muted-foreground">Đang tải phân hệ...</p>
+            </div>
+          }>
+            {activeTab === "books" && (
+              <AdminBooks theme={adminTheme} books={books} authors={authors} categories={categories} refreshData={refreshData} />
+            )}
+            {activeTab === "authors" && <AdminAuthors theme={adminTheme} authors={authors} refreshData={refreshData} />}
+            {activeTab === "categories" && <AdminCategories theme={adminTheme} categories={categories} refreshData={refreshData} />}
+            {activeTab === "coupons" && <AdminCoupons theme={adminTheme} coupons={coupons} refreshData={refreshData} />}
+            {activeTab === "orders" && <AdminOrders theme={adminTheme} orders={orders} refreshData={refreshData} />}
+            {activeTab === "users" && <AdminUsers theme={adminTheme} users={users} refreshData={refreshData} />}
 
-          {activeTab === "logs" && (
-            <AdminLogs
-              theme={adminTheme}
-              logs={logs}
-              hasMoreLogs={hasMoreLogs}
-              onLoadMore={onLoadMoreLogs}
-              isLoadingMoreLogs={isLoadingMoreLogs}
-            />
-          )}
-          {activeTab === "analytics" && <AdminAnalytics />}
-          {activeTab === "inspector" && <AdminTikiInspector theme={adminTheme} />}
+            {activeTab === "logs" && (
+              <AdminLogs
+                theme={adminTheme}
+                logs={logs}
+                hasMoreLogs={hasMoreLogs}
+                onLoadMore={onLoadMoreLogs}
+                isLoadingMoreLogs={isLoadingMoreLogs}
+              />
+            )}
+            {activeTab === "analytics" && <AdminAnalytics />}
+            {activeTab === "inspector" && <AdminTikiInspector theme={adminTheme} />}
+          </React.Suspense>
         </div>
       </main>
     </div>
