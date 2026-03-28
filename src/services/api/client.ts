@@ -5,8 +5,7 @@ import { ApiError } from './types';
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api-digibook-j3sv.onrender.com';
 const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 30000;
 
-// Always log the API Base URL at startup for verification
-console.log('🔌 API Base URL:', API_BASE_URL);
+// Log is now handled in adapter.ts for better context during service initialization
 
 
 // Cache for log deduplication (throttling)
