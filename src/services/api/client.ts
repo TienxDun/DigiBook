@@ -2,12 +2,11 @@ import axios, { AxiosInstance, AxiosError } from 'axios';
 import { ApiError } from './types';
 
 // Get config from env
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api-digibook-j3sv.onrender.com';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api-digibook-j3sv.onrender.com';
 const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 30000;
 
-if (import.meta.env.DEV) {
-  console.log('🔌 API Base URL:', API_BASE_URL);
-}
+// Always log the API Base URL at startup for verification
+console.log('🔌 API Base URL:', API_BASE_URL);
 
 
 // Cache for log deduplication (throttling)

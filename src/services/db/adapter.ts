@@ -22,6 +22,7 @@ import {
   authorsApi,
   logsApi
 } from '../api';
+import { API_BASE_URL } from '../api/client';
 
 // Feature flag with persistence
 export const USE_API = (() => {
@@ -36,6 +37,9 @@ export const toggleServiceMode = () => {
 };
 
 console.log(`📡 Service Mode: ${USE_API ? '🔥 API Backend' : '📱 Firebase Direct'}`);
+if (USE_API) {
+  console.log('🔌 API Base URL:', API_BASE_URL);
+}
 
 // Books Service Adapter
 export const booksService = {
