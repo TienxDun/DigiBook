@@ -242,7 +242,10 @@ export const ordersService = {
 
   async updateOrderStatus(orderId: string, status: string, statusStep: number): Promise<void> {
     if (USE_API) {
-      await ordersApi.updateStatus(orderId, status, statusStep);
+      const success = await ordersApi.updateStatus(orderId, status, statusStep);
+      if (!success) {
+        throw new Error("Không thể cập nhật trạng thái đơn hàng. Vui lòng kiểm tra lại.");
+      }
     } else {
       await firebaseOrders.updateOrderStatus(orderId, status, statusStep);
     }

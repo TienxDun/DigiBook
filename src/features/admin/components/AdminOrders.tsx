@@ -130,6 +130,8 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  const [optimisticStatus, setOptimisticStatus] = useState<Record<string, { status: string, step: number }>>({});
+
   const filteredOrders = useMemo(() => {
     return [...orders].filter(order =>
       order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -154,6 +156,19 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
   const paginatedOrders = filteredOrders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
+  const displayOrders = useMemo(() => {
+    return paginatedOrders.map(order => {
+      if (order.id && optimisticStatus[order.id]) {
+        return {
+          ...order,
+          status: optimisticStatus[order.id].status,
+          statusStep: optimisticStatus[order.id].step
+        };
+      }
+      return order;
+    });
+  }, [paginatedOrders, optimisticStatus]);
+
   const handleViewOrderDetails = async (order: Order) => {
     try {
       const orderWithItems = await db.getOrderWithItems(order.id!);
@@ -176,11 +191,22 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
     setUpdatingOrderStatus(true);
     try {
       await db.updateOrderStatus(orderId, newStatusLabel, newStatusStep);
+      
+      // Update local optimistic state to show changes immediately without waiting for API
+      setOptimisticStatus(prev => ({
+        ...prev,
+        [orderId]: { status: newStatusLabel, step: newStatusStep }
+      }));
+
       if (selectedOrder && selectedOrder.id === orderId) {
         setSelectedOrder({ ...selectedOrder, status: newStatusLabel, statusStep: newStatusStep });
       }
       toast.success('Cập nhật trạng thái thành công!');
-      refreshData();
+      
+      // Delay API fetch so backend indexes can catch up
+      setTimeout(() => {
+        refreshData();
+      }, 500);
     } catch (error) {
       ErrorHandler.handle(error, 'cập nhật trạng thái đơn hàng');
     } finally {
@@ -275,7 +301,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                 </tr>
               </thead>
               <tbody className={`divide-y ${isMidnight ? 'divide-white/5' : 'divide-border'}`}>
-                {paginatedOrders.length > 0 ? paginatedOrders.map((order, index) => {
+                {displayOrders.length > 0 ? displayOrders.map((order, index) => {
                   const rowKey = order.id || `${order.createdAt?.seconds || order.date || 'order'}-${index}`;
                   const shortOrderId = (order.id || 'N/A').slice(-8).toUpperCase();
 
