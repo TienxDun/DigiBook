@@ -2,8 +2,13 @@ import axios, { AxiosInstance, AxiosError } from 'axios';
 import { ApiError } from './types';
 
 // Get config from env
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5197';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api-digibook-j3sv.onrender.com';
 const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 30000;
+
+if (import.meta.env.DEV) {
+  console.log('🔌 API Base URL:', API_BASE_URL);
+}
+
 
 // Cache for log deduplication (throttling)
 const lastRequestLogs = new Map<string, number>();
