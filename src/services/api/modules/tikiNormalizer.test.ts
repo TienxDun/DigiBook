@@ -44,7 +44,7 @@ describe('tikiNormalizer', () => {
       internalCategories: ['Kinh tế', 'Văn học', 'Thiếu nhi'],
     });
 
-    expect(book.id).toBe('1378623173921');
+    expect(book.id).toBe('book-275625701');
     expect(book.isbn).toBe('1378623173921');
     expect(book.title).toBe('Sách Tinh Hoa Kinh Tế Học');
     expect(book.author).toBe('Paul Krugman, Robin Wells');
@@ -82,7 +82,7 @@ describe('tikiNormalizer', () => {
       internalCategories: ['Thiếu nhi', 'Văn học'],
     });
 
-    expect(book.id).toBe('TK-12345');
+    expect(book.id).toBe('book-12345');
     expect(book.isbn).toBe('TK-12345');
     expect(book.author).toBe('Nhiều tác giả');
     expect(book.category).toBe('Thiếu nhi');
@@ -114,11 +114,11 @@ describe('tikiNormalizer', () => {
       }
     );
 
-    expect(normalized.id).toBe('1378623173921');
+    expect(normalized.id).toBe('book-275625701');
     expect(normalized.authorId).toBe('author-1');
     expect(normalized.authorBio).toBe('Nobel');
     expect(normalized.originalPrice).toBe(100000);
-    expect(normalized.stockQuantity).toBe(0);
+    expect(normalized.stockQuantity).toBe(100);
     expect(normalized.category).toBe('Kinh tế');
     expect(normalized.cover).toBe('https://salt.tikicdn.com/ts/product/a2/03/f8/cover.jpg');
     expect(normalized.images).toEqual(['https://salt.tikicdn.com/ts/product/a2/03/f8/cover.jpg']);
