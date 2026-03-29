@@ -6,7 +6,7 @@ import { CartProvider, useCart } from '@/features/cart';
 
 import { MainLayout, AdminRoute, MainContent } from './layouts';
 import { LoginModal } from './features/auth';
-import { PageTransition, ScrollToTop, BackToTop, StickyBuyBar, ServiceModeSwitcher } from '@/shared/components';
+import { PageTransition, ScrollToTop, BackToTop, StickyBuyBar } from '@/shared/components';
 import { ToastProvider } from '@/shared/components';
 import { QuickViewModal } from './features/books';
 import { Book } from '@/shared/types/';

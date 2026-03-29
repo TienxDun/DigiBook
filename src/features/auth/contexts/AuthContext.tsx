@@ -92,8 +92,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (!profile || forceName || (firebaseUser.displayName && !profile.name)) {
-        await db.updateUserProfile({
-          id: firebaseUser.uid,
+        await db.updateUserProfile(firebaseUser.uid, {
           name: userData.name,
           email: userData.email,
           avatar: userData.avatar,

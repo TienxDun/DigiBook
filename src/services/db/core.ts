@@ -1,51 +1,7 @@
-
-import {
-  collection,
-  getDocs,
-  addDoc,
-  query,
-  limit,
-  terminate,
-  clearIndexedDbPersistence,
-  serverTimestamp
-} from "firebase/firestore";
-import { db_fs, auth, isFirebaseReady } from "../../lib/firebase";
+import { logsApi } from '../api/modules/logs.api';
 import { LogLevel, LogCategory } from '@/shared/types/';
-
-let connectionTested = false;
-
-export async function testConnection() {
-  if (connectionTested || !isFirebaseReady || !db_fs) return;
-
-  try {
-    // Test with books collection instead of system_logs (books allow public read)
-    await getDocs(query(collection(db_fs, 'books'), limit(1)));
-    connectionTested = true;
-
-    if (!(window as any).__db_connected) {
-      console.log("✅ Firestore connection successful");
-      (window as any).__db_connected = true;
-    }
-  } catch (error: any) {
-    // Don't block the app if connection test fails (user might not be logged in)
-    console.warn("⚠️ Firestore connection test failed:", error.message);
-
-    if (error.name === 'BloomFilterError' || (error.message && error.message.includes('persistence'))) {
-      console.warn("🔄 Attemping to clear Firestore persistence due to cache error...");
-      try {
-        await terminate(db_fs);
-        await clearIndexedDbPersistence(db_fs);
-        console.log("✨ Persistence cleared. Re-initializing...");
-        window.location.reload();
-      } catch (clearErr) {
-        console.error("Failed to clear persistence:", clearErr);
-      }
-    }
-
-    // Mark as tested even on failure so we don't keep retrying
-    connectionTested = true;
-  }
-}
+import { auth } from '../../lib/firebase';
+import { fetchWithProxy } from '../../shared/utils/fetchWithProxy';
 
 export async function logActivity(
   action: string,
@@ -87,9 +43,9 @@ export async function logActivity(
     status === 'ERROR' ||
     criticalCategories.includes(category);
 
-  if (isFirebaseReady && db_fs && shouldSaveToDb) {
+  if (shouldSaveToDb) {
     try {
-      await addDoc(collection(db_fs, 'system_logs'), {
+      await logsApi.create({
         action,
         detail: detail.length > 500 ? detail.substring(0, 500) + '...' : detail,
         status,
@@ -97,82 +53,12 @@ export async function logActivity(
         category,
         user: userEmail,
         metadata: metadata ? JSON.stringify(metadata) : null,
-        createdAt: serverTimestamp()
       });
     } catch (e) {
-      console.warn("Failed to save log to Firestore", e);
+      console.warn("Failed to save log via API", e);
     }
   }
 }
 
-export async function wrap<T>(
-  promise: Promise<T>,
-  fallback: T,
-  actionName?: string,
-  detail?: string,
-  category: LogCategory = 'DATABASE'
-): Promise<T> {
-  if (!isFirebaseReady) {
-    if (actionName) console.warn(`[${category}] Skipping Firestore operation "${actionName}" (Firebase not ready)`);
-    return fallback;
-  }
+export { fetchWithProxy };
 
-  if (!connectionTested) {
-    await testConnection();
-  }
-
-  try {
-    const result = await promise;
-    if (actionName) {
-      // Chỉ log console khi thực sự tốn request Firestore
-      console.log(`🔥 [Firestore Hit] ${actionName}: ${detail || 'Done'}`);
-      // Vẫn giữ logActivity để lưu vào DB nếu cần (theo logic của logActivity)
-      logActivity(actionName, detail || 'Done', 'SUCCESS', 'DEBUG', category);
-    }
-    return result;
-  } catch (e: any) {
-    if (actionName) logActivity(actionName, e.message, 'ERROR', 'ERROR', category);
-    console.error(`🔥 [Firestore Error] ${actionName}:`, e);
-    return fallback;
-  }
-}
-// --- Helper: Multi-Proxy Fetcher ---
-export async function fetchWithProxy(targetUrl: string): Promise<any> {
-  const proxies = [
-    { url: 'https://api.allorigins.win/raw?url=', encodeUrl: true },
-    { url: 'https://api.allorigins.win/get?url=', encodeUrl: true, useContents: true },
-    { url: 'https://corsproxy.io/?', encodeUrl: true },
-    { url: 'https://api.codetabs.com/v1/proxy?quest=', encodeUrl: true },
-    { url: 'https://thingproxy.freeboard.io/fetch/', encodeUrl: false },
-  ];
-
-  let lastError;
-
-  for (const proxy of proxies) {
-    try {
-      await new Promise(r => setTimeout(r, Math.random() * 300));
-      const fetchUrl = proxy.encodeUrl
-        ? proxy.url + encodeURIComponent(targetUrl)
-        : proxy.url + targetUrl;
-
-      // Chú ý: Không gửi custom headers (như User-Agent, x-tiki-client-id) 
-      // để tránh lỗi CORS preflight OPTIONS request block từ proxy
-      const response = await fetch(fetchUrl);
-      if (!response.ok) throw new Error(`Proxy error: ${response.status}`);
-
-      // allorigins /get wraps data in { contents: '...' }
-      if ((proxy as any).useContents) {
-        const wrapper = await response.json();
-        if (!wrapper.contents) throw new Error('Empty contents from allorigins');
-        return JSON.parse(wrapper.contents);
-      }
-      return await response.json();
-    } catch (error) {
-      console.warn(`Proxy ${proxy.url} failed for ${targetUrl}:`, error);
-      lastError = error;
-      continue;
-    }
-  }
-
-  throw lastError || new Error('All proxies failed');
-}

@@ -1,10 +1,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { db, Order, OrderItem } from '@/services/db';
-import { ordersService } from '@/services/db/adapter';
+import { motion } from 'framer-motion';
+import { db } from '@/services/db';
+import { Order, OrderItem } from '@/shared/types';
 import { SEO } from '@/shared/components';
+import { getOrderProgressIndex, getOrderStatusMeta, ORDER_PROGRESS_STEPS, normalizeOrderStatusStep } from '@/shared/utils/orderStatus';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -20,8 +21,8 @@ const OrderDetailPage: React.FC = () => {
     const fetchDetail = async () => {
       if (orderId) {
         setLoading(true);
-        const detail = await ordersService.getOrderById(orderId);
-        setOrderWithItems(detail || null);
+        const detail = await db.getOrderWithItems(orderId);
+        setOrderWithItems(detail as any);
         setLoading(false);
       }
     };
@@ -30,10 +31,11 @@ const OrderDetailPage: React.FC = () => {
   }, [orderId]);
 
   const steps = [
-    { label: 'Đã đặt', icon: 'fa-check', desc: 'Đơn hàng đã được tiếp nhận' },
-    { label: 'Đang xử lý', icon: 'fa-microchip', desc: 'Đang chuẩn bị gói hàng' },
-    { label: 'Đang giao', icon: 'fa-truck-fast', desc: 'Đơn hàng đang trên đường đến' },
-    { label: 'Đã nhận', icon: 'fa-circle-check', desc: 'Đã giao hàng thành công' }
+    { step: 0, label: 'Đang xử lý', icon: 'fa-spinner', desc: 'Đơn hàng đã được tiếp nhận và chờ xử lý' },
+    { step: 1, label: 'Đã xác nhận', icon: 'fa-circle-check', desc: 'Đơn hàng đã được xác nhận' },
+    { step: 5, label: 'Đang đóng gói', icon: 'fa-box-open', desc: 'Kho đang chuẩn bị và đóng gói sản phẩm' },
+    { step: 2, label: 'Đang giao', icon: 'fa-truck-fast', desc: 'Đơn hàng đang trên đường đến bạn' },
+    { step: 3, label: 'Đã giao', icon: 'fa-circle-check', desc: 'Đơn hàng đã được giao thành công' }
   ];
 
   if (loading) {
@@ -68,6 +70,24 @@ const OrderDetailPage: React.FC = () => {
       </div>
     );
   }
+
+  const normalizedStep = normalizeOrderStatusStep(orderWithItems.statusStep, orderWithItems.status);
+  const statusMeta = getOrderStatusMeta(orderWithItems.statusStep, orderWithItems.status);
+  const progressIndex = getOrderProgressIndex(orderWithItems.statusStep, orderWithItems.status);
+  const progressWidth = progressIndex >= 0 ? `${(progressIndex / (ORDER_PROGRESS_STEPS.length - 1)) * 100}%` : '0%';
+  const statusNote = normalizedStep === 4
+    ? {
+      title: 'Đơn hàng đã bị hủy',
+      description: 'Đơn hàng không tiếp tục được xử lý. Nếu cần đặt lại, bạn có thể quay lại cửa hàng và tạo đơn mới.',
+      className: 'bg-rose-50 border-rose-100 text-rose-700'
+    }
+    : normalizedStep === 6
+      ? {
+        title: 'Đơn hàng giao không thành công',
+        description: 'Đơn đã vào giai đoạn vận chuyển nhưng chưa giao thành công. Bạn có thể liên hệ hỗ trợ để được xử lý tiếp.',
+        className: 'bg-slate-100 border-slate-200 text-slate-700'
+      }
+      : null;
 
   return (
     <div className="bg-slate-50 min-h-screen pt-12 lg:pt-16 pb-32 lg:pb-16">
@@ -109,44 +129,54 @@ const OrderDetailPage: React.FC = () => {
                     <h1 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tighter uppercase whitespace-nowrap">Đơn hàng #{orderWithItems.id.slice(-8).toUpperCase()}</h1>
                   </div>
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <i className="fa-regular fa-clock text-xs"></i> Thời gian đặt: {orderWithItems.date}
+                    <i className="fa-regular fa-clock text-xs"></i> Thời gian đặt: {new Date(orderWithItems.createdAt).toLocaleString('vi-VN')}
                   </p>
                 </div>
-                <div className={`px-5 py-2 rounded-xl font-black text-xs uppercase tracking-widest border shadow-sm ${orderWithItems.statusStep === -1 ? 'bg-rose-50 text-rose-500 border-rose-100' : 'bg-indigo-50 text-indigo-600 border-indigo-100'
-                  }`}>
-                  {orderWithItems.status}
+                <div className={`px-5 py-2 rounded-xl font-black text-xs uppercase tracking-widest border shadow-sm ${statusMeta.badgeClass}`}>
+                  {statusMeta.label}
                 </div>
               </div>
 
+              {statusNote && (
+                <div className={`mb-8 rounded-2xl border px-5 py-4 ${statusNote.className}`}>
+                  <p className="text-sm font-black uppercase tracking-wide mb-1">{statusNote.title}</p>
+                  <p className="text-xs font-bold leading-relaxed opacity-80">{statusNote.description}</p>
+                </div>
+              )}
+
               {/* Progress Tracking */}
-              {orderWithItems.statusStep !== -1 && (
+              {normalizedStep !== 4 && (
                 <div className="relative mb-4">
                   <div className="flex justify-between relative z-10">
-                    {steps.map((step, idx) => (
+                    {steps.map((step, idx) => {
+                      const isCompleted = idx <= progressIndex;
+                      const isCurrent = step.step === normalizedStep;
+
+                      return (
                       <div key={idx} className="flex flex-col items-center gap-3 flex-1">
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-700 relative ${idx <= orderWithItems.statusStep ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'bg-slate-50 text-slate-200'
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-700 relative ${isCompleted ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'bg-slate-50 text-slate-200'
                           }`}>
                           <i className={`fa-solid ${step.icon} text-base`}></i>
-                          {idx <= orderWithItems.statusStep && (
+                          {isCurrent && (
                             <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full flex items-center justify-center shadow-sm">
                               <i className="fa-solid fa-check text-xs text-white"></i>
                             </div>
                           )}
                         </div>
                         <div className="text-center px-1">
-                          <p className={`text-xs font-black uppercase tracking-widest mb-0.5 ${idx <= orderWithItems.statusStep ? 'text-indigo-600' : 'text-slate-400'}`}>
+                          <p className={`text-xs font-black uppercase tracking-widest mb-0.5 ${isCompleted ? 'text-indigo-600' : 'text-slate-400'}`}>
                             {step.label}
                           </p>
                           <p className="text-xs font-bold text-slate-300 leading-tight hidden sm:block uppercase tracking-wide">{step.desc}</p>
                         </div>
                       </div>
-                    ))}
+                    )})}
                   </div>
                   {/* Progress Line */}
                   <div className="absolute top-6 left-0 w-full h-0.5 bg-slate-100 -z-0 rounded-full overflow-hidden px-12">
                     <motion.div
                       initial={{ width: 0 }}
-                      animate={{ width: `${(Math.max(0, orderWithItems.statusStep) / (steps.length - 1)) * 100}%` }}
+                      animate={{ width: progressWidth }}
                       transition={{ duration: 1, ease: "easeOut" }}
                       className="h-full bg-indigo-600"
                     />
@@ -297,7 +327,13 @@ const OrderDetailPage: React.FC = () => {
 
               <div className="bg-white/5 rounded-xl p-3 mb-8 border border-white/5 text-center">
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-0.5">Phương thức</p>
-                <p className="text-xs font-bold text-indigo-300">{orderWithItems.payment.method}</p>
+                <p className="text-xs font-bold text-indigo-300">{orderWithItems.payment.provider || orderWithItems.payment.method}</p>
+                {orderWithItems.payment.status && (
+                  <p className="text-[11px] font-bold text-slate-400 mt-1">Thanh toán: {orderWithItems.payment.status}</p>
+                )}
+                {orderWithItems.payment.transactionId && (
+                  <p className="text-[11px] font-bold text-slate-500 mt-1 break-all">Mã GD: {orderWithItems.payment.transactionId}</p>
+                )}
               </div>
 
               <button

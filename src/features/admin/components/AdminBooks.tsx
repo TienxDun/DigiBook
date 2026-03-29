@@ -372,23 +372,32 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
   const handleOpenAddBook = () => {
     setEditingBook(null);
     setActiveTab('general');
-    setBookFormData({
-      title: '',
-      authorId: authors[0]?.id || '',
-      category: categories[0]?.name || '',
-      price: 0,
+      setBookFormData({
+        title: '',
+        authorId: authors[0]?.id || '',
+        category: categories[0]?.name || '',
+        price: 0,
       originalPrice: undefined,
       stockQuantity: 10,
       description: '',
       isbn: '',
       cover: '',
-      publishYear: new Date().getFullYear(),
-      pages: 0,
-      publisher: '',
-      language: 'Tiếng Việt',
-      badge: ''
-    });
-    setIsBookModalOpen(true);
+        publishYear: new Date().getFullYear(),
+        pages: 0,
+        publisher: '',
+        language: 'Tiếng Việt',
+        badge: '',
+        isAvailable: true,
+        searchKeywords: [],
+        images: [],
+        dimensions: '',
+        translator: '',
+        bookLayout: '',
+        manufacturer: '',
+        discountRate: 0,
+        quantitySold: { text: '', value: 0 }
+      });
+      setIsBookModalOpen(true);
   };
 
   const handleEditBook = (book: Book) => {
@@ -408,7 +417,16 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
       publishYear: book.publishYear,
       language: book.language,
       cover: book.cover,
-      badge: book.badge
+      badge: book.badge,
+      isAvailable: book.isAvailable,
+      searchKeywords: book.searchKeywords || [],
+      images: book.images || [],
+      dimensions: book.dimensions || '',
+      translator: book.translator || '',
+      bookLayout: book.bookLayout || '',
+      manufacturer: book.manufacturer || '',
+      discountRate: book.discountRate || 0,
+      quantitySold: book.quantitySold || { text: '', value: 0 }
     });
     setIsBookModalOpen(true);
   };
@@ -472,11 +490,33 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     setIsFormProcessing(true);
     try {
       const selectedAuthor = authors.find(a => a.id === bookFormData.authorId);
+      const normalizedImages = Array.isArray(bookFormData.images)
+        ? bookFormData.images.filter(Boolean)
+        : String(bookFormData.images || '')
+            .split(/\r?\n|,/)
+            .map(item => item.trim())
+            .filter(Boolean);
+      const normalizedKeywords = Array.isArray(bookFormData.searchKeywords)
+        ? bookFormData.searchKeywords.filter(Boolean)
+        : String(bookFormData.searchKeywords || '')
+            .split(',')
+            .map(item => item.trim())
+            .filter(Boolean);
       const finalBook = {
         ...bookFormData,
         id: editingBook ? editingBook.id : (bookFormData.id || Date.now().toString()),
         author: selectedAuthor?.name || bookFormData.author || 'Vô danh',
-        rating: bookFormData.rating || (editingBook?.rating || 5.0)
+        authorBio: bookFormData.authorBio || selectedAuthor?.bio || editingBook?.authorBio || '',
+        rating: bookFormData.rating || (editingBook?.rating || 5.0),
+        isAvailable: bookFormData.isAvailable !== false,
+        images: normalizedImages,
+        searchKeywords: normalizedKeywords,
+        quantitySold: bookFormData.quantitySold?.text || bookFormData.quantitySold?.value
+          ? {
+            text: bookFormData.quantitySold?.text || '',
+            value: Number(bookFormData.quantitySold?.value || 0)
+          }
+          : undefined
       } as Book;
       await db.saveBook(finalBook);
       toast.success(editingBook ? 'Cập nhật sách thành công' : 'Thêm sách mới thành công');
@@ -992,6 +1032,35 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                                 <i className="fa-solid fa-chevron-down absolute right-6 top-1/2 -translate-y-1/2 text-muted-foreground text-xs pointer-events-none"></i>
                               </div>
                             </div>
+
+                            <div className="col-span-12 md:col-span-6">
+                              <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1">Mức giảm giá (%)</label>
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                value={bookFormData.discountRate || ''}
+                                onChange={(e) => setBookFormData({ ...bookFormData, discountRate: Number(e.target.value) })}
+                                className={`w-full h-14 px-6 rounded-2xl border transition-all font-black text-foreground text-sm outline-none focus:border-chart-1 focus:ring-4 focus:ring-chart-1/10 ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
+                                  }`}
+                                placeholder="0"
+                              />
+                            </div>
+
+                            <div className="col-span-12 md:col-span-6">
+                              <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1">Trạng thái kinh doanh</label>
+                              <label className={`w-full h-14 px-6 rounded-2xl border transition-all flex items-center justify-between cursor-pointer ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'}`}>
+                                <span className="text-sm font-bold text-foreground">
+                                  {bookFormData.isAvailable !== false ? 'Đang bán' : 'Ngừng kinh doanh'}
+                                </span>
+                                <input
+                                  type="checkbox"
+                                  checked={bookFormData.isAvailable !== false}
+                                  onChange={(e) => setBookFormData({ ...bookFormData, isAvailable: e.target.checked })}
+                                  className="h-5 w-5 rounded border-slate-300 text-primary focus:ring-primary"
+                                />
+                              </label>
+                            </div>
                           </div>
                         </div>
 
@@ -1054,6 +1123,18 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                             </div>
 
                             <div className="col-span-12 md:col-span-6">
+                              <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1">Nhà phát hành / Manufacturer</label>
+                              <input
+                                type="text"
+                                value={bookFormData.manufacturer || ''}
+                                onChange={(e) => setBookFormData({ ...bookFormData, manufacturer: e.target.value })}
+                                className={`w-full h-14 px-6 rounded-2xl border transition-all font-bold text-foreground text-sm outline-none focus:border-primary focus:bg-card ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
+                                  }`}
+                                placeholder="VD: Công ty phát hành sách"
+                              />
+                            </div>
+
+                            <div className="col-span-12 md:col-span-6">
                               <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1">Ngôn ngữ</label>
                               <input
                                 type="text"
@@ -1063,6 +1144,71 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                                   }`}
                                 placeholder="Tiếng Việt"
                               />
+                            </div>
+
+                            <div className="col-span-12 md:col-span-6">
+                              <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1">Loại bìa</label>
+                              <input
+                                type="text"
+                                value={bookFormData.bookLayout || ''}
+                                onChange={(e) => setBookFormData({ ...bookFormData, bookLayout: e.target.value })}
+                                className={`w-full h-14 px-6 rounded-2xl border transition-all font-bold text-foreground text-sm outline-none focus:border-primary focus:bg-card ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
+                                  }`}
+                                placeholder="VD: Bìa mềm"
+                              />
+                            </div>
+
+                            <div className="col-span-12 md:col-span-6">
+                              <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1">Kích thước</label>
+                              <input
+                                type="text"
+                                value={bookFormData.dimensions || ''}
+                                onChange={(e) => setBookFormData({ ...bookFormData, dimensions: e.target.value })}
+                                className={`w-full h-14 px-6 rounded-2xl border transition-all font-bold text-foreground text-sm outline-none focus:border-primary focus:bg-card ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
+                                  }`}
+                                placeholder="VD: 13x20.5 cm"
+                              />
+                            </div>
+
+                            <div className="col-span-12 md:col-span-6">
+                              <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1">Dịch giả</label>
+                              <input
+                                type="text"
+                                value={bookFormData.translator || ''}
+                                onChange={(e) => setBookFormData({ ...bookFormData, translator: e.target.value })}
+                                className={`w-full h-14 px-6 rounded-2xl border transition-all font-bold text-foreground text-sm outline-none focus:border-primary focus:bg-card ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
+                                  }`}
+                                placeholder="Tên dịch giả"
+                              />
+                            </div>
+
+                            <div className="col-span-12 md:col-span-6">
+                              <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1">Đã bán</label>
+                              <div className="grid grid-cols-2 gap-4">
+                                <input
+                                  type="text"
+                                  value={bookFormData.quantitySold?.text || ''}
+                                  onChange={(e) => setBookFormData({
+                                    ...bookFormData,
+                                    quantitySold: { text: e.target.value, value: bookFormData.quantitySold?.value || 0 }
+                                  })}
+                                  className={`w-full h-14 px-6 rounded-2xl border transition-all font-bold text-foreground text-sm outline-none focus:border-primary focus:bg-card ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
+                                    }`}
+                                  placeholder="VD: Đã bán 1k+"
+                                />
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={bookFormData.quantitySold?.value || ''}
+                                  onChange={(e) => setBookFormData({
+                                    ...bookFormData,
+                                    quantitySold: { text: bookFormData.quantitySold?.text || '', value: Number(e.target.value) }
+                                  })}
+                                  className={`w-full h-14 px-6 rounded-2xl border transition-all font-bold text-foreground text-sm outline-none focus:border-primary focus:bg-card ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
+                                    }`}
+                                  placeholder="1000"
+                                />
+                              </div>
                             </div>
 
                             <div className="col-span-12">
@@ -1075,6 +1221,30 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                                 className={`w-full h-14 px-6 rounded-2xl border transition-all font-bold text-foreground text-sm outline-none focus:border-primary focus:bg-card ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
                                   }`}
                                 placeholder="https://..."
+                              />
+                            </div>
+
+                            <div className="col-span-12">
+                              <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1">Ảnh thư viện</label>
+                              <textarea
+                                value={Array.isArray(bookFormData.images) ? bookFormData.images.join('\n') : ''}
+                                onChange={(e) => setBookFormData({ ...bookFormData, images: e.target.value.split(/\r?\n/).map(item => item.trim()).filter(Boolean) })}
+                                rows={3}
+                                className={`w-full px-6 py-4 rounded-3xl border transition-all font-medium text-foreground text-sm outline-none focus:border-primary focus:bg-card resize-none leading-relaxed ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
+                                  }`}
+                                placeholder="Mỗi dòng một URL ảnh"
+                              />
+                            </div>
+
+                            <div className="col-span-12">
+                              <label className="text-micro font-black uppercase tracking-premium mb-2.5 block text-muted-foreground ml-1">Từ khóa tìm kiếm</label>
+                              <input
+                                type="text"
+                                value={Array.isArray(bookFormData.searchKeywords) ? bookFormData.searchKeywords.join(', ') : ''}
+                                onChange={(e) => setBookFormData({ ...bookFormData, searchKeywords: e.target.value.split(',').map(item => item.trim()).filter(Boolean) })}
+                                className={`w-full h-14 px-6 rounded-2xl border transition-all font-bold text-foreground text-sm outline-none focus:border-primary focus:bg-card ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
+                                  }`}
+                                placeholder="fantasy, self-help, bestselling..."
                               />
                             </div>
 

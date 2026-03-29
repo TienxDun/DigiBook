@@ -1,17 +1,10 @@
 import { apiClient, handleApiError } from '../client';
 import { ApiResponse } from '../types';
+import type { Order, OrderItem } from '@/shared/types';
 import { cache } from '../../cache';
 
 const TTL_5M = 5 * 60 * 1000;
 const ORDERS_TAG = 'orders';
-
-export interface OrderItem {
-  bookId: string;
-  title: string;
-  priceAtPurchase: number;
-  quantity: number;
-  cover?: string;
-}
 
 export interface OrderCustomer {
   name: string;
@@ -23,26 +16,20 @@ export interface OrderCustomer {
 
 export interface OrderPayment {
   method: string;
+  provider?: string;
+  transactionId?: string;
+  checkoutUrl?: string;
+  status?: string;
   subtotal: number;
   shipping: number;
   couponDiscount: number;
   total: number;
 }
 
-export interface Order {
-  id?: string;
-  userId: string;
-  status: string;
-  statusStep: number;
-  customer: OrderCustomer;
-  payment: OrderPayment;
-  items?: OrderItem[];
-  createdAt?: any;
-  updatedAt?: any;
-}
+export type OrderPayload = Omit<Order, 'id'> & { id?: string };
 
 export interface CreateOrderRequest {
-  order: Order;
+  order: OrderPayload;
   items: OrderItem[];
 }
 
@@ -110,7 +97,7 @@ export const ordersApi = {
   /**
    * Create new order with Command Pattern
    */
-  async create(orderData: Order, items: OrderItem[]): Promise<Order | null> {
+  async create(orderData: OrderPayload, items: OrderItem[]): Promise<Order | null> {
     try {
       const response = await apiClient.post<ApiResponse<Order>>('/api/orders', {
         ...orderData,
@@ -127,7 +114,7 @@ export const ordersApi = {
   /**
    * Update order
    */
-  async update(orderId: string, orderData: Partial<Order>): Promise<Order | null> {
+  async update(orderId: string, orderData: Partial<OrderPayload>): Promise<Order | null> {
     try {
       const response = await apiClient.put<ApiResponse<Order>>(`/api/orders/${orderId}`, orderData);
       cache.clear(ORDERS_TAG);

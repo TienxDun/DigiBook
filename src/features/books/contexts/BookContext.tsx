@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Book, CategoryInfo } from '@/shared/types/';
 import { db } from '@/services/db';
-import { booksService } from '@/services/db/adapter';
 
 interface BookContextType {
     allBooks: Book[];
@@ -33,12 +32,12 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setError(null);
         try {
             const [booksRes, catsData] = await Promise.all([
-                booksService.getBooksPaginated(20),
+                db.getBooksPaginated(20, 0),
                 db.getCategories()
             ]);
-            setAllBooks(booksRes.books);
-            setLastVisible(booksRes.lastDoc);
-            setHasMore(booksRes.books.length === 20);
+            setAllBooks(booksRes);
+            setLastVisible(booksRes.length);
+            setHasMore(booksRes.length === 20);
             setCategories(catsData);
         } catch (e) {
             console.error("Failed to fetch data", e);
@@ -53,11 +52,13 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         setLoadingMore(true);
         try {
-            const result = await booksService.getBooksPaginated(10, lastVisible);
-            if (result.books.length > 0) {
-                setAllBooks(prev => [...prev, ...result.books]);
-                setLastVisible(result.lastDoc);
-                setHasMore(result.books.length === 10);
+            // lastVisible is now the numeric offset
+            const currentOffset = typeof lastVisible === 'number' ? lastVisible : allBooks.length;
+            const result = await db.getBooksPaginated(10, currentOffset);
+            if (result.length > 0) {
+                setAllBooks(prev => [...prev, ...result]);
+                setLastVisible(currentOffset + result.length);
+                setHasMore(result.length === 10);
             } else {
                 setHasMore(false);
             }

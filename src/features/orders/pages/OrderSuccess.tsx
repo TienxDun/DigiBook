@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 
-const ConfettiPiece = ({ delay }: { delay: number }) => {
+const ConfettiPiece: React.FC<{ delay: number }> = ({ delay }) => {
   const randomColor = ['#6366f1', '#10b981', '#f43f5e', '#f59e0b', '#0ea5e9'][Math.floor(Math.random() * 5)];
   const randomX = Math.random() * 100;
   const randomRotate = Math.random() * 360;

@@ -28,7 +28,7 @@ const AuthorPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickV
 
       try {
         const [books, info] = await Promise.all([
-          db.getBooksByAuthor(authorName, undefined, 100), // Fetch up to 100 books
+          db.getBooksByAuthor(authorName),
           db.getAuthorByName(authorName)
         ]);
 

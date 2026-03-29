@@ -91,10 +91,10 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
     setIsSubmitting(true);
     try {
       if (editingCategory) {
-        await db.saveCategory({ ...editingCategory, ...categoryFormData } as CategoryInfo);
+        await db.updateCategory(editingCategory.name, { ...editingCategory, ...categoryFormData } as CategoryInfo);
         toast.success('Cập nhật danh mục thành công');
       } else {
-        await db.saveCategory(categoryFormData as CategoryInfo);
+        await db.createCategory(categoryFormData as CategoryInfo);
         toast.success('Đã thêm danh mục mới');
       }
       setIsCategoryModalOpen(false);
@@ -115,7 +115,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
           toast.success(`Đã khởi tạo thành công ${result.count} danh mục`);
           refreshData();
         } else {
-          toast.error(`Lỗi: ${result.error}`);
+          toast.error(`Lỗi: ${result.msg}`);
         }
       } catch (err) {
         ErrorHandler.handle(err, 'khởi tạo danh mục');

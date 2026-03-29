@@ -14,26 +14,6 @@ import {
   signOut,
   onAuthStateChanged
 } from "firebase/auth";
-import {
-  initializeFirestore,
-  persistentLocalCache,
-  persistentMultipleTabManager,
-  terminate,
-  clearIndexedDbPersistence,
-  collection,
-  getDocs,
-  doc,
-  setDoc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
-  orderBy,
-  serverTimestamp,
-  increment,
-  writeBatch
-} from "firebase/firestore";
 
 // Thông tin cấu hình Firebase
 const firebaseConfig = {
@@ -47,7 +27,6 @@ const firebaseConfig = {
 
 let app: any = null;
 let auth: any = null;
-let db_fs: any = null;
 let isFirebaseReady = false;
 const googleProvider = new GoogleAuthProvider();
 
@@ -59,35 +38,25 @@ if (hasConfig) {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     
-    // Khởi tạo Firestore với Cache bền vững hỗ trợ đa Tab
-    db_fs = initializeFirestore(app, {
-      localCache: persistentLocalCache({
-        tabManager: persistentMultipleTabManager()
-      })
-    });
-    
     isFirebaseReady = true;
     
     googleProvider.setCustomParameters({
       prompt: 'select_account'
     });
-    console.log("🔥 Firebase initialized successfully with Multi-Tab Persistent Cache");
+    console.log("🔥 Firebase Auth initialized successfully");
   } catch (e) {
     console.error("Firebase initialization error:", e);
     isFirebaseReady = false;
   }
 } else {
-  console.warn("⚠️ Firebase configuration is missing. Auth and Direct Firestore features will be disabled.");
+  console.warn("⚠️ Firebase configuration is missing. Auth will be disabled.");
   isFirebaseReady = false;
 }
 
 export { 
   auth, 
   googleProvider, 
-  db_fs, 
   isFirebaseReady,
-  terminate,
-  clearIndexedDbPersistence,
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword,
   updateProfile,
@@ -97,18 +66,5 @@ export {
   sendPasswordResetEmail,
   signInWithPopup,
   signOut,
-  onAuthStateChanged,
-  collection,
-  getDocs,
-  doc,
-  setDoc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
-  orderBy,
-  serverTimestamp,
-  increment,
-  writeBatch
+  onAuthStateChanged
 };

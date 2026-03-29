@@ -4,6 +4,7 @@ export interface Author {
   name: string;
   bio: string;
   avatar: string;
+  createdAt?: any;
 }
 
 export interface Book {
@@ -27,6 +28,7 @@ export interface Book {
   badge?: string;
   isAvailable?: boolean;
   createdAt?: any;
+  updatedAt?: any;
 
   // New Fields (Phase 1 Upgrade)
   slug?: string;
@@ -80,7 +82,6 @@ export interface UserProfile {
   email: string;
   phone?: string;
   telegramChatId?: string;
-
   addresses?: Address[];
   avatar?: string;
   bio?: string;
@@ -89,6 +90,8 @@ export interface UserProfile {
   role?: 'user' | 'admin';
   status?: 'active' | 'banned';
   membershipTier?: 'regular' | 'member' | 'wholesale' | 'vip';
+  membershipExpiry?: string;
+  totalSpent?: number;
   wishlistIds?: string[];
   createdAt?: any;
   updatedAt?: any;
@@ -143,12 +146,17 @@ export interface Order {
   };
   payment: {
     method: string;
+    provider?: string;
+    transactionId?: string;
+    checkoutUrl?: string;
+    status?: string;
     subtotal: number;
     shipping: number;
     couponDiscount: number;
     total: number;
   };
   createdAt?: any;
+  updatedAt?: any;
   items?: OrderItem[];
 }
 
@@ -162,4 +170,5 @@ export interface Coupon {
   usageLimit: number;
   usedCount: number;
   isActive: boolean;
+  updatedAt?: any;
 }

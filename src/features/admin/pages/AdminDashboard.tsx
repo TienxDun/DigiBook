@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, PieChart, Pie, Legend } from 'recharts';
 import { db } from "@/services/db";
 import { Book, CategoryInfo, Author, Coupon, UserProfile, Order, SystemLog } from "@/shared/types/";
+import { getOrderStatusMeta, isOrderActiveStep, normalizeOrderStatusStep } from "@/shared/utils/orderStatus";
+import { adminApi } from "@/services/api";
+import toast from "@/shared/utils/toast";
+
 const AdminBooks = React.lazy(() => import("../components/AdminBooks"));
 const AdminOrders = React.lazy(() => import("../components/AdminOrders"));
 const AdminAuthors = React.lazy(() => import("../components/AdminAuthors"));
@@ -12,7 +16,7 @@ const AdminUsers = React.lazy(() => import("../components/AdminUsers"));
 const AdminLogs = React.lazy(() => import("../components/AdminLogs"));
 const AdminAnalytics = React.lazy(() => import("../components/AdminAnalytics"));
 const AdminTikiInspector = React.lazy(() => import("../components/AdminTikiInspector"));
-import { ServiceModeSwitcher } from "@/shared/components";
+
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
@@ -32,6 +36,7 @@ const AdminDashboard: React.FC = () => {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [logs, setLogs] = useState<SystemLog[]>([]);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const [chartView, setChartView] = useState<"week" | "month">("week");
 
@@ -70,7 +75,7 @@ const AdminDashboard: React.FC = () => {
       // 1. Dữ liệu cho Overview, Analytics, và Orders
       if (['overview', 'analytics', 'orders'].includes(activeTab)) {
         fetchPromises.push(
-          db.getOrdersByUserId('admin').then(res => setOrders(res || []))
+          db.getAllOrders().then(res => setOrders(res || []))
         );
       }
 
@@ -111,6 +116,27 @@ const AdminDashboard: React.FC = () => {
       await Promise.all(fetchPromises);
     } catch (err) {
       console.error("Data refresh failed:", err);
+    }
+  };
+
+  const handleSyncRanking = async () => {
+    if (isSyncing) return;
+    if (!window.confirm("Hệ thống sẽ tính toán lại totalSpent cho toàn bộ người dùng dựa trên lịch sử đơn hàng. Quá trình này có thể mất vài phút. Bạn có muốn tiếp tục?")) return;
+
+    setIsSyncing(true);
+    try {
+      const result = await adminApi.syncAllUsersMembership();
+      if (result.success) {
+        toast.success(`Đã đồng bộ thành công cho ${result.updatedCount} người dùng!`);
+        refreshData();
+      } else {
+        toast.error(result.message || "Có lỗi xảy ra khi đồng bộ.");
+      }
+    } catch (error: any) {
+      console.error("Sync error:", error);
+      toast.error(error.response?.data?.message || "Lỗi kết nối máy chủ khi đồng bộ.");
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -195,8 +221,8 @@ const AdminDashboard: React.FC = () => {
     const totalRevenue = orders.reduce((sum, o) => sum + (o.payment?.total || 0), 0);
     const lowStock = books.filter(b => b.stockQuantity > 0 && b.stockQuantity < 10).length;
     const outOfStock = books.filter(b => b.stockQuantity === 0).length;
-    const pendingOrders = orders.filter(o => o.statusStep < 3).length;
-    const completedOrders = orders.filter(o => o.statusStep === 3).length;
+    const pendingOrders = orders.filter(o => isOrderActiveStep(o.statusStep, o.status)).length;
+    const completedOrders = orders.filter(o => normalizeOrderStatusStep(o.statusStep, o.status) === 3).length;
     const totalBooks = books.reduce((sum, b) => sum + b.stockQuantity, 0);
     const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
     const todayOrdersCount = orders.filter(o => {
@@ -404,8 +430,6 @@ const AdminDashboard: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3 lg:gap-6">
-            {/* Service Mode Switcher */}
-            <ServiceModeSwitcher />
 
             {/* Theme Toggle Button */}
             <button
@@ -437,7 +461,7 @@ const AdminDashboard: React.FC = () => {
                   { label: "Doanh thu", value: formatPrice(stats.totalRevenue), icon: "fa-sack-dollar", bgColor: "bg-chart-1/10", iconColor: "text-chart-1", sub: `Tổng doanh thu`, growth: "VNĐ", trend: "neutral" },
                   { label: "Đơn hàng", value: stats.totalOrders, icon: "fa-cart-shopping", bgColor: "bg-primary/10", iconColor: "text-primary", sub: `${stats.todayOrders} đơn hôm nay`, growth: "Orders", trend: "neutral" },
                   { label: "Sách tồn", value: stats.totalBooks, icon: "fa-book-open-reader", bgColor: "bg-chart-2/10", iconColor: "text-chart-2", sub: `${stats.outOfStock} sách hết hàng`, growth: "Books", trend: "neutral" },
-                  { label: "Đang xử lý", value: stats.pendingOrders, icon: "fa-clock", bgColor: "bg-chart-3/10", iconColor: "text-chart-3", sub: `${stats.completedOrders} đơn hoàn tất`, growth: "Process", trend: "neutral" }
+                  { label: "Đang vận hành", value: stats.pendingOrders, icon: "fa-clock", bgColor: "bg-chart-3/10", iconColor: "text-chart-3", sub: `${stats.completedOrders} đơn đã giao`, growth: "Process", trend: "neutral" }
                 ].map((stat, i) => (
                   <div key={i} className={`p-4 rounded-2xl lg:rounded-3xl border shadow-xl transition-all duration-500 group relative overflow-hidden ${isMidnight
                     ? 'bg-[#1e293b]/40 border-white/5 hover:border-primary/40 hover:bg-[#1e293b]/60'
@@ -604,14 +628,15 @@ const AdminDashboard: React.FC = () => {
                           <i className="fa-solid fa-arrow-right text-xs opacity-0 group-hover/btn:opacity-100 transition-all transform group-hover/btn:translate-x-1"></i>
                         </button>
                         <button
-                          onClick={() => setActiveTab("orders")}
-                          className="w-full bg-white/10 hover:bg-white text-white hover:text-primary backdrop-blur-md px-6 py-4 rounded-2xl text-[10px] font-black transition-all text-left flex items-center justify-between uppercase tracking-[0.15em] border border-white/10 shadow-lg group/btn"
+                          onClick={handleSyncRanking}
+                          disabled={isSyncing}
+                          className="w-full bg-white/10 hover:bg-white text-white hover:text-primary backdrop-blur-md px-6 py-4 rounded-2xl text-[10px] font-black transition-all text-left flex items-center justify-between uppercase tracking-[0.15em] border border-white/10 shadow-lg group/btn disabled:opacity-50"
                         >
                           <div className="flex items-center gap-4">
-                            <i className="fa-solid fa-truck-fast text-sm"></i>
-                            <span>Đơn hàng</span>
+                            <i className={`fa-solid ${isSyncing ? 'fa-spinner fa-spin' : 'fa-rotate'} text-sm`}></i>
+                            <span>{isSyncing ? 'Đang đồng bộ...' : 'Đồng bộ Ranking'}</span>
                           </div>
-                          <i className="fa-solid fa-arrow-right text-xs opacity-0 group-hover/btn:opacity-100 transition-all transform group-hover/btn:translate-x-1"></i>
+                          {!isSyncing && <i className="fa-solid fa-arrow-right text-xs opacity-0 group-hover/btn:opacity-100 transition-all transform group-hover/btn:translate-x-1"></i>}
                         </button>
                       </div>
                     </div>
@@ -634,19 +659,22 @@ const AdminDashboard: React.FC = () => {
 
                   <div className="space-y-4">
                     {stats.recentOrders.length > 0 ? stats.recentOrders.map((order: any, index: number) => (
+                      (() => {
+                        const statusMeta = getOrderStatusMeta(order.statusStep, order.status);
+
+                        return (
                       <div key={order.id || `${order.createdAt?.seconds || order.date || 'order'}-${index}`} className={`flex items-center justify-between p-5 rounded-3xl transition-all border ${isMidnight
                         ? 'bg-slate-800/40 border-white/5 hover:bg-slate-800 hover:border-primary/40'
                         : 'bg-muted border-border hover:bg-card hover:shadow-xl hover:shadow-slate-100'
                         }`}>
                         <div className="flex items-center gap-4">
-                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-lg ${order.statusStep === 3 ? 'bg-chart-1/10 text-chart-1' :
-                            order.statusStep === 0 ? 'bg-chart-3/10 text-chart-3' : 'bg-primary/10 text-primary'
-                            }`}>
-                            <i className={`fa-solid ${order.statusStep === 3 ? 'fa-check' : 'fa-clock'}`}></i>
+                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-lg ${statusMeta.softClass}`}>
+                            <i className={`fa-solid ${statusMeta.icon}`}></i>
                           </div>
                           <div>
                             <h4 className="text-xs font-black uppercase tracking-tight text-foreground">#{(order.id || 'N/A').slice(-6)}</h4>
                             <p className="text-xs font-bold text-muted-foreground uppercase">{order.customer?.name || 'Ẩn danh'}</p>
+                            <p className={`text-[10px] font-black uppercase tracking-wider mt-1 ${statusMeta.textClass}`}>{statusMeta.label}</p>
                           </div>
                         </div>
                         <div className="text-right flex flex-col gap-0.5">
@@ -664,6 +692,8 @@ const AdminDashboard: React.FC = () => {
                           </p>
                         </div>
                       </div>
+                        );
+                      })()
                     )) : (
                       <div className="py-20 text-center opacity-30">
                         <i className="fa-solid fa-inbox text-4xl mb-3"></i>
@@ -765,6 +795,3 @@ const AdminDashboard: React.FC = () => {
 };
 
 export default AdminDashboard;
-
-
-

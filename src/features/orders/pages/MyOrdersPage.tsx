@@ -3,9 +3,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/features/auth';
-import { db, Order } from '@/services/db';
-import { ordersService } from '@/services/db/adapter';
+import { db } from '@/services/db';
+import { Order } from '@/shared/types';
 import { SEO } from '@/shared/components';
+import { getOrderStatusMeta, normalizeOrderStatusStep } from '@/shared/utils/orderStatus';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -13,10 +14,13 @@ const formatPrice = (price: number) => {
 
 const ORDER_STATUSES = [
   { id: 'all', label: 'Tất cả', icon: 'fa-list-ul' },
-  { id: 'processing', label: 'Đang xử lý', icon: 'fa-spinner', step: 1 },
+  { id: 'processing', label: 'Đang xử lý', icon: 'fa-spinner', step: 0 },
+  { id: 'confirmed', label: 'Đã xác nhận', icon: 'fa-circle-check', step: 1 },
+  { id: 'packing', label: 'Đang đóng gói', icon: 'fa-box-open', step: 5 },
   { id: 'shipping', label: 'Đang giao', icon: 'fa-truck-fast', step: 2 },
   { id: 'completed', label: 'Đã giao', icon: 'fa-circle-check', step: 3 },
-  { id: 'cancelled', label: 'Đã hủy', icon: 'fa-circle-xmark', step: -1 },
+  { id: 'failed', label: 'Giao thất bại', icon: 'fa-triangle-exclamation', step: 6 },
+  { id: 'cancelled', label: 'Đã hủy', icon: 'fa-circle-xmark', step: 4 },
 ];
 
 const MyOrdersPage: React.FC = () => {
@@ -33,14 +37,14 @@ const MyOrdersPage: React.FC = () => {
       if (user) {
         setLoading(true);
         try {
-          const userOrders = await ordersService.getUserOrders(user.id);
+          const userOrders = await db.getOrdersByUserId(user.id);
           // Sort by date descending
-          userOrders.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          userOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
           setOrders(userOrders);
 
           const counts: Record<string, number> = {};
           for (const order of userOrders) {
-            const detail = await ordersService.getOrderById(order.id);
+            const detail = await db.getOrderWithItems(order.id);
             counts[order.id] = detail?.items?.length || 0;
           }
           setOrderItemsCounts(counts);
@@ -61,12 +65,8 @@ const MyOrdersPage: React.FC = () => {
       if (activeTab === 'all') return matchesSearch;
 
       const statusConfig = ORDER_STATUSES.find(s => s.id === activeTab);
-      if (activeTab === 'cancelled') return matchesSearch && order.statusStep === -1;
-      if (activeTab === 'completed') return matchesSearch && order.statusStep >= 3;
-      if (activeTab === 'shipping') return matchesSearch && order.statusStep === 2;
-      if (activeTab === 'processing') return matchesSearch && (order.statusStep === 0 || order.statusStep === 1);
-
-      return matchesSearch;
+      const normalizedStep = normalizeOrderStatusStep(order.statusStep, order.status);
+      return matchesSearch && normalizedStep === statusConfig?.step;
     });
   }, [orders, activeTab, searchQuery]);
 
@@ -175,6 +175,10 @@ const MyOrdersPage: React.FC = () => {
               ))
             ) : filteredOrders.length > 0 ? (
               filteredOrders.map((order, index) => (
+                (() => {
+                  const statusMeta = getOrderStatusMeta(order.statusStep, order.status);
+
+                  return (
                 <motion.div
                   key={order.id}
                   initial={{ opacity: 0, y: 10 }}
@@ -185,29 +189,20 @@ const MyOrdersPage: React.FC = () => {
                 >
                   <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
                     <div className="flex items-center gap-5">
-                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl transition-all duration-500 ${order.statusStep === -1 ? 'bg-rose-50 text-rose-500' :
-                        order.statusStep >= 3 ? 'bg-emerald-50 text-emerald-500' :
-                          'bg-slate-50 text-slate-400 group-hover:bg-indigo-600 group-hover:text-white'
-                        }`}>
-                        <i className={`fa-solid ${order.statusStep === -1 ? 'fa-rectangle-xmark' :
-                          order.statusStep >= 3 ? 'fa-circle-check' :
-                            'fa-boxes-packing'
-                          }`}></i>
+                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl transition-all duration-500 ${statusMeta.softClass}`}>
+                        <i className={`fa-solid ${statusMeta.icon}`}></i>
                       </div>
                       <div>
                         <div className="flex items-center gap-3 mb-1.5">
                           <h3 className="text-base font-bold text-slate-900 tracking-tight">#{order.id.slice(-8).toUpperCase()}</h3>
-                          <span className={`px-2 py-0.5 rounded-md text-xs font-black uppercase tracking-widest ${order.statusStep === -1 ? 'bg-rose-50 text-rose-600' :
-                            order.statusStep >= 3 ? 'bg-emerald-50 text-emerald-600' :
-                              'bg-indigo-50 text-indigo-600'
-                            }`}>
-                            {order.status}
+                          <span className={`px-2 py-0.5 rounded-md text-xs font-black uppercase tracking-widest ${statusMeta.softClass}`}>
+                            {statusMeta.label}
                           </span>
                         </div>
                         <div className="flex items-center gap-4 text-xs font-medium text-slate-400 uppercase tracking-wide">
                           <span className="flex items-center gap-1.5">
                             <i className="fa-regular fa-calendar"></i>
-                            {new Date(order.date).toLocaleDateString('vi-VN')}
+                            {new Date(order.createdAt).toLocaleDateString('vi-VN')}
                           </span>
                           <span className="w-1 h-1 rounded-full bg-slate-200"></span>
                           <span className="flex items-center gap-1.5">
@@ -234,6 +229,8 @@ const MyOrdersPage: React.FC = () => {
                     </div>
                   </div>
                 </motion.div>
+                  );
+                })()
               ))
             ) : (
               <motion.div

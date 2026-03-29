@@ -15,7 +15,6 @@ interface PricingResult {
   originalTotal: number;
 }
 
-const USE_API = import.meta.env.VITE_USE_API === 'true';
 
 /**
  * Calculate pricing with Design Patterns (Strategy + Decorator)
@@ -31,8 +30,8 @@ export async function calculatePricingWithPatterns(
   const shipping = subtotal > 500000 ? 0 : 25000;
   const discounts: DiscountBreakdown[] = [];
 
-  // If API mode is disabled or no user, use simple calculation
-  if (!USE_API || !userId) {
+  // If no user, use simple calculation
+  if (!userId) {
     // Simple coupon discount (no API)
     let couponDiscount = 0;
     if (couponData) {
@@ -57,8 +56,8 @@ export async function calculatePricingWithPatterns(
     let finalPrice = subtotal;
     const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-    // Call pricing API if membership exists
-    if (membershipTier && membershipTier !== 'regular') {
+    // Let backend determine the freshest membership tier from totalSpent.
+    if (userId) {
       // Backend expects basePrice per item, not subtotal
       // So we send average price per item for Strategy Pattern calculation
       const avgPricePerItem = totalQuantity > 0 ? subtotal / totalQuantity : subtotal;

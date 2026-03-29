@@ -6,6 +6,7 @@ import { Order, OrderItem } from '@/shared/types';
 import { ErrorHandler } from '@/services/errorHandler';
 import { Pagination } from '@/shared/components';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getOrderStatusMeta, normalizeOrderStatusStep, ORDER_STATUS_OPTIONS } from '@/shared/utils/orderStatus';
 
 // Portal component for rendering modals outside DOM structure
 const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -45,67 +46,7 @@ const formatOrderTime = (createdAt: any, fallbackDate?: string): { date: string 
   };
 };
 
-const orderStatusOptions = [
-  { step: 0, label: 'Đang xử lý', color: 'amber' },
-  { step: 1, label: 'Đã xác nhận', color: 'blue' },
-  { step: 5, label: 'Đang đóng gói', color: 'purple' },
-  { step: 2, label: 'Đang giao', color: 'indigo' },
-  { step: 3, label: 'Đã giao', color: 'emerald' },
-  { step: 6, label: 'Giao thất bại', color: 'slate' },
-  { step: 4, label: 'Đã hủy', color: 'rose' }
-];
-
-const getStatusBadgeStyle = (step: number) => {
-  switch (step) {
-    case 0: return 'bg-amber-500/10 text-amber-600 border-amber-200/50';
-    case 1: return 'bg-blue-500/10 text-blue-600 border-blue-200/50';
-    case 5: return 'bg-purple-500/10 text-purple-600 border-purple-200/50';
-    case 2: return 'bg-indigo-500/10 text-indigo-600 border-indigo-200/50';
-    case 3: return 'bg-emerald-500/10 text-emerald-600 border-emerald-200/50';
-    case 6: return 'bg-slate-500/10 text-slate-600 border-slate-200/50';
-    case 4: return 'bg-rose-500/10 text-rose-600 border-rose-200/50';
-    default: return 'bg-slate-500/10 text-slate-600 border-slate-200/50';
-  }
-};
-
-const getStatusSelectStyle = (step: number) => {
-  switch (step) {
-    case 0: return 'bg-chart-1/10 text-chart-1 border-chart-1/20 hover:bg-chart-1/20';
-    case 1: return 'bg-chart-2/10 text-chart-2 border-chart-2/20 hover:bg-chart-2/20';
-    case 5: return 'bg-purple-500/10 text-purple-500 border-purple-500/20 hover:bg-purple-500/20';
-    case 2: return 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/20';
-    case 3: return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20';
-    case 6: return 'bg-slate-500/10 text-slate-500 border-slate-500/20 hover:bg-slate-500/20';
-    case 4: return 'bg-rose-500/10 text-rose-500 border-rose-500/20 hover:bg-rose-500/20';
-    default: return 'bg-chart-4/10 text-chart-4 border-chart-4/20 hover:bg-chart-4/20';
-  }
-};
-
-const getStatusChevronColor = (step: number) => {
-  switch (step) {
-    case 0: return 'text-chart-1';
-    case 1: return 'text-chart-2';
-    case 5: return 'text-purple-500';
-    case 2: return 'text-primary';
-    case 3: return 'text-emerald-500';
-    case 6: return 'text-slate-500';
-    case 4: return 'text-rose-500';
-    default: return 'text-chart-4';
-  }
-};
-
-const getStatusDotStyle = (step: number) => {
-  switch (step) {
-    case 0: return 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]';
-    case 1: return 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.4)]';
-    case 5: return 'bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.4)]';
-    case 2: return 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.4)]';
-    case 3: return 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]';
-    case 6: return 'bg-slate-500 shadow-[0_0_8px_rgba(100,116,139,0.4)]';
-    case 4: return 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.4)]';
-    default: return 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]';
-  }
-};
+const orderStatusOptions = ORDER_STATUS_OPTIONS;
 
 const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 'light' }) => {
   const isMidnight = theme === 'midnight';
@@ -304,6 +245,8 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                 {displayOrders.length > 0 ? displayOrders.map((order, index) => {
                   const rowKey = order.id || `${order.createdAt?.seconds || order.date || 'order'}-${index}`;
                   const shortOrderId = (order.id || 'N/A').slice(-8).toUpperCase();
+                  const normalizedStep = normalizeOrderStatusStep(order.statusStep, order.status);
+                  const statusMeta = getOrderStatusMeta(order.statusStep, order.status);
 
                   return (
                   <tr key={rowKey} className={`group transition-all ${isMidnight ? 'hover:bg-slate-700/30' : 'hover:bg-muted/30'}`}>
@@ -328,19 +271,19 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                         ? (isMidnight ? 'bg-slate-700 text-slate-400' : 'bg-muted text-muted-foreground')
                         : 'bg-chart-2/10 text-chart-2'
                         }`}>
-                        {order.payment.method}
+                        {order.payment.provider || order.payment.method}
                       </span>
                       <span className="text-base font-black text-foreground">{formatPrice(order.payment.total)}</span>
                     </td>
                     <td className="px-8 py-4">
                       <div className="relative min-w-[140px]">
                         <select
-                          value={order.statusStep}
+                          value={normalizedStep}
                           onChange={(e) => {
                             if (!order.id) return;
                             handleUpdateOrderStatus(order.id, Number(e.target.value));
                           }}
-                          className={`w-full appearance-none pl-4 pr-10 py-2 rounded-xl text-xs font-bold uppercase tracking-wide border outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer ${getStatusSelectStyle(order.statusStep)}`}
+                          className={`w-full appearance-none pl-4 pr-10 py-2 rounded-xl text-xs font-bold uppercase tracking-wide border outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer ${statusMeta.selectClass}`}
                           disabled={!order.id}
                         >
                           {orderStatusOptions.map(opt => (
@@ -350,7 +293,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                           ))}
                         </select>
                         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-70">
-                          <i className={`fa-solid fa-chevron-down text-[10px] ${getStatusChevronColor(order.statusStep)}`}></i>
+                          <i className={`fa-solid fa-chevron-down text-[10px] ${statusMeta.chevronClass}`}></i>
                         </div>
                       </div>
                     </td>
@@ -410,6 +353,11 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
       {/* Order Details Modal */}
       <AnimatePresence>
         {isOrderModalOpen && selectedOrder && (
+          (() => {
+            const selectedOrderStep = normalizeOrderStatusStep(selectedOrder.statusStep, selectedOrder.status);
+            const selectedStatusMeta = getOrderStatusMeta(selectedOrder.statusStep, selectedOrder.status);
+
+            return (
           <Portal>
             <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10">
               <motion.div
@@ -462,8 +410,8 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                           <i className="fa-solid fa-signal text-xs"></i>
                           Trạng thái đơn hàng
                         </h4>
-                        <div className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusBadgeStyle(selectedOrder.statusStep)}`}>
-                          {orderStatusOptions.find(s => s.step === selectedOrder.statusStep)?.label || 'Chưa xác định'}
+                        <div className={`px-3 py-1 rounded-full text-xs font-bold border ${selectedStatusMeta.badgeClass}`}>
+                          {selectedStatusMeta.label}
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-3">
@@ -472,14 +420,14 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                             key={status.step}
                             disabled={updatingOrderStatus}
                             onClick={() => handleUpdateOrderStatus(selectedOrder.id, status.step)}
-                            className={`px-5 h-11 rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap border flex items-center gap-3 ${selectedOrder.statusStep === status.step
+                            className={`px-5 h-11 rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap border flex items-center gap-3 ${selectedOrderStep === status.step
                               ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105'
                               : (isMidnight
                                 ? 'bg-slate-700/30 border-white/5 text-slate-400 hover:bg-slate-700 hover:text-slate-200'
                                 : 'bg-muted/30 border-border text-muted-foreground hover:bg-muted hover:text-foreground')
                               }`}
                           >
-                            <span className={`w-2 h-2 rounded-full ring-2 ring-offset-1 ring-offset-transparent ${selectedOrder.statusStep === status.step ? 'bg-white ring-white/30' : 'bg-current opacity-30 ring-transparent'}`}></span>
+                            <span className={`w-2 h-2 rounded-full ring-2 ring-offset-1 ring-offset-transparent ${selectedOrderStep === status.step ? 'bg-white ring-white/30' : 'bg-current opacity-30 ring-transparent'}`}></span>
                             {status.label}
                           </button>
                         ))}
@@ -544,9 +492,29 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                             <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Phương thức</span>
                             <span className={`px-2.5 py-1 border rounded-lg text-[10px] font-bold uppercase tracking-wider ${isMidnight ? 'bg-slate-700/50 border-white/5 text-slate-300' : 'bg-muted/50 border-border text-foreground'
                               }`}>
-                              {selectedOrder.payment.method}
+                              {selectedOrder.payment.provider || selectedOrder.payment.method}
                             </span>
                           </div>
+                          {selectedOrder.payment.status && (
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Trạng thái TT</span>
+                              <span className="text-xs font-bold text-foreground">{selectedOrder.payment.status}</span>
+                            </div>
+                          )}
+                          {selectedOrder.payment.transactionId && (
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Mã giao dịch</span>
+                              <span className="text-xs font-bold text-foreground text-right break-all">{selectedOrder.payment.transactionId}</span>
+                            </div>
+                          )}
+                          {selectedOrder.payment.checkoutUrl && (
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Checkout URL</span>
+                              <a href={selectedOrder.payment.checkoutUrl} target="_blank" rel="noreferrer" className="text-xs font-bold text-primary hover:underline">
+                                Mở liên kết
+                              </a>
+                            </div>
+                          )}
                           <div className="flex items-center justify-between">
                             <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Tiền hàng</span>
                             <span className="text-sm font-bold text-foreground">{formatPrice(selectedOrder.payment.subtotal)}</span>
@@ -597,9 +565,9 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
                             <div className="flex items-center justify-between">
                               <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Trạng thái</span>
                               <div className="flex items-center gap-2">
-                                <span className={`w-2.5 h-2.5 rounded-full ${getStatusDotStyle(selectedOrder.statusStep)}`}></span>
+                                <span className={`w-2.5 h-2.5 rounded-full ${selectedStatusMeta.dotClass}`}></span>
                                 <span className="text-xs font-bold text-foreground capitalize">
-                                  {orderStatusOptions.find(s => s.step === selectedOrder.statusStep)?.label || 'Chưa xác định'}
+                                  {selectedStatusMeta.label}
                                 </span>
                               </div>
                             </div>
@@ -694,6 +662,8 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
               </motion.div>
             </div>
           </Portal>
+            );
+          })()
         )}
       </AnimatePresence>
     </>

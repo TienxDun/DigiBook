@@ -3,10 +3,136 @@ import React, { useState, useEffect } from 'react';
 import toast from '@/shared/utils/toast';
 import { useAuth } from '@/features/auth';
 import { db } from '@/services/db';
-import { ordersService } from '@/services/db/adapter';
+import { pricingApi } from '@/services/api';
 import { UserProfile } from '@/shared/types';
 import { ErrorHandler } from '@/services/errorHandler';
 import { AddressList, AddressFormModal } from '@/features/auth';
+import type { Order } from '@/shared/types';
+
+const getActualTotalSpent = (orders: Order[] | null | undefined): number => {
+    if (!orders || orders.length === 0) return 0;
+
+    return orders
+        .filter((order) => {
+            const paymentStatus = order.payment?.status?.toUpperCase();
+            const isCancelled = order.statusStep === 4 || order.status?.toLowerCase() === 'đã hủy';
+            const isFailedPayment = paymentStatus === 'FAILED' || paymentStatus === 'CANCELLED';
+            const isPaid = paymentStatus === 'PAID';
+            const isDelivered = order.statusStep === 3;
+
+            return !isCancelled && !isFailedPayment && (isPaid || isDelivered);
+        })
+        .reduce((sum, order) => sum + (order.payment?.total || 0), 0);
+};
+
+const formatPrice = (amount: number) =>
+    new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+
+const MEMBERSHIP_THRESHOLDS = {
+    member: 1_000_000,
+    vip: 5_000_000
+} as const;
+
+const getMembershipLabel = (tier: string) => {
+    switch (tier?.toLowerCase()) {
+        case 'member':
+            return 'Thành viên';
+        case 'vip':
+            return 'VIP';
+        case 'wholesale':
+            return 'Khách sỉ';
+        default:
+            return 'Thường';
+    }
+};
+
+const getMembershipTone = (tier: string) => {
+    switch (tier?.toLowerCase()) {
+        case 'member':
+            return {
+                badge: 'bg-sky-50 text-sky-700 border-sky-200',
+                progress: 'from-sky-500 to-cyan-500',
+                accent: 'text-sky-700'
+            };
+        case 'vip':
+            return {
+                badge: 'bg-amber-50 text-amber-700 border-amber-200',
+                progress: 'from-amber-400 to-orange-500',
+                accent: 'text-amber-700'
+            };
+        case 'wholesale':
+            return {
+                badge: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+                progress: 'from-indigo-500 to-violet-500',
+                accent: 'text-indigo-700'
+            };
+        default:
+            return {
+                badge: 'bg-slate-100 text-slate-700 border-slate-200',
+                progress: 'from-slate-500 to-slate-700',
+                accent: 'text-slate-700'
+            };
+    }
+};
+
+const getMembershipProgress = (tier: string, totalSpent: number) => {
+    const normalizedTier = tier?.toLowerCase();
+
+    if (normalizedTier === 'vip' || normalizedTier === 'wholesale') {
+        return 100;
+    }
+
+    if (normalizedTier === 'member') {
+        const range = MEMBERSHIP_THRESHOLDS.vip - MEMBERSHIP_THRESHOLDS.member;
+        const progressed = Math.max(0, totalSpent - MEMBERSHIP_THRESHOLDS.member);
+        return Math.min(100, (progressed / range) * 100);
+    }
+
+    return Math.min(100, (totalSpent / MEMBERSHIP_THRESHOLDS.member) * 100);
+};
+
+const resolveMembershipTier = (tier: string | undefined, totalSpent: number) => {
+    const normalizedTier = tier?.toLowerCase();
+
+    if (normalizedTier === 'wholesale') {
+        return 'wholesale';
+    }
+
+    if (totalSpent >= MEMBERSHIP_THRESHOLDS.vip) {
+        return 'vip';
+    }
+
+    if (totalSpent >= MEMBERSHIP_THRESHOLDS.member) {
+        return 'member';
+    }
+
+    return 'regular';
+};
+
+const getDerivedNextTier = (tier: string) => {
+    switch (tier?.toLowerCase()) {
+        case 'regular':
+            return 'member';
+        case 'member':
+            return 'vip';
+        default:
+            return '';
+    }
+};
+
+const getDerivedAmountToNextTier = (tier: string, totalSpent: number) => {
+    const nextTier = getDerivedNextTier(tier);
+
+    if (nextTier === 'member') {
+        return Math.max(0, MEMBERSHIP_THRESHOLDS.member - totalSpent);
+    }
+
+    if (nextTier === 'vip') {
+        return Math.max(0, MEMBERSHIP_THRESHOLDS.vip - totalSpent);
+    }
+
+    return 0;
+};
 
 const ProfilePage: React.FC = () => {
     const { user, changePassword } = useAuth();
@@ -19,7 +145,15 @@ const ProfilePage: React.FC = () => {
         hasPendingToken: false,
         telegramChatId: ''
     });
-    const [stats, setStats] = useState({ orders: 0, wishlist: 0 });
+    const [stats, setStats] = useState({
+        orders: 0,
+        wishlist: 0,
+        totalSpent: 0,
+        membershipTier: 'regular',
+        membershipExpiry: '',
+        nextTier: '',
+        amountToNextTier: 0
+    });
 
     // Address Management State
     const [showAddressModal, setShowAddressModal] = useState(false);
@@ -49,6 +183,18 @@ const ProfilePage: React.FC = () => {
             db.getUserProfile(user.id),
             db.getTelegramLinkStatus(user.id)
         ]);
+        const membershipInfo = await pricingApi.getMembershipInfo(user.id);
+        const ordersData = await db.getOrdersByUserId(user.id);
+        const actualTotalSpent = getActualTotalSpent(ordersData);
+        const effectiveTotalSpent = Math.max(
+            membershipInfo?.totalSpent ?? 0,
+            actualTotalSpent,
+            profileData?.totalSpent ?? 0
+        );
+        const effectiveTier = resolveMembershipTier(
+            membershipInfo?.membershipTier || profileData?.membershipTier,
+            effectiveTotalSpent
+        );
 
         if (profileData) {
             setProfile(profileData);
@@ -60,6 +206,14 @@ const ProfilePage: React.FC = () => {
                 gender: profileData.gender || 'Nam',
                 birthday: profileData.birthday || ''
             });
+            setStats(prev => ({
+                ...prev,
+                totalSpent: effectiveTotalSpent,
+                membershipTier: effectiveTier,
+                membershipExpiry: membershipInfo?.membershipExpiry || profileData.membershipExpiry || '',
+                nextTier: membershipInfo?.nextTier || '',
+                amountToNextTier: membershipInfo?.amountToNextTier || 0
+            }));
         }
 
         if (linkStatus) {
@@ -77,8 +231,19 @@ const ProfilePage: React.FC = () => {
             try {
                 const [profileData, ordersData] = await Promise.all([
                     db.getUserProfile(user.id),
-                    ordersService.getUserOrders(user.id)
+                    db.getOrdersByUserId(user.id)
                 ]);
+                const membershipInfo = await pricingApi.getMembershipInfo(user.id);
+                const actualTotalSpent = getActualTotalSpent(ordersData);
+                const totalSpent = Math.max(
+                    membershipInfo?.totalSpent ?? 0,
+                    actualTotalSpent,
+                    profileData?.totalSpent ?? 0
+                );
+                const resolvedTier = resolveMembershipTier(
+                    membershipInfo?.membershipTier || profileData?.membershipTier,
+                    totalSpent
+                );
 
                 if (profileData) {
                     setProfile(profileData);
@@ -91,12 +256,25 @@ const ProfilePage: React.FC = () => {
                         birthday: profileData.birthday || ''
                     });
                     setStats({
-                        orders: ordersData.length,
-                        wishlist: profileData.wishlistIds?.length || 0
+                        orders: ordersData?.length || 0,
+                        wishlist: profileData.wishlistIds?.length || 0,
+                        totalSpent: totalSpent,
+                        membershipTier: resolvedTier,
+                        membershipExpiry: membershipInfo?.membershipExpiry || profileData.membershipExpiry || '',
+                        nextTier: membershipInfo?.nextTier || '',
+                        amountToNextTier: membershipInfo?.amountToNextTier || 0
                     });
                 } else {
                     setFormData(prev => ({ ...prev, name: user.name }));
-                    setStats({ orders: ordersData.length, wishlist: 0 });
+                    setStats({
+                        orders: ordersData?.length || 0,
+                        wishlist: 0,
+                        totalSpent: Math.max(membershipInfo?.totalSpent ?? 0, actualTotalSpent),
+                        membershipTier: resolveMembershipTier(membershipInfo?.membershipTier, Math.max(membershipInfo?.totalSpent ?? 0, actualTotalSpent)),
+                        membershipExpiry: membershipInfo?.membershipExpiry || '',
+                        nextTier: membershipInfo?.nextTier || '',
+                        amountToNextTier: membershipInfo?.amountToNextTier || 0
+                    });
                 }
 
                 const linkStatus = await db.getTelegramLinkStatus(user.id);
@@ -123,7 +301,7 @@ const ProfilePage: React.FC = () => {
         try {
             const linkData = await db.createTelegramLinkToken(user.id);
             if (!linkData) {
-                toast.error('Chi ho tro o API mode. Hay bat VITE_USE_API=true.');
+                toast.error('Không thể tạo liên kết lúc này. Vui lòng thử lại.');
                 return;
             }
 
@@ -158,8 +336,7 @@ const ProfilePage: React.FC = () => {
 
         setSaving(true);
         try {
-            await db.updateUserProfile({
-                id: user.id,
+            await db.updateUserProfile(user.id, {
                 email: user.email,
                 avatar: user.avatar,
                 ...formData
@@ -187,7 +364,7 @@ const ProfilePage: React.FC = () => {
     const handleUpdateAddress = async (addr: any) => {
         if (!user) return;
         try {
-            await db.updateUserAddress(user.id, addr);
+            await db.updateUserAddress(user.id, addr.id, addr);
             await refreshProfile();
             toast.success('Cập nhật địa chỉ thành công');
         } catch (error) {
@@ -260,30 +437,102 @@ const ProfilePage: React.FC = () => {
     if (!user) return <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center">...</div>;
     if (loading) return <div className="min-h-[70vh] flex items-center justify-center"><div className="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div></div>;
 
+    const membershipLabel = getMembershipLabel(stats.membershipTier);
+    const resolvedNextTier = stats.nextTier || getDerivedNextTier(stats.membershipTier);
+    const resolvedAmountToNextTier = resolvedNextTier
+        ? Math.max(0, stats.amountToNextTier || getDerivedAmountToNextTier(stats.membershipTier, stats.totalSpent))
+        : 0;
+    const nextTierLabel = resolvedNextTier ? getMembershipLabel(resolvedNextTier) : '';
+    const membershipTone = getMembershipTone(stats.membershipTier);
+    const membershipProgress = getMembershipProgress(stats.membershipTier, stats.totalSpent);
+
     return (
         <div className="bg-slate-50 min-h-screen pt-10 pb-32 lg:py-12">
             <div className="w-[94%] xl:w-[75%] 2xl:w-[65%] mx-auto px-4">
                 <div className="max-w-6xl mx-auto">
-                    {/* Header: Unchanged */}
-                    <div className="flex flex-col md:flex-row items-center gap-8 mb-12">
-                        {/* ... Existing User Header Avatar ... */}
-                        <div className="relative group">
-                            <div className="absolute -inset-2 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-full blur-lg opacity-20 group-hover:opacity-40 transition-all"></div>
-                            <img src={user.avatar} alt={user.name} className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white shadow-2xl relative z-10 object-cover" referrerPolicy="no-referrer" />
-                        </div>
-                        <div className="text-center md:text-left">
-                            <h1 className="text-3xl lg:text-5xl font-extrabold text-slate-900 tracking-tight mb-2 uppercase">{user.name}</h1>
-                            <p className="text-slate-500 font-bold flex items-center justify-center md:justify-start gap-2">
-                                <i className="fa-solid fa-envelope text-indigo-500"></i> {user.email}
-                            </p>
-                            <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
-                                <span className="px-4 py-1.5 bg-white border border-slate-200 rounded-full text-micro font-bold uppercase tracking-premium text-slate-400">
-                                    {user.isAdmin ? 'Quản trị viên' : 'Độc giả thân thiết'}
-                                </span>
-                                <button onClick={() => setShowPasswordModal(true)} className="px-4 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-full text-micro font-bold uppercase tracking-premium transition-all flex items-center gap-2 group/btn">
-                                    <i className="fa-solid fa-key text-[10px] group-hover/btn:rotate-12 transition-transform"></i> Đổi mật khẩu
-                                </button>
+                    <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 mb-12">
+                        <div className="flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
+                            <div className="relative group">
+                                <div className="absolute -inset-2 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-full blur-lg opacity-20 group-hover:opacity-40 transition-all"></div>
+                                <img src={user.avatar} alt={user.name} className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white shadow-2xl relative z-10 object-cover" referrerPolicy="no-referrer" />
                             </div>
+                            <div className="relative z-10">
+                                <h1 className="text-3xl lg:text-5xl font-extrabold text-slate-900 tracking-tight mb-2 uppercase">{user.name}</h1>
+                                <p className="text-slate-500 font-bold flex items-center justify-center md:justify-start gap-2">
+                                    <i className="fa-solid fa-envelope text-indigo-500"></i> {user.email}
+                                </p>
+                                <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
+                                    <span className="px-4 py-1.5 bg-white border border-slate-200 rounded-full text-micro font-bold uppercase tracking-premium text-slate-400">
+                                        {user.isAdmin ? 'Quản trị viên' : 'Độc giả thân thiết'}
+                                    </span>
+                                    <button onClick={() => setShowPasswordModal(true)} className="px-4 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-full text-micro font-bold uppercase tracking-premium transition-all flex items-center gap-2 group/btn">
+                                        <i className="fa-solid fa-key text-[10px] group-hover/btn:rotate-12 transition-transform"></i> Đổi mật khẩu
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Membership Info as a header card */}
+                        <div className="w-full lg:w-[320px] 2xl:w-[380px] space-y-4">
+                            <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-200/60 shadow-slate-200/20 relative overflow-hidden group/card hover:shadow-lg transition-all duration-300">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover/card:bg-indigo-500/10 transition-colors"></div>
+                                
+                                <div className="flex items-center justify-between gap-4 mb-3 relative z-10">
+                                    <div className="flex flex-col">
+                                        <span className="text-slate-400 font-bold text-[10px] uppercase tracking-wider mb-0.5">Hạng thành viên</span>
+                                        <span className={`text-sm font-black uppercase tracking-wider ${membershipTone.accent}`}>
+                                            {membershipLabel}
+                                        </span>
+                                    </div>
+                                    <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-black uppercase tracking-wider ${membershipTone.badge}`}>
+                                        Cấp {stats.membershipTier?.toLowerCase() === 'vip' ? '2' : stats.membershipTier?.toLowerCase() === 'member' ? '1' : '0'}
+                                    </span>
+                                </div>
+
+                                <div className="h-2 rounded-full bg-slate-100 border border-slate-200 overflow-hidden mb-3 relative z-10">
+                                    <div
+                                        className={`h-full rounded-full bg-gradient-to-r ${membershipTone.progress} transition-all duration-700`}
+                                        style={{ width: `${membershipProgress}%` }}
+                                    ></div>
+                                </div>
+
+                                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider relative z-10">
+                                    <span className="text-slate-400">Tiến độ lên hạng</span>
+                                    <span className={membershipTone.accent}>{Math.round(membershipProgress)}%</span>
+                                </div>
+                            </div>
+
+                            {resolvedNextTier ? (
+                                <div className="rounded-2xl bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 px-5 py-4 flex items-center gap-4 group/milestone cursor-default hover:shadow-md transition-all duration-300">
+                                    <div className="flex-1">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <span className="text-indigo-600 font-bold text-[10px] uppercase tracking-wider">Mốc tiếp theo</span>
+                                            <span className="text-xs font-black text-indigo-700 uppercase">{nextTierLabel}</span>
+                                        </div>
+                                        <p className="text-[11px] font-bold text-indigo-700/70 leading-relaxed">
+                                            Cần thêm <span className="text-indigo-700">{formatPrice(resolvedAmountToNextTier)}</span> chi tiêu để thăng hạng.
+                                        </p>
+                                    </div>
+                                    <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-[10px] shadow-lg group-hover/milestone:scale-110 transition-transform">
+                                        <i className="fa-solid fa-arrow-trend-up"></i>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="rounded-2xl bg-amber-50 border border-amber-100 px-5 py-4 flex items-center gap-4">
+                                     <div className="flex-1">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <span className="text-amber-700 font-bold text-[10px] uppercase tracking-wider">Trạng thái hạng</span>
+                                            <span className="text-xs font-black text-amber-700 uppercase">{membershipLabel}</span>
+                                        </div>
+                                        <p className="text-[11px] font-bold text-amber-700/70 leading-relaxed">
+                                            Bạn đang ở hạng cao nhất. Tận hưởng ưu đãi độc quyền từ DigiBook!
+                                        </p>
+                                    </div>
+                                    <div className="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center text-[10px] shadow-lg">
+                                        <i className="fa-solid fa-crown"></i>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -295,6 +544,11 @@ const ProfilePage: React.FC = () => {
                                 <div className="space-y-6 relative z-10">
                                     <div className="flex items-center justify-between"><span className="text-slate-500 font-bold text-xs uppercase tracking-wider">Đơn hàng</span><span className="text-xl font-black text-slate-900">{stats.orders}</span></div>
                                     <div className="flex items-center justify-between"><span className="text-slate-500 font-bold text-xs uppercase tracking-wider">Yêu thích</span><span className="text-xl font-black text-slate-900">{stats.wishlist}</span></div>
+                                    <div className="flex items-center justify-between"><span className="text-slate-500 font-bold text-xs uppercase tracking-wider">Chi tiêu</span><span className="text-sm font-black text-slate-900">{formatPrice(stats.totalSpent)}</span></div>
+                                    <div className="flex items-center justify-between"><span className="text-slate-500 font-bold text-xs uppercase tracking-wider">Hạng hiện tại</span><span className={`text-sm font-black uppercase tracking-wider ${membershipTone.accent}`}>{membershipLabel}</span></div>
+                                    {stats.membershipExpiry && (
+                                        <div className="flex items-center justify-between"><span className="text-slate-500 font-bold text-xs uppercase tracking-wider">Hết hạn hạng</span><span className="text-sm font-black text-slate-900">{stats.membershipExpiry}</span></div>
+                                    )}
                                 </div>
                             </div>
                             <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-200/60 shadow-slate-200/20">

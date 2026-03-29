@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import toast from '@/shared/utils/toast';
 import { useAuth } from '@/features/auth';
 import { db } from '@/services/db';
-import { ordersService, couponsService } from '@/services/db/adapter';
 import { ErrorHandler } from '@/services/errorHandler';
 import { useCart } from '@/features/cart';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -151,7 +150,7 @@ const CheckoutPage: React.FC = () => {
   const handleUpdateAddress = async (addr: any) => {
     if (!user) return;
     try {
-      await db.updateUserAddress(user.id, addr);
+      await db.updateUserAddress(user.id, addr.id, addr);
       await fetchUserData();
       toast.success('Cập nhật địa chỉ thành công');
     } catch (error) {
@@ -276,12 +275,12 @@ const CheckoutPage: React.FC = () => {
 
     setIsApplyingCoupon(true);
     try {
-      const coupon = await couponsService.validateCoupon(couponCode, subtotal);
+      const coupon = await db.validateCoupon(couponCode, subtotal);
       // Simulate a small delay for UX so spinner is visible
       await new Promise(r => setTimeout(r, 600));
 
-      if (coupon) {
-        setAppliedCoupon({ code: coupon.code, value: coupon.discountValue, type: coupon.discountType });
+      if (coupon && coupon.coupon) {
+        setAppliedCoupon({ code: coupon.coupon.code, value: coupon.coupon.discountValue, type: coupon.coupon.discountType });
         setCouponCode('');
         toast.success('Áp dụng mã giảm giá thành công!');
       } else {
@@ -330,7 +329,7 @@ const CheckoutPage: React.FC = () => {
 
       await new Promise(r => setTimeout(r, 1500)); // UX delay
 
-      const order = await ordersService.createOrder({
+      const order = await db.createOrder({
         userId: user.id,
         status: paymentMethod === 'cod' ? 'Đang xử lý' : 'Chờ thanh toán',
         statusStep: 0,
@@ -353,7 +352,7 @@ const CheckoutPage: React.FC = () => {
       }, cart);
 
       if (appliedCoupon) {
-        await couponsService.incrementCouponUsage(appliedCoupon.code);
+        await db.incrementCouponUsage(appliedCoupon.code);
       }
 
       // Nếu Backend đã trả về checkoutUrl (do Facade xử lý), sử dụng luôn

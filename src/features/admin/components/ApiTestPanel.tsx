@@ -65,16 +65,19 @@ export const ApiTestPanel: React.FC = () => {
       </div>
 
       <div className="space-y-2 text-xs">
-        {Object.entries(results).map(([key, value]) => (
-          <div key={key} className="flex items-center justify-between">
-            <span className="font-medium capitalize">{key}:</span>
-            {value.status === 'success' ? (
-              <span className="text-green-600">✓ {value.count} items</span>
-            ) : (
-              <span className="text-red-600">✗ {value.message}</span>
-            )}
-          </div>
-        ))}
+        {Object.entries(results).map(([key, value]) => {
+          const val = value as TestResult;
+          return (
+            <div key={key} className="flex items-center justify-between">
+              <span className="font-medium capitalize">{key}:</span>
+              {val.status === 'success' ? (
+                <span className="text-green-600">✓ {val.count} items</span>
+              ) : (
+                <span className="text-red-600">✗ {val.message}</span>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       <div className="mt-3 pt-3 border-t border-border">

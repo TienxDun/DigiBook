@@ -44,6 +44,24 @@ export const usersApi = {
     }
   },
 
+  async updateRole(userId: string, role: NonNullable<UserProfile['role']>): Promise<void> {
+    try {
+      await apiClient.put(`/api/users/${userId}/role`, { role });
+      cache.clear(USERS_TAG);
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+
+  async updateStatus(userId: string, status: NonNullable<UserProfile['status']>): Promise<void> {
+    try {
+      await apiClient.put(`/api/users/${userId}/status`, { status });
+      cache.clear(USERS_TAG);
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+
   // UPDATE wishlist
   async updateWishlist(userId: string, wishlistIds: string[]): Promise<void> {
     try {

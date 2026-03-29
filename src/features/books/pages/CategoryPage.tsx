@@ -66,30 +66,30 @@ const CategoryPage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuic
       else if (sortBy === 'price-high') dbSort = 'price_desc';
       else if (sortBy === 'rating') dbSort = 'rating';
 
-      const currentLastDoc = isInitial ? null : lastDoc;
+      const currentOffset = isInitial ? 0 : books.length;
 
       // Normalize category for query: "all" or "Tất cả sách" -> undefined (fetch all)
       const queryCategory = (categoryName === 'all' || categoryName === 'Tất cả sách' || !categoryName)
         ? undefined
         : categoryName;
 
-      const result = await db.getBooksPaginated(ITEMS_PER_PAGE, currentLastDoc, queryCategory, dbSort);
+      // The new API returns Book[] directly
+      const resultBooks = await db.getBooksPaginated(ITEMS_PER_PAGE, currentOffset, queryCategory, dbSort);
 
       if (isInitial) {
-        setBooks(result.books);
+        setBooks(resultBooks);
         // Chọn 2-3 sách ngẫu nhiên cho banner Flash Sale
-        const shuffled = [...result.books].sort(() => 0.5 - Math.random());
+        const shuffled = [...resultBooks].sort(() => 0.5 - Math.random());
         setPromoBooks(shuffled.slice(0, 2));
       } else {
         setBooks(prev => {
           const existingIds = new Set(prev.map(b => b.id));
-          const uniqueNewBooks = result.books.filter(b => !existingIds.has(b.id));
+          const uniqueNewBooks = resultBooks.filter(b => !existingIds.has(b.id));
           return [...prev, ...uniqueNewBooks];
         });
       }
 
-      setLastDoc(result.lastDoc);
-      setHasMore(result.books.length === ITEMS_PER_PAGE);
+      setHasMore(resultBooks.length === ITEMS_PER_PAGE);
     } catch (error) {
       console.error("Failed to load books:", error);
     } finally {

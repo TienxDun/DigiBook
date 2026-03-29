@@ -16,6 +16,17 @@ interface LogStatistics {
 
 export const logsApi = {
   /**
+   * Create a new log
+   */
+  async create(log: Omit<SystemLog, 'id' | 'createdAt'>): Promise<void> {
+    try {
+      await apiClient.post('/api/logs', log);
+    } catch (error) {
+      console.warn('Failed to send log to API', error);
+    }
+  },
+
+  /**
    * Get all system logs (admin)
    */
   async getAll(): Promise<SystemLog[]> {
