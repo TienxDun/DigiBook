@@ -9,6 +9,7 @@ import { adminService } from '../services/admin.service';
 import { useAdminPagination } from '../hooks/useAdminPagination';
 import { useAdminSelection } from '../hooks/useAdminSelection';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
+import { normalizeBookForPersistence } from '@/services/api/modules/tikiNormalizer';
 
 interface AdminBooksProps {
   books: Book[];
@@ -224,16 +225,29 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     }
   };
 
-  /* Redundant author matching removed - handled by saveBook auto-sync */
   const importSingleBook = async (book: Book): Promise<boolean> => {
     try {
+      // Lấy thông tin chi tiết từ Tiki (bao gồm authors đầy đủ, specs...)
       const details = await adminService.getBookDetailsFromTiki(book.id);
-      const fullBook = { ...book, ...details };
 
-      await adminService.saveBook(fullBook);
+      // Merge: thông tin chi tiết (details) ghi đè thông tin tìm kiếm cơ bản (book)
+      // Ưu tiên details vì nó có đầy đủ author, specs, description...
+      const mergedBook = {
+        ...book,
+        ...(details || {}),
+        // Giữ lại ID từ book gốc để tránh ID bị thay đổi do normalizer chạy lần 2
+        id: book.id,
+      };
+
+      // db.saveBook sẽ tự:
+      // 1. Tìm tác giả theo tên (khớp chính xác)
+      // 2. Nếu chưa có → tự động tạo tác giả mới
+      // 3. Gán authorId đúng vào sách
+      // 4. Kiểm tra sách đã tồn tại chưa (theo ID hoặc ISBN) → update hoặc create
+      await adminService.saveBook(mergedBook);
       return true;
     } catch (e) {
-      console.error(e);
+      console.error('[importSingleBook] Lỗi khi nhập sách:', e);
       return false;
     }
   };
@@ -499,7 +513,11 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
           }
           : undefined
       } as Book;
-      await adminService.saveBook(finalBook);
+      const normalizedBook = normalizeBookForPersistence(finalBook, {
+        internalCategories: categories.map((category) => category.name),
+        authors,
+      }) as Book;
+      await adminService.saveBook(normalizedBook);
       toast.success(editingBook ? 'Cập nhật thành công' : 'Đã thêm sách mới');
       setIsBookModalOpen(false);
       await refreshBooksDeps();
@@ -1167,7 +1185,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                                   })}
                                   className={`w-full h-14 px-6 rounded-2xl border transition-all font-bold text-foreground text-sm outline-none focus:border-primary focus:bg-card ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/30 border-border'
                                     }`}
-                                  placeholder="1000"
+                                  placeholder="100"
                                 />
                               </div>
                             </div>

@@ -18,8 +18,29 @@ import { reviewsApi } from '../api/modules/reviews.api';
 import { tikiApi } from '../api/modules/tiki.api';
 import { telegramApi } from '../api/modules/telegram.api';
 import { cartsApi } from '../api/modules/carts.api';
+import { normalizeBookForPersistence } from '../api/modules/tikiNormalizer';
 
 import { Order, OrderItem, Review, SystemLog } from '@/shared/types/';
+
+const AUTO_AUTHOR_SKIP_NAMES = new Set(['nhiều tác giả', 'vo danh', 'vô danh']);
+
+function normalizeAuthorKey(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function shouldAutoCreateAuthor(name: string): boolean {
+  const normalized = normalizeAuthorKey(name);
+  return Boolean(normalized) && !AUTO_AUTHOR_SKIP_NAMES.has(normalized);
+}
+
+function buildAuthorAvatar(name: string): string {
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
+}
 
 class DataService {
   // Core & Base Utility
@@ -35,14 +56,63 @@ class DataService {
   getRelatedBooks = booksApi.getRelated;
   
   async saveBook(book: any) {
-    if (book.id) {
-       const existingBook = await booksApi.getById(book.id);
+    const [categories, authors] = await Promise.all([
+      categoriesApi.getAll(),
+      authorsApi.getAll(),
+    ]);
+    const normalizedBook = normalizeBookForPersistence(book, {
+      internalCategories: categories.map((category) => category.name),
+      authors,
+    });
+
+    // Ưu tiên authorId đã được resolve bởi tiki.api trước (nếu có)
+    const incomingAuthorId = book.authorId || normalizedBook.authorId;
+
+    if (incomingAuthorId) {
+      // authorId đã có sẵn (được gán từ tiki.api.ts hoặc Admin form)
+      normalizedBook.authorId = incomingAuthorId;
+    } else {
+      // Tìm tác giả theo tên (chính xác) trong DB hiện tại
+      // Xử lý cả trường hợp nhiều tác giả: lấy tên đầu tiên để tìm
+      const primaryAuthorName = (normalizedBook.author || '').split(',')[0].trim();
+      const matchedAuthor = authors.find(
+        (author) => normalizeAuthorKey(author.name) === normalizeAuthorKey(primaryAuthorName)
+      );
+
+      if (matchedAuthor) {
+        normalizedBook.authorId = matchedAuthor.id;
+        normalizedBook.authorBio = normalizedBook.authorBio || matchedAuthor.bio || '';
+        console.log(`[saveBook] Matched author: "${matchedAuthor.name}" (${matchedAuthor.id})`);
+      } else if (shouldAutoCreateAuthor(primaryAuthorName)) {
+        // Tạo tác giả mới nếu chưa tồn tại
+        console.log(`[saveBook] Creating new author: "${normalizedBook.author}"`);
+        const createdAuthorId = await authorsApi.create({
+          name: normalizedBook.author!,
+          bio: normalizedBook.authorBio || '',
+          avatar: buildAuthorAvatar(normalizedBook.author!),
+        });
+
+        if (createdAuthorId) {
+          normalizedBook.authorId = createdAuthorId;
+          console.log(`[saveBook] Created author with ID: ${createdAuthorId}`);
+        }
+      }
+    }
+
+    if (normalizedBook.id) {
+       let existingBook = await booksApi.getById(normalizedBook.id);
+       
+       // Thử tìm theo ISBN nếu không tìm thấy theo ID (cho sự chuyển dịch ID Tiki -> ID book-...)
+       if (!existingBook && normalizedBook.isbn) {
+         existingBook = await booksApi.getByIsbn(normalizedBook.isbn);
+       }
+
        if (existingBook) {
-         await booksApi.update(book.id, book);
-         return book.id;
+         await booksApi.update(existingBook.id, normalizedBook);
+         return existingBook.id;
        }
     }
-    return await booksApi.create(book);
+    return await booksApi.create(normalizedBook as Omit<any, 'id'>);
   }
 
   updateBook = booksApi.update;

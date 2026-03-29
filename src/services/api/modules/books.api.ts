@@ -51,14 +51,17 @@ export const booksApi = {
       const { data } = await cache.swr<Book | null>(
         `books:id:${id}`,
         async () => {
-          const res = await apiClient.get<ApiResponse<Book>>(`/api/books/${id}`);
+          const res = await apiClient.get<ApiResponse<Book>>(`/api/books/${id}`, {
+            // Silence 404 logs for existence checks
+            ['_silentLog' as any]: true
+          });
           return res.data.data || null;
         },
         { ttl: TTL_5M, tags: [BOOKS_TAG], persist: true }
       );
       return data || null;
     } catch (error) {
-      console.error('Error fetching book:', handleApiError(error));
+      // 404 is expected during existence checks in import flow
       return null;
     }
   },
@@ -69,14 +72,17 @@ export const booksApi = {
       const { data } = await cache.swr<Book | null>(
         `books:isbn:${isbn}`,
         async () => {
-          const res = await apiClient.get<ApiResponse<Book>>(`/api/books/isbn/${isbn}`);
+          const res = await apiClient.get<ApiResponse<Book>>(`/api/books/isbn/${isbn}`, {
+            // Silence 404 logs for existence checks
+            ['_silentLog' as any]: true
+          });
           return res.data.data || null;
         },
         { ttl: TTL_5M, tags: [BOOKS_TAG], persist: true }
       );
       return data || null;
     } catch (error) {
-      console.error('Error fetching book by ISBN:', handleApiError(error));
+      // 404 is expected during existence checks in import flow
       return null;
     }
   },

@@ -116,7 +116,7 @@ export const cache = {
   swr: async <T>(
     key: string,
     fetcher: () => Promise<T>,
-  options?: CacheOptions
+    options?: CacheOptions
   ): Promise<{ data: T; fromCache: boolean }> => {
     if (options?.force) {
       bumpVersion(key);
@@ -125,7 +125,7 @@ export const cache = {
       const requestVersion = getVersion(key);
 
       try {
-        console.log(`🚀 [API] Force fetching fresh data for: ${key}`);
+        // console.log(`🚀 [API] Force fetching fresh data for: ${key}`);
         const data = await fetcher();
         if (shouldUseResult(key, requestVersion)) {
           cache.set(key, data, options);
@@ -165,6 +165,10 @@ export const cache = {
       resolveRef = resolve;
       rejectRef = reject;
     });
+    
+    // Attaching a dummy catch handler to the wrapper promise to prevent 
+    // "Uncaught (in promise)" errors if the API fails but no one awaits it yet.
+    wrapperPromise.catch(() => {});
 
     // Set in-flight BEFORE calling fetcher to prevent race conditions (like React StrictMode)
     inFlight.set(key, wrapperPromise);
@@ -177,7 +181,7 @@ export const cache = {
     if (stale !== null) {
       // Revalidation in background
       stats.revalidations += 1;
-      console.log(`🚀 [API] Revalidating data for: ${key}`);
+      console.log(`📡 [NETWORK] Revalidating data for: ${key}`);
       fetcher()
         .then((data) => {
           if (shouldUseResult(key, requestVersion)) {
@@ -198,7 +202,7 @@ export const cache = {
 
     // No stale data, wait for fresh
     try {
-      console.log(`🚀 [API] Fetching fresh data for: ${key}`);
+      // console.log(`🚀 [API] Fetching fresh data for: ${key}`);
       const data = await fetcher();
       if (shouldUseResult(key, requestVersion)) {
         cache.set(key, data, options);

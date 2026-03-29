@@ -44,12 +44,15 @@ apiClient.interceptors.request.use(
     lastRequestLogs.set(logKey, now);
 
     const color = method === 'GET' ? '#2196F3' : method === 'POST' ? '#4CAF50' : '#FF9800';
+    const isMutation = method !== 'GET';
     
-    console.log(
-      `%c🌐 API ${method}%c ${config.url}`,
-      `color: white; background: ${color}; padding: 2px 4px; border-radius: 3px; font-weight: bold;`,
-      'color: inherit;'
-    );
+    if (isMutation && !(config as any)._silentLog) {
+      console.log(
+        `%c💾 [DATABASE WRITE] ${method}%c ${config.url}`,
+        `color: white; background: ${color}; padding: 2px 4px; border-radius: 3px; font-weight: bold;`,
+        'color: inherit;'
+      );
+    }
     return config;
   },
   (error) => {
@@ -67,15 +70,18 @@ apiClient.interceptors.response.use(
 
     const status = response.status;
     const url = response.config.url;
+    const isMutation = response.config.method?.toUpperCase() !== 'GET';
     
-    console.groupCollapsed(
-      `%c✅ API ${status}%c ${url}`,
-      'color: #4CAF50; font-weight: bold;',
-      'color: inherit;'
-    );
-    console.log('Data:', response.data);
-    console.log('Config:', response.config);
-    console.groupEnd();
+    if (isMutation) {
+      console.groupCollapsed(
+        `%c✅ DB SYNC ${status}%c ${url}`,
+        'color: #4CAF50; font-weight: bold;',
+        'color: inherit;'
+      );
+      console.log('Data:', response.data);
+      console.log('Config:', response.config);
+      console.groupEnd();
+    }
     
     return response;
   },
@@ -100,7 +106,7 @@ apiClient.interceptors.response.use(
     }
 
     // Handle specific errors
-    if (error.response) {
+    if (error.response && !isSilent) {
       const { status, data } = error.response;
       
       switch (status) {
