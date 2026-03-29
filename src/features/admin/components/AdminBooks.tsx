@@ -14,7 +14,7 @@ interface AdminBooksProps {
   books: Book[];
   authors: Author[];
   categories: CategoryInfo[];
-  refreshData: () => Promise<void>;
+  refreshBooksDeps: () => Promise<void>;
   theme?: 'light' | 'midnight';
 }
 
@@ -22,7 +22,7 @@ const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 };
 
-const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, refreshData, theme = 'light' }) => {
+const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, refreshBooksDeps, theme = 'light' }) => {
   const isMidnight = theme === 'midnight';
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -91,7 +91,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     try {
       await adminService.updateBook(bookId, { stockQuantity: newStock });
       toast.success('Cập nhật tồn kho thành công');
-      await refreshData();
+      await refreshBooksDeps();
     } catch (error) {
       ErrorHandler.handle(error, 'cập nhật tồn kho');
     }
@@ -243,7 +243,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     const success = await importSingleBook(book);
     if (success) {
       toast.success(`Đã nhập sách "${book.title}"`);
-      await refreshData();
+      await refreshBooksDeps();
     } else {
       toast.error('Lỗi khi nhập sách');
     }
@@ -270,7 +270,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     setIsAutoScanning(false);
     toast.success(`Đã nhập thành công ${successCount}/${selectedImportBooks.length} sách`);
     setSelectedImportBooks([]);
-    await refreshData();
+    await refreshBooksDeps();
   };
 
   const handleStartAutoScan = async () => {
@@ -335,7 +335,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
       }
 
       toast.success(`Đã hoàn tất! Nhập tổng cộng ${grandTotalImported} sách mới.`);
-      await refreshData();
+      await refreshBooksDeps();
 
     } catch (err) {
       console.error(err);
@@ -425,7 +425,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
         avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(quickAuthorName)}&background=random`
       };
       const authorId = await adminService.saveAuthor(newAuthor as Author);
-      await refreshData();
+      await refreshBooksDeps();
       setBookFormData(prev => ({ ...prev, authorId: authorId }));
       setQuickAuthorName('');
       setIsQuickAuthorOpen(false);
@@ -443,7 +443,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     try {
       await adminService.deleteBook(book.id);
       toast.success('Đã xóa sách thành công');
-      await refreshData();
+      await refreshBooksDeps();
     } catch (error) {
       ErrorHandler.handle(error, 'xóa sách');
     }
@@ -458,7 +458,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
       await adminService.deleteBooksBulk(selectedBooks);
       toast.success(`Đã xóa ${selectedBooks.length} cuốn sách`);
       setSelectedBooks([]);
-      await refreshData();
+      await refreshBooksDeps();
     } catch (err) {
       ErrorHandler.handle(err, 'xóa hàng loạt sách');
     } finally {
@@ -502,7 +502,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
       await adminService.saveBook(finalBook);
       toast.success(editingBook ? 'Cập nhật thành công' : 'Đã thêm sách mới');
       setIsBookModalOpen(false);
-      await refreshData();
+      await refreshBooksDeps();
     } catch (err) {
       ErrorHandler.handle(err, 'lưu sách');
     } finally {
@@ -614,7 +614,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
                 try {
                   const res = await adminService.deduplicateBooks();
                   toast.success(`Đã xóa ${res.deletedCount} cuốn sách bị lặp`);
-                  await refreshData();
+                  await refreshBooksDeps();
                 } catch (e) {
                   toast.error('Lỗi khi xử lý dữ liệu');
                 }

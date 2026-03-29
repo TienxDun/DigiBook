@@ -6,10 +6,30 @@ import { cache } from '../../cache';
 const TTL_5M = 5 * 60 * 1000;
 const BOOKS_TAG = 'books';
 
+interface FetchBooksOptions {
+  force?: boolean;
+}
+
 export const booksApi = {
   // GET all books
-  async getAll(): Promise<Book[]> {
+  async getAll(options?: FetchBooksOptions): Promise<Book[]> {
     try {
+      if (options?.force) {
+        const res = await apiClient.get<ApiResponse<Book[]>>('/api/books', {
+          params: {
+            force: true,
+            _ts: Date.now(),
+          },
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            Pragma: 'no-cache',
+            Expires: '0',
+          },
+        });
+
+        return res.data.data || [];
+      }
+
       const { data } = await cache.swr<Book[]>(
         'books:all',
         async () => {

@@ -6,6 +6,10 @@ import { cache } from '../../cache';
 const TTL_5M = 5 * 60 * 1000;
 const ORDERS_TAG = 'orders';
 
+interface FetchOrdersOptions {
+  force?: boolean;
+}
+
 export interface OrderCustomer {
   name: string;
   phone: string;
@@ -37,8 +41,24 @@ export const ordersApi = {
   /**
    * Get all orders (admin)
    */
-  async getAll(): Promise<Order[] | null> {
+  async getAll(options?: FetchOrdersOptions): Promise<Order[] | null> {
     try {
+      if (options?.force) {
+        const response = await apiClient.get<ApiResponse<Order[]>>('/api/orders', {
+          params: {
+            force: true,
+            _ts: Date.now(),
+          },
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            Pragma: 'no-cache',
+            Expires: '0',
+          },
+        });
+
+        return response.data.data || null;
+      }
+
       const { data } = await cache.swr<Order[] | null>(
         'orders:all',
         async () => {
@@ -57,8 +77,24 @@ export const ordersApi = {
   /**
    * Get order by ID
    */
-  async getById(orderId: string): Promise<Order | null> {
+  async getById(orderId: string, options?: FetchOrdersOptions): Promise<Order | null> {
     try {
+      if (options?.force) {
+        const response = await apiClient.get<ApiResponse<Order>>(`/api/orders/${orderId}`, {
+          params: {
+            force: true,
+            _ts: Date.now(),
+          },
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            Pragma: 'no-cache',
+            Expires: '0',
+          },
+        });
+
+        return response.data.data || null;
+      }
+
       const { data } = await cache.swr<Order | null>(
         `orders:id:${orderId}`,
         async () => {

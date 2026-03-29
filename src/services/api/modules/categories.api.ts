@@ -7,12 +7,32 @@ const CATEGORIES_CACHE_KEY = 'categories:all';
 const CATEGORY_DETAIL_PREFIX = 'categories:detail:';
 const TTL_24H = 24 * 60 * 60 * 1000;
 
+interface FetchCategoriesOptions {
+  force?: boolean;
+}
+
 export const categoriesApi = {
   /**
    * Get all categories
    */
-  async getAll(): Promise<CategoryInfo[]> {
+  async getAll(options?: FetchCategoriesOptions): Promise<CategoryInfo[]> {
     try {
+      if (options?.force) {
+        const response = await apiClient.get<ApiResponse<CategoryInfo[]>>('/api/categories', {
+          params: {
+            force: true,
+            _ts: Date.now(),
+          },
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            Pragma: 'no-cache',
+            Expires: '0',
+          },
+        });
+
+        return response.data.data || [];
+      }
+
       const { data } = await cache.swr<CategoryInfo[]>(
         CATEGORIES_CACHE_KEY,
         async () => {

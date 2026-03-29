@@ -7,12 +7,32 @@ const AUTHORS_CACHE_KEY = 'authors:all';
 const AUTHOR_DETAIL_PREFIX = 'authors:id:';
 const TTL_24H = 24 * 60 * 60 * 1000;
 
+interface FetchAuthorsOptions {
+  force?: boolean;
+}
+
 export const authorsApi = {
   /**
    * Get all authors
    */
-  async getAll(): Promise<Author[]> {
+  async getAll(options?: FetchAuthorsOptions): Promise<Author[]> {
     try {
+      if (options?.force) {
+        const response = await apiClient.get<ApiResponse<Author[]>>('/api/authors', {
+          params: {
+            force: true,
+            _ts: Date.now(),
+          },
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            Pragma: 'no-cache',
+            Expires: '0',
+          },
+        });
+
+        return response.data.data || [];
+      }
+
       const { data } = await cache.swr<Author[]>(
         AUTHORS_CACHE_KEY,
         async () => {

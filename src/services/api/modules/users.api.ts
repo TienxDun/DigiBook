@@ -6,6 +6,10 @@ import { cache } from '../../cache';
 const TTL_5M = 5 * 60 * 1000;
 const USERS_TAG = 'users';
 
+interface FetchUsersOptions {
+  force?: boolean;
+}
+
 export const usersApi = {
   // GET user profile
   async getProfile(userId: string): Promise<UserProfile | null> {
@@ -159,8 +163,24 @@ export const usersApi = {
   /**
    * Get all users (admin only)
    */
-  async getAll(): Promise<UserProfile[]> {
+  async getAll(options?: FetchUsersOptions): Promise<UserProfile[]> {
     try {
+      if (options?.force) {
+        const response = await apiClient.get<ApiResponse<UserProfile[]>>('/api/users', {
+          params: {
+            force: true,
+            _ts: Date.now(),
+          },
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            Pragma: 'no-cache',
+            Expires: '0',
+          },
+        });
+
+        return response.data.data || [];
+      }
+
       const { data } = await cache.swr<UserProfile[]>(
         'users:all',
         async () => {

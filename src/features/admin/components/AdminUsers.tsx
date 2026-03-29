@@ -10,11 +10,11 @@ import { getEntityTimestamp } from '../utils/date';
 
 interface AdminUsersProps {
   users: User[];
-  refreshData: () => Promise<void> | void;
+  refreshUsersData: () => Promise<void>;
   theme?: 'light' | 'midnight';
 }
 
-const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'light' }) => {
+const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshUsersData, theme = 'light' }) => {
   const isMidnight = theme === 'midnight';
   const [userRoleFilter, setUserRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
   const [userStatusFilter, setUserStatusFilter] = useState<'all' | 'active' | 'banned'>('all');
@@ -28,7 +28,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
 
     try {
       await adminService.updateUserRole(userId, newRole);
-      await refreshData();
+      await refreshUsersData();
     } catch (error) {
       console.error('Error updating user role:', error);
       alert('Có lỗi xảy ra khi cập nhật vai trò');
@@ -42,7 +42,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
 
     try {
       await adminService.updateUserStatus(userId, newStatus);
-      await refreshData();
+      await refreshUsersData();
     } catch (error) {
       console.error('Error updating user status:', error);
       alert('Có lỗi xảy ra khi cập nhật trạng thái');
@@ -54,7 +54,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
 
     try {
       await adminService.deleteUser(userId);
-      await refreshData();
+      await refreshUsersData();
       toast.success('Đã xóa người dùng thành công');
     } catch (error) {
       console.error('Error deleting user:', error);
@@ -70,7 +70,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
         await Promise.all(selectedUsers.map(id => adminService.deleteUser(id)));
         toast.success(`Đã xóa ${selectedUsers.length} người dùng`);
         setSelectedUsers([]);
-        await refreshData();
+        await refreshUsersData();
       } catch (err) {
         console.error('Error bulk deleting users', err);
         toast.error('Có lỗi khi xóa hàng loạt');
@@ -214,7 +214,9 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
           <div className={`h-8 w-px ${isMidnight ? 'bg-white/5' : 'bg-border'}`}></div>
 
           <button
-            onClick={refreshData}
+            onClick={async () => {
+              await refreshUsersData();
+            }}
             className={`h-12 w-12 rounded-2xl flex items-center justify-center transition-all shadow-sm border group ${isMidnight ? 'bg-slate-800 border-white/10 text-slate-400 hover:text-primary' : 'bg-card border-border text-muted-foreground hover:text-primary'}`}
             title="Refresh"
           >

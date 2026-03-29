@@ -18,7 +18,7 @@ const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 interface AdminOrdersProps {
   orders: Order[];
-  refreshData: () => Promise<void>;
+  refreshOrdersDeps: () => Promise<void>;
   theme?: 'light' | 'midnight';
 }
 
@@ -51,7 +51,7 @@ const formatOrderTime = (createdAt: any, fallbackDate?: string): { date: string 
 
 const orderStatusOptions = ORDER_STATUS_OPTIONS;
 
-const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 'light' }) => {
+const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshOrdersDeps, theme = 'light' }) => {
   const isMidnight = theme === 'midnight';
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<(Order & { items: OrderItem[] }) | null>(null);
@@ -126,12 +126,8 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
       if (selectedOrder && selectedOrder.id === orderId) {
         setSelectedOrder({ ...selectedOrder, status: newStatusLabel, statusStep: newStatusStep });
       }
+      await refreshOrdersDeps();
       toast.success('Cập nhật trạng thái thành công!');
-      
-      // Delay API fetch so backend indexes can catch up
-      setTimeout(() => {
-        refreshData();
-      }, 500);
     } catch (error) {
       ErrorHandler.handle(error, 'cập nhật trạng thái đơn hàng');
     } finally {
@@ -199,7 +195,10 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
             <div className={`h-8 w-px hidden xl:block ${isMidnight ? 'bg-white/5' : 'bg-border'}`}></div>
 
             <button
-              onClick={() => { refreshData(); toast.success('Đã làm mới dữ liệu'); }}
+              onClick={async () => {
+                await refreshOrdersDeps();
+                toast.success('Đã làm mới dữ liệu');
+              }}
               className={`h-12 px-6 rounded-2xl font-bold transition-all shadow-sm border flex items-center gap-2 group ${isMidnight
                 ? 'bg-slate-800 border-white/10 text-slate-400 hover:text-primary hover:bg-slate-700'
                 : 'bg-card border-border text-muted-foreground hover:text-primary hover:bg-muted'

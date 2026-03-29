@@ -14,6 +14,7 @@ import { useAdminCategories } from '../hooks/useAdminCategories';
 import { useAdminCoupons } from '../hooks/useAdminCoupons';
 import { useAdminUsers } from '../hooks/useAdminUsers';
 import { useAdminLogs } from '../hooks/useAdminLogs';
+import { createAdminRefreshCoordinator } from '../utils/refresh';
 import AdminSidebar from '../sections/AdminSidebar';
 import AdminHeader from '../sections/AdminHeader';
 import AdminOverview from '../sections/AdminOverview';
@@ -47,20 +48,29 @@ const AdminDashboard: React.FC = () => {
   const overviewLogsState = useAdminLogs(activeTab === 'overview', 5);
   const logsState = useAdminLogs(activeTab === 'logs', 50);
 
-  const refreshBooksModule = useCallback(async () => {
-    await Promise.all([booksState.refresh(), authorsState.refresh(), categoriesState.refresh()]);
-  }, [authorsState, booksState, categoriesState]);
-
-  const refreshOverviewData = useCallback(async () => {
-    await Promise.all([
-      booksState.refresh(),
-      ordersState.refresh(),
-      authorsState.refresh(),
-      categoriesState.refresh(),
-      couponsState.refresh(),
-      overviewLogsState.refresh(),
-    ]);
-  }, [authorsState, booksState, categoriesState, couponsState, ordersState, overviewLogsState]);
+  const refreshCoordinator = useMemo(
+    () =>
+      createAdminRefreshCoordinator({
+        books: booksState.refresh,
+        authors: authorsState.refresh,
+        categories: categoriesState.refresh,
+        coupons: couponsState.refresh,
+        orders: ordersState.refresh,
+        users: usersState.refresh,
+        overviewLogs: overviewLogsState.refresh,
+        logs: logsState.refresh,
+      }),
+    [
+      authorsState.refresh,
+      booksState.refresh,
+      categoriesState.refresh,
+      couponsState.refresh,
+      logsState.refresh,
+      ordersState.refresh,
+      overviewLogsState.refresh,
+      usersState.refresh,
+    ],
+  );
 
   const handleSelectTab = (tabId: AdminTabId) => {
     setActiveTab(tabId);
@@ -78,7 +88,7 @@ const AdminDashboard: React.FC = () => {
       const result = await adminService.syncAllUsersMembership();
       if (result.success) {
         toast.success(`Đã đồng bộ thành công cho ${result.updatedCount} người dùng!`);
-        await Promise.all([refreshOverviewData(), usersState.refresh()]);
+        await Promise.all([refreshCoordinator.refreshOverviewData(), refreshCoordinator.refreshUsersData()]);
       } else {
         toast.error(result.message || 'Có lỗi xảy ra khi đồng bộ.');
       }
@@ -87,7 +97,7 @@ const AdminDashboard: React.FC = () => {
     } finally {
       setIsSyncing(false);
     }
-  }, [isSyncing, refreshOverviewData, usersState]);
+  }, [isSyncing, refreshCoordinator]);
 
   const overviewStats = useMemo(
     () => buildAdminOverviewStats({
@@ -129,26 +139,26 @@ const AdminDashboard: React.FC = () => {
             books={booksState.books}
             authors={authorsState.authors}
             categories={categoriesState.categories}
-            refreshData={refreshBooksModule}
+            refreshBooksDeps={refreshCoordinator.refreshBooksDeps}
           />
         );
       case 'authors':
-        return <AdminAuthors theme={theme} authors={authorsState.authors} refreshData={authorsState.refresh} />;
+        return <AdminAuthors theme={theme} authors={authorsState.authors} refreshAuthorsDeps={refreshCoordinator.refreshAuthorsDeps} />;
       case 'categories':
         return (
           <AdminCategories
             theme={theme}
             categories={categoriesState.categories}
             setCategories={categoriesState.setData}
-            refreshData={categoriesState.refresh}
+            refreshCategoriesDeps={refreshCoordinator.refreshCategoriesDeps}
           />
         );
       case 'coupons':
-        return <AdminCoupons theme={theme} coupons={couponsState.coupons} refreshData={couponsState.refresh} />;
+        return <AdminCoupons theme={theme} coupons={couponsState.coupons} refreshCouponsDeps={refreshCoordinator.refreshCouponsDeps} />;
       case 'orders':
-        return <AdminOrders theme={theme} orders={ordersState.orders} refreshData={ordersState.refresh} />;
+        return <AdminOrders theme={theme} orders={ordersState.orders} refreshOrdersDeps={refreshCoordinator.refreshOrdersDeps} />;
       case 'users':
-        return <AdminUsers theme={theme} users={usersState.users} refreshData={usersState.refresh} />;
+        return <AdminUsers theme={theme} users={usersState.users} refreshUsersData={refreshCoordinator.refreshUsersData} />;
       case 'logs':
         return (
           <AdminLogs

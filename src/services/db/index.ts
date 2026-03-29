@@ -187,11 +187,11 @@ class DataService {
   deleteReview = reviewsApi.delete;
 
   // System Logs
-  async getSystemLogs(offset?: number, limit?: number) {
+  async getSystemLogs(offset?: number, limit?: number, options?: { force?: boolean }) {
     if (limit) {
-      return await logsApi.getRecent(limit);
+      return await logsApi.getRecent(limit, options);
     }
-    return await logsApi.getAll();
+    return await logsApi.getAll(options);
   }
   
   getLogsByStatus = logsApi.getByStatus;

@@ -15,11 +15,11 @@ const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 interface AdminAuthorsProps {
   authors: Author[];
-  refreshData: () => Promise<void>;
+  refreshAuthorsDeps: () => Promise<void>;
   theme?: 'light' | 'midnight';
 }
 
-const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme = 'light' }) => {
+const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshAuthorsDeps, theme = 'light' }) => {
   const isMidnight = theme === 'midnight';
   const [isAuthorModalOpen, setIsAuthorModalOpen] = useState(false);
   const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);
@@ -77,7 +77,7 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
       try {
         await adminService.deleteAuthor(author.id);
         toast.success('Đã xóa tác giả thành công');
-        await refreshData();
+        await refreshAuthorsDeps();
       } catch (err) {
         ErrorHandler.handle(err, 'xóa tác giả');
       }
@@ -95,7 +95,7 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
         toast.success('Đã thêm tác giả mới');
       }
       setIsAuthorModalOpen(false);
-      await refreshData();
+      await refreshAuthorsDeps();
     } catch (err: any) {
       toast.error('Lỗi: ' + (err.message || 'Không thể lưu tác giả'));
     }
@@ -123,7 +123,7 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
         await Promise.all(selectedAuthors.map(id => adminService.deleteAuthor(id)));
         toast.success(`Đã xóa ${selectedAuthors.length} tác giả`);
         setSelectedAuthors([]);
-        await refreshData();
+        await refreshAuthorsDeps();
       } catch (err) {
         ErrorHandler.handle(err, 'xóa hàng loạt tác giả');
       } finally {

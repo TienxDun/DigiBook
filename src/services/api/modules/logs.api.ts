@@ -6,6 +6,10 @@ import { cache } from '../../cache';
 const TTL_5M = 5 * 60 * 1000;
 const LOGS_TAG = 'logs';
 
+interface FetchLogsOptions {
+  force?: boolean;
+}
+
 interface LogStatistics {
   total: number;
   byStatus: Record<string, number>;
@@ -29,8 +33,24 @@ export const logsApi = {
   /**
    * Get all system logs (admin)
    */
-  async getAll(): Promise<SystemLog[]> {
+  async getAll(options?: FetchLogsOptions): Promise<SystemLog[]> {
     try {
+      if (options?.force) {
+        const res = await apiClient.get<ApiResponse<SystemLog[]>>('/api/logs', {
+          params: {
+            force: true,
+            _ts: Date.now(),
+          },
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            Pragma: 'no-cache',
+            Expires: '0',
+          },
+        });
+
+        return res.data.data || [];
+      }
+
       const { data } = await cache.swr<SystemLog[]>(
         'logs:all',
         async () => {
@@ -129,8 +149,25 @@ export const logsApi = {
   /**
    * Get recent logs with limit (admin)
    */
-  async getRecent(limit: number = 50): Promise<SystemLog[]> {
+  async getRecent(limit: number = 50, options?: FetchLogsOptions): Promise<SystemLog[]> {
     try {
+      if (options?.force) {
+        const res = await apiClient.get<ApiResponse<SystemLog[]>>('/api/logs/recent', {
+          params: {
+            limit,
+            force: true,
+            _ts: Date.now(),
+          },
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            Pragma: 'no-cache',
+            Expires: '0',
+          },
+        });
+
+        return res.data.data || [];
+      }
+
       const { data } = await cache.swr<SystemLog[]>(
         `logs:recent:${limit}`,
         async () => {

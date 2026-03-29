@@ -4,6 +4,11 @@ import { Coupon } from '@/shared/types';
 import { cache } from '../../cache';
 
 const COUPONS_TAG = 'coupons';
+const TTL_5M = 5 * 60 * 1000;
+
+interface FetchCouponsOptions {
+  force?: boolean;
+}
 
 interface ValidateCouponRequest {
   code: string;
@@ -20,15 +25,31 @@ export const couponsApi = {
   /**
    * Get all coupons (admin)
    */
-  async getAll(): Promise<Coupon[]> {
+  async getAll(options?: FetchCouponsOptions): Promise<Coupon[]> {
     try {
+      if (options?.force) {
+        const response = await apiClient.get<ApiResponse<Coupon[]>>('/api/coupons', {
+          params: {
+            force: true,
+            _ts: Date.now(),
+          },
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            Pragma: 'no-cache',
+            Expires: '0',
+          },
+        });
+
+        return response.data.data || [];
+      }
+
       const { data } = await cache.swr<Coupon[]>(
         `${COUPONS_TAG}:all`,
         async () => {
           const response = await apiClient.get<ApiResponse<Coupon[]>>('/api/coupons');
           return response.data.data || [];
         },
-        { persist: true }
+        { ttl: TTL_5M, persist: true, tags: [COUPONS_TAG] }
       );
       return data || [];
     } catch (error) {

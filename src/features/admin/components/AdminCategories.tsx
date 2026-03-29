@@ -16,11 +16,11 @@ const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 interface AdminCategoriesProps {
   categories: CategoryInfo[];
   setCategories: React.Dispatch<React.SetStateAction<CategoryInfo[]>>;
-  refreshData: () => Promise<void>;
+  refreshCategoriesDeps: () => Promise<void>;
   theme?: 'light' | 'midnight';
 }
 
-const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCategories, refreshData, theme = 'light' }) => {
+const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCategories, refreshCategoriesDeps, theme = 'light' }) => {
   const isMidnight = theme === 'midnight';
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<CategoryInfo | null>(null);
@@ -86,7 +86,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
         await adminService.deleteCategory(category.name);
         toast.success('Đã xóa danh mục thành công');
         // Still refresh to sync with server and handle any background dependencies
-        await refreshData();
+        await refreshCategoriesDeps();
       } catch (err: any) {
         // Rollback on failure
         setCategories(previousCategories);
@@ -118,7 +118,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
         await adminService.createCategory(categoryData);
         toast.success('Đã thêm danh mục mới');
       }
-      await refreshData();
+      await refreshCategoriesDeps();
     } catch (err: any) {
       // Rollback
       setCategories(previousCategories);
@@ -135,7 +135,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
         const result = await adminService.seedDatabase();
         if (result.success) {
           toast.success(`Đã khởi tạo thành công ${result.count} danh mục`);
-          await refreshData();
+          await refreshCategoriesDeps();
         } else {
           toast.error(`Lỗi: ${result.msg}`);
         }
@@ -169,7 +169,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
         await Promise.all(selectedCategories.map(name => adminService.deleteCategory(name)));
         toast.success(`Đã xóa ${selectedCategories.length} danh mục`);
         setSelectedCategories([]);
-        await refreshData();
+        await refreshCategoriesDeps();
       } catch (err) {
         ErrorHandler.handle(err, 'xóa hàng loạt danh mục');
       } finally {

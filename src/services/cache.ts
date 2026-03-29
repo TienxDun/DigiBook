@@ -31,6 +31,7 @@ export interface CacheOptions {
   ttl?: number;
   persist?: boolean;
   tags?: string[];
+  force?: boolean;
 }
 
 export const cache = {
@@ -115,8 +116,29 @@ export const cache = {
   swr: async <T>(
     key: string,
     fetcher: () => Promise<T>,
-    options?: CacheOptions
+  options?: CacheOptions
   ): Promise<{ data: T; fromCache: boolean }> => {
+    if (options?.force) {
+      bumpVersion(key);
+      inFlight.delete(key);
+      inFlightTags.delete(key);
+      const requestVersion = getVersion(key);
+
+      try {
+        console.log(`🚀 [API] Force fetching fresh data for: ${key}`);
+        const data = await fetcher();
+        if (shouldUseResult(key, requestVersion)) {
+          cache.set(key, data, options);
+        }
+        return { data, fromCache: false };
+      } finally {
+        if (getVersion(key) === requestVersion) {
+          inFlight.delete(key);
+          inFlightTags.delete(key);
+        }
+      }
+    }
+
     // 1. Try to get fresh data from memory/storage
     const fresh = cache.get<T>(key, { persist: options?.persist });
     if (fresh !== null) {

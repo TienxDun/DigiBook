@@ -15,11 +15,11 @@ const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 interface AdminCouponsProps {
   coupons: Coupon[];
-  refreshData: () => void;
+  refreshCouponsDeps: () => Promise<void>;
   theme?: 'light' | 'midnight';
 }
 
-const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme = 'light' }) => {
+const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshCouponsDeps, theme = 'light' }) => {
   const isMidnight = theme === 'midnight';
   const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
@@ -81,7 +81,7 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
       try {
         await adminService.deleteCoupon(coupon.id!);
         toast.success('Đã xóa mã khuyến mãi');
-        refreshData();
+        await refreshCouponsDeps();
       } catch (err: any) {
         toast.error('Lỗi: ' + (err.message || 'Không thể xóa mã khuyến mãi'));
       }
@@ -100,7 +100,7 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
       await adminService.saveCoupon(finalCoupon);
       toast.success(editingCoupon ? 'Cập nhật mã khuyến mãi thành công' : 'Đã tạo mã khuyến mãi mới');
       setIsCouponModalOpen(false);
-      refreshData();
+      await refreshCouponsDeps();
     } catch (err: any) {
       ErrorHandler.handle(err, 'lưu mã khuyến mãi');
     } finally {
@@ -130,7 +130,7 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
         await Promise.all(selectedCoupons.map(id => adminService.deleteCoupon(id)));
         toast.success(`Đã xóa ${selectedCoupons.length} mã giảm giá`);
         setSelectedCoupons([]);
-        refreshData();
+        await refreshCouponsDeps();
       } catch (err) {
         ErrorHandler.handle(err, 'xóa hàng loạt mã giảm giá');
       } finally {
