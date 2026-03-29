@@ -117,8 +117,9 @@ const BookDetails: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuick
         // Fetch model config
 
         // Smart routing: Try by ID first if slug looks like an ID (e.g., TK-xxxx)
+        const isId = slug.startsWith('TK-') || slug.startsWith('tk-') || slug.startsWith('book-');
         let foundBook = null;
-        if (slug.startsWith('TK-') || slug.startsWith('tk-')) {
+        if (isId) {
           foundBook = await db.getBookById(slug);
         }
 

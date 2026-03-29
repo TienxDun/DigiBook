@@ -65,6 +65,7 @@ describe('tikiNormalizer', () => {
     expect(book.quantitySold).toEqual({ text: 'Đã bán 386', value: 386 });
     expect(book.badges).toEqual([{ code: 'is_hero', text: 'Hero', type: 'icon' }]);
     expect(book.discountRate).toBe(21);
+    expect(book.slug).toBe('book-275625701');
     expect(book.searchKeywords).toContain('kinh tế');
     expect(book.searchKeywords).toContain('1378623173921');
   });
@@ -90,6 +91,7 @@ describe('tikiNormalizer', () => {
     expect(book.images).toEqual([]);
     expect(book.cover).toBe('');
     expect(book.description).toBe('');
+    expect(book.slug).toBe('book-12345');
     expect(book.quantitySold).toBeUndefined();
   });
 
@@ -123,6 +125,7 @@ describe('tikiNormalizer', () => {
     expect(normalized.cover).toBe('https://salt.tikicdn.com/ts/product/a2/03/f8/cover.jpg');
     expect(normalized.images).toEqual(['https://salt.tikicdn.com/ts/product/a2/03/f8/cover.jpg']);
     expect(normalized.description).toBe('Test');
+    expect(normalized.slug).toBe('book-275625701');
   });
 
   it('strips html safely', () => {

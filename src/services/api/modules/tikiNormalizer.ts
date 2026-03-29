@@ -429,6 +429,7 @@ export function normalizeTikiBookData(product: TikiProduct, options: NormalizeTi
     translator,
     bookLayout,
     manufacturer,
+    slug: id, // Default slug to the generated ID
   };
 
   normalizedBook.searchKeywords = generateSearchKeywords(normalizedBook);
@@ -478,7 +479,7 @@ export function normalizeBookForPersistence(
     language: normalizeWhitespace(safeTrim(book.language)) || DEFAULT_LANGUAGE,
     badge: normalizeWhitespace(safeTrim(book.badge)),
     isAvailable: Boolean(book.isAvailable ?? Math.max(0, toInt(book.stockQuantity, 0)) > 0),
-    slug: normalizeWhitespace(safeTrim(book.slug)),
+    slug: normalizeWhitespace(safeTrim(book.slug)) || id,
     viewCount: Math.max(0, toInt(book.viewCount, 0)),
     reviewCount: Math.max(0, toInt(book.reviewCount, 0)),
     discountRate: Math.max(0, toNumber(book.discountRate, 0)),
