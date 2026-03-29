@@ -1,13 +1,16 @@
 import React, { useState, useMemo } from 'react';
 import toast from '@/shared/utils/toast';
-import { db } from '@/services/db';
 import { Pagination } from '@/shared/components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserProfile as User } from '@/shared/types';
+import { adminService } from '../services/admin.service';
+import { useAdminPagination } from '../hooks/useAdminPagination';
+import { useAdminSelection } from '../hooks/useAdminSelection';
+import { getEntityTimestamp } from '../utils/date';
 
 interface AdminUsersProps {
   users: User[];
-  refreshData: () => void;
+  refreshData: () => Promise<void> | void;
   theme?: 'light' | 'midnight';
 }
 
@@ -16,11 +19,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
   const [userRoleFilter, setUserRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
   const [userStatusFilter, setUserStatusFilter] = useState<'all' | 'active' | 'banned'>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
-
-  // Pagination State
-  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
   const handleUpdateUserRole = async (userId: string, currentRole: 'admin' | 'user') => {
@@ -28,8 +27,8 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
     if (!window.confirm(`Bạn có chắc chắn muốn chuyển người dùng này thành ${newRole === 'admin' ? 'Quản trị viên' : 'Khách hàng'}?`)) return;
 
     try {
-      await db.updateUserRole(userId, newRole);
-      refreshData();
+      await adminService.updateUserRole(userId, newRole);
+      await refreshData();
     } catch (error) {
       console.error('Error updating user role:', error);
       alert('Có lỗi xảy ra khi cập nhật vai trò');
@@ -42,8 +41,8 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
     if (!window.confirm(`Bạn có chắc chắn muốn ${actionText} tài khoản này?`)) return;
 
     try {
-      await db.updateUserStatus(userId, newStatus);
-      refreshData();
+      await adminService.updateUserStatus(userId, newStatus);
+      await refreshData();
     } catch (error) {
       console.error('Error updating user status:', error);
       alert('Có lỗi xảy ra khi cập nhật trạng thái');
@@ -54,26 +53,12 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
     if (!window.confirm('CẢNH BÁO: Bạn có chắc chắn muốn XÓA VĨNH VIỄN tài khoản này? Mọi dữ liệu liên quan trong hệ thống sẽ bị gỡ bỏ.')) return;
 
     try {
-      await db.deleteUser(userId);
-      refreshData();
+      await adminService.deleteUser(userId);
+      await refreshData();
       toast.success('Đã xóa người dùng thành công');
     } catch (error) {
       console.error('Error deleting user:', error);
       toast.error('Có lỗi xảy ra khi xóa tài khoản');
-    }
-  };
-
-  const toggleSelectUser = (id: string) => {
-    setSelectedUsers(prev =>
-      prev.includes(id) ? prev.filter(u => u !== id) : [...prev, id]
-    );
-  };
-
-  const toggleSelectAllUsers = () => {
-    if (selectedUsers.length === filteredUsers.length) {
-      setSelectedUsers([]);
-    } else {
-      setSelectedUsers(filteredUsers.map(u => u.id));
     }
   };
 
@@ -82,10 +67,10 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
     if (window.confirm(`Xóa vĩnh viễn ${selectedUsers.length} người dùng đã chọn?`)) {
       setIsDeletingBulk(true);
       try {
-        await Promise.all(selectedUsers.map(id => db.deleteUser(id)));
+        await Promise.all(selectedUsers.map(id => adminService.deleteUser(id)));
         toast.success(`Đã xóa ${selectedUsers.length} người dùng`);
         setSelectedUsers([]);
-        refreshData();
+        await refreshData();
       } catch (err) {
         console.error('Error bulk deleting users', err);
         toast.error('Có lỗi khi xóa hàng loạt');
@@ -106,17 +91,23 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshData, theme = 'li
         user.phone?.includes(searchQuery);
       return matchesRole && matchesStatus && matchesSearch;
     }).sort((a, b) => {
-      const getTS = (u: any) => {
-        if (u.createdAt?.toDate) return u.createdAt.toDate().getTime();
-        if (u.createdAt) return new Date(u.createdAt).getTime();
-        return 0;
-      };
-      return getTS(b) - getTS(a);
+      return getEntityTimestamp(b) - getEntityTimestamp(a);
     });
   }, [users, userRoleFilter, userStatusFilter, searchQuery]);
 
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-  const paginatedUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedItems: paginatedUsers,
+  } = useAdminPagination(filteredUsers, itemsPerPage, [userRoleFilter, userStatusFilter, searchQuery]);
+
+  const {
+    selectedIds: selectedUsers,
+    setSelectedIds: setSelectedUsers,
+    toggleSelect: toggleSelectUser,
+    toggleSelectAll: toggleSelectAllUsers,
+  } = useAdminSelection(filteredUsers.map((user) => user.id));
 
   return (
     <div className="space-y-6 animate-fadeIn text-foreground">

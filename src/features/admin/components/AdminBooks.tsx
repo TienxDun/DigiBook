@@ -1,11 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import toast from '@/shared/utils/toast';
-import { db } from '@/services/db';
 import { Book, CategoryInfo, Author } from '@/shared/types';
 import { ErrorHandler } from '@/services/errorHandler';
 import { Pagination } from '@/shared/components';
 import { motion, AnimatePresence } from 'framer-motion';
+import { adminService } from '../services/admin.service';
+import { useAdminPagination } from '../hooks/useAdminPagination';
+import { useAdminSelection } from '../hooks/useAdminSelection';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 interface AdminBooksProps {
   books: Book[];
@@ -24,15 +27,11 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStock, setFilterStock] = useState<'all' | 'low' | 'out'>('all');
-  const [selectedBooks, setSelectedBooks] = useState<string[]>([]);
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
   const [seedStatus, setSeedStatus] = useState<{ msg: string, type: 'success' | 'error' | 'info' } | null>(null);
   const [isFormProcessing, setIsFormProcessing] = useState(false);
-
-  // Pagination State
-  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15;
 
   // Modal State
@@ -46,22 +45,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
   const [quickAuthorName, setQuickAuthorName] = useState('');
   const [isSavingQuickAuthor, setIsSavingQuickAuthor] = useState(false);
 
-  // Lock scroll when modal is open
-  React.useEffect(() => {
-    if (isBookModalOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isBookModalOpen]);
-
-  // Reset to page 1 when filters change
-  React.useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, filterStock]);
+  useBodyScrollLock(isBookModalOpen);
 
   const filteredBooks = useMemo(() => {
     return books.filter(book => {
@@ -78,8 +62,19 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     });
   }, [books, filterStock, searchTerm]);
 
-  const totalPages = Math.ceil(filteredBooks.length / itemsPerPage);
-  const paginatedBooks = filteredBooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedItems: paginatedBooks,
+  } = useAdminPagination(filteredBooks, itemsPerPage, [searchTerm, filterStock]);
+
+  const {
+    selectedIds: selectedBooks,
+    setSelectedIds: setSelectedBooks,
+    toggleSelect: toggleSelectBook,
+    toggleSelectAll: toggleSelectAllBooks,
+  } = useAdminSelection(filteredBooks.map((book) => book.id));
 
   // Inventory Stats
   const stats = useMemo(() => {
@@ -94,7 +89,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
   const handleUpdateStock = async (bookId: string, currentStock: number, delta: number) => {
     const newStock = Math.max(0, currentStock + delta);
     try {
-      await db.updateBook(bookId, { stockQuantity: newStock });
+      await adminService.updateBook(bookId, { stockQuantity: newStock });
       toast.success('Cập nhật tồn kho thành công');
       await refreshData();
     } catch (error) {
@@ -163,18 +158,6 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     );
   };
 
-  const toggleSelectBook = (id: string) => {
-    setSelectedBooks(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-  };
-
-  const toggleSelectAllBooks = () => {
-    if (selectedBooks.length === filteredBooks.length && filteredBooks.length > 0) {
-      setSelectedBooks([]);
-    } else {
-      setSelectedBooks(filteredBooks.map(b => b.id));
-    }
-  };
-
   // Import State
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [activeImportTab, setActiveImportTab] = useState<'search' | 'auto'>('search');
@@ -212,7 +195,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     setIsRawModalOpen(true);
 
     try {
-      const raw = await db.getRawTikiData(bookId);
+      const raw = await adminService.getRawTikiData(bookId);
       setRawViewerContent(raw);
     } catch (error) {
       toast.error("Lỗi khi tải dữ liệu thô");
@@ -229,7 +212,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     setIsSearchingImport(true);
     setSelectedImportBooks([]);
     try {
-      const results = await db.searchBooksFromTiki(importSearchTerm);
+      const results = await adminService.searchBooksFromTiki(importSearchTerm);
       if (results.length === 0) {
         toast('🔍 Không tìm thấy sách nào phù hợp');
       }
@@ -244,10 +227,10 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
   /* Redundant author matching removed - handled by saveBook auto-sync */
   const importSingleBook = async (book: Book): Promise<boolean> => {
     try {
-      const details = await db.getBookDetailsFromTiki(book.id);
+      const details = await adminService.getBookDetailsFromTiki(book.id);
       const fullBook = { ...book, ...details };
 
-      await db.saveBook(fullBook);
+      await adminService.saveBook(fullBook);
       return true;
     } catch (e) {
       console.error(e);
@@ -324,7 +307,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
             status: `Đang quét danh mục "${category}" (Trang ${page})...`
           }));
 
-          const results = await db.searchBooksFromTiki(keywords, page);
+          const results = await adminService.searchBooksFromTiki(keywords, page);
           if (results.length === 0) break; // End of results
 
           // Filter duplicates
@@ -441,7 +424,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
         bio: `Tác giả ${quickAuthorName}.`,
         avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(quickAuthorName)}&background=random`
       };
-      const authorId = await db.saveAuthor(newAuthor as Author);
+      const authorId = await adminService.saveAuthor(newAuthor as Author);
       await refreshData();
       setBookFormData(prev => ({ ...prev, authorId: authorId }));
       setQuickAuthorName('');
@@ -458,7 +441,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
   const handleDeleteBook = async (book: Book) => {
     if (!window.confirm(`Bạn có chắc chắn muốn xóa sách "${book.title}"?`)) return;
     try {
-      await db.deleteBook(book.id);
+      await adminService.deleteBook(book.id);
       toast.success('Đã xóa sách thành công');
       await refreshData();
     } catch (error) {
@@ -472,7 +455,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
 
     setIsDeletingBulk(true);
     try {
-      await db.deleteBooksBulk(selectedBooks);
+      await adminService.deleteBooksBulk(selectedBooks);
       toast.success(`Đã xóa ${selectedBooks.length} cuốn sách`);
       setSelectedBooks([]);
       await refreshData();
@@ -516,7 +499,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
           }
           : undefined
       } as Book;
-      await db.saveBook(finalBook);
+      await adminService.saveBook(finalBook);
       toast.success(editingBook ? 'Cập nhật thành công' : 'Đã thêm sách mới');
       setIsBookModalOpen(false);
       await refreshData();
@@ -629,7 +612,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
               if (window.confirm('Bạn có muốn xóa toàn bộ sách bị lặp (cùng ISBN) không?')) {
                 toast.loading('Đang xử lý dữ liệu lặp...');
                 try {
-                  const res = await db.deduplicateBooks();
+                  const res = await adminService.deduplicateBooks();
                   toast.success(`Đã xóa ${res.deletedCount} cuốn sách bị lặp`);
                   await refreshData();
                 } catch (e) {

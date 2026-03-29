@@ -1,11 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { db } from '@/services/db';
 import toast from '@/shared/utils/toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Coupon } from '@/shared/types';
 import { Pagination } from '@/shared/components';
 import { ErrorHandler } from '@/services/errorHandler';
+import { adminService } from '../services/admin.service';
 
 // Portal component for rendering modals outside DOM structure
 const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -79,7 +79,7 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
   const handleDeleteCoupon = async (coupon: Coupon) => {
     if (window.confirm(`Bạn có chắc muốn xóa mã khuyến mãi "${coupon.code}"?`)) {
       try {
-        await db.deleteCoupon(coupon.id!);
+        await adminService.deleteCoupon(coupon.id!);
         toast.success('Đã xóa mã khuyến mãi');
         refreshData();
       } catch (err: any) {
@@ -97,7 +97,7 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
         code: couponFormData.code?.toUpperCase()
       } as Coupon;
 
-      await db.saveCoupon(finalCoupon);
+      await adminService.saveCoupon(finalCoupon);
       toast.success(editingCoupon ? 'Cập nhật mã khuyến mãi thành công' : 'Đã tạo mã khuyến mãi mới');
       setIsCouponModalOpen(false);
       refreshData();
@@ -127,7 +127,7 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshData, theme
     if (window.confirm(`Xóa vĩnh viễn ${selectedCoupons.length} mã giảm giá đã chọn?`)) {
       setIsDeletingBulk(true);
       try {
-        await Promise.all(selectedCoupons.map(id => db.deleteCoupon(id)));
+        await Promise.all(selectedCoupons.map(id => adminService.deleteCoupon(id)));
         toast.success(`Đã xóa ${selectedCoupons.length} mã giảm giá`);
         setSelectedCoupons([]);
         refreshData();

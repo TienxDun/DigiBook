@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { db } from '@/services/db';
 import toast from '@/shared/utils/toast';
 import { Book } from '@/shared/types';
+import { adminService } from '../services/admin.service';
 
 interface AdminTikiInspectorProps {
     theme?: 'light' | 'midnight';
@@ -42,8 +42,8 @@ const AdminTikiInspector: React.FC<AdminTikiInspectorProps> = ({ theme = 'light'
 
         try {
             const [raw, mapped] = await Promise.all([
-                db.getRawTikiData(tikiId),
-                db.getBookDetailsFromTiki(tikiId)
+                adminService.getRawTikiData(tikiId),
+                adminService.getBookDetailsFromTiki(tikiId)
             ]);
 
             if (raw && !raw.error) {

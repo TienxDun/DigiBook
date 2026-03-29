@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { CategoryInfo, Book } from '@/shared/types';
-import { db } from '@/services/db';
 import toast from '@/shared/utils/toast';
 import { ErrorHandler } from '@/services/errorHandler';
 import { AVAILABLE_ICONS } from '@/shared/config';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Pagination } from '@/shared/components';
+import { adminService } from '../services/admin.service';
 
 // Portal component for rendering modals outside DOM structure
 const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -83,7 +83,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
       setCategories(prev => prev.filter(c => c.name !== category.name));
       
       try {
-        await db.deleteCategory(category.name);
+        await adminService.deleteCategory(category.name);
         toast.success('Đã xóa danh mục thành công');
         // Still refresh to sync with server and handle any background dependencies
         await refreshData();
@@ -112,10 +112,10 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
 
     try {
       if (editingCategory) {
-        await db.updateCategory(editingCategory.name, { ...editingCategory, ...categoryFormData } as CategoryInfo);
+        await adminService.updateCategory(editingCategory.name, { ...editingCategory, ...categoryFormData } as CategoryInfo);
         toast.success('Cập nhật danh mục thành công');
       } else {
-        await db.createCategory(categoryData);
+        await adminService.createCategory(categoryData);
         toast.success('Đã thêm danh mục mới');
       }
       await refreshData();
@@ -132,7 +132,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
     if (window.confirm("Khởi tạo danh mục mặc định từ hệ thống?")) {
       setIsSeeding(true);
       try {
-        const result = await db.seedDatabase();
+        const result = await adminService.seedDatabase();
         if (result.success) {
           toast.success(`Đã khởi tạo thành công ${result.count} danh mục`);
           await refreshData();
@@ -166,7 +166,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
     if (window.confirm(`Xóa vĩnh viễn ${selectedCategories.length} danh mục đã chọn?`)) {
       setIsDeletingBulk(true);
       try {
-        await Promise.all(selectedCategories.map(name => db.deleteCategory(name)));
+        await Promise.all(selectedCategories.map(name => adminService.deleteCategory(name)));
         toast.success(`Đã xóa ${selectedCategories.length} danh mục`);
         setSelectedCategories([]);
         await refreshData();

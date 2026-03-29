@@ -1,12 +1,15 @@
 import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import toast from '@/shared/utils/toast';
-import { db } from '@/services/db';
 import { Order, OrderItem } from '@/shared/types';
 import { ErrorHandler } from '@/services/errorHandler';
 import { Pagination } from '@/shared/components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getOrderStatusMeta, normalizeOrderStatusStep, ORDER_STATUS_OPTIONS } from '@/shared/utils/orderStatus';
+import { adminService } from '../services/admin.service';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
+import { useAdminPagination } from '../hooks/useAdminPagination';
+import { getEntityTimestamp } from '../utils/date';
 
 // Portal component for rendering modals outside DOM structure
 const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -55,20 +58,8 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
   const [updatingOrderStatus, setUpdatingOrderStatus] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Lock scroll when modal is open
-  React.useEffect(() => {
-    if (isOrderModalOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOrderModalOpen]);
+  useBodyScrollLock(isOrderModalOpen);
 
-  // Pagination State
-  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   const [optimisticStatus, setOptimisticStatus] = useState<Record<string, { status: string, step: number }>>({});
@@ -79,23 +70,16 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
       order.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.customer.phone.includes(searchQuery)
     ).sort((a, b) => {
-      // Helper function to extract timestamp
-      const getTS = (o: Order) => {
-        if (o.createdAt?.toDate) return o.createdAt.toDate().getTime();
-        if (o.createdAt) return new Date(o.createdAt).getTime();
-        // Handle DD/MM/YYYY fallback
-        if (o.date) {
-          const parts = o.date.split('/');
-          if (parts.length === 3) return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0])).getTime();
-        }
-        return 0;
-      };
-      return getTS(b) - getTS(a); // Descending
+      return getEntityTimestamp(b) - getEntityTimestamp(a);
     });
   }, [orders, searchQuery]);
 
-  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
-  const paginatedOrders = filteredOrders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedItems: paginatedOrders,
+  } = useAdminPagination(filteredOrders, itemsPerPage, [searchQuery]);
 
   const displayOrders = useMemo(() => {
     return paginatedOrders.map(order => {
@@ -112,7 +96,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
 
   const handleViewOrderDetails = async (order: Order) => {
     try {
-      const orderWithItems = await db.getOrderWithItems(order.id!);
+      const orderWithItems = await adminService.getOrderById(order.id!);
       console.log('Fetched Order Details:', orderWithItems);
       if (orderWithItems) {
         // cast to respect expected type if API ensures items are present
@@ -131,7 +115,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshData, theme = 
 
     setUpdatingOrderStatus(true);
     try {
-      await db.updateOrderStatus(orderId, newStatusLabel, newStatusStep);
+      await adminService.updateOrderStatus(orderId, newStatusLabel, newStatusStep);
       
       // Update local optimistic state to show changes immediately without waiting for API
       setOptimisticStatus(prev => ({

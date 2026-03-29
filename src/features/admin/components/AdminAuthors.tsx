@@ -2,10 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Author, Book } from '@/shared/types';
-import { db } from '@/services/db';
 import toast from '@/shared/utils/toast';
 import { ErrorHandler } from '@/services/errorHandler';
 import { Pagination } from '@/shared/components';
+import { adminService } from '../services/admin.service';
 
 // Portal component for rendering modals outside DOM structure
 const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -75,7 +75,7 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
   const handleDeleteAuthor = async (author: Author) => {
     if (window.confirm(`Bạn có chắc muốn xóa tác giả "${author.name}"? Thao tác này có thể ảnh hưởng đến các sách của tác giả này.`)) {
       try {
-        await db.deleteAuthor(author.id);
+        await adminService.deleteAuthor(author.id);
         toast.success('Đã xóa tác giả thành công');
         await refreshData();
       } catch (err) {
@@ -88,10 +88,10 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
     e.preventDefault();
     try {
       if (editingAuthor) {
-        await db.saveAuthor({ ...editingAuthor, ...authorFormData } as Author);
+        await adminService.saveAuthor({ ...editingAuthor, ...authorFormData } as Author);
         toast.success('Cập nhật tác giả thành công');
       } else {
-        await db.saveAuthor(authorFormData as Author);
+        await adminService.saveAuthor(authorFormData as Author);
         toast.success('Đã thêm tác giả mới');
       }
       setIsAuthorModalOpen(false);
@@ -120,7 +120,7 @@ const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshData, theme
     if (window.confirm(`Xóa vĩnh viễn ${selectedAuthors.length} tác giả đã chọn?`)) {
       setIsDeletingBulk(true);
       try {
-        await Promise.all(selectedAuthors.map(id => db.deleteAuthor(id)));
+        await Promise.all(selectedAuthors.map(id => adminService.deleteAuthor(id)));
         toast.success(`Đã xóa ${selectedAuthors.length} tác giả`);
         setSelectedAuthors([]);
         await refreshData();
