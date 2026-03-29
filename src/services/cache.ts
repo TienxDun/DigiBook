@@ -6,6 +6,9 @@ type CacheEntry<T> = {
 
 const memoryCache = new Map<string, CacheEntry<any>>();
 const inFlight = new Map<string, Promise<any>>();
+const inFlightTags = new Map<string, string[]>();
+const cacheKeyTags = new Map<string, string[]>();
+const invalidationVersions = new Map<string, number>();
 const stats = {
   hits: 0,
   staleHits: 0,
@@ -17,6 +20,12 @@ const stats = {
 
 const now = () => Date.now();
 const STORAGE_PREFIX = 'digibook_cache:';
+
+const getVersion = (key: string) => invalidationVersions.get(key) || 0;
+const bumpVersion = (key: string) => {
+  invalidationVersions.set(key, getVersion(key) + 1);
+};
+const shouldUseResult = (key: string, version: number) => getVersion(key) === version;
 
 export interface CacheOptions {
   ttl?: number;
@@ -90,6 +99,7 @@ export const cache = {
     };
 
     memoryCache.set(key, entry);
+    cacheKeyTags.set(key, options?.tags || []);
     stats.sets += 1;
 
     if (options?.persist) {
@@ -136,6 +146,11 @@ export const cache = {
 
     // Set in-flight BEFORE calling fetcher to prevent race conditions (like React StrictMode)
     inFlight.set(key, wrapperPromise);
+    if (options?.tags) {
+      inFlightTags.set(key, options.tags);
+      cacheKeyTags.set(key, options.tags);
+    }
+    const requestVersion = getVersion(key);
 
     if (stale !== null) {
       // Revalidation in background
@@ -143,7 +158,9 @@ export const cache = {
       console.log(`🚀 [API] Revalidating data for: ${key}`);
       fetcher()
         .then((data) => {
-          cache.set(key, data, options);
+          if (shouldUseResult(key, requestVersion)) {
+            cache.set(key, data, options);
+          }
           resolveRef!(data);
         })
         .catch((err) => {
@@ -151,6 +168,7 @@ export const cache = {
         })
         .finally(() => {
           inFlight.delete(key);
+          inFlightTags.delete(key);
         });
       
       return { data: stale, fromCache: true };
@@ -160,7 +178,9 @@ export const cache = {
     try {
       console.log(`🚀 [API] Fetching fresh data for: ${key}`);
       const data = await fetcher();
-      cache.set(key, data, options);
+      if (shouldUseResult(key, requestVersion)) {
+        cache.set(key, data, options);
+      }
       resolveRef!(data);
       return { data, fromCache: false };
     } catch (err) {
@@ -168,6 +188,7 @@ export const cache = {
       throw err;
     } finally {
       inFlight.delete(key);
+      inFlightTags.delete(key);
     }
   },
 
@@ -181,7 +202,17 @@ export const cache = {
 
   clear: (tags?: string[] | string): void => {
     if (!tags) {
+      for (const key of new Set([
+        ...memoryCache.keys(),
+        ...inFlight.keys(),
+        ...cacheKeyTags.keys(),
+      ])) {
+        bumpVersion(key);
+      }
       memoryCache.clear();
+      inFlight.clear();
+      inFlightTags.clear();
+      cacheKeyTags.clear();
       // Optional: clear all localStorage starting with prefix
       Object.keys(localStorage)
         .filter(k => k.startsWith(STORAGE_PREFIX))
@@ -190,10 +221,27 @@ export const cache = {
     }
 
     const tagList = Array.isArray(tags) ? tags : [tags];
+    const invalidatedKeys = new Set<string>();
     
+    // Clear In-Flight requests that match tags
+    for (const [key, tags] of inFlightTags.entries()) {
+      if (tags.some(t => tagList.includes(t))) {
+        invalidatedKeys.add(key);
+        inFlight.delete(key);
+        inFlightTags.delete(key);
+      }
+    }
+
+    for (const [key, tags] of cacheKeyTags.entries()) {
+      if (tags.some(t => tagList.includes(t))) {
+        invalidatedKeys.add(key);
+      }
+    }
+
     // Clear Memory
     for (const [key, entry] of memoryCache.entries()) {
       if (entry.tags?.some(t => tagList.includes(t))) {
+        invalidatedKeys.add(key);
         memoryCache.delete(key);
       }
     }
@@ -207,11 +255,17 @@ export const cache = {
           if (stored) {
             const parsed = JSON.parse(stored) as CacheEntry<any>;
             if (parsed.tags?.some(t => tagList.includes(t))) {
+              invalidatedKeys.add(k.replace(STORAGE_PREFIX, ''));
               localStorage.removeItem(k);
             }
           }
         } catch (e) {}
       });
+
+    for (const key of invalidatedKeys) {
+      bumpVersion(key);
+      cacheKeyTags.delete(key);
+    }
   },
 
   logStats: (label = 'Catalog Cache') => {

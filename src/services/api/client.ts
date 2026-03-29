@@ -37,6 +37,8 @@ apiClient.interceptors.request.use(
 
     // Deduplicate rapid-fire identical requests (mostly for React Strict Mode / re-renders)
     if (lastRequestLogs.has(logKey) && now - lastRequestLogs.get(logKey)! < LOG_THROTTLE_MS) {
+      // Mark as silent so response interceptor doesn't log it too
+      (config as any)._silentLog = true;
       return config;
     }
     lastRequestLogs.set(logKey, now);
@@ -59,6 +61,10 @@ apiClient.interceptors.request.use(
 // Response interceptor
 apiClient.interceptors.response.use(
   (response) => {
+    if ((response.config as any)._silentLog) {
+      return response;
+    }
+
     const status = response.status;
     const url = response.config.url;
     
@@ -74,18 +80,22 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error: AxiosError<ApiError>) => {
+    const isSilent = (error.config as any)?._silentLog;
+
     if (error.response) {
       const status = error.response.status;
       const url = error.config?.url || 'unknown';
 
-      console.group(
-        `%c❌ API ${status}%c ${url}`,
-        'color: #F44336; font-weight: bold;',
-        'color: inherit;'
-      );
-      console.error('Error Details:', error.response.data);
-      console.groupEnd();
-    } else {
+      if (!isSilent) {
+        console.group(
+          `%c❌ API ${status}%c ${url}`,
+          'color: #F44336; font-weight: bold;',
+          'color: inherit;'
+        );
+        console.error('Error Details:', error.response.data);
+        console.groupEnd();
+      }
+    } else if (!isSilent) {
       console.error('❌ Network/Request Error:', error.message);
     }
 

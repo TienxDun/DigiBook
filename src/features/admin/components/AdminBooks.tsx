@@ -96,7 +96,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     try {
       await db.updateBook(bookId, { stockQuantity: newStock });
       toast.success('Cập nhật tồn kho thành công');
-      refreshData();
+      await refreshData();
     } catch (error) {
       ErrorHandler.handle(error, 'cập nhật tồn kho');
     }
@@ -366,9 +366,6 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     setSelectedImportBooks(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
 
-
-
-
   const handleOpenAddBook = () => {
     setEditingBook(null);
     setActiveTab('general');
@@ -455,6 +452,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     } finally {
       setIsSavingQuickAuthor(false);
     }
+
   };
 
   const handleDeleteBook = async (book: Book) => {
@@ -462,7 +460,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
     try {
       await db.deleteBook(book.id);
       toast.success('Đã xóa sách thành công');
-      refreshData();
+      await refreshData();
     } catch (error) {
       ErrorHandler.handle(error, 'xóa sách');
     }
@@ -477,7 +475,7 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
       await db.deleteBooksBulk(selectedBooks);
       toast.success(`Đã xóa ${selectedBooks.length} cuốn sách`);
       setSelectedBooks([]);
-      refreshData();
+      await refreshData();
     } catch (err) {
       ErrorHandler.handle(err, 'xóa hàng loạt sách');
     } finally {
@@ -519,45 +517,25 @@ const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, ref
           : undefined
       } as Book;
       await db.saveBook(finalBook);
-      toast.success(editingBook ? 'Cập nhật sách thành công' : 'Thêm sách mới thành công');
+      toast.success(editingBook ? 'Cập nhật thành công' : 'Đã thêm sách mới');
       setIsBookModalOpen(false);
-      refreshData();
-    } catch (error) {
-      ErrorHandler.handle(error, 'lưu sách');
+      await refreshData();
+    } catch (err) {
+      ErrorHandler.handle(err, 'lưu sách');
     } finally {
       setIsFormProcessing(false);
     }
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn">
-      {/* Inventory Dashboard Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Tổng sản phẩm', value: stats.total, icon: 'fa-book', color: 'primary' },
-          { label: 'Sắp hết hàng', value: stats.low, icon: 'fa-triangle-exclamation', color: 'chart-3' },
-          { label: 'Đã hết hàng', value: stats.out, icon: 'fa-box-open', color: 'destructive' },
-          { label: 'Giá trị kho', value: formatPrice(stats.value), icon: 'fa-wallet', color: 'chart-1' }
-        ].map((stat, i) => (
-          <div key={i} className={`${isMidnight ? 'bg-[#1e293b]/40 border-white/5' : 'bg-card border-border shadow-sm'} p-6 rounded-[2rem] border group transition-all hover:border-primary/50`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">{stat.label}</p>
-                <p className="text-2xl font-black text-foreground">{stat.value}</p>
-              </div>
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-lg bg-${stat.color}/10 text-${stat.color} border border-${stat.color}/20 shadow-sm group-hover:scale-110 transition-transform`}>
-                <i className={`fa-solid ${stat.icon}`}></i>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
+    <div className={`p-8 min-h-screen ${isMidnight ? 'bg-[#0f172a] text-slate-200' : 'bg-slate-50/50 text-slate-900'} relative font-sans`}>
+      {/* Status Banner */}
       {seedStatus && (
-        <div className={`p-4 rounded-2xl flex items-center gap-3 animate-slideIn border ${seedStatus.type === 'success' ? 'bg-chart-1/10 text-chart-1 border-chart-1/20' :
+        <div className={`mb-6 p-4 rounded-2xl border flex items-center gap-3 animate-slideIn ${
+          seedStatus.type === 'success' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
           seedStatus.type === 'error' ? 'bg-destructive/10 text-destructive border-destructive/20' :
-            'bg-primary/10 text-primary border-primary/20'
-          }`}>
+          'bg-primary/10 text-primary border-primary/20'
+        }`}>
           <i className={`fa-solid ${seedStatus.type === 'success' ? 'fa-check-circle' :
             seedStatus.type === 'error' ? 'fa-exclamation-circle' :
               'fa-info-circle'

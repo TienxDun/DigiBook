@@ -15,11 +15,12 @@ const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 interface AdminCategoriesProps {
   categories: CategoryInfo[];
-  refreshData: () => void;
+  setCategories: React.Dispatch<React.SetStateAction<CategoryInfo[]>>;
+  refreshData: () => Promise<void>;
   theme?: 'light' | 'midnight';
 }
 
-const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshData, theme = 'light' }) => {
+const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCategories, refreshData, theme = 'light' }) => {
   const isMidnight = theme === 'midnight';
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<CategoryInfo | null>(null);
@@ -76,11 +77,19 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
 
   const handleDeleteCategory = async (category: CategoryInfo) => {
     if (window.confirm(`Xóa danh mục "${category.name}"? Thao tác này có thể ảnh hưởng đến hiển thị sách trong danh mục này.`)) {
+      const previousCategories = [...categories];
+      
+      // Optimistic update: Remove immediately from UI
+      setCategories(prev => prev.filter(c => c.name !== category.name));
+      
       try {
         await db.deleteCategory(category.name);
         toast.success('Đã xóa danh mục thành công');
-        refreshData();
+        // Still refresh to sync with server and handle any background dependencies
+        await refreshData();
       } catch (err: any) {
+        // Rollback on failure
+        setCategories(previousCategories);
         toast.error('Lỗi: ' + (err.message || 'Không thể xóa danh mục'));
       }
     }
@@ -89,17 +98,30 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
   const handleSaveCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    const previousCategories = [...categories];
+    const categoryData = { ...categoryFormData } as CategoryInfo;
+    
+    // Optimistic update
+    if (editingCategory) {
+      setCategories(prev => prev.map(c => c.name === editingCategory.name ? { ...c, ...categoryData } : c));
+    } else {
+      setCategories(prev => [categoryData, ...prev]);
+    }
+    
+    setIsCategoryModalOpen(false);
+
     try {
       if (editingCategory) {
         await db.updateCategory(editingCategory.name, { ...editingCategory, ...categoryFormData } as CategoryInfo);
         toast.success('Cập nhật danh mục thành công');
       } else {
-        await db.createCategory(categoryFormData as CategoryInfo);
+        await db.createCategory(categoryData);
         toast.success('Đã thêm danh mục mới');
       }
-      setIsCategoryModalOpen(false);
-      refreshData();
+      await refreshData();
     } catch (err: any) {
+      // Rollback
+      setCategories(previousCategories);
       toast.error('Lỗi: ' + (err.message || 'Không thể lưu danh mục'));
     } finally {
       setIsSubmitting(false);
@@ -113,7 +135,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
         const result = await db.seedDatabase();
         if (result.success) {
           toast.success(`Đã khởi tạo thành công ${result.count} danh mục`);
-          refreshData();
+          await refreshData();
         } else {
           toast.error(`Lỗi: ${result.msg}`);
         }
@@ -147,7 +169,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, refreshDa
         await Promise.all(selectedCategories.map(name => db.deleteCategory(name)));
         toast.success(`Đã xóa ${selectedCategories.length} danh mục`);
         setSelectedCategories([]);
-        refreshData();
+        await refreshData();
       } catch (err) {
         ErrorHandler.handle(err, 'xóa hàng loạt danh mục');
       } finally {

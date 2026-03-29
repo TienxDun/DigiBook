@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, PieChart, Pie, Legend } from 'recharts';
 import { db } from "@/services/db";
@@ -68,7 +68,7 @@ const AdminDashboard: React.FC = () => {
     return () => resizeObserver.disconnect();
   }, []);
 
-  const refreshData = async () => {
+  const refreshData = useCallback(async () => {
     try {
       const fetchPromises: Promise<any>[] = [];
 
@@ -117,7 +117,7 @@ const AdminDashboard: React.FC = () => {
     } catch (err) {
       console.error("Data refresh failed:", err);
     }
-  };
+  }, [activeTab]);
 
   const handleSyncRanking = async () => {
     if (isSyncing) return;
@@ -128,7 +128,7 @@ const AdminDashboard: React.FC = () => {
       const result = await adminApi.syncAllUsersMembership();
       if (result.success) {
         toast.success(`Đã đồng bộ thành công cho ${result.updatedCount} người dùng!`);
-        refreshData();
+        await refreshData();
       } else {
         toast.error(result.message || "Có lỗi xảy ra khi đồng bộ.");
       }
@@ -158,7 +158,7 @@ const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     refreshData();
-  }, [activeTab]);
+  }, [refreshData]);
 
   useEffect(() => {
     if (adminTheme === 'midnight') {
@@ -771,7 +771,7 @@ const AdminDashboard: React.FC = () => {
               <AdminBooks theme={adminTheme} books={books} authors={authors} categories={categories} refreshData={refreshData} />
             )}
             {activeTab === "authors" && <AdminAuthors theme={adminTheme} authors={authors} refreshData={refreshData} />}
-            {activeTab === "categories" && <AdminCategories theme={adminTheme} categories={categories} refreshData={refreshData} />}
+            {activeTab === "categories" && <AdminCategories theme={adminTheme} categories={categories} setCategories={setCategories} refreshData={refreshData} />}
             {activeTab === "coupons" && <AdminCoupons theme={adminTheme} coupons={coupons} refreshData={refreshData} />}
             {activeTab === "orders" && <AdminOrders theme={adminTheme} orders={orders} refreshData={refreshData} />}
             {activeTab === "users" && <AdminUsers theme={adminTheme} users={users} refreshData={refreshData} />}
