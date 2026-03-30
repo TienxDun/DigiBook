@@ -1,8 +1,6 @@
 import { IPaymentProvider } from '../IPaymentProvider';
 import { PaymentConfig, OrderData, PaymentEvent, CreatePaymentRequest } from '../types';
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5197/api';
+import { apiClient } from '../../api/client';
 
 export class PayOSProvider implements IPaymentProvider {
   private paymentWindow: Window | null = null;
@@ -28,8 +26,8 @@ export class PayOSProvider implements IPaymentProvider {
         items: orderData.items,
       };
 
-      const response = await axios.post<any>(
-        `${API_BASE_URL}/payment/create`,
+      const response = await apiClient.post<any>(
+        '/api/payment/create',
         requestData
       );
 

@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5197/api';
+import { apiClient } from '../services/api/client';
 
 export default function PaymentCallbackPage() {
   const [searchParams] = useSearchParams();
@@ -42,7 +40,7 @@ export default function PaymentCallbackPage() {
         }
 
         // Verify payment với backend
-        const response = await axios.get(`${API_BASE_URL}/payment/verify/${orderId}`);
+        const response = await apiClient.get(`/api/payment/verify/${orderId}`);
 
         console.log('Verify Response:', response.data);
 
