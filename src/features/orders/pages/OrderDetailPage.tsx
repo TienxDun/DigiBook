@@ -7,7 +7,8 @@ import { Order, OrderItem } from '@/shared/types';
 import { SEO } from '@/shared/components';
 import { getOrderProgressIndex, getOrderStatusMeta, ORDER_PROGRESS_STEPS, normalizeOrderStatusStep } from '@/shared/utils/orderStatus';
 
-const formatPrice = (price: number) => {
+const formatPrice = (price?: number) => {
+  if (price === undefined || price === null || isNaN(price)) return '0 ₫';
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 };
 

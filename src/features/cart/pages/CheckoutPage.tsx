@@ -7,7 +7,7 @@ import { db } from '@/services/db';
 import { ErrorHandler } from '@/services/errorHandler';
 import { useCart } from '@/features/cart';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Address } from '@/shared/types';
+import { Address, OrderItem } from '@/shared/types';
 import { AddressList, AddressFormModal } from '@/features/auth';
 import { PaymentProviderFactory } from '@/services/payment/PaymentProviderFactory';
 import type { PaymentMethodType } from '@/services/payment/types';
@@ -329,8 +329,18 @@ const CheckoutPage: React.FC = () => {
 
       await new Promise(r => setTimeout(r, 1500)); // UX delay
 
+      // Mapping cart to OrderItem chuẩn (bao gồm priceAtPurchase)
+      const orderItems: OrderItem[] = cart.map(item => ({
+        bookId: item.id,
+        title: item.title,
+        priceAtPurchase: item.price,
+        quantity: item.quantity,
+        cover: item.cover
+      }));
+
       const order = await db.createOrder({
         userId: user.id,
+        date: new Date().toISOString(),
         status: paymentMethod === 'cod' ? 'Đang xử lý' : 'Chờ thanh toán',
         statusStep: 0,
         customer: {
@@ -349,7 +359,7 @@ const CheckoutPage: React.FC = () => {
           couponDiscount: discount,
           total
         }
-      }, cart);
+      }, orderItems);
 
       if (appliedCoupon) {
         await db.incrementCouponUsage(appliedCoupon.code);
@@ -393,7 +403,7 @@ const CheckoutPage: React.FC = () => {
               email: user.email,
               phone: formData.phone
             },
-            items: cart.map(item => ({
+            items: orderItems.map(item => ({
               name: item.title.length > 20 ? item.title.substring(0, 20) : item.title,
               quantity: item.quantity,
               price: item.priceAtPurchase
