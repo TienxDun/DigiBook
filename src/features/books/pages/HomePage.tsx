@@ -8,7 +8,7 @@ import { useBooks } from '@/features/books';
 import { useAuth } from '@/features/auth';
 
 import { useCart } from '@/features/cart';
-import { BookCardSkeleton } from '@/shared/components';
+import { BookCardSkeleton, MembershipTiers } from '@/shared/components';
 
 const HomePage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickView }) => {
   const { allBooks, categories, hasMore, loadingMore, loadMore } = useBooks();
@@ -311,6 +311,9 @@ const HomePage: React.FC<{ onQuickView?: (book: Book) => void }> = ({ onQuickVie
 
         </div>
       </section>
+
+      {/* Membership PR Section */}
+      <MembershipTiers />
 
       {/* Promo Section */}
       <section className="py-12 lg:py-16 bg-background">
