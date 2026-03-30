@@ -21,7 +21,10 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({
   onCloseMobileMenu,
   onToggleCollapse,
 }) => (
-  <aside className={`${isSidebarCollapsed ? 'w-24' : 'w-80'} flex flex-col fixed inset-y-0 z-[100] shadow-xl transition-all duration-500 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} bg-[#0f172a] border-white/5 border-r`}>
+  <aside
+    data-testid="admin-sidebar"
+    className={`${isSidebarCollapsed ? 'w-24' : 'w-80'} flex flex-col fixed inset-y-0 z-[100] shadow-xl transition-all duration-500 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} bg-[#0f172a] border-white/5 border-r`}
+  >
     <div className={`p-6 flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between'} gap-4 h-24 relative z-20 border-b border-white/5 bg-[#0f172a]`}>
       {!isSidebarCollapsed ? (
         <div className="flex items-center gap-4 animate-fadeIn">
@@ -57,10 +60,12 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 key={tab.id}
                 onClick={() => onSelectTab(tab.id)}
                 title={isSidebarCollapsed ? tab.label : ''}
+                data-testid="admin-sidebar-tab"
+                data-tab-id={tab.id}
                 className={`flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-4 px-5'} w-full py-3.5 rounded-2xl text-xs font-black uppercase tracking-wide transition-all duration-300 group relative ${activeTab === tab.id ? 'bg-primary text-white shadow-xl shadow-primary/20' : 'text-slate-400 hover:text-white hover:bg-white/5 hover:translate-x-1'}`}
               >
                 <i className={`fa-solid ${tab.icon} ${isSidebarCollapsed ? 'text-lg' : 'text-sm w-5 text-center'} ${activeTab === tab.id ? 'text-white' : 'text-slate-500 group-hover:text-primary'}`}></i>
-                {!isSidebarCollapsed && <span className="animate-fadeIn">{tab.label}</span>}
+                {!isSidebarCollapsed && <span className="animate-fadeIn" data-testid="admin-sidebar-tab-label">{tab.label}</span>}
                 {activeTab === tab.id && !isSidebarCollapsed && (
                   <div className="absolute right-3 w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_10px_white]"></div>
                 )}

@@ -95,6 +95,7 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
               <i className="fa-solid fa-magnifying-glass text-[10px]"></i>
             </div>
             <input
+              data-testid="admin-logs-search-input"
               placeholder="Tìm kiếm user, hành động, nội dung..."
               className={`w-full h-12 pl-16 pr-5 rounded-2xl text-xs font-bold outline-none border transition-all 
                 ${isMidnight ? 'bg-slate-800/50 border-white/5 text-white focus:bg-slate-800' : 'bg-card border-border text-foreground'}
@@ -113,6 +114,8 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
             <div className={`flex gap-1.5 p-1.5 rounded-2xl border ${isMidnight ? 'bg-slate-800/50 border-white/5' : 'bg-muted/80 border-border/50'}`}>
               <button
                 onClick={() => setStatusFilter('ALL')}
+                data-testid="admin-logs-status-tab"
+                data-status="all"
                 className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wide transition-all ${statusFilter === 'ALL'
                   ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
                   : 'text-muted-foreground hover:text-foreground'
@@ -122,6 +125,8 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
               </button>
               <button
                 onClick={() => setStatusFilter('SUCCESS')}
+                data-testid="admin-logs-status-tab"
+                data-status="success"
                 className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wide transition-all ${statusFilter === 'SUCCESS'
                   ? 'bg-success text-success-foreground shadow-lg shadow-success/20'
                   : 'text-muted-foreground hover:text-foreground'
@@ -131,6 +136,8 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
               </button>
               <button
                 onClick={() => setStatusFilter('ERROR')}
+                data-testid="admin-logs-status-tab"
+                data-status="error"
                 className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wide transition-all ${statusFilter === 'ERROR'
                   ? 'bg-destructive text-destructive-foreground shadow-lg shadow-destructive/20'
                   : 'text-muted-foreground hover:text-foreground'
@@ -140,6 +147,8 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
               </button>
               <button
                 onClick={() => setStatusFilter('WARNING')}
+                data-testid="admin-logs-status-tab"
+                data-status="warning"
                 className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wide transition-all ${statusFilter === 'WARNING'
                   ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20'
                   : 'text-muted-foreground hover:text-foreground'
@@ -155,6 +164,7 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
         <div className="flex items-center gap-3">
           <button
             onClick={handleExport}
+            data-testid="admin-logs-export-button"
             className={`h-12 px-6 rounded-2xl font-bold transition-all flex items-center gap-2 group border shadow-sm hover:bg-muted hover:border-border ${isMidnight
               ? 'bg-slate-800/50 border-white/5 text-slate-300'
               : 'bg-card border-border text-foreground'
@@ -167,6 +177,7 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
           {hasMoreLogs && (
             <button
               onClick={onLoadMore}
+              data-testid="admin-logs-load-more-button"
               disabled={isLoadingMoreLogs}
               className={`h-12 px-6 rounded-2xl font-bold transition-all shadow-sm border flex items-center gap-2 group hover:bg-chart-1/20 border-chart-1/20 ${isMidnight
                 ? 'bg-slate-800/50 text-chart-1'
@@ -197,7 +208,7 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
                 currentLogs.map(log => {
                   const status = getStatusConfig(log.status || 'INFO');
                   return (
-                    <tr key={log.id} className={`group transition-colors ${isMidnight ? 'hover:bg-white/5' : 'hover:bg-secondary/20'}`}>
+                    <tr key={log.id} data-testid="admin-log-row" className={`group transition-colors ${isMidnight ? 'hover:bg-white/5' : 'hover:bg-secondary/20'}`}>
                       <td className="px-6 py-4">
                         <div className="flex flex-col gap-0.5">
                           <span className={`text-sm font-semibold ${isMidnight ? 'text-slate-200' : 'text-slate-700'}`}>
@@ -244,7 +255,7 @@ const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, is
                 })
               ) : (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-muted-foreground text-sm">
+                  <td colSpan={4} className="px-6 py-12 text-center text-muted-foreground text-sm" data-testid="admin-logs-empty-state">
                     <div className="flex flex-col items-center gap-2">
                       <i className="fa-solid fa-magnifying-glass text-2xl opacity-20"></i>
                       <p>Không tìm thấy nhật ký nào phù hợp</p>

@@ -170,5 +170,7 @@ export interface Coupon {
   usageLimit: number;
   usedCount: number;
   isActive: boolean;
+  isOneTimePerUser?: boolean;
+  isFirstOrderOnly?: boolean;
   updatedAt?: any;
 }

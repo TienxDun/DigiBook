@@ -40,6 +40,8 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshCouponsDeps
     usageLimit: 100,
     expiryDate: '',
     isActive: true,
+    isOneTimePerUser: false,
+    isFirstOrderOnly: false,
     usedCount: 0
   });
 
@@ -65,6 +67,8 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshCouponsDeps
       usageLimit: 100,
       expiryDate: '',
       isActive: true,
+      isOneTimePerUser: false,
+      isFirstOrderOnly: false,
       usedCount: 0
     });
     setIsCouponModalOpen(true);
@@ -361,6 +365,14 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshCouponsDeps
                       </div>
                       <div>
                         <span className="font-black tracking-widest uppercase text-primary text-sm block">{coupon.code}</span>
+                        <div className="flex gap-1 mt-1">
+                          {coupon.isOneTimePerUser && (
+                            <span className="text-[8px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-md font-black uppercase" title="Mỗi khách dùng 1 lần">1 Lần / Khách</span>
+                          )}
+                          {coupon.isFirstOrderOnly && (
+                            <span className="text-[8px] bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded-md font-black uppercase" title="Chỉ đơn hàng đầu">Đơn đầu</span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -636,6 +648,41 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshCouponsDeps
                             <span className="text-xs font-black uppercase tracking-wider">{couponFormData.isActive ? 'Đang hoạt động' : 'Tạm dừng'}</span>
                           </button>
                         </div>
+
+                        <div className="col-span-12">
+                          <div className={`p-5 rounded-3xl border ${isMidnight ? 'bg-slate-900/30 border-white/5' : 'bg-muted/30 border-border'}`}>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4 ml-1">Ràng buộc đặc biệt</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <button
+                                type="button"
+                                onClick={() => setCouponFormData({ ...couponFormData, isOneTimePerUser: !couponFormData.isOneTimePerUser })}
+                                className={`h-11 px-4 rounded-xl border flex items-center justify-between transition-all ${couponFormData.isOneTimePerUser
+                                  ? 'bg-primary/10 border-primary/30 text-primary'
+                                  : (isMidnight ? 'bg-slate-800 border-white/5 text-slate-500' : 'bg-card border-border text-muted-foreground')
+                                  }`}
+                              >
+                                <span className="text-[10px] font-black uppercase tracking-wide">Mỗi khách dùng 1 lần</span>
+                                <div className={`w-8 h-4 rounded-full relative transition-all ${couponFormData.isOneTimePerUser ? 'bg-primary' : 'bg-muted'}`}>
+                                  <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${couponFormData.isOneTimePerUser ? 'right-0.5' : 'left-0.5'}`}></div>
+                                </div>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => setCouponFormData({ ...couponFormData, isFirstOrderOnly: !couponFormData.isFirstOrderOnly })}
+                                className={`h-11 px-4 rounded-xl border flex items-center justify-between transition-all ${couponFormData.isFirstOrderOnly
+                                  ? 'bg-amber-500/10 border-amber-500/30 text-amber-500'
+                                  : (isMidnight ? 'bg-slate-800 border-white/5 text-slate-500' : 'bg-card border-border text-muted-foreground')
+                                  }`}
+                              >
+                                <span className="text-[10px] font-black uppercase tracking-wide">Chỉ khách hàng mới</span>
+                                <div className={`w-8 h-4 rounded-full relative transition-all ${couponFormData.isFirstOrderOnly ? 'bg-amber-500' : 'bg-muted'}`}>
+                                  <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${couponFormData.isFirstOrderOnly ? 'right-0.5' : 'left-0.5'}`}></div>
+                                </div>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -676,4 +723,3 @@ const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshCouponsDeps
 };
 
 export default AdminCoupons;
-

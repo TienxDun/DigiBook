@@ -18,7 +18,10 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
   const isMidnight = adminTheme === 'midnight';
 
   return (
-    <header className={`backdrop-blur-xl border-b sticky top-0 z-40 h-24 flex items-center justify-between px-6 lg:px-10 transition-all ${isMidnight ? 'border-white/5 bg-[#0f172a]/80 shadow-lg' : 'border-border bg-background/80'}`}>
+    <header
+      data-testid="admin-header"
+      className={`backdrop-blur-xl border-b sticky top-0 z-40 h-24 flex items-center justify-between px-6 lg:px-10 transition-all ${isMidnight ? 'border-white/5 bg-[#0f172a]/80 shadow-lg' : 'border-border bg-background/80'}`}
+    >
       <div className="flex items-center gap-4">
         <button
           onClick={onOpenMobileMenu}
@@ -27,7 +30,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
           <i className="fa-solid fa-bars-staggered"></i>
         </button>
         <div className="animate-fadeIn">
-          <h2 className="text-xl lg:text-2xl font-black uppercase tracking-tight text-foreground">
+          <h2 className="text-xl lg:text-2xl font-black uppercase tracking-tight text-foreground" data-testid="admin-header-title">
             {ADMIN_TABS[activeTab].title}
           </h2>
         </div>

@@ -174,6 +174,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshOrdersDeps, th
               </div>
               <input
                 type="text"
+                data-testid="admin-orders-search-input"
                 placeholder="Tra cứu mã đơn, tên, SĐT..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -200,6 +201,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshOrdersDeps, th
                 await refreshOrdersDeps();
                 toast.success('Đã làm mới dữ liệu');
               }}
+              data-testid="admin-orders-refresh-button"
               className={`h-12 px-6 rounded-2xl font-bold transition-all shadow-sm border flex items-center gap-2 group ${isMidnight
                 ? 'bg-slate-800 border-white/10 text-slate-400 hover:text-primary hover:bg-slate-700'
                 : 'bg-card border-border text-muted-foreground hover:text-primary hover:bg-muted'
@@ -233,10 +235,15 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshOrdersDeps, th
                   const statusMeta = getOrderStatusMeta(order.statusStep, order.status);
 
                   return (
-                  <tr key={rowKey} className={`group transition-all ${isMidnight ? 'hover:bg-slate-700/30' : 'hover:bg-muted/30'}`}>
+                  <tr
+                    key={rowKey}
+                    data-testid="admin-order-row"
+                    data-order-id={order.id}
+                    className={`group transition-all ${isMidnight ? 'hover:bg-slate-700/30' : 'hover:bg-muted/30'}`}
+                  >
                     <td className="px-4 py-4">
                       <div className="flex bg-primary/10 w-fit px-2 py-1 rounded-lg">
-                        <span className="text-sm font-black text-primary">#{shortOrderId}</span>
+                        <span className="text-sm font-black text-primary" data-testid="admin-order-id">#{shortOrderId}</span>
                       </div>
                     </td>
                     <td className="px-8 py-4">
@@ -263,6 +270,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshOrdersDeps, th
                       <div className="relative min-w-[140px]">
                         <select
                           value={normalizedStep}
+                          data-testid="admin-order-status-select"
                           onChange={(e) => {
                             if (!order.id) return;
                             handleUpdateOrderStatus(order.id, Number(e.target.value));
@@ -291,6 +299,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshOrdersDeps, th
                     <td className="px-4 py-4 text-center">
                       <button
                         onClick={() => handleViewOrderDetails(order)}
+                        data-testid="admin-order-detail-button"
                         className={`w-9 h-9 rounded-lg inline-flex items-center justify-center transition-all shadow-sm active:scale-95 ${isMidnight
                           ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:bg-primary hover:text-primary-foreground hover:border-primary'
                           : 'bg-card border border-border text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary'
@@ -303,7 +312,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshOrdersDeps, th
                   </tr>
                 )}) : (
                   <tr>
-                    <td colSpan={6} className="px-8 py-32 text-center text-muted-foreground">
+                    <td colSpan={6} className="px-8 py-32 text-center text-muted-foreground" data-testid="admin-orders-empty-state">
                       <div className="flex flex-col items-center gap-4">
                         <div className="w-20 h-20 rounded-[2rem] bg-muted flex items-center justify-center text-3xl">
                           <i className="fa-solid fa-inbox opacity-20"></i>
@@ -356,6 +365,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshOrdersDeps, th
                 initial={{ opacity: 0, scale: 0.9, y: 30 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 30 }}
+                data-testid="admin-order-detail-modal"
                 className={`${isMidnight ? 'bg-slate-900 border-white/10' : 'bg-card border-border'} w-full max-w-5xl h-full max-h-[90vh] overflow-hidden flex flex-col relative z-20 rounded-[2.5rem] shadow-4xl`}
               >
                 {/* Header */}
@@ -378,6 +388,7 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshOrdersDeps, th
                   </div>
                   <button
                     onClick={() => setIsOrderModalOpen(false)}
+                    data-testid="admin-order-modal-close-button"
                     className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all active:scale-95 ${isMidnight ? 'bg-slate-700/50 text-slate-400 hover:bg-destructive/10 hover:text-destructive' : 'bg-secondary text-muted-foreground hover:bg-destructive/10 hover:text-destructive'
                       }`}
                   >

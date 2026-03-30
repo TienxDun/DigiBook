@@ -144,6 +144,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshUsersData, theme 
             </div>
             <input
               type="text"
+              data-testid="admin-users-search-input"
               placeholder="Tìm kiếm người dùng..."
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
@@ -183,6 +184,8 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshUsersData, theme 
               {(['all', 'admin', 'user'] as const).map(role => (
                 <button
                   key={role}
+                  data-testid="admin-user-role-tab"
+                  data-role={role}
                   onClick={() => { setUserRoleFilter(role); setCurrentPage(1); }}
                   className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide transition-all ${userRoleFilter === role
                     ? 'bg-primary text-primary-foreground shadow-sm'
@@ -199,6 +202,8 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshUsersData, theme 
               {(['all', 'active', 'banned'] as const).map(status => (
                 <button
                   key={status}
+                  data-testid="admin-user-status-tab"
+                  data-status={status}
                   onClick={() => { setUserStatusFilter(status); setCurrentPage(1); }}
                   className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide transition-all ${userStatusFilter === status
                     ? (status === 'banned' ? 'bg-destructive text-destructive-foreground shadow-sm' : 'bg-green-500 text-white shadow-sm')
@@ -286,6 +291,8 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshUsersData, theme 
                 {paginatedUsers.length > 0 ? paginatedUsers.map((user, idx) => (
                   <motion.tr
                     key={user.id}
+                    data-testid="admin-user-row"
+                    data-user-email={user.email}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
@@ -322,7 +329,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshUsersData, theme 
                             <span className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/50 bg-secondary/50 px-1.5 py-0.5 rounded border border-border/50">ID: {user.id.slice(0, 4)}</span>
                           </div>
                           <div className="flex flex-col gap-0.5 mt-1">
-                            <p className="text-xs font-medium text-muted-foreground">{user.email}</p>
+                            <p className="text-xs font-medium text-muted-foreground" data-testid="admin-user-email">{user.email}</p>
                             <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/60">
                               <i className="fa-solid fa-calendar-plus opacity-40"></i>
                               <span>Gia nhập: {(() => {
@@ -363,6 +370,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshUsersData, theme 
                     <td className="px-6 py-4 text-center">
                       <button
                         onClick={() => handleUpdateUserRole(user.id, user.role || 'user')}
+                        data-testid="admin-user-role-button"
                         className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm ${user.role === 'admin'
                           ? 'bg-amber-500/10 text-amber-600 border border-amber-500/20 hover:bg-amber-500 hover:text-white'
                           : (isMidnight ? 'bg-slate-700 text-slate-400 border border-white/5 hover:bg-primary/20 hover:text-primary' : 'bg-secondary text-muted-foreground hover:bg-primary/10 hover:text-primary border border-border/50')
@@ -375,7 +383,9 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshUsersData, theme 
                     </td>
                     <td className="px-6 py-4 text-center">
                       <div className="flex justify-center">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${(user.status || 'active') === 'active'
+                        <span 
+                          data-testid="admin-user-status-badge"
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${(user.status || 'active') === 'active'
                           ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
                           : 'bg-destructive/10 text-destructive border-destructive/20 shadow-sm'
                           }`}>
@@ -388,6 +398,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshUsersData, theme 
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleUpdateUserStatus(user.id, user.status || 'active')}
+                          data-testid="admin-user-toggle-status-button"
                           className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm ${(user.status || 'active') === 'active'
                             ? (isMidnight ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:bg-destructive hover:text-white hover:border-destructive' : 'bg-secondary text-muted-foreground hover:bg-destructive hover:text-white')
                             : 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white'
@@ -411,7 +422,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshUsersData, theme 
                   </motion.tr>
                 )) : (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center">
+                    <td colSpan={6} className="px-6 py-12 text-center" data-testid="admin-users-empty-state">
                       <div className="flex flex-col items-center gap-4">
                         <div className={`w-16 h-16 rounded-2xl flex items-center justify-center border shadow-inner ${isMidnight ? 'bg-slate-800 border-white/5' : 'bg-secondary/50 border-border/50'
                           }`}>

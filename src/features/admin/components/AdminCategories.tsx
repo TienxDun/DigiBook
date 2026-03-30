@@ -210,6 +210,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
             <input
               type="text"
               placeholder="Tìm kiếm danh mục..."
+              data-testid="admin-category-search-input"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className={`w-full h-12 pl-16 pr-5 rounded-2xl text-xs font-bold outline-none border transition-all ${isMidnight
@@ -249,6 +250,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
           </button>
           <button
             onClick={handleOpenAddCategory}
+            data-testid="admin-add-category-btn"
             className="h-12 px-6 bg-primary text-primary-foreground rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center gap-3 group active:scale-95"
           >
             <i className="fa-solid fa-plus text-xs group-hover:rotate-90 transition-transform duration-300"></i>
@@ -279,6 +281,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
             <div className="flex items-center gap-2">
               <button
                 onClick={handleBulkDeleteCategories}
+                data-testid="admin-category-bulk-delete-btn"
                 disabled={isDeletingBulk}
                 className="bg-destructive/10 text-destructive hover:bg-destructive hover:text-white px-5 py-2.5 rounded-xl text-micro font-bold uppercase tracking-premium transition-all shadow-sm flex items-center gap-2"
               >
@@ -317,6 +320,8 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
               {paginatedCategories.map((category, idx) => (
                 <motion.tr
                   key={category.name}
+                  data-testid="admin-category-row"
+                  data-category-name={category.name}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
@@ -328,6 +333,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
                   <td className="px-4 py-4 text-center">
                     <div
                       onClick={() => toggleSelectCategory(category.name)}
+                      data-testid="admin-category-select-box"
                       className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer mx-auto ${selectedCategories.includes(category.name)
                         ? 'bg-primary border-primary text-primary-foreground shadow-md shadow-primary/20'
                         : (isMidnight ? 'border-white/10 bg-slate-800' : 'border-border bg-card') + ' group-hover:border-primary/40'
@@ -337,7 +343,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <span className="font-bold text-base text-foreground group-hover:text-primary transition-colors">{category.name}</span>
+                    <span className="font-bold text-base text-foreground group-hover:text-primary transition-colors" data-testid="admin-category-name">{category.name}</span>
                   </td>
                   <td className="px-4 py-4 text-center">
                     <div className={`w-10 h-10 rounded-xl mx-auto flex items-center justify-center text-lg transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 ${isMidnight
@@ -355,6 +361,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
                     <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => handleEditCategory(category)}
+                        data-testid="admin-category-edit-btn"
                         className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm ${isMidnight
                           ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:border-primary hover:text-primary hover:bg-slate-700'
                           : 'bg-muted text-foreground hover:bg-primary/10 hover:text-primary'
@@ -365,6 +372,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
                       </button>
                       <button
                         onClick={() => handleDeleteCategory(category)}
+                        data-testid="admin-category-delete-btn"
                         className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm ${isMidnight
                           ? 'bg-slate-700/50 border-slate-600 text-slate-400 hover:border-destructive hover:text-destructive hover:bg-slate-700'
                           : 'bg-destructive/10 text-destructive hover:bg-destructive/20'
@@ -432,6 +440,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
                 exit={{ opacity: 0, scale: 0.95, y: 30 }}
                 className={`relative w-full max-w-lg border shadow-3xl rounded-[2.5rem] overflow-hidden flex flex-col ${isMidnight ? 'bg-slate-800 border-white/10' : 'bg-card border-border'
                   }`}
+                data-testid="admin-category-modal"
               >
                 {/* Modal Header */}
                 <div className={`px-8 py-6 border-b flex items-center justify-between backdrop-blur-xl ${isMidnight ? 'border-white/5 bg-slate-800/80' : 'border-border/50 bg-card/50'
@@ -444,6 +453,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
                   </div>
                   <button
                     onClick={() => setIsCategoryModalOpen(false)}
+                    data-testid="admin-category-close-modal-btn"
                     className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all shadow-sm ${isMidnight ? 'bg-slate-700 text-slate-400 hover:bg-primary/10 hover:text-primary' : 'bg-secondary text-muted-foreground hover:bg-primary/10 hover:text-primary'
                       }`}
                   >
@@ -462,6 +472,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
                         <input
                           type="text"
                           required
+                          data-testid="admin-category-name-input"
                           value={categoryFormData.name || ''}
                           onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value })}
                           className={`w-full pl-11 pr-6 py-3.5 rounded-2xl border transition-all text-sm font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 ${isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary/20 border-border'
@@ -500,6 +511,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
                       <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-1">Mô tả tóm tắt</label>
                       <textarea
                         value={categoryFormData.description || ''}
+                        data-testid="admin-category-description-textarea"
                         onChange={(e) => setCategoryFormData({ ...categoryFormData, description: e.target.value })}
                         rows={3}
                         className={`w-full px-5 py-4 rounded-2xl border transition-all font-semibold resize-none outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 leading-relaxed text-sm ${isMidnight ? 'bg-slate-700/50 border-white/5' : 'bg-secondary/20 border-border'
@@ -521,6 +533,7 @@ const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCatego
                     <button
                       type="submit"
                       disabled={isSubmitting}
+                      data-testid="admin-category-save-btn"
                       className="flex-[1.5] bg-primary text-primary-foreground py-4 rounded-2xl text-micro font-black uppercase tracking-widest hover:shadow-lg hover:shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 disabled:opacity-50"
                     >
                       {isSubmitting ? (

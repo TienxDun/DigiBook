@@ -65,7 +65,7 @@ const LoginModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md transition-all">
+    <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md transition-all" data-testid="login-modal">
       <div className="relative bg-white w-full max-w-[380px] rounded-[2rem] p-1 shadow-[0_24px_50px_-12px_rgba(0,0,0,0.15)] border border-white/20 animate-fadeIn overflow-hidden">
         <div className="relative bg-white rounded-[1.9rem] p-8">
           <button
@@ -77,6 +77,7 @@ const LoginModal: React.FC = () => {
               }
             }}
             disabled={isLoading}
+            data-testid="login-close-button"
             className="absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center text-slate-300 hover:bg-slate-50 hover:text-slate-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <i className="fa-solid fa-xmark text-sm"></i>
@@ -96,7 +97,7 @@ const LoginModal: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {authError && (
-              <div className="p-3 bg-rose-50 text-rose-500 text-micro font-bold uppercase tracking-premium rounded-xl flex items-center gap-2 animate-shake">
+              <div className="p-3 bg-rose-50 text-rose-500 text-micro font-bold uppercase tracking-premium rounded-xl flex items-center gap-2 animate-shake" data-testid="login-error-box">
                 <i className="fa-solid fa-circle-exclamation text-sm"></i>
                 {authError}
               </div>
@@ -109,6 +110,7 @@ const LoginModal: React.FC = () => {
                     <i className="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-slate-900 transition-colors text-sm"></i>
                     <input
                       type="text"
+                      data-testid="register-name-input"
                       required
                       value={displayName}
                       onChange={e => setDisplayName(e.target.value)}
@@ -125,6 +127,7 @@ const LoginModal: React.FC = () => {
                   <i className="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-slate-900 transition-colors text-sm"></i>
                   <input
                     type="email"
+                    data-testid="login-email-input"
                     required
                     value={email}
                     onChange={e => setEmail(e.target.value)}
@@ -140,6 +143,7 @@ const LoginModal: React.FC = () => {
                   <i className="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-slate-900 transition-colors text-sm"></i>
                   <input
                     type="password"
+                    data-testid="login-password-input"
                     required
                     value={password}
                     onChange={e => setPassword(e.target.value)}
@@ -168,6 +172,7 @@ const LoginModal: React.FC = () => {
                     <i className="fa-solid fa-shield-halved absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-slate-900 transition-colors text-sm"></i>
                     <input
                       type="password"
+                      data-testid="register-confirm-password-input"
                       required
                       value={confirmPassword}
                       onChange={e => setConfirmPassword(e.target.value)}
@@ -182,6 +187,7 @@ const LoginModal: React.FC = () => {
 
             <button
               type="submit"
+              data-testid="login-submit-button"
               disabled={isLoading}
               className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold uppercase tracking-premium text-micro hover:bg-black transition-all active:scale-[0.98] shadow-lg shadow-slate-100 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
@@ -222,6 +228,7 @@ const LoginModal: React.FC = () => {
             <div className="text-center pt-2">
               <button
                 type="button"
+                data-testid="switch-auth-mode-button"
                 onClick={() => {
                   if (!isLoading) {
                     setAuthMode(authMode === 'login' ? 'register' : 'login');

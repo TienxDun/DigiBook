@@ -18,7 +18,7 @@ const AdminAnalytics: React.FC = () => {
         <div className="space-y-6 h-full flex flex-col">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent inline-block">
+                    <h2 data-testid="admin-analytics-title" className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent inline-block">
                         Thống kê truy cập (GoatCounter)
                     </h2>
                     <p className="text-slate-500 mt-1 font-medium">Theo dõi lượng người dùng truy cập theo thời gian thực</p>
@@ -29,7 +29,7 @@ const AdminAnalytics: React.FC = () => {
                 {isDev ? (
                     <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center text-slate-500 bg-slate-50">
                         <i className="fa-solid fa-shield-cat text-4xl mb-3 text-slate-400"></i>
-                        <h3 className="text-lg font-semibold text-slate-700">Chế độ phát triển (Development Mode)</h3>
+                        <h3 data-testid="admin-analytics-dev-placeholder" className="text-lg font-semibold text-slate-700">Chế độ phát triển (Development Mode)</h3>
                         <p className="max-w-md my-2">
                             Để tránh lỗi <strong>Content Security Policy (CSP)</strong> khi chạy localhost, 
                             iframe thống kê đã được tạm ẩn.
@@ -45,6 +45,7 @@ const AdminAnalytics: React.FC = () => {
                     </div>
                 ) : (
                     <iframe
+                        data-testid="admin-analytics-iframe"
                         src={analyticsUrl}
                         frameBorder="0"
                         className="w-full h-full absolute inset-0"
@@ -54,7 +55,7 @@ const AdminAnalytics: React.FC = () => {
                 )}
             </div>
 
-            <div className="bg-blue-50 text-blue-700 p-4 rounded-xl border border-blue-100 flex gap-3 text-sm">
+            <div data-testid="admin-analytics-help-info" className="bg-blue-50 text-blue-700 p-4 rounded-xl border border-blue-100 flex gap-3 text-sm">
                 <i className="fa-solid fa-circle-info mt-0.5"></i>
                 <div>
                     <p className="font-bold mb-1">Không thấy bảng thống kê?</p>

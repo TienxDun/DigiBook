@@ -52,7 +52,12 @@ const AdminOverview: React.FC<AdminOverviewProps> = ({
           { label: 'Sách tồn', value: stats.totalBooks, icon: 'fa-book-open-reader', bgColor: 'bg-chart-2/10', iconColor: 'text-chart-2', sub: `${stats.outOfStock} sách hết hàng`, growth: 'Books' },
           { label: 'Đang vận hành', value: stats.pendingOrders, icon: 'fa-clock', bgColor: 'bg-chart-3/10', iconColor: 'text-chart-3', sub: `${stats.completedOrders} đơn đã giao`, growth: 'Process' },
         ].map((stat) => (
-          <div key={stat.label} className={`p-4 rounded-2xl lg:rounded-3xl border shadow-xl transition-all duration-500 group relative overflow-hidden ${isMidnight ? 'bg-[#1e293b]/40 border-white/5 hover:border-primary/40 hover:bg-[#1e293b]/60' : 'bg-card border-border hover:shadow-primary/5 hover:border-primary'}`}>
+          <div
+            key={stat.label}
+            data-testid="admin-overview-kpi-card"
+            data-stat-label={stat.label}
+            className={`p-4 rounded-2xl lg:rounded-3xl border shadow-xl transition-all duration-500 group relative overflow-hidden ${isMidnight ? 'bg-[#1e293b]/40 border-white/5 hover:border-primary/40 hover:bg-[#1e293b]/60' : 'bg-card border-border hover:shadow-primary/5 hover:border-primary'}`}
+          >
             <div className="flex items-start justify-between mb-4 relative z-10">
               <div className={`w-10 h-10 lg:w-12 lg:h-12 ${stat.bgColor} ${stat.iconColor} rounded-xl lg:rounded-2xl flex items-center justify-center text-base lg:text-lg transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-[0_0_30px_rgba(112,51,255,0.2)]`}>
                 <i className={`fa-solid ${stat.icon}`}></i>
@@ -63,8 +68,8 @@ const AdminOverview: React.FC<AdminOverviewProps> = ({
                 </div>
               </div>
             </div>
-            <p className="text-[10px] lg:text-[11px] font-black text-muted-foreground uppercase tracking-wider mb-1 relative z-10">{stat.label}</p>
-            <h3 className="text-lg lg:text-xl font-black tracking-tighter relative z-10 text-foreground">{stat.value}</h3>
+            <p className="text-[10px] lg:text-[11px] font-black text-muted-foreground uppercase tracking-wider mb-1 relative z-10" data-testid="admin-overview-kpi-label">{stat.label}</p>
+            <h3 className="text-lg lg:text-xl font-black tracking-tighter relative z-10 text-foreground" data-testid="admin-overview-kpi-value">{stat.value}</h3>
             <div className={`h-1 w-12 rounded-full mt-3 mb-2 transition-all duration-500 group-hover:w-20 ${stat.bgColor.replace('/10', '/30')}`}></div>
             <p className="text-[9px] lg:text-[10px] font-bold text-muted-foreground uppercase tracking-wide flex items-center gap-2 relative z-10">
               <span className={`w-1 h-1 rounded-full ${stat.iconColor} animate-pulse`}></span>
@@ -75,15 +80,18 @@ const AdminOverview: React.FC<AdminOverviewProps> = ({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
-        <div className={`lg:col-span-3 p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] border shadow-2xl relative overflow-hidden transition-all ${isMidnight ? 'bg-[#1e293b]/40 border-white/5 shadow-black/20' : 'bg-card border-border shadow-slate-200/50'}`}>
+        <div
+          data-testid="admin-overview-revenue-section"
+          className={`lg:col-span-3 p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] border shadow-2xl relative overflow-hidden transition-all ${isMidnight ? 'bg-[#1e293b]/40 border-white/5 shadow-black/20' : 'bg-card border-border shadow-slate-200/50'}`}
+        >
           <div className="flex items-center justify-between mb-12">
             <div>
               <h3 className="text-lg lg:text-xl font-black uppercase tracking-tight text-foreground">Hiệu quả kinh doanh</h3>
               <p className="text-xs lg:text-micro font-bold text-primary/60 uppercase tracking-premium mt-1">Chu kỳ {chartView === 'week' ? '7 ngày' : '30 ngày'} gần nhất VNĐ</p>
             </div>
             <div className={`flex p-1 rounded-xl border ${isMidnight ? 'bg-slate-800 border-white/5' : 'bg-muted border-border'}`}>
-              <button onClick={() => onChangeChartView('week')} className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${chartView === 'week' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:text-foreground'}`}>Tuần</button>
-              <button onClick={() => onChangeChartView('month')} className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${chartView === 'month' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:text-foreground'}`}>Tháng</button>
+              <button onClick={() => onChangeChartView('week')} data-testid="admin-overview-week-toggle" className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${chartView === 'week' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:text-foreground'}`}>Tuần</button>
+              <button onClick={() => onChangeChartView('month')} data-testid="admin-overview-month-toggle" className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${chartView === 'month' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:text-foreground'}`}>Tháng</button>
             </div>
           </div>
 
@@ -172,7 +180,10 @@ const AdminOverview: React.FC<AdminOverviewProps> = ({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-        <div className={`p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border shadow-2xl transition-all ${isMidnight ? 'bg-[#1e293b]/40 border-white/5 shadow-black/20' : 'bg-card border-border'}`}>
+        <div
+          data-testid="admin-overview-recent-orders-section"
+          className={`p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border shadow-2xl transition-all ${isMidnight ? 'bg-[#1e293b]/40 border-white/5 shadow-black/20' : 'bg-card border-border'}`}
+        >
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-lg font-black uppercase tracking-tight text-foreground">Đơn hàng mới nhất</h3>
@@ -210,7 +221,10 @@ const AdminOverview: React.FC<AdminOverviewProps> = ({
           </div>
         </div>
 
-        <div className={`p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border shadow-2xl transition-all ${isMidnight ? 'bg-[#1e293b]/40 border-white/5 shadow-black/20' : 'bg-card border-border'}`}>
+        <div
+          data-testid="admin-overview-top-selling-section"
+          className={`p-6 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border shadow-2xl transition-all ${isMidnight ? 'bg-[#1e293b]/40 border-white/5 shadow-black/20' : 'bg-card border-border'}`}
+        >
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-lg font-black uppercase tracking-tight text-foreground">Sản phẩm bán chạy</h3>

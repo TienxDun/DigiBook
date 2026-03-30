@@ -68,7 +68,7 @@ const AdminTikiInspector: React.FC<AdminTikiInspectorProps> = ({ theme = 'light'
                 }`}>
                 <div className="flex items-center justify-between mb-8">
                     <div>
-                        <h3 className="text-xl font-black uppercase tracking-tight text-foreground flex items-center gap-3">
+                        <h3 data-testid="admin-tiki-inspector-title" className="text-xl font-black uppercase tracking-tight text-foreground flex items-center gap-3">
                             <i className="fa-solid fa-microscope text-primary"></i>
                             Tiki API Inspector
                         </h3>
@@ -86,12 +86,14 @@ const AdminTikiInspector: React.FC<AdminTikiInspectorProps> = ({ theme = 'light'
                             type="text"
                             value={tikiInput}
                             onChange={(e) => setTikiInput(e.target.value)}
+                            data-testid="admin-tiki-inspector-input"
                             placeholder="Nhập Tiki Product ID hoặc dán URL sản phẩm..."
                             className="flex-1 bg-transparent border-none outline-none text-sm font-bold placeholder:text-muted-foreground/50"
                         />
                     </div>
                     <button
                         type="submit"
+                        data-testid="admin-tiki-inspector-button"
                         disabled={isLoading}
                         className={`h-12 px-6 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 transition-all shadow-lg active:scale-95 ${isLoading
                             ? 'bg-muted text-muted-foreground cursor-not-allowed'
@@ -110,13 +112,13 @@ const AdminTikiInspector: React.FC<AdminTikiInspectorProps> = ({ theme = 'light'
                     <div className={`p-6 rounded-[2rem] border overflow-hidden flex flex-col ${isMidnight ? 'bg-[#1e293b]/60 border-white/5' : 'bg-card border-border'
                         }`}>
                         <div className="flex items-center justify-between mb-4">
-                            <h4 className="text-sm font-black uppercase tracking-wide text-foreground flex items-center gap-2">
+                            <h4 data-testid="admin-tiki-inspector-raw-panel" className="text-sm font-black uppercase tracking-wide text-foreground flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-amber-500"></span>
                                 Raw JSON Response
                             </h4>
                             <span className="text-[10px] font-bold px-2 py-1 rounded bg-muted text-muted-foreground">Read-only</span>
                         </div>
-                        <div className={`flex-1 overflow-auto custom-scrollbar rounded-xl p-4 text-xs font-mono border ${isMidnight ? 'bg-slate-950 border-white/5 text-slate-300' : 'bg-slate-50 border-border text-slate-700'
+                        <div data-testid="admin-tiki-inspector-raw-content" className={`flex-1 overflow-auto custom-scrollbar rounded-xl p-4 text-xs font-mono border ${isMidnight ? 'bg-slate-950 border-white/5 text-slate-300' : 'bg-slate-50 border-border text-slate-700'
                             }`}>
                             <pre>{JSON.stringify(rawData, null, 2)}</pre>
                         </div>
@@ -126,12 +128,12 @@ const AdminTikiInspector: React.FC<AdminTikiInspectorProps> = ({ theme = 'light'
                     <div className={`p-6 rounded-[2rem] border overflow-hidden flex flex-col ${isMidnight ? 'bg-[#1e293b]/60 border-white/5' : 'bg-card border-border'
                         }`}>
                         <div className="flex items-center justify-between mb-4">
-                            <h4 className="text-sm font-black uppercase tracking-wide text-foreground flex items-center gap-2">
+                            <h4 data-testid="admin-tiki-inspector-mapped-panel" className="text-sm font-black uppercase tracking-wide text-foreground flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                                 Mapped Data (DigiBook)
                             </h4>
                         </div>
-                        <div className={`flex-1 overflow-auto custom-scrollbar rounded-xl p-4 text-xs font-mono border ${isMidnight ? 'bg-slate-950 border-white/5 text-emerald-400' : 'bg-slate-50 border-border text-emerald-700'
+                        <div data-testid="admin-tiki-inspector-mapped-content" className={`flex-1 overflow-auto custom-scrollbar rounded-xl p-4 text-xs font-mono border ${isMidnight ? 'bg-slate-950 border-white/5 text-emerald-400' : 'bg-slate-50 border-border text-emerald-700'
                             }`}>
                             <pre>{JSON.stringify(mappedData, null, 2)}</pre>
                         </div>
