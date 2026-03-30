@@ -31,13 +31,22 @@ const OrderDetailPage: React.FC = () => {
     window.scrollTo(0, 0);
   }, [orderId]);
 
-  const steps = [
-    { step: 0, label: 'Đang xử lý', icon: 'fa-spinner', desc: 'Đơn hàng đã được tiếp nhận và chờ xử lý' },
-    { step: 1, label: 'Đã xác nhận', icon: 'fa-circle-check', desc: 'Đơn hàng đã được xác nhận' },
-    { step: 5, label: 'Đang đóng gói', icon: 'fa-box-open', desc: 'Kho đang chuẩn bị và đóng gói sản phẩm' },
-    { step: 2, label: 'Đang giao', icon: 'fa-truck-fast', desc: 'Đơn hàng đang trên đường đến bạn' },
-    { step: 3, label: 'Đã giao', icon: 'fa-circle-check', desc: 'Đơn hàng đã được giao thành công' }
-  ];
+  const progressSteps = ORDER_PROGRESS_STEPS.map(stepId => {
+    const meta = getOrderStatusMeta(stepId);
+    const descriptions: Record<number, string> = {
+      0: 'Tiếp nhận đơn hàng',
+      1: 'Đã xác nhận đơn',
+      5: 'Đang chuẩn bị hàng',
+      2: 'Đang vận chuyển',
+      3: 'Giao hàng thành công'
+    };
+    return {
+      step: stepId,
+      label: meta.label,
+      icon: meta.icon,
+      desc: descriptions[stepId]
+    };
+  });
 
   if (loading) {
     return (
@@ -149,29 +158,37 @@ const OrderDetailPage: React.FC = () => {
               {normalizedStep !== 4 && (
                 <div className="relative mb-4">
                   <div className="flex justify-between relative z-10">
-                    {steps.map((step, idx) => {
+                    {progressSteps.map((step, idx) => {
                       const isCompleted = idx <= progressIndex;
-                      const isCurrent = step.step === normalizedStep;
+                      const isCurrent = step.step === normalizedStep || (normalizedStep === 6 && step.step === 2);
+                      const isFailed = normalizedStep === 6 && step.step === 2;
 
                       return (
-                      <div key={idx} className="flex flex-col items-center gap-3 flex-1">
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-700 relative ${isCompleted ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'bg-slate-50 text-slate-200'
-                          }`}>
-                          <i className={`fa-solid ${step.icon} text-base`}></i>
-                          {isCurrent && (
-                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full flex items-center justify-center shadow-sm">
-                              <i className="fa-solid fa-check text-xs text-white"></i>
-                            </div>
-                          )}
+                        <div key={idx} className="flex flex-col items-center gap-3 flex-1 group">
+                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-700 relative ${isFailed ? 'bg-rose-500 text-white shadow-lg shadow-rose-100' :
+                              isCompleted ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'bg-slate-50 text-slate-200'
+                            }`}>
+                            <i className={`fa-solid ${isFailed ? 'fa-triangle-exclamation' : step.icon} text-base`}></i>
+                            {isCurrent && !isFailed && (
+                              <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full flex items-center justify-center shadow-sm">
+                                <i className="fa-solid fa-check text-xs text-white"></i>
+                              </div>
+                            )}
+                            {isFailed && (
+                              <div className="absolute -top-1 -right-1 w-4 h-4 bg-white border-2 border-rose-500 rounded-full flex items-center justify-center shadow-sm">
+                                <i className="fa-solid fa-xmark text-[10px] text-rose-500"></i>
+                              </div>
+                            )}
+                          </div>
+                          <div className="text-center px-1">
+                            <p className={`text-[10px] lg:text-xs font-black uppercase tracking-widest mb-0.5 ${isFailed ? 'text-rose-500' : isCompleted ? 'text-indigo-600' : 'text-slate-400'}`}>
+                              {isFailed ? 'Giao thất bại' : step.label}
+                            </p>
+                            <p className="text-[9px] lg:text-xs font-bold text-slate-300 leading-tight hidden sm:block uppercase tracking-wide">{isFailed ? 'Vui lòng liên hệ hỗ trợ' : step.desc}</p>
+                          </div>
                         </div>
-                        <div className="text-center px-1">
-                          <p className={`text-xs font-black uppercase tracking-widest mb-0.5 ${isCompleted ? 'text-indigo-600' : 'text-slate-400'}`}>
-                            {step.label}
-                          </p>
-                          <p className="text-xs font-bold text-slate-300 leading-tight hidden sm:block uppercase tracking-wide">{step.desc}</p>
-                        </div>
-                      </div>
-                    )})}
+                      )
+                    })}
                   </div>
                   {/* Progress Line */}
                   <div className="absolute top-6 left-0 w-full h-0.5 bg-slate-100 -z-0 rounded-full overflow-hidden px-12">

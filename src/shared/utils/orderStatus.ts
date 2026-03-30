@@ -25,7 +25,7 @@ export const ORDER_STATUS_OPTIONS: OrderStatusMeta[] = [
   {
     step: 1,
     label: 'Đã xác nhận',
-    icon: 'fa-circle-check',
+    icon: 'fa-clipboard-check',
     badgeClass: 'bg-blue-500/10 text-blue-600 border-blue-200/50',
     softClass: 'bg-blue-50 text-blue-500',
     textClass: 'text-blue-600',
@@ -37,23 +37,23 @@ export const ORDER_STATUS_OPTIONS: OrderStatusMeta[] = [
     step: 5,
     label: 'Đang đóng gói',
     icon: 'fa-box-open',
-    badgeClass: 'bg-purple-500/10 text-purple-600 border-purple-200/50',
-    softClass: 'bg-purple-50 text-purple-500',
-    textClass: 'text-purple-600',
-    selectClass: 'bg-purple-500/10 text-purple-500 border-purple-500/20 hover:bg-purple-500/20',
-    chevronClass: 'text-purple-500',
-    dotClass: 'bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.4)]'
+    badgeClass: 'bg-indigo-500/10 text-indigo-600 border-indigo-200/50',
+    softClass: 'bg-indigo-50 text-indigo-500',
+    textClass: 'text-indigo-600',
+    selectClass: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20 hover:bg-indigo-500/20',
+    chevronClass: 'text-indigo-500',
+    dotClass: 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.4)]'
   },
   {
     step: 2,
     label: 'Đang giao',
     icon: 'fa-truck-fast',
-    badgeClass: 'bg-indigo-500/10 text-indigo-600 border-indigo-200/50',
-    softClass: 'bg-indigo-50 text-indigo-500',
-    textClass: 'text-indigo-600',
+    badgeClass: 'bg-purple-500/10 text-purple-600 border-purple-200/50',
+    softClass: 'bg-purple-50 text-purple-500',
+    textClass: 'text-purple-600',
     selectClass: 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/20',
     chevronClass: 'text-primary',
-    dotClass: 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.4)]'
+    dotClass: 'bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.4)]'
   },
   {
     step: 3,
