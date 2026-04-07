@@ -1,13 +1,13 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import toast from '@/shared/utils/toast';
 import { useAuth } from '@/features/auth';
 import { db } from '@/services/db';
 import { ErrorHandler } from '@/services/errorHandler';
 import { useCart } from '@/features/cart';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Address, OrderItem } from '@/shared/types';
+import { Address, CartItem, OrderItem } from '@/shared/types';
 import { AddressList, AddressFormModal } from '@/features/auth';
 import { PaymentProviderFactory } from '@/services/payment/PaymentProviderFactory';
 import type { PaymentMethodType } from '@/services/payment/types';
@@ -23,7 +23,39 @@ const formatPrice = (price: number) => {
 const CheckoutPage: React.FC = () => {
   const { cart, clearCart, updateQuantity, removeFromCart } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, setShowLoginModal } = useAuth();
+
+  const selectedItemIdsFromNavigation = useMemo<string[]>(() => {
+    const fromState = (location.state as { selectedItemIds?: string[] } | null)?.selectedItemIds;
+    if (Array.isArray(fromState)) return fromState.filter((id): id is string => typeof id === 'string');
+
+    try {
+      const saved = sessionStorage.getItem('checkout_selected_item_ids');
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed)
+        ? parsed.filter((id): id is string => typeof id === 'string')
+        : [];
+    } catch {
+      return [];
+    }
+  }, [location.state]);
+
+  const checkoutCart = useMemo<CartItem[]>(() => {
+    if (selectedItemIdsFromNavigation.length === 0) return cart;
+    const selectedIdSet = new Set(selectedItemIdsFromNavigation);
+    return cart.filter(item => selectedIdSet.has(item.id));
+  }, [cart, selectedItemIdsFromNavigation]);
+
+  const clearCheckedOutItems = () => {
+    const isCheckoutingWholeCart = checkoutCart.length === cart.length;
+    if (isCheckoutingWholeCart) {
+      clearCart();
+    } else {
+      checkoutCart.forEach(item => removeFromCart(item.id));
+    }
+    sessionStorage.removeItem('checkout_selected_item_ids');
+  };
 
   // States
   const isSubmittingRef = useRef(false);
@@ -82,7 +114,7 @@ const CheckoutPage: React.FC = () => {
   // Calculate pricing with Design Patterns when cart or coupon changes
   useEffect(() => {
     const calculatePrice = async () => {
-      if (cart.length === 0 || !user) {
+      if (checkoutCart.length === 0 || !user) {
         setPricingResult(null);
         return;
       }
@@ -94,7 +126,7 @@ const CheckoutPage: React.FC = () => {
         const membershipTier = profile?.membershipTier || 'regular';
 
         const result = await calculatePricingWithPatterns(
-          cart,
+          checkoutCart,
           user.id,
           appliedCoupon ? {
             code: appliedCoupon.code,
@@ -107,7 +139,7 @@ const CheckoutPage: React.FC = () => {
       } catch (error) {
         console.error('Error calculating pricing:', error);
         // Fallback to simple calculation
-        const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const subtotal = checkoutCart.reduce((sum, item) => sum + item.price * item.quantity, 0);
         const shipping = subtotal > 500000 ? 0 : 25000;
         setPricingResult({
           subtotal,
@@ -122,7 +154,7 @@ const CheckoutPage: React.FC = () => {
     };
 
     calculatePrice();
-  }, [cart, appliedCoupon, user]);
+  }, [checkoutCart, appliedCoupon, user]);
 
   // Handle Address Selection
   const handleSelectAddress = (addr: Address) => {
@@ -189,14 +221,14 @@ const CheckoutPage: React.FC = () => {
   // 2. Validate stock logic (Unchanged mostly)
   useEffect(() => {
     const checkStockOnLoad = async () => {
-      if (cart.length === 0) return;
+      if (checkoutCart.length === 0) return;
 
       setIsValidatingStock(true);
-      const validation = await validateCartStock(cart);
+      const validation = await validateCartStock(checkoutCart);
       setIsValidatingStock(false);
 
       const stockData: Record<string, number> = {};
-      for (const item of cart) {
+      for (const item of checkoutCart) {
         const found = validation.errors.find(err => err.bookId === item.id);
         if (found) {
           stockData[item.id] = found.availableQuantity;
@@ -229,7 +261,7 @@ const CheckoutPage: React.FC = () => {
           if (err.type === 'OUT_OF_STOCK') {
             removeFromCart(err.bookId);
           } else {
-            const item = cart.find(i => i.id === err.bookId);
+            const item = checkoutCart.find(i => i.id === err.bookId);
             if (item) {
               const deltaNeeded = err.availableQuantity - item.quantity;
               updateQuantity(err.bookId, deltaNeeded);
@@ -239,16 +271,22 @@ const CheckoutPage: React.FC = () => {
       }
     };
     checkStockOnLoad();
-  }, []);
+  }, [checkoutCart, removeFromCart, updateQuantity]);
+
+  useEffect(() => {
+    if (selectedItemIdsFromNavigation.length > 0) {
+      sessionStorage.setItem('checkout_selected_item_ids', JSON.stringify(selectedItemIdsFromNavigation));
+    }
+  }, [selectedItemIdsFromNavigation]);
 
   useEffect(() => {
     // Only redirect if cart is empty AND we are not currently submitting
-    if (cart.length === 0 && !isSubmittingRef.current) navigate('/');
-  }, [cart, navigate]);
+    if (checkoutCart.length === 0 && !isSubmittingRef.current) navigate('/');
+  }, [checkoutCart.length, navigate]);
 
 
   // Calculations - Always call hooks, then choose value
-  const calculatedSubtotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
+  const calculatedSubtotal = useMemo(() => checkoutCart.reduce((sum, item) => sum + item.price * item.quantity, 0), [checkoutCart]);
   const subtotal = pricingResult?.subtotal || calculatedSubtotal;
   const shipping = pricingResult?.shipping || (subtotal > 500000 ? 0 : 25000);
 
@@ -320,7 +358,7 @@ const CheckoutPage: React.FC = () => {
 
     try {
       // Stock check
-      const validation = await validateCartStock(cart);
+      const validation = await validateCartStock(checkoutCart);
       if (!validation.isValid) {
         setIsProcessing(false);
         toast.error('Có thay đổi về tồn kho. Vui lòng kiểm tra lại giỏ hàng.');
@@ -330,7 +368,7 @@ const CheckoutPage: React.FC = () => {
       await new Promise(r => setTimeout(r, 1500)); // UX delay
 
       // Mapping cart to OrderItem chuẩn (bao gồm priceAtPurchase)
-      const orderItems: OrderItem[] = cart.map(item => ({
+      const orderItems: OrderItem[] = checkoutCart.map(item => ({
         bookId: item.id,
         title: item.title,
         priceAtPurchase: item.price,
@@ -361,6 +399,10 @@ const CheckoutPage: React.FC = () => {
         }
       }, orderItems);
 
+      if (!order?.id) {
+        throw new Error('Không thể tạo đơn hàng. Vui lòng thử lại.');
+      }
+
       if (appliedCoupon) {
         await db.incrementCouponUsage(appliedCoupon.code);
       }
@@ -373,7 +415,7 @@ const CheckoutPage: React.FC = () => {
         toast.success('Đang chuyển đến trang thanh toán PayOS...', { duration: 3000 });
         
         isSubmittingRef.current = true;
-        clearCart();
+        clearCheckedOutItems();
         
         setTimeout(() => {
           navigate('/orders');
@@ -413,7 +455,7 @@ const CheckoutPage: React.FC = () => {
           provider.open(checkoutUrl);
           toast.success('Đang chuyển đến trang thanh toán PayOS...', { duration: 3000 });
           isSubmittingRef.current = true;
-          clearCart();
+          clearCheckedOutItems();
 
           setTimeout(() => {
             navigate('/orders');
@@ -429,7 +471,7 @@ const CheckoutPage: React.FC = () => {
       } else {
         // COD - Navigate trực tiếp
         isSubmittingRef.current = true;
-        clearCart();
+        clearCheckedOutItems();
         setIsProcessing(false);
         navigate('/order-success', { state: { orderId: order.id } });
       }
@@ -620,13 +662,13 @@ const CheckoutPage: React.FC = () => {
                 <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
                   <i className="fa-solid fa-receipt text-slate-300"></i>
                   Đơn hàng
-                  <span className="bg-indigo-100 text-indigo-700 w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ml-auto">{cart.length}</span>
+                  <span className="bg-indigo-100 text-indigo-700 w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ml-auto">{checkoutCart.length}</span>
                 </h3>
               </div>
 
               {/* Items List */}
               <div className="px-5 xl:px-6 py-3 overflow-y-auto custom-scrollbar flex-1 space-y-4 max-h-[30vh] xl:max-h-none">
-                {cart.map(item => {
+                {checkoutCart.map(item => {
                   const availableStock = stockInfo[item.id];
                   const isLowStock = availableStock !== undefined && availableStock < item.quantity * 2;
                   const isOutOfStock = availableStock !== undefined && availableStock < item.quantity;

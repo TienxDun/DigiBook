@@ -213,8 +213,10 @@ const CartSidebar: React.FC = () => {
     if (!user) {
       setShowLoginModal(true);
     } else {
+      const selectedItemIds = selectedItems.map(item => item.id);
+      sessionStorage.setItem('checkout_selected_item_ids', JSON.stringify(selectedItemIds));
       onClose();
-      navigate('/checkout');
+      navigate('/checkout', { state: { selectedItemIds } });
     }
   };
 
