@@ -113,8 +113,24 @@ export const ordersApi = {
   /**
    * Get orders by user ID
    */
-  async getByUserId(userId: string): Promise<Order[] | null> {
+  async getByUserId(userId: string, options?: FetchOrdersOptions): Promise<Order[] | null> {
     try {
+      if (options?.force) {
+        const response = await apiClient.get<ApiResponse<Order[]>>(`/api/orders/user/${userId}`, {
+          params: {
+            force: true,
+            _ts: Date.now(),
+          },
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            Pragma: 'no-cache',
+            Expires: '0',
+          },
+        });
+
+        return response.data.data || null;
+      }
+
       const { data } = await cache.swr<Order[] | null>(
         `orders:user:${userId}`,
         async () => {

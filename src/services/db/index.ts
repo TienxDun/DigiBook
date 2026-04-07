@@ -196,7 +196,7 @@ class DataService {
   // Orders
   createOrder = ordersApi.create;
   getAllOrders = ordersApi.getAll;
-  getOrdersByUserId = ordersApi.getByUserId;
+  getOrdersByUserId = (userId: string, options?: { force?: boolean }) => ordersApi.getByUserId(userId, options);
   getOrderWithItems = ordersApi.getById;
   updateOrderStatus = ordersApi.updateStatus;
   deleteOrder = ordersApi.cancel;

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/features/auth';
@@ -32,32 +32,66 @@ const MyOrdersPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [orderItemsCounts, setOrderItemsCounts] = useState<Record<string, number>>({});
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      if (user) {
-        setLoading(true);
-        try {
-          const userOrders = await db.getOrdersByUserId(user.id);
-          // Sort by date descending
-          userOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-          setOrders(userOrders);
+  const fetchOrders = useCallback(async () => {
+    if (!user) return;
 
-          const counts: Record<string, number> = {};
-          for (const order of userOrders) {
-            const detail = await db.getOrderWithItems(order.id);
-            counts[order.id] = detail?.items?.length || 0;
-          }
-          setOrderItemsCounts(counts);
-        } catch (error) {
-          console.error("Error fetching orders:", error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
+    setLoading(true);
+    try {
+      const userOrders = (await db.getOrdersByUserId(user.id, { force: true })) || [];
+      // Sort by date descending
+      userOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setOrders(userOrders);
+
+      const details = await Promise.all(
+        userOrders.map(order => db.getOrderWithItems(order.id, { force: true }))
+      );
+
+      const counts: Record<string, number> = {};
+      userOrders.forEach((order, index) => {
+        counts[order.id] = details[index]?.items?.length || 0;
+      });
+      setOrderItemsCounts(counts);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
     fetchOrders();
     window.scrollTo(0, 0);
-  }, [user]);
+  }, [fetchOrders]);
+
+  useEffect(() => {
+    const handleStatusSync = () => {
+      void fetchOrders();
+    };
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === 'digibook:order-status-updated') {
+        void fetchOrders();
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void fetchOrders();
+      }
+    };
+
+    window.addEventListener('digibook:order-status-updated', handleStatusSync as EventListener);
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('focus', handleStatusSync);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('digibook:order-status-updated', handleStatusSync as EventListener);
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('focus', handleStatusSync);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [fetchOrders]);
 
   const filteredOrders = useMemo(() => {
     return orders.filter(order => {

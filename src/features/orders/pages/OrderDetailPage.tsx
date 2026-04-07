@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { db } from '@/services/db';
@@ -18,18 +18,49 @@ const OrderDetailPage: React.FC = () => {
   const [orderWithItems, setOrderWithItems] = useState<(Order & { items: OrderItem[] }) | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchDetail = useCallback(async () => {
+    if (orderId) {
+      setLoading(true);
+      const detail = await db.getOrderWithItems(orderId, { force: true });
+      setOrderWithItems(detail as any);
+      setLoading(false);
+    }
+  }, [orderId]);
+
   useEffect(() => {
-    const fetchDetail = async () => {
-      if (orderId) {
-        setLoading(true);
-        const detail = await db.getOrderWithItems(orderId);
-        setOrderWithItems(detail as any);
-        setLoading(false);
+    void fetchDetail();
+    window.scrollTo(0, 0);
+  }, [fetchDetail]);
+
+  useEffect(() => {
+    const handleStatusSync = () => {
+      void fetchDetail();
+    };
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === 'digibook:order-status-updated') {
+        void fetchDetail();
       }
     };
-    fetchDetail();
-    window.scrollTo(0, 0);
-  }, [orderId]);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void fetchDetail();
+      }
+    };
+
+    window.addEventListener('digibook:order-status-updated', handleStatusSync as EventListener);
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('focus', handleStatusSync);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('digibook:order-status-updated', handleStatusSync as EventListener);
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('focus', handleStatusSync);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [fetchDetail]);
 
   const progressSteps = ORDER_PROGRESS_STEPS.map(stepId => {
     const meta = getOrderStatusMeta(stepId);

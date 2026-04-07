@@ -409,6 +409,10 @@ const CheckoutPage: React.FC = () => {
 
       // Nếu Backend đã trả về checkoutUrl (do Facade xử lý), sử dụng luôn
       if (order?.payment?.checkoutUrl && paymentMethod === 'payos') {
+        const pendingOrderCode = order.payment?.transactionId || Date.now().toString();
+        sessionStorage.setItem('pending_order_id', order.id);
+        sessionStorage.setItem('pending_order_code', pendingOrderCode);
+
         const provider = PaymentProviderFactory.createProvider('payos');
         provider.open(order.payment.checkoutUrl);
         

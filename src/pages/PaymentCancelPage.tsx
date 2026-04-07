@@ -8,26 +8,43 @@ import toast from '@/shared/utils/toast';
 export default function PaymentCancelPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const orderId = searchParams.get('orderId');
   const { addToCart } = useCart();
+  const [resolvedOrderId, setResolvedOrderId] = useState<string | null>(null);
   
   const [status, setStatus] = useState<'processing' | 'restored' | 'error'>('processing');
   const processedRef = useRef(false);
 
   useEffect(() => {
+    const globalSearch = new URLSearchParams(window.location.search);
+    const routeOrderId = searchParams.get('orderId');
+    const globalOrderId = globalSearch.get('orderId');
+    const sessionOrderId = sessionStorage.getItem('pending_order_id');
+
+    const orderId = routeOrderId || globalOrderId || sessionOrderId;
+    setResolvedOrderId(orderId);
+  }, [searchParams]);
+
+  useEffect(() => {
     const handleCancellation = async () => {
-      if (!orderId || processedRef.current) return;
+      if (processedRef.current) return;
       processedRef.current = true;
 
+      if (!resolvedOrderId) {
+        console.error('[DEBUG] No orderId found for cancellation flow');
+        setStatus('error');
+        toast.error('Không tìm thấy đơn hàng cần hủy. Vui lòng kiểm tra lại trong mục đơn hàng');
+        return;
+      }
+
       try {
-        console.log('[DEBUG] Starting cancellation flow for order:', orderId);
+        console.log('[DEBUG] Starting cancellation flow for order:', resolvedOrderId);
         // 1. Fetch order details to get items for restoration
-        const order = await db.getOrderWithItems(orderId);
+        const order = await db.getOrderWithItems(resolvedOrderId);
         console.log('[DEBUG] Fetched order:', order);
 
         // 2. Update order status to 'Đã hủy' (statusStep: 4)
-        console.log('[DEBUG] Attempting to update order status to cancelled:', orderId);
-        await db.updateOrderStatus(orderId, 'Đã hủy', 4);
+        console.log('[DEBUG] Attempting to update order status to cancelled:', resolvedOrderId);
+        await db.updateOrderStatus(resolvedOrderId, 'Đã hủy', 4);
         console.log('[DEBUG] Order status updated successfully');
 
         // 3. Restore items to cart (Secondary priority, but good for UX)
@@ -45,6 +62,9 @@ export default function PaymentCancelPage() {
           toast.success('Đã khôi phục giỏ hàng của bạn');
         }
 
+        sessionStorage.removeItem('pending_order_id');
+        sessionStorage.removeItem('pending_order_code');
+
         setStatus('restored');
       } catch (error) {
         console.error('[DEBUG] Error during cancellation:', error);
@@ -53,7 +73,7 @@ export default function PaymentCancelPage() {
     };
 
     handleCancellation();
-  }, [orderId, addToCart]);
+  }, [resolvedOrderId, addToCart]);
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans selection:bg-indigo-100">

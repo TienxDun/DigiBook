@@ -117,6 +117,15 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshOrdersDeps, th
     setUpdatingOrderStatus(true);
     try {
       await adminService.updateOrderStatus(orderId, newStatusLabel, newStatusStep);
+
+      const syncPayload = {
+        orderId,
+        status: newStatusLabel,
+        statusStep: newStatusStep,
+        at: Date.now(),
+      };
+      window.dispatchEvent(new CustomEvent('digibook:order-status-updated', { detail: syncPayload }));
+      localStorage.setItem('digibook:order-status-updated', JSON.stringify(syncPayload));
       
       // Update local optimistic state to show changes immediately without waiting for API
       setOptimisticStatus(prev => ({

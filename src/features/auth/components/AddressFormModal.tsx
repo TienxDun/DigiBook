@@ -29,6 +29,7 @@ export const AddressFormModal: React.FC<AddressFormModalProps> = ({
 
     const [coordinates, setCoordinates] = useState<{ lat: number, lon: number } | null>(null);
     const [loading, setLoading] = useState(false);
+    const [locating, setLocating] = useState(false);
 
     useEffect(() => {
         if (initialData) {
@@ -65,6 +66,55 @@ export const AddressFormModal: React.FC<AddressFormModalProps> = ({
         const details = await mapService.getAddressDetails(lat, lon);
         if (details && details.display_name) {
             setFormData(prev => ({ ...prev, fullAddress: details.display_name }));
+        }
+    };
+
+    const getCurrentPosition = () => {
+        return new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 0
+            });
+        });
+    };
+
+    const handleUseCurrentLocation = async () => {
+        if (!navigator.geolocation) {
+            toast.error('Thiết bị hoặc trình duyệt của bạn không hỗ trợ định vị');
+            return;
+        }
+
+        setLocating(true);
+        try {
+            const position = await getCurrentPosition();
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            setCoordinates({ lat, lon });
+
+            const details = await mapService.getAddressDetails(lat, lon);
+            if (details?.display_name) {
+                setFormData(prev => ({ ...prev, fullAddress: details.display_name }));
+                toast.success('Đã lấy địa chỉ từ vị trí hiện tại');
+            } else {
+                toast.error('Không thể chuyển tọa độ thành địa chỉ. Bạn có thể kéo pin trên bản đồ để chọn lại');
+            }
+        } catch (error) {
+            if (error && typeof error === 'object' && 'code' in error) {
+                const geoError = error as GeolocationPositionError;
+                if (geoError.code === geoError.PERMISSION_DENIED) {
+                    toast.error('Bạn đã từ chối quyền vị trí. Hãy bật quyền định vị để dùng tính năng này');
+                } else if (geoError.code === geoError.TIMEOUT) {
+                    toast.error('Lấy vị trí quá lâu, vui lòng thử lại ở nơi có tín hiệu tốt hơn');
+                } else {
+                    toast.error('Không thể lấy vị trí hiện tại. Vui lòng thử lại');
+                }
+            } else {
+                toast.error('Không thể lấy vị trí hiện tại. Vui lòng thử lại');
+            }
+        } finally {
+            setLocating(false);
         }
     };
 
@@ -111,7 +161,7 @@ export const AddressFormModal: React.FC<AddressFormModalProps> = ({
                             <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">
                                 {initialData ? 'Cập nhật địa chỉ' : 'Thêm địa chỉ mới'}
                             </h2>
-                            <button onClick={onClose} className="w-10 h-10 rounded-full bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-500 flex items-center justify-center transition-all">
+                            <button aria-label="Đóng" onClick={onClose} className="w-10 h-10 rounded-full bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-500 flex items-center justify-center transition-all">
                                 <i className="fa-solid fa-xmark"></i>
                             </button>
                         </div>
@@ -161,6 +211,18 @@ export const AddressFormModal: React.FC<AddressFormModalProps> = ({
                                             placeholder="Tìm kiếm địa chỉ hoặc nhập thủ công..."
                                             className="pl-10 !py-3"
                                         />
+                                    </div>
+
+                                    <div className="flex justify-start">
+                                        <button
+                                            type="button"
+                                            onClick={handleUseCurrentLocation}
+                                            disabled={locating}
+                                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-all text-xs font-black uppercase tracking-wider disabled:opacity-60"
+                                        >
+                                            <i className={`fa-solid ${locating ? 'fa-spinner fa-spin' : 'fa-location-crosshairs'}`}></i>
+                                            {locating ? 'Đang lấy vị trí...' : 'Dùng vị trí hiện tại'}
+                                        </button>
                                     </div>
 
                                     {/* Map Integration */}

@@ -11,14 +11,17 @@ export default function PaymentCallbackPage() {
   useEffect(() => {
     const verifyPayment = async () => {
       try {
+        const globalSearch = new URLSearchParams(window.location.search);
         const orderCode = searchParams.get('orderCode');
         const code = searchParams.get('code');
         const id = searchParams.get('id');
         const cancel = searchParams.get('cancel');
         const statusParam = searchParams.get('status');
 
-        // Lấy orderId từ sessionStorage
-        const orderId = sessionStorage.getItem('pending_order_id');
+        const orderId =
+          searchParams.get('orderId') ||
+          globalSearch.get('orderId') ||
+          sessionStorage.getItem('pending_order_id');
         
         if (!orderId) {
           setStatus('failed');

@@ -44,10 +44,10 @@ export const adminService = {
   deleteCoupon: async (couponId: string) => db.deleteCoupon(couponId),
 
   getOrders: async (options?: AdminFetchOptions): Promise<Order[]> => {
-    const orders = await db.getAllOrders({ force: true, ...options });
+    const orders = await db.getAllOrders({ ...options, force: true });
     return orders || [];
   },
-  getOrderById: async (orderId: string, options?: AdminFetchOptions) => db.getOrderWithItems(orderId, { force: true, ...options }),
+  getOrderById: async (orderId: string, options?: AdminFetchOptions) => db.getOrderWithItems(orderId, { ...options, force: true }),
   updateOrderStatus: async (orderId: string, status: string, step: number) => db.updateOrderStatus(orderId, status, step),
 
   getUsers: async (options?: AdminFetchOptions): Promise<UserProfile[]> => db.getAllUsers({ force: true, ...options }),

@@ -15,13 +15,21 @@ export class PayOSProvider implements IPaymentProvider {
 
   async createPayment(orderData: OrderData): Promise<string> {
     try {
+      const returnUrl = new URL(`${window.location.origin}/DigiBook/#/payment-callback`);
+      returnUrl.searchParams.set('orderId', orderData.orderId);
+      returnUrl.searchParams.set('orderCode', orderData.orderCode);
+
+      const cancelUrl = new URL(`${window.location.origin}/DigiBook/#/payment-cancel`);
+      cancelUrl.searchParams.set('orderId', orderData.orderId);
+      cancelUrl.searchParams.set('orderCode', orderData.orderCode);
+
       const requestData: CreatePaymentRequest = {
         orderId: orderData.orderId,
         orderCode: orderData.orderCode,
         amount: orderData.amount,
         description: orderData.description,
-        returnUrl: `${window.location.origin}/DigiBook/#/payment-callback`,
-        cancelUrl: `${window.location.origin}/DigiBook/#/payment-cancel`,
+        returnUrl: returnUrl.toString(),
+        cancelUrl: cancelUrl.toString(),
         customer: orderData.customer,
         items: orderData.items,
       };
