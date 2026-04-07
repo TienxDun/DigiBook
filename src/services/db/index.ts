@@ -199,6 +199,7 @@ class DataService {
   getOrdersByUserId = ordersApi.getByUserId;
   getOrderWithItems = ordersApi.getById;
   updateOrderStatus = ordersApi.updateStatus;
+  deleteOrder = ordersApi.cancel;
   checkIfUserPurchasedBook = ordersApi.hasPurchasedBook;
 
   // Carts

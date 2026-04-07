@@ -181,11 +181,9 @@ export const ordersApi = {
   /**
    * Cancel order
    */
-  async cancel(orderId: string, reason: string): Promise<boolean> {
+  async cancel(orderId: string): Promise<boolean> {
     try {
-      const response = await apiClient.delete<ApiResponse<any>>(`/api/orders/${orderId}`, {
-        data: { reason }
-      });
+      const response = await apiClient.delete<ApiResponse<any>>(`/api/orders/${orderId}`);
       cache.clear(ORDERS_TAG);
       return response.data.success;
     } catch (error) {
