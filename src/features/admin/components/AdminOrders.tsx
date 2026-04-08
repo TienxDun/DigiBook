@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { canTransitionTo } from '@/services/orders/orderStateValidator';
 import { createPortal } from 'react-dom';
 import toast from '@/shared/utils/toast';
 import { Order, OrderItem } from '@/shared/types';
@@ -111,6 +112,17 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshOrdersDeps, th
 
   const handleUpdateOrderStatus = async (orderId: string, newStatusStep: number) => {
     const newStatusLabel = orderStatusOptions.find(opt => opt.step === newStatusStep)?.label || 'Đang xử lý';
+
+    // 1. Get current status of the order to check transition rules
+    const targetOrder = orders.find(o => o.id === orderId);
+    if (!targetOrder) return;
+
+    // 2. Validate transition before doing anything
+    const validation = canTransitionTo(targetOrder.status, newStatusLabel);
+    if (!validation.success) {
+      toast.error(validation.message || 'Chuyển trạng thái không hợp lệ');
+      return;
+    }
 
     if (!window.confirm(`Cập nhật trạng thái đơn hàng thành "${newStatusLabel}"?`)) return;
 
