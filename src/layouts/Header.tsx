@@ -484,6 +484,7 @@ const Header: React.FC<HeaderProps> = ({
           ) : (
             <button
               onClick={() => setShowLoginModal(true)}
+              data-testid="login-button"
               className="group relative w-10 h-10 sm:w-auto sm:px-6 sm:py-3 bg-foreground text-primary-foreground rounded-xl sm:rounded-2xl text-[9px] sm:text-micro font-bold uppercase tracking-premium hover:bg-primary transition-all shadow-xl shadow-foreground/10 overflow-hidden flex items-center justify-center"
             >
               <span className="relative z-10 whitespace-nowrap hidden sm:inline">Đăng nhập</span>
