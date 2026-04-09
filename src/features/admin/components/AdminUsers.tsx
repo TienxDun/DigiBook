@@ -8,13 +8,14 @@ import { useAdminPagination } from '../hooks/useAdminPagination';
 import { useAdminSelection } from '../hooks/useAdminSelection';
 import { getEntityTimestamp } from '../utils/date';
 
+import { useAdminUsers } from '../hooks/useAdminUsers';
+
 interface AdminUsersProps {
-  users: User[];
-  refreshUsersData: () => Promise<void>;
   theme?: 'light' | 'midnight';
 }
 
-const AdminUsers: React.FC<AdminUsersProps> = ({ users, refreshUsersData, theme = 'light' }) => {
+const AdminUsers: React.FC<AdminUsersProps> = ({ theme = 'light' }) => {
+  const { users, refresh: refreshUsersData, isLoading } = useAdminUsers(true);
   const isMidnight = theme === 'midnight';
   const [userRoleFilter, setUserRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
   const [userStatusFilter, setUserStatusFilter] = useState<'all' | 'active' | 'banned'>('all');

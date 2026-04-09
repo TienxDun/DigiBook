@@ -13,14 +13,14 @@ const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return createPortal(children, document.body);
 };
 
+import { useAdminCategories } from '../hooks/useAdminCategories';
+
 interface AdminCategoriesProps {
-  categories: CategoryInfo[];
-  setCategories: React.Dispatch<React.SetStateAction<CategoryInfo[]>>;
-  refreshCategoriesDeps: () => Promise<void>;
   theme?: 'light' | 'midnight';
 }
 
-const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, setCategories, refreshCategoriesDeps, theme = 'light' }) => {
+const AdminCategories: React.FC<AdminCategoriesProps> = ({ theme = 'light' }) => {
+  const { categories, setData: setCategories, refresh: refreshCategoriesDeps, isLoading } = useAdminCategories(true);
   const isMidnight = theme === 'midnight';
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<CategoryInfo | null>(null);

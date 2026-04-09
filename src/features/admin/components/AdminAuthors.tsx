@@ -13,13 +13,14 @@ const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return createPortal(children, document.body);
 };
 
+import { useAdminAuthors } from '../hooks/useAdminAuthors';
+
 interface AdminAuthorsProps {
-  authors: Author[];
-  refreshAuthorsDeps: () => Promise<void>;
   theme?: 'light' | 'midnight';
 }
 
-const AdminAuthors: React.FC<AdminAuthorsProps> = ({ authors, refreshAuthorsDeps, theme = 'light' }) => {
+const AdminAuthors: React.FC<AdminAuthorsProps> = ({ theme = 'light' }) => {
+  const { authors, refresh: refreshAuthorsDeps, isLoading } = useAdminAuthors(true);
   const isMidnight = theme === 'midnight';
   const [isAuthorModalOpen, setIsAuthorModalOpen] = useState(false);
   const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);

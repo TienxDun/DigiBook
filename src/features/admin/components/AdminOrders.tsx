@@ -11,6 +11,7 @@ import { adminService } from '../services/admin.service';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { useAdminPagination } from '../hooks/useAdminPagination';
 import { getEntityTimestamp } from '../utils/date';
+import { useAdminOrders } from '../hooks/useAdminOrders';
 
 // Portal component for rendering modals outside DOM structure
 const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -18,14 +19,13 @@ const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 interface AdminOrdersProps {
-  orders: Order[];
-  refreshOrdersDeps: () => Promise<void>;
   theme?: 'light' | 'midnight';
 }
 
-const formatPrice = (price?: number) => {
-  if (price === undefined || price === null || isNaN(price)) return '0 ₫';
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+const formatPrice = (price?: number | string) => {
+  const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+  if (numericPrice === undefined || numericPrice === null || isNaN(numericPrice)) return '0 ₫';
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(numericPrice);
 };
 
 const formatOrderTime = (createdAt: any, fallbackDate?: string): { date: string } => {
@@ -53,7 +53,8 @@ const formatOrderTime = (createdAt: any, fallbackDate?: string): { date: string 
 
 const orderStatusOptions = ORDER_STATUS_OPTIONS;
 
-const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, refreshOrdersDeps, theme = 'light' }) => {
+const AdminOrders: React.FC<AdminOrdersProps> = ({ theme = 'light' }) => {
+  const { orders, refresh: refreshOrdersDeps, isLoading } = useAdminOrders(true);
   const isMidnight = theme === 'midnight';
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<(Order & { items: OrderItem[] }) | null>(null);

@@ -59,4 +59,5 @@ export const adminService = {
   getRecentLogs: async (limit: number, options?: AdminFetchOptions): Promise<SystemLog[]> => db.getSystemLogs(0, limit, { force: true, ...options }),
 
   syncAllUsersMembership: async () => adminApi.syncAllUsersMembership(),
+  getDashboardSummary: async () => adminApi.getSummary(),
 };

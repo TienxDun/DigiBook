@@ -9,4 +9,8 @@ export const adminApi = {
     const response = await apiClient.post('/api/admin/membership/sync-all');
     return response.data;
   },
+  getSummary: async () => {
+    const response = await apiClient.get('/api/admin/summary');
+    return response.data;
+  },
 };

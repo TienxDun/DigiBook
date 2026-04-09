@@ -13,13 +13,14 @@ const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return createPortal(children, document.body);
 };
 
+import { useAdminCoupons } from '../hooks/useAdminCoupons';
+
 interface AdminCouponsProps {
-  coupons: Coupon[];
-  refreshCouponsDeps: () => Promise<void>;
   theme?: 'light' | 'midnight';
 }
 
-const AdminCoupons: React.FC<AdminCouponsProps> = ({ coupons, refreshCouponsDeps, theme = 'light' }) => {
+const AdminCoupons: React.FC<AdminCouponsProps> = ({ theme = 'light' }) => {
+  const { coupons, refresh: refreshCouponsDeps, isLoading } = useAdminCoupons(true);
   const isMidnight = theme === 'midnight';
   const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);

@@ -1,20 +1,11 @@
-import React, { Suspense, useCallback, useMemo, useState } from 'react';
+import React, { Suspense, useCallback, useState } from 'react';
 import { AdminLayout } from '@/layouts';
 import toast from '@/shared/utils/toast';
 import { ADMIN_MENU_GROUPS } from '../constants';
 import { useAdminTheme } from '../hooks/useAdminTheme';
 import { AdminChartView, AdminTabId } from '../types';
-import { buildAdminOverviewStats } from '../utils/overview';
 import { confirmAdminAction } from '../utils/actions';
 import { adminService } from '../services/admin.service';
-import { useAdminBooks } from '../hooks/useAdminBooks';
-import { useAdminOrders } from '../hooks/useAdminOrders';
-import { useAdminAuthors } from '../hooks/useAdminAuthors';
-import { useAdminCategories } from '../hooks/useAdminCategories';
-import { useAdminCoupons } from '../hooks/useAdminCoupons';
-import { useAdminUsers } from '../hooks/useAdminUsers';
-import { useAdminLogs } from '../hooks/useAdminLogs';
-import { createAdminRefreshCoordinator } from '../utils/refresh';
 import AdminSidebar from '../sections/AdminSidebar';
 import AdminHeader from '../sections/AdminHeader';
 import AdminOverview from '../sections/AdminOverview';
@@ -33,45 +24,10 @@ const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AdminTabId>('overview');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [chartView, setChartView] = useState<AdminChartView>('week');
   const [isSyncing, setIsSyncing] = useState(false);
 
   const { theme, toggleTheme } = useAdminTheme();
-
-  const shouldLoadOverview = activeTab === 'overview' || activeTab === 'analytics';
-  const booksState = useAdminBooks(shouldLoadOverview || activeTab === 'books');
-  const ordersState = useAdminOrders(shouldLoadOverview || activeTab === 'orders');
-  const authorsState = useAdminAuthors(shouldLoadOverview || activeTab === 'books' || activeTab === 'authors');
-  const categoriesState = useAdminCategories(shouldLoadOverview || activeTab === 'books' || activeTab === 'categories');
-  const couponsState = useAdminCoupons(shouldLoadOverview || activeTab === 'coupons');
-  const usersState = useAdminUsers(activeTab === 'users');
-  const overviewLogsState = useAdminLogs(activeTab === 'overview', 5);
-  const logsState = useAdminLogs(activeTab === 'logs', 50);
-
-  const refreshCoordinator = useMemo(
-    () =>
-      createAdminRefreshCoordinator({
-        books: booksState.refresh,
-        authors: authorsState.refresh,
-        categories: categoriesState.refresh,
-        coupons: couponsState.refresh,
-        orders: ordersState.refresh,
-        users: usersState.refresh,
-        overviewLogs: overviewLogsState.refresh,
-        logs: logsState.refresh,
-      }),
-    [
-      authorsState.refresh,
-      booksState.refresh,
-      categoriesState.refresh,
-      couponsState.refresh,
-      logsState.refresh,
-      ordersState.refresh,
-      overviewLogsState.refresh,
-      usersState.refresh,
-    ],
-  );
-
+  
   const handleSelectTab = (tabId: AdminTabId) => {
     setActiveTab(tabId);
     setIsMobileMenuOpen(false);
@@ -88,7 +44,7 @@ const AdminDashboard: React.FC = () => {
       const result = await adminService.syncAllUsersMembership();
       if (result.success) {
         toast.success(`Đã đồng bộ thành công cho ${result.updatedCount} người dùng!`);
-        await Promise.all([refreshCoordinator.refreshOverviewData(), refreshCoordinator.refreshUsersData()]);
+        window.location.reload();
       } else {
         toast.error(result.message || 'Có lỗi xảy ra khi đồng bộ.');
       }
@@ -97,26 +53,7 @@ const AdminDashboard: React.FC = () => {
     } finally {
       setIsSyncing(false);
     }
-  }, [isSyncing, refreshCoordinator]);
-
-  const overviewStats = useMemo(
-    () => buildAdminOverviewStats({
-      orders: ordersState.orders,
-      books: booksState.books,
-      categories: categoriesState.categories,
-      authors: authorsState.authors,
-      coupons: couponsState.coupons,
-      chartView,
-    }),
-    [
-      authorsState.authors,
-      booksState.books,
-      categoriesState.categories,
-      chartView,
-      couponsState.coupons,
-      ordersState.orders,
-    ],
-  );
+  }, [isSyncing]);
 
   const renderActiveModule = () => {
     switch (activeTab) {
@@ -124,51 +61,25 @@ const AdminDashboard: React.FC = () => {
         return (
           <AdminOverview
             adminTheme={theme}
-            chartView={chartView}
-            stats={overviewStats}
             isSyncing={isSyncing}
-            onChangeChartView={setChartView}
             onSelectTab={handleSelectTab}
             onSyncRanking={handleSyncRanking}
           />
         );
       case 'books':
-        return (
-          <AdminBooks
-            theme={theme}
-            books={booksState.books}
-            authors={authorsState.authors}
-            categories={categoriesState.categories}
-            refreshBooksDeps={refreshCoordinator.refreshBooksDeps}
-          />
-        );
+        return <AdminBooks theme={theme} />;
       case 'authors':
-        return <AdminAuthors theme={theme} authors={authorsState.authors} refreshAuthorsDeps={refreshCoordinator.refreshAuthorsDeps} />;
+        return <AdminAuthors theme={theme} />;
       case 'categories':
-        return (
-          <AdminCategories
-            theme={theme}
-            categories={categoriesState.categories}
-            setCategories={categoriesState.setData}
-            refreshCategoriesDeps={refreshCoordinator.refreshCategoriesDeps}
-          />
-        );
+        return <AdminCategories theme={theme} />;
       case 'coupons':
-        return <AdminCoupons theme={theme} coupons={couponsState.coupons} refreshCouponsDeps={refreshCoordinator.refreshCouponsDeps} />;
+        return <AdminCoupons theme={theme} />;
       case 'orders':
-        return <AdminOrders theme={theme} orders={ordersState.orders} refreshOrdersDeps={refreshCoordinator.refreshOrdersDeps} />;
+        return <AdminOrders theme={theme} />;
       case 'users':
-        return <AdminUsers theme={theme} users={usersState.users} refreshUsersData={refreshCoordinator.refreshUsersData} />;
+        return <AdminUsers theme={theme} />;
       case 'logs':
-        return (
-          <AdminLogs
-            theme={theme}
-            logs={logsState.logs}
-            hasMoreLogs={logsState.hasMore}
-            onLoadMore={logsState.loadMore}
-            isLoadingMoreLogs={logsState.isLoadingMore}
-          />
-        );
+        return <AdminLogs theme={theme} />;
       case 'analytics':
         return <AdminAnalytics />;
       case 'inspector':

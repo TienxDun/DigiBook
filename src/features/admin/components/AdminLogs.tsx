@@ -2,15 +2,14 @@ import React, { useState, useMemo } from 'react';
 import { SystemLog } from '@/shared/types';
 import { Pagination } from '@/shared/components';
 
+import { useAdminLogs } from '../hooks/useAdminLogs';
+
 interface AdminLogsProps {
-  logs: SystemLog[];
-  hasMoreLogs: boolean;
-  onLoadMore: () => void;
-  isLoadingMoreLogs: boolean;
   theme?: 'light' | 'midnight';
 }
 
-const AdminLogs: React.FC<AdminLogsProps> = ({ logs, hasMoreLogs, onLoadMore, isLoadingMoreLogs, theme = 'light' }) => {
+const AdminLogs: React.FC<AdminLogsProps> = ({ theme = 'light' }) => {
+  const { logs, hasMore: hasMoreLogs, loadMore: onLoadMore, isLoadingMore: isLoadingMoreLogs } = useAdminLogs(true, 50, 50);
   const isMidnight = theme === 'midnight';
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');

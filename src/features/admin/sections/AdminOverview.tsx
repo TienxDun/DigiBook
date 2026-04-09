@@ -5,26 +5,46 @@ import { formatDateVN } from '../utils/date';
 import { formatAdminPrice } from '../utils/formatters';
 import { getRecentOrderStatusMeta } from '../utils/overview';
 
+import { adminService } from '../services/admin.service';
+import { ErrorHandler } from '@/services/errorHandler';
+
 interface AdminOverviewProps {
   adminTheme: AdminTheme;
-  chartView: AdminChartView;
-  stats: AdminOverviewStats;
-  isSyncing: boolean;
-  onChangeChartView: (view: AdminChartView) => void;
   onSelectTab: (tabId: AdminTabId) => void;
   onSyncRanking: () => Promise<void>;
+  isSyncing: boolean;
 }
 
 const AdminOverview: React.FC<AdminOverviewProps> = ({
   adminTheme,
-  chartView,
-  stats,
-  isSyncing,
-  onChangeChartView,
   onSelectTab,
   onSyncRanking,
+  isSyncing,
 }) => {
+  const [stats, setStats] = useState<AdminOverviewStats | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [chartView, setChartView] = useState<AdminChartView>('week');
   const isMidnight = adminTheme === 'midnight';
+
+  useEffect(() => {
+    const fetchSummary = async () => {
+      try {
+        setIsLoading(true);
+        const response = await adminService.getDashboardSummary();
+        // The API returns { success: true, data: { ... } }
+        setStats(response.data || null);
+      } catch (error) {
+        ErrorHandler.handle(error, 'tải thông tin tổng quan');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSummary();
+  }, []);
+
+  const onChangeChartView = (view: AdminChartView) => {
+    setChartView(view);
+  };
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [isChartReady, setIsChartReady] = useState(false);
 
@@ -43,14 +63,23 @@ const AdminOverview: React.FC<AdminOverviewProps> = ({
     return () => resizeObserver.disconnect();
   }, []);
 
+  if (isLoading || !stats) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-sm font-black uppercase tracking-widest text-muted-foreground animate-pulse">Đang tải dữ liệu tổng quan...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 lg:space-y-10 animate-fadeIn">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
         {[
-          { label: 'Doanh thu', value: formatAdminPrice(stats.totalRevenue), icon: 'fa-sack-dollar', bgColor: 'bg-chart-1/10', iconColor: 'text-chart-1', sub: 'Tổng doanh thu', growth: 'VNĐ' },
-          { label: 'Đơn hàng', value: stats.totalOrders, icon: 'fa-cart-shopping', bgColor: 'bg-primary/10', iconColor: 'text-primary', sub: `${stats.todayOrders} đơn hôm nay`, growth: 'Orders' },
-          { label: 'Sách tồn', value: stats.totalBooks, icon: 'fa-book-open-reader', bgColor: 'bg-chart-2/10', iconColor: 'text-chart-2', sub: `${stats.outOfStock} sách hết hàng`, growth: 'Books' },
-          { label: 'Đang vận hành', value: stats.pendingOrders, icon: 'fa-clock', bgColor: 'bg-chart-3/10', iconColor: 'text-chart-3', sub: `${stats.completedOrders} đơn đã giao`, growth: 'Process' },
+          { label: 'Doanh thu', value: formatAdminPrice(stats.totalRevenue || 0), icon: 'fa-sack-dollar', bgColor: 'bg-chart-1/10', iconColor: 'text-chart-1', sub: 'Tổng doanh thu', growth: 'VNĐ' },
+          { label: 'Đơn hàng', value: stats.totalOrders || 0, icon: 'fa-cart-shopping', bgColor: 'bg-primary/10', iconColor: 'text-primary', sub: `${stats.todayOrders || 0} đơn hôm nay`, growth: 'Orders' },
+          { label: 'Sách tồn', value: stats.totalBooks || 0, icon: 'fa-book-open-reader', bgColor: 'bg-chart-2/10', iconColor: 'text-chart-2', sub: `${stats.outOfStock || 0} sách hết hàng`, growth: 'Books' },
+          { label: 'Đang vận hành', value: stats.pendingOrders || 0, icon: 'fa-clock', bgColor: 'bg-chart-3/10', iconColor: 'text-chart-3', sub: `${stats.completedOrders || 0} đơn đã giao`, growth: 'Process' },
         ].map((stat) => (
           <div
             key={stat.label}
@@ -98,7 +127,7 @@ const AdminOverview: React.FC<AdminOverviewProps> = ({
           <div ref={chartContainerRef} className="h-80 mt-10 w-full" style={{ width: '100%', height: 320 }}>
             {isChartReady && (
               <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={stats.revenueByDay} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <AreaChart data={stats.revenueByDay || []} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
@@ -130,9 +159,9 @@ const AdminOverview: React.FC<AdminOverviewProps> = ({
             </div>
             <div className="space-y-5">
               {[
-                { label: 'Tác giả', value: stats.totalAuthors, icon: 'fa-pen-nib' },
-                { label: 'Danh mục', value: stats.totalCategories, icon: 'fa-shapes' },
-                { label: 'Mã KM', value: stats.totalCoupons, icon: 'fa-ticket' },
+                { label: 'Tác giả', value: stats.totalAuthors || 0, icon: 'fa-pen-nib' },
+                { label: 'Danh mục', value: stats.totalCategories || 0, icon: 'fa-shapes' },
+                { label: 'Mã KM', value: stats.totalCoupons || 0, icon: 'fa-ticket' },
               ].map((item) => (
                 <div key={item.label} className={`flex items-center justify-between p-4 rounded-2xl border group transition-all duration-300 ${isMidnight ? 'bg-slate-800/40 border-white/5 hover:bg-slate-800 hover:border-primary/40' : 'bg-muted border-border hover:bg-card hover:shadow-xl hover:shadow-slate-100 hover:border-transparent'}`}>
                   <div className="flex items-center gap-4">
@@ -192,8 +221,8 @@ const AdminOverview: React.FC<AdminOverviewProps> = ({
             <button onClick={() => onSelectTab('orders')} className="text-xs font-black uppercase tracking-premium text-primary hover:text-primary/80 transition-colors">Xem tất cả</button>
           </div>
           <div className="space-y-4">
-            {stats.recentOrders.length > 0 ? stats.recentOrders.map((order, index) => {
-              const statusMeta = getRecentOrderStatusMeta(order.statusStep, order.status);
+            {stats.recentOrders?.length > 0 ? stats.recentOrders.map((order, index) => {
+              const statusMeta = getRecentOrderStatusMeta(order.statusStep || 0, order.status || '');
               return (
                 <div key={order.id || `${order.createdAt?.seconds || order.date || 'order'}-${index}`} className={`flex items-center justify-between p-5 rounded-3xl transition-all border ${isMidnight ? 'bg-slate-800/40 border-white/5 hover:bg-slate-800 hover:border-primary/40' : 'bg-muted border-border hover:bg-card hover:shadow-xl hover:shadow-slate-100'}`}>
                   <div className="flex items-center gap-4">
@@ -233,7 +262,7 @@ const AdminOverview: React.FC<AdminOverviewProps> = ({
             <button onClick={() => onSelectTab('books')} className="text-xs font-black uppercase tracking-premium text-primary hover:text-primary/80 transition-colors">Quản lý kho</button>
           </div>
           <div className="space-y-4">
-            {stats.topSellingBooks.length > 0 ? stats.topSellingBooks.map((book, index) => (
+            {stats.topSellingBooks?.length > 0 ? stats.topSellingBooks.map((book, index) => (
               <div key={`${book.id}-${index}`} className={`flex items-center justify-between p-4 rounded-3xl transition-all border ${isMidnight ? 'bg-slate-800/40 border-white/5 hover:bg-slate-800 hover:border-primary/40' : 'bg-muted border-border hover:bg-card hover:shadow-xl hover:shadow-slate-100'}`}>
                 <div className="flex items-center gap-4">
                   <div className="relative">

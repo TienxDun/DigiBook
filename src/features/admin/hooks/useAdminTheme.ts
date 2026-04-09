@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ADMIN_THEME_STORAGE_KEY } from '../constants';
 import { AdminTheme } from '../types';
 
-export const useAdminTheme = (defaultTheme: AdminTheme = 'midnight') => {
+export const useAdminTheme = (defaultTheme: AdminTheme = 'light') => {
   const [theme, setTheme] = useState<AdminTheme>(() => {
     const storedTheme = localStorage.getItem(ADMIN_THEME_STORAGE_KEY);
     return storedTheme === 'light' || storedTheme === 'midnight' ? storedTheme : defaultTheme;

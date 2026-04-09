@@ -10,12 +10,11 @@ import { useAdminPagination } from '../hooks/useAdminPagination';
 import { useAdminSelection } from '../hooks/useAdminSelection';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { normalizeBookForPersistence } from '@/services/api/modules/tikiNormalizer';
+import { useAdminBooks } from '../hooks/useAdminBooks';
+import { useAdminAuthors } from '../hooks/useAdminAuthors';
+import { useAdminCategories } from '../hooks/useAdminCategories';
 
 interface AdminBooksProps {
-  books: Book[];
-  authors: Author[];
-  categories: CategoryInfo[];
-  refreshBooksDeps: () => Promise<void>;
   theme?: 'light' | 'midnight';
 }
 
@@ -23,8 +22,16 @@ const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 };
 
-const AdminBooks: React.FC<AdminBooksProps> = ({ books, authors, categories, refreshBooksDeps, theme = 'light' }) => {
+const AdminBooks: React.FC<AdminBooksProps> = ({ theme = 'light' }) => {
   const isMidnight = theme === 'midnight';
+
+  const { books, refresh: refreshBooks, isLoading: isLoadingBooks } = useAdminBooks(true);
+  const { authors, refresh: refreshAuthors } = useAdminAuthors(true);
+  const { categories, refresh: refreshCategories } = useAdminCategories(true);
+
+  const refreshBooksDeps = async () => {
+    await Promise.all([refreshBooks(), refreshAuthors(), refreshCategories()]);
+  };
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStock, setFilterStock] = useState<'all' | 'low' | 'out'>('all');
